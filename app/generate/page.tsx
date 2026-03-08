@@ -604,37 +604,6 @@ export default function GeneratePage() {
               </div>
             </div>
 
-            {/* 선택된 콘텐츠 카테고리(프로젝트) 표시 */}
-            {selectedProject ? (
-              <div className="flex items-center gap-3 px-4 py-3 bg-pink-50 border border-pink-200 rounded-xl">
-                <div className="w-7 h-7 bg-pink-500 rounded-lg flex items-center justify-center shrink-0">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#FF69B4] font-bold">선택된 콘텐츠 카테고리</p>
-                  <p className="text-[15px] font-semibold text-pink-900 truncate">{selectedProject.name}</p>
-                </div>
-                <Link href="/user-dashboard" className="text-xs text-pink-500 hover:text-pink-700 hover:underline shrink-0">변경</Link>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
-                <div className="w-7 h-7 bg-amber-400 rounded-lg flex items-center justify-center shrink-0">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-amber-600 font-bold">콘텐츠 카테고리 미선택</p>
-                  <p className="text-[13px] text-amber-800">카테고리를 선택하면 맞춤 콘텐츠를 생성할 수 있습니다</p>
-                </div>
-                <Link href="/user-dashboard" className="shrink-0 px-3 py-1.5 bg-amber-500 text-white text-xs font-semibold rounded-lg hover:bg-amber-600 transition-all">
-                  카테고리 선택/추가
-                </Link>
-              </div>
-            )}
-
             {/* 비즈니스 정보 입력 (접이식) */}
             <div className="bg-white rounded-2xl shadow-sm border border-teal-200 overflow-hidden">
               <button
@@ -949,6 +918,37 @@ export default function GeneratePage() {
                 </div>
               )}
             </div>
+
+            {/* 선택된 콘텐츠 카테고리(프로젝트) 표시 */}
+            {selectedProject ? (
+              <div className="flex items-center gap-3 px-4 py-3 bg-pink-50 border border-pink-200 rounded-xl">
+                <div className="w-7 h-7 bg-pink-500 rounded-lg flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-[#FF69B4] font-bold">선택된 콘텐츠 카테고리</p>
+                  <p className="text-[15px] font-semibold text-pink-900 truncate">{selectedProject.name}</p>
+                </div>
+                <Link href="/user-dashboard" className="text-xs text-pink-500 hover:text-pink-700 hover:underline shrink-0">변경</Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <div className="w-7 h-7 bg-amber-400 rounded-lg flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-amber-600 font-bold">콘텐츠 카테고리 미선택</p>
+                  <p className="text-[13px] text-amber-800">카테고리를 선택하면 맞춤 콘텐츠를 생성할 수 있습니다</p>
+                </div>
+                <Link href="/user-dashboard" className="shrink-0 px-3 py-1.5 bg-amber-500 text-white text-xs font-semibold rounded-lg hover:bg-amber-600 transition-all">
+                  카테고리 선택/추가
+                </Link>
+              </div>
+            )}
 
             {/* 카테고리 선택 */}
             <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-5">
