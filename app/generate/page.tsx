@@ -604,6 +604,22 @@ export default function GeneratePage() {
               </div>
             </div>
 
+            {/* 선택된 콘텐츠 카테고리(프로젝트) 표시 */}
+            {selectedProject && (
+              <div className="flex items-center gap-3 px-4 py-3 bg-indigo-50 border border-indigo-200 rounded-xl">
+                <div className="w-7 h-7 bg-indigo-500 rounded-lg flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] text-indigo-500 font-medium">선택된 콘텐츠 카테고리</p>
+                  <p className="text-sm font-semibold text-indigo-800 truncate">{selectedProject.name}</p>
+                </div>
+                <Link href="/user-dashboard" className="text-xs text-indigo-500 hover:text-indigo-700 hover:underline shrink-0">변경</Link>
+              </div>
+            )}
+
             {/* 비즈니스 정보 입력 (접이식) */}
             <div className="bg-white rounded-2xl shadow-sm border border-teal-200 overflow-hidden">
               <button
