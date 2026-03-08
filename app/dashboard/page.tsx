@@ -36,7 +36,7 @@ export default function DashboardPage() {
   const [expandedRevisions, setExpandedRevisions] = useState<Set<string>>(new Set());
   const [showStats, setShowStats] = useState(true);
 
-  // 프로젝트(콘텐츠 카테고리) 필터
+  // 프로젝트 필터
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [activeProject, setActiveProject] = useState<string | null>(null);
   const [projectItems, setProjectItems] = useState<GenItem[]>([]);
@@ -168,10 +168,10 @@ export default function DashboardPage() {
         {/* 필터 버튼 영역 (생성 탭에서만) */}
         {activeTab === 'generation' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
-            {/* 콘텐츠 카테고리(프로젝트) 필터 */}
+            {/* 프로젝트 필터 */}
             {projects.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-gray-500 mb-2">콘텐츠 카테고리</p>
+                <p className="text-xs font-semibold text-gray-500 mb-2">프로젝트</p>
                 <div className="flex flex-wrap gap-2">
                   {projects.map(p => (
                     <button

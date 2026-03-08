@@ -941,7 +941,7 @@ export default function GeneratePage() {
               )}
             </div>
 
-            {/* 선택된 콘텐츠 카테고리(프로젝트) 표시 */}
+            {/* 선택된 프로젝트 표시 */}
             {selectedProject ? (
               <div className="flex items-center gap-3 px-4 py-3 bg-pink-50 border border-pink-200 rounded-xl">
                 <div className="w-7 h-7 bg-pink-500 rounded-lg flex items-center justify-center shrink-0">
@@ -950,7 +950,7 @@ export default function GeneratePage() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#FF69B4] font-bold">선택된 콘텐츠 카테고리</p>
+                  <p className="text-xs text-[#FF69B4] font-bold">선택된 프로젝트</p>
                   <p className="text-[15px] font-semibold text-pink-900 truncate">{selectedProject.name}</p>
                 </div>
                 <Link href="/user-dashboard" className="text-xs text-pink-500 hover:text-pink-700 hover:underline shrink-0">변경</Link>
@@ -963,11 +963,11 @@ export default function GeneratePage() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-amber-600 font-bold">콘텐츠 카테고리 미선택</p>
-                  <p className="text-[13px] text-amber-800">카테고리를 선택하면 맞춤 콘텐츠를 생성할 수 있습니다</p>
+                  <p className="text-xs text-amber-600 font-bold">프로젝트 미선택</p>
+                  <p className="text-[13px] text-amber-800">프로젝트를 선택하면 맞춤 콘텐츠를 생성할 수 있습니다</p>
                 </div>
                 <Link href="/user-dashboard" className="shrink-0 px-3 py-1.5 bg-amber-500 text-white text-xs font-semibold rounded-lg hover:bg-amber-600 transition-all">
-                  카테고리 선택/추가
+                  프로젝트 선택/추가
                 </Link>
               </div>
             )}

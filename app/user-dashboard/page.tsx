@@ -126,7 +126,7 @@ export default function UserDashboardPage() {
   };
 
   const handleAddProject = async () => {
-    if (!newName.trim()) { setError('카테고리 이름을 입력해주세요.'); return; }
+    if (!newName.trim()) { setError('프로젝트 이름을 입력해주세요.'); return; }
     setAdding(true);
     setError('');
 
@@ -239,7 +239,7 @@ export default function UserDashboardPage() {
   };
 
   const handleUpdateProject = async (projectId: string) => {
-    if (!editName.trim()) { setEditError('카테고리 이름을 입력해주세요.'); return; }
+    if (!editName.trim()) { setEditError('프로젝트 이름을 입력해주세요.'); return; }
     setEditSaving(true);
     setEditError('');
     try {
@@ -386,10 +386,10 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        {/* ===== 콘텐츠 카테고리 ===== */}
+        {/* ===== 프로젝트 ===== */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-white font-bold text-base">콘텐츠 카테고리</h3>
+            <h3 className="text-white font-bold text-base">프로젝트</h3>
             <button
               onClick={() => { setShowAddForm(!showAddForm); setError(''); }}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
@@ -397,7 +397,7 @@ export default function UserDashboardPage() {
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              콘텐츠 카테고리 추가하기
+              프로젝트 추가하기
             </button>
           </div>
 
@@ -408,7 +408,7 @@ export default function UserDashboardPage() {
                 type="text"
                 value={newName}
                 onChange={(e) => { setNewName(e.target.value); setError(''); }}
-                placeholder="카테고리 이름 (예: 치과병원, 동물병원, 줄기세포)"
+                placeholder="프로젝트 이름 (예: 치과병원, 동물병원, 줄기세포)"
                 className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
               />
               <input
@@ -476,7 +476,7 @@ export default function UserDashboardPage() {
               <div className="flex gap-2">
                 <button onClick={handleAddProject} disabled={adding}
                   className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-all">
-                  {adding ? addProgress || '처리 중...' : '카테고리 추가'}
+                  {adding ? addProgress || '처리 중...' : '프로젝트 추가'}
                 </button>
                 <button onClick={resetAddForm}
                   className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 text-sm rounded-lg transition-all">
@@ -496,8 +496,8 @@ export default function UserDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <p className="text-gray-400 text-sm">등록된 콘텐츠 카테고리가 없습니다.</p>
-              <p className="text-gray-500 text-xs mt-1">"콘텐츠 카테고리 추가하기" 버튼으로 추가하세요.</p>
+              <p className="text-gray-400 text-sm">등록된 프로젝트가 없습니다.</p>
+              <p className="text-gray-500 text-xs mt-1">"프로젝트 추가하기" 버튼으로 추가하세요.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -518,7 +518,7 @@ export default function UserDashboardPage() {
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        placeholder="카테고리 이름"
+                        placeholder="프로젝트 이름"
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
                       />
                       <input
