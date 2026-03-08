@@ -150,7 +150,7 @@ export default function UserDashboardPage() {
         {/* ===== 작업 항목 ===== */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-white font-bold text-base">작업 항목</h3>
+            <h3 className="text-white font-bold text-base">콘텐츠 카테고리</h3>
             <button
               onClick={() => { setShowAddForm(!showAddForm); setError(''); }}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
@@ -158,7 +158,7 @@ export default function UserDashboardPage() {
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              항목 추가
+              콘텐츠 카테고리 추가하기
             </button>
           </div>
 
@@ -169,7 +169,7 @@ export default function UserDashboardPage() {
                 type="text"
                 value={newName}
                 onChange={(e) => { setNewName(e.target.value); setError(''); }}
-                placeholder="항목 이름 (예: 치과병원, 동물병원, 줄기세포)"
+                placeholder="카테고리 이름 (예: 치과병원, 동물병원, 줄기세포)"
                 className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm mb-2 transition-colors"
                 onKeyDown={(e) => e.key === 'Enter' && handleAddProject()}
               />
@@ -204,8 +204,8 @@ export default function UserDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <p className="text-gray-400 text-sm">등록된 작업 항목이 없습니다.</p>
-              <p className="text-gray-500 text-xs mt-1">위 버튼으로 항목을 추가하세요.</p>
+              <p className="text-gray-400 text-sm">등록된 콘텐츠 카테고리가 없습니다.</p>
+              <p className="text-gray-500 text-xs mt-1">"콘텐츠 카테고리 추가하기" 버튼으로 추가하세요.</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -253,17 +253,17 @@ export default function UserDashboardPage() {
             </div>
           )}
 
-          {/* 현재 선택된 항목 표시 */}
+          {/* 현재 선택된 카테고리 표시 */}
           {selectedProject && (
             <div className="mt-4 p-3 bg-indigo-600/20 border border-indigo-400/30 rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <p className="text-indigo-200 text-xs">
-                  현재 선택: <span className="font-bold text-white">{selectedProject.name}</span>
+                  선택된 카테고리: <span className="font-bold text-white">{selectedProject.name}</span>
                 </p>
               </div>
               <Link href="/analyze" className="text-indigo-300 hover:text-white text-xs font-semibold transition-colors">
-                작업 시작 →
+                콘텐츠 작업 시작 →
               </Link>
             </div>
           )}

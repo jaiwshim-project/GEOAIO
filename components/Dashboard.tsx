@@ -13,6 +13,7 @@ import OptimizedContent from './OptimizedContent';
 import Header from './Header';
 import Footer from './Footer';
 import ApiKeyPanel from './ApiKeyPanel';
+import CategoryBanner from './CategoryBanner';
 import { saveHistoryItem, generateId } from '@/lib/history';
 import { canUseFeature, incrementUsage } from '@/lib/usage';
 
@@ -98,6 +99,7 @@ export default function Dashboard() {
         onToggleApiKey={() => setShowApiKeyInput(!showApiKeyInput)}
         apiKeyOpen={showApiKeyInput}
       />
+      <CategoryBanner />
 
       {/* API Key 입력 패널 */}
       <ApiKeyPanel visible={showApiKeyInput} />

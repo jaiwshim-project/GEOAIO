@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
+import CategoryBanner from '@/components/CategoryBanner';
 import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory } from '@/lib/types';
@@ -466,6 +467,7 @@ export default function GeneratePage() {
         onToggleApiKey={() => setShowApiKeyInput(!showApiKeyInput)}
         apiKeyOpen={showApiKeyInput}
       />
+      <CategoryBanner />
 
       {/* API Key 입력 패널 */}
       <ApiKeyPanel visible={showApiKeyInput} />
