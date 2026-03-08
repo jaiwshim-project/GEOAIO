@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiKey } from '@/lib/api-auth';
 import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(req: NextRequest) {
@@ -6,7 +7,7 @@ export async function POST(req: NextRequest) {
     const { topic, category, categoryLabel } = await req.json();
     if (!topic) return NextResponse.json({ error: 'topic 필요' }, { status: 400 });
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = getApiKey(req);
     if (!apiKey) return NextResponse.json({ error: 'API 키 미설정' }, { status: 500 });
 
     const client = new Anthropic({ apiKey });
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ keywords });
   } catch (e: unknown) {
+    console.error('suggest-keywords error:', e);
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
   }
 }

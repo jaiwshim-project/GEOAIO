@@ -153,36 +153,38 @@ export default function GeneratePage() {
     return () => document.removeEventListener('mousedown', handler);
   }, [showTopicDropdown]);
 
-  // 카테고리 선택 시 주제 추천 로드
-  useEffect(() => {
-    if (!selectedCategory) { setTopicSuggestions([]); return; }
+  // 주제 추천 fetch 함수 (useEffect + 버튼 클릭 공용)
+  const fetchTopicSuggestions = useCallback(async (cat: string) => {
     setLoadingTopics(true);
     setTopicSuggestions([]);
-
-    // 이전 주제 목록 가져오기 (project_id 기반)
-    const fetchAndSuggest = async () => {
-      let pastTopics: string[] = [];
-      if (selectedProject?.id) {
-        try {
-          const res = await fetch(`/api/generate-results?project_id=${selectedProject.id}`);
-          const data = await res.json();
-          pastTopics = (data.items || []).map((item: { topic: string }) => item.topic).filter(Boolean);
-        } catch {}
-      }
-      const catLabel = categories.find(c => c.id === selectedCategory)?.label || selectedCategory;
+    let pastTopics: string[] = [];
+    if (selectedProject?.id) {
       try {
-        const res = await fetch('/api/suggest-topics', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ category: selectedCategory, categoryLabel: catLabel, pastTopics }),
-        });
+        const res = await fetch(`/api/generate-results?project_id=${selectedProject.id}`);
         const data = await res.json();
-        setTopicSuggestions(data.topics || []);
+        pastTopics = (data.items || []).map((item: { topic: string }) => item.topic).filter(Boolean);
       } catch {}
-      setLoadingTopics(false);
-    };
-    fetchAndSuggest();
-  }, [selectedCategory, selectedProject?.id]);
+    }
+    const catLabel = categories.find(c => c.id === cat)?.label || cat;
+    try {
+      const res = await fetch('/api/suggest-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: cat, categoryLabel: catLabel, pastTopics }),
+      });
+      const data = await res.json();
+      setTopicSuggestions(data.topics || []);
+    } catch (e) {
+      console.error('topic suggestions error:', e);
+    }
+    setLoadingTopics(false);
+  }, [selectedProject?.id]);
+
+  // 카테고리 선택 시 주제 추천 자동 로드
+  useEffect(() => {
+    if (!selectedCategory) { setTopicSuggestions([]); return; }
+    fetchTopicSuggestions(selectedCategory);
+  }, [selectedCategory, fetchTopicSuggestions]);
 
   // 주제 선택/변경 시 키워드 추천
   const fetchKeywordSuggestions = async (topicValue: string) => {
@@ -986,7 +988,13 @@ export default function GeneratePage() {
                       {/* 드롭다운 버튼 */}
                       <button
                         type="button"
-                        onClick={() => setShowTopicDropdown(v => !v)}
+                        onClick={() => {
+                          const next = !showTopicDropdown;
+                          setShowTopicDropdown(next);
+                          if (next && selectedCategory && topicSuggestions.length === 0 && !loadingTopics) {
+                            fetchTopicSuggestions(selectedCategory);
+                          }
+                        }}
                         title="AI 주제 추천"
                         className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all ${
                           showTopicDropdown ? 'bg-blue-600 text-white' : 'text-blue-500 hover:bg-blue-50'
@@ -1009,7 +1017,10 @@ export default function GeneratePage() {
                             <p className="p-3 text-xs text-gray-400 text-center">콘텐츠 유형을 먼저 선택하세요</p>
                           ) : (
                             <ul className="py-1">
-                              <li className="px-3 py-1.5 text-xs text-blue-500 font-semibold bg-blue-50 border-b border-blue-100">✨ AI 추천 주제</li>
+                              <li className="px-3 py-1.5 text-xs text-blue-500 font-semibold bg-blue-50 border-b border-blue-100 flex items-center justify-between">
+                              <span>✨ AI 추천 주제</span>
+                              <button type="button" onClick={(e) => { e.stopPropagation(); if (selectedCategory) fetchTopicSuggestions(selectedCategory); }} className="text-blue-400 hover:text-blue-600 transition-colors" title="새로 추천">↺</button>
+                            </li>
                               {topicSuggestions.map((s, i) => (
                                 <li key={i}>
                                   <button

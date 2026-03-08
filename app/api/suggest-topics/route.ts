@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getApiKey } from '@/lib/api-auth';
 import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(req: NextRequest) {
   try {
     const { category, categoryLabel, pastTopics } = await req.json();
+    if (!category) return NextResponse.json({ error: 'category 필요' }, { status: 400 });
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = getApiKey(req);
     if (!apiKey) return NextResponse.json({ error: 'API 키 미설정' }, { status: 500 });
 
     const client = new Anthropic({ apiKey });
 
     const pastList = pastTopics?.length
-      ? `\n\n이미 작성된 주제 목록 (중복 제외):\n${pastTopics.slice(0, 20).map((t: string, i: number) => `${i + 1}. ${t}`).join('\n')}`
+      ? `\n\n이미 작성된 주제 목록 (중복 제외):\n${(pastTopics as string[]).slice(0, 20).map((t, i) => `${i + 1}. ${t}`).join('\n')}`
       : '';
 
     const message = await client.messages.create({
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ topics });
   } catch (e: unknown) {
+    console.error('suggest-topics error:', e);
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
   }
 }
