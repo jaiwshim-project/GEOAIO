@@ -80,10 +80,28 @@ export default function AdminPage() {
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editNameValue, setEditNameValue] = useState('');
   const [activeTab, setActiveTab] = useState<'users' | 'subscriptions'>('users');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordChecking, setPasswordChecking] = useState(false);
 
   useEffect(() => {
     const checkAdmin = async () => {
       try {
+        // 세션에 저장된 관리자 비밀번호 확인
+        const savedPw = sessionStorage.getItem('admin_pw');
+        if (savedPw) {
+          const res = await fetch('/api/admin/verify-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: savedPw }),
+          });
+          if (res.ok) {
+            setAuthenticated(true);
+            loadUsers(savedPw);
+            setAuthChecking(false);
+            return;
+          }
+        }
         const plan = await getUserPlan();
         if (plan === 'admin') {
           setAuthenticated(true);
@@ -98,11 +116,14 @@ export default function AdminPage() {
     checkAdmin();
   }, []);
 
-  const loadUsers = async () => {
+  const loadUsers = async (pw?: string) => {
     setLoading(true);
     setError('');
+    const password = pw || sessionStorage.getItem('admin_pw') || '';
     try {
-      const res = await fetch('/api/admin/users');
+      const res = await fetch('/api/admin/users', {
+        headers: password ? { 'X-Admin-Password': password } : {},
+      });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || '조회 실패');
@@ -113,6 +134,31 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : '오류 발생');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordLogin = async () => {
+    if (!adminPassword.trim()) return;
+    setPasswordChecking(true);
+    setPasswordError('');
+    try {
+      const res = await fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword }),
+      });
+      if (res.ok) {
+        sessionStorage.setItem('admin_pw', adminPassword);
+        setAuthenticated(true);
+        loadUsers(adminPassword);
+      } else {
+        const data = await res.json();
+        setPasswordError(data.error || '비밀번호가 틀렸습니다.');
+      }
+    } catch {
+      setPasswordError('오류가 발생했습니다.');
+    } finally {
+      setPasswordChecking(false);
     }
   };
 
@@ -290,23 +336,43 @@ export default function AdminPage() {
     );
   }
 
-  // 권한 없음
+  // 권한 없음 → 비밀번호 입력 화면
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
         <main className="max-w-md mx-auto px-4 py-16">
-          <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-6 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-rose-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
+          <div className="bg-white rounded-2xl shadow-lg border border-red-200 p-6">
+            <div className="text-center mb-5">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-rose-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">관리자 대시보드</h2>
+              <p className="text-sm text-gray-500 mt-1">관리자 비밀번호를 입력해주세요.</p>
             </div>
-            <h2 className="text-xl font-bold text-gray-900">접근 권한 없음</h2>
-            <p className="text-sm text-gray-500 mt-2">관리자 계정으로 로그인해야 접근할 수 있습니다.</p>
-            <Link href="/" className="inline-block mt-4 px-6 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-all">
-              홈으로 돌아가기
-            </Link>
+            <div className="space-y-3">
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={e => { setAdminPassword(e.target.value); setPasswordError(''); }}
+                onKeyDown={e => e.key === 'Enter' && handlePasswordLogin()}
+                placeholder="관리자 비밀번호"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent"
+              />
+              {passwordError && <p className="text-xs text-red-500">{passwordError}</p>}
+              <button
+                onClick={handlePasswordLogin}
+                disabled={passwordChecking || !adminPassword.trim()}
+                className="w-full py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all"
+              >
+                {passwordChecking ? '확인 중...' : '접속'}
+              </button>
+              <Link href="/" className="block text-center text-xs text-gray-400 hover:text-gray-600 mt-2">
+                홈으로 돌아가기
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />
