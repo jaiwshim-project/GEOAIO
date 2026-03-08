@@ -505,8 +505,8 @@ export default function GeneratePage() {
               additionalNotes: notes,
             }),
           });
-          if (!res.ok) throw new Error(`${t.label} 버전 생성 실패`);
           const data = await res.json();
+          if (!res.ok) throw new Error(`[${t.label}] ${data.error || `HTTP ${res.status}`}`);
           return { ...data, toneName: t.label, toneValue: t.value };
         })
       );
