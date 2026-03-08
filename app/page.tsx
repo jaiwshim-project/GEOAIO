@@ -219,12 +219,12 @@ export default function LandingPage() {
                 {link.label}
               </Link>
             ))}
-            <button
-              onClick={() => setShowApiKey(!showApiKey)}
+            <Link
+              href="/settings"
               className="px-3 py-1.5 text-xs font-medium text-white hover:text-white hover:bg-white/10 rounded-lg transition-all border border-gray-400"
             >
               API 키
-            </button>
+            </Link>
           </div>
 
           {/* 신뢰 지표 */}
