@@ -496,7 +496,7 @@ export default function GeneratePage() {
         toneOptions.map(async (t) => {
           const res = await fetch('/api/generate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
             body: JSON.stringify({
               category: selectedCategory,
               topic: topic.trim(),
