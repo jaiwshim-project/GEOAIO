@@ -137,7 +137,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
           {/* 오른쪽 영역 */}
           <div className="hidden md:flex items-center gap-2">
             {user ? (
-              <div className="flex items-center gap-2" ref={userMenuRef}>
+              <div className="relative flex items-center gap-2" ref={userMenuRef}>
                 {plan === 'admin' && (
                   <Link
                     href="/admin"
@@ -168,7 +168,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
 
                 {/* 드롭다운 메뉴 */}
                 {userMenuOpen && (
-                  <div className="absolute top-11 right-4 w-44 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                  <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[100]">
                     <Link
                       href="/mypage"
                       onClick={() => setUserMenuOpen(false)}
@@ -324,6 +324,13 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                   className="block px-3 py-2 text-sm font-medium text-white bg-white/10 rounded-lg"
                 >
                   마이페이지
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-3 py-2 text-sm font-medium text-white bg-white/10 rounded-lg"
+                >
+                  🔑 API 키 설정
                 </Link>
                 <div className="flex gap-2">
                   <Link
