@@ -11,6 +11,7 @@ import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
 import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, type Profile, type ProfileData } from '@/lib/supabase-storage';
 import { canUseFeature, incrementUsage } from '@/lib/usage';
+import { useUser } from '@/lib/user-context';
 
 const categories: { id: ContentCategory; label: string; description: string; icon: string; color: string; bgIdle: string }[] = [
   {
@@ -89,6 +90,7 @@ const toneOptions = [
 
 export default function GeneratePage() {
   const router = useRouter();
+  const { selectedProject } = useUser();
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
   const [topic, setTopic] = useState('');
   const [targetKeyword, setTargetKeyword] = useState('');
@@ -410,6 +412,8 @@ export default function GeneratePage() {
           result: mainResult, category: selectedCategory,
           topic: topic.trim(), targetKeyword: targetKeyword.trim(),
           tone: 'A/B 테스트', historyId: generateId(),
+          project_id: selectedProject?.id,
+          selected_ab_index: 0,
         });
         router.push(`/generate/result?id=${resultId}`);
       } else {
@@ -449,6 +453,8 @@ export default function GeneratePage() {
           result: data, category: selectedCategory,
           topic: topic.trim(), targetKeyword: targetKeyword.trim(),
           tone, historyId,
+          project_id: selectedProject?.id,
+          selected_ab_index: 0,
         });
         router.push(`/generate/result?id=${resultId}`);
       }

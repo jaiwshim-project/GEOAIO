@@ -244,6 +244,8 @@ export interface GenerateResultData {
   targetKeyword: string;
   tone: string;
   historyId: string;
+  project_id?: string;
+  selected_ab_index?: number;
 }
 
 export async function saveGenerateResult(data: GenerateResultData): Promise<string> {
@@ -251,7 +253,13 @@ export async function saveGenerateResult(data: GenerateResultData): Promise<stri
   const id = `gr_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const { error } = await getSupabase()
     .from('generate_results')
-    .insert({ id, data, user_id: userId });
+    .insert({
+      id,
+      data,
+      user_id: userId,
+      project_id: data.project_id || null,
+      selected_ab_index: data.selected_ab_index ?? 0,
+    });
   if (error) throw error;
   return id;
 }

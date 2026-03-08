@@ -49,6 +49,16 @@ export default function UserDashboardPage() {
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
 
+  // 콘텐츠 생성 목록 상태
+  type GenerateItem = {
+    id: string; title: string; topic: string; category: string;
+    is_ab: boolean; ab_count: number; selected_ab_index: number; created_at: string;
+  };
+  const [showGenSection, setShowGenSection] = useState(false);
+  const [genProjectId, setGenProjectId] = useState<string | null>(null);
+  const [genItems, setGenItems] = useState<GenerateItem[]>([]);
+  const [genLoading, setGenLoading] = useState(false);
+
   useEffect(() => {
     if (!currentUser) router.push('/user-select');
   }, [currentUser, router]);
@@ -68,6 +78,29 @@ export default function UserDashboardPage() {
   }, [currentUser]);
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
+
+  const fetchGenItems = async (projectId: string) => {
+    setGenLoading(true);
+    try {
+      const res = await fetch(`/api/generate-results?project_id=${projectId}`);
+      const data = await res.json();
+      setGenItems(data.items || []);
+    } catch {
+      setGenItems([]);
+    } finally {
+      setGenLoading(false);
+    }
+  };
+
+  const handleGenProjectSelect = (projectId: string) => {
+    if (genProjectId === projectId) {
+      setGenProjectId(null);
+      setGenItems([]);
+    } else {
+      setGenProjectId(projectId);
+      fetchGenItems(projectId);
+    }
+  };
 
   // 파일 유효성 검사
   const validateFile = (file: File) => {
@@ -686,6 +719,91 @@ export default function UserDashboardPage() {
             </Link>
           </div>
         )}
+
+        {/* ===== 생성된 콘텐츠 목록 ===== */}
+        <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
+          <button
+            onClick={() => setShowGenSection(!showGenSection)}
+            className="w-full flex items-center justify-between px-6 py-4 text-left"
+          >
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-white font-bold text-sm">생성된 콘텐츠 목록</span>
+            </div>
+            <svg className={`w-4 h-4 text-gray-400 transition-transform ${showGenSection ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {showGenSection && (
+            <div className="border-t border-white/10 p-4 space-y-3">
+              {/* 카테고리 선택 버튼 */}
+              {projects.length === 0 ? (
+                <p className="text-gray-400 text-xs text-center py-2">등록된 카테고리가 없습니다.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {projects.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleGenProjectSelect(p.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        genProjectId === p.id
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                      }`}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* 선택된 카테고리의 생성 목록 */}
+              {genProjectId && (
+                <div className="mt-2">
+                  {genLoading ? (
+                    <p className="text-gray-400 text-xs text-center py-3">불러오는 중...</p>
+                  ) : genItems.length === 0 ? (
+                    <p className="text-gray-500 text-xs text-center py-3">아직 생성된 콘텐츠가 없습니다.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {genItems.map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => router.push(`/generate/result?id=${item.id}`)}
+                          className="flex items-start gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-all"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-xs font-semibold truncate">{item.title || item.topic}</p>
+                            <p className="text-gray-500 text-xs mt-0.5">
+                              {new Date(item.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {item.is_ab ? (
+                              <span className="px-1.5 py-0.5 bg-violet-600/50 text-violet-200 text-xs rounded font-medium">
+                                A/B {item.ab_count}개
+                              </span>
+                            ) : (
+                              <span className="px-1.5 py-0.5 bg-white/10 text-gray-400 text-xs rounded">단일</span>
+                            )}
+                            {item.is_ab && (
+                              <span className="px-1.5 py-0.5 bg-indigo-600/40 text-indigo-200 text-xs rounded">
+                                v{item.selected_ab_index + 1} 선택
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
