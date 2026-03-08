@@ -90,7 +90,7 @@ const toneOptions = [
 
 export default function GeneratePage() {
   const router = useRouter();
-  const { selectedProject } = useUser();
+  const { selectedProject, geminiApiKey } = useUser();
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
   const [topic, setTopic] = useState('');
   const [targetKeyword, setTargetKeyword] = useState('');
@@ -138,16 +138,9 @@ export default function GeneratePage() {
   const [loadingKeywords, setLoadingKeywords] = useState(false);
   const [customKeyword, setCustomKeyword] = useState('');
 
-  const [geminiApiKey, setGeminiApiKey] = useState('');
-
-  // 프로필 목록 + Gemini 키 로드
+  // 프로필 목록 로드
   useEffect(() => {
     getProfiles().then(profiles => setSavedProfiles(profiles));
-    // localStorage에서 Gemini 키 읽기 (Supabase 인증 불필요)
-    try {
-      const key = localStorage.getItem('geoaio_gemini_key');
-      if (key) setGeminiApiKey(key);
-    } catch {}
   }, []);
 
 

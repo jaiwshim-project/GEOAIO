@@ -31,32 +31,40 @@ export interface UserProject {
 interface UserContextType {
   currentUser: UserProfile | null;
   selectedProject: UserProject | null;
+  geminiApiKey: string;
   setCurrentUser: (user: UserProfile | null) => void;
   setSelectedProject: (project: UserProject | null) => void;
+  setGeminiApiKey: (key: string) => void;
   logout: () => void;
 }
 
 const UserContext = createContext<UserContextType>({
   currentUser: null,
   selectedProject: null,
+  geminiApiKey: '',
   setCurrentUser: () => {},
   setSelectedProject: () => {},
+  setGeminiApiKey: () => {},
   logout: () => {},
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUserState] = useState<UserProfile | null>(null);
   const [selectedProject, setSelectedProjectState] = useState<UserProject | null>(null);
+  const [geminiApiKey, setGeminiApiKeyState] = useState('');
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem('geoaio_user');
-    const storedProject = sessionStorage.getItem('geoaio_project');
-    if (storedUser) {
-      try { setCurrentUserState(JSON.parse(storedUser)); } catch {}
-    }
-    if (storedProject) {
-      try { setSelectedProjectState(JSON.parse(storedProject)); } catch {}
-    }
+    try {
+      const storedUser = sessionStorage.getItem('geoaio_user');
+      const storedProject = sessionStorage.getItem('geoaio_project');
+      if (storedUser) setCurrentUserState(JSON.parse(storedUser));
+      if (storedProject) setSelectedProjectState(JSON.parse(storedProject));
+    } catch {}
+    // Gemini 키는 localStorage에서 로드 (인증 불필요)
+    try {
+      const key = localStorage.getItem('geoaio_gemini_key');
+      if (key) setGeminiApiKeyState(key);
+    } catch {}
   }, []);
 
   const setCurrentUser = (user: UserProfile | null) => {
@@ -75,10 +83,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
     else sessionStorage.removeItem('geoaio_project');
   };
 
+  const setGeminiApiKey = (key: string) => {
+    setGeminiApiKeyState(key);
+    try {
+      if (key) localStorage.setItem('geoaio_gemini_key', key);
+      else localStorage.removeItem('geoaio_gemini_key');
+    } catch {}
+  };
+
   const logout = () => setCurrentUser(null);
 
   return (
-    <UserContext.Provider value={{ currentUser, selectedProject, setCurrentUser, setSelectedProject, logout }}>
+    <UserContext.Provider value={{ currentUser, selectedProject, geminiApiKey, setCurrentUser, setSelectedProject, setGeminiApiKey, logout }}>
       {children}
     </UserContext.Provider>
   );

@@ -4,9 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useUser } from '@/lib/user-context';
+
 const LS_KEY = 'geoaio_gemini_key';
 
 export default function SettingsPage() {
+  const { setGeminiApiKey: setContextKey } = useUser();
   const [geminiKey, setGeminiKey] = useState('');
   const [saving, setSaving] = useState(false);
   const [hasKey, setHasKey] = useState(false);
@@ -27,7 +30,7 @@ export default function SettingsPage() {
     setStatus(null);
     try {
       localStorage.setItem(LS_KEY, key);
-      // 서버 환경변수에도 저장 시도 (선택적)
+      setContextKey(key); // 전역 context에도 즉시 반영
       await fetch('/api/set-api-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,6 +48,7 @@ export default function SettingsPage() {
 
   const handleDelete = () => {
     try { localStorage.removeItem(LS_KEY); } catch {}
+    setContextKey('');
     setHasKey(false);
     setStatus({ type: 'success', msg: 'Gemini API 키가 삭제되었습니다.' });
   };
