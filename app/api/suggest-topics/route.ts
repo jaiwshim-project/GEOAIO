@@ -46,6 +46,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ topics });
   } catch (e: unknown) {
     console.error('suggest-topics error:', e);
-    return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg.includes('credit balance') || msg.includes('insufficient') || msg.includes('billing')) {
+      return NextResponse.json({ error: 'API 크레딧이 부족합니다. Anthropic 콘솔에서 크레딧을 충전해주세요.' }, { status: 402 });
+    }
+    return NextResponse.json({ error: msg || '오류가 발생했습니다.' }, { status: 500 });
   }
 }
