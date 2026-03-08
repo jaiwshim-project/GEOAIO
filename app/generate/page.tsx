@@ -160,20 +160,36 @@ export default function GeneratePage() {
     setLoadingTopics(true);
     setTopicSuggestions([]);
     setTopicFetchError('');
+
+    // 이전 작성 주제 + 프로젝트 파일 병렬 조회
     let pastTopics: string[] = [];
+    let projectFiles: { file_name: string; content: string }[] = [];
     if (selectedProject?.id) {
       try {
-        const res = await fetch(`/api/generate-results?project_id=${selectedProject.id}`);
-        const data = await res.json();
-        pastTopics = (data.items || []).map((item: { topic: string }) => item.topic).filter(Boolean);
+        const [historyRes, filesRes] = await Promise.all([
+          fetch(`/api/generate-results?project_id=${selectedProject.id}`),
+          fetch(`/api/user-projects/files?project_id=${selectedProject.id}`),
+        ]);
+        const historyData = await historyRes.json();
+        const filesData = await filesRes.json();
+        pastTopics = (historyData.items || []).map((item: { topic: string }) => item.topic).filter(Boolean);
+        projectFiles = (filesData.files || []).filter((f: { content: string }) => f.content);
       } catch {}
     }
+
     const catLabel = categories.find(c => c.id === cat)?.label || cat;
     try {
       const res = await fetch('/api/suggest-topics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
-        body: JSON.stringify({ category: cat, categoryLabel: catLabel, pastTopics }),
+        body: JSON.stringify({
+          category: cat,
+          categoryLabel: catLabel,
+          pastTopics,
+          projectName: selectedProject?.name,
+          projectDescription: selectedProject?.description,
+          projectFiles,
+        }),
       });
       const data = await res.json();
       if (!res.ok || data.error) {

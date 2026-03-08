@@ -4,7 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 
 export async function POST(req: NextRequest) {
   try {
-    const { category, categoryLabel, pastTopics } = await req.json();
+    const { category, categoryLabel, pastTopics, projectName, projectDescription, projectFiles } = await req.json();
     if (!category) return NextResponse.json({ error: 'category 필요' }, { status: 400 });
 
     const apiKey = getGeminiKey(req);
@@ -14,14 +14,30 @@ export async function POST(req: NextRequest) {
       ? `\n\n이미 작성된 주제 목록 (중복 제외):\n${(pastTopics as string[]).slice(0, 20).map((t, i) => `${i + 1}. ${t}`).join('\n')}`
       : '';
 
+    // 프로젝트 컨텍스트 구성
+    let projectContext = '';
+    if (projectName) {
+      projectContext += `\n\n[콘텐츠 카테고리 정보]`;
+      projectContext += `\n카테고리 이름: ${projectName}`;
+      if (projectDescription) projectContext += `\n카테고리 설명: ${projectDescription}`;
+    }
+    if (projectFiles?.length) {
+      const filesSummary = (projectFiles as { file_name: string; content: string }[])
+        .slice(0, 3)
+        .map(f => `--- ${f.file_name} ---\n${(f.content || '').slice(0, 1500)}`)
+        .join('\n\n');
+      projectContext += `\n\n[업로드된 참조 파일 내용]\n${filesSummary}`;
+    }
+
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
       contents: `당신은 콘텐츠 기획 전문가입니다.
-콘텐츠 유형: ${categoryLabel || category}${pastList}
+콘텐츠 유형: ${categoryLabel || category}${projectContext}${pastList}
 
-위 콘텐츠 유형에 맞는 새로운 주제 5개를 추천해주세요.
-기존에 작성된 주제와 겹치지 않고, 독자의 관심을 끌 수 있는 참신한 주제를 제안하세요.
+위 콘텐츠 카테고리와 업로드된 파일 내용을 반드시 참고하여, 해당 카테고리와 직접 관련된 새로운 주제 5개를 추천해주세요.
+카테고리 이름과 파일 내용에서 다루는 핵심 주제, 서비스, 제품에 집중하여 독자의 관심을 끌 수 있는 주제를 제안하세요.
+기존에 작성된 주제와 겹치지 않도록 하세요.
 
 반드시 아래 형식으로만 응답하세요 (번호와 주제만, 설명 없이):
 1. 주제1

@@ -10,6 +10,24 @@ function getServiceClient() {
   return createClient(url, key);
 }
 
+// 프로젝트 파일 목록 + 내용 조회
+export async function GET(req: NextRequest) {
+  try {
+    const projectId = req.nextUrl.searchParams.get('project_id');
+    if (!projectId) return NextResponse.json({ error: 'project_id 필요' }, { status: 400 });
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from('project_files')
+      .select('id, file_name, file_type, content')
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: true });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ files: data || [] });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
+  }
+}
+
 // 파일 메타데이터 + 텍스트 내용 DB 저장
 export async function POST(req: NextRequest) {
   try {
