@@ -189,7 +189,7 @@ export default function GeneratePage() {
     try {
       const res = await fetch('/api/suggest-topics', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+        headers: { 'Content-Type': 'application/json', ...({ 'X-Gemini-Key': contextApiKey || localStorage.getItem('geoaio_gemini_key') || '' }) },
         body: JSON.stringify({
           category: cat,
           categoryLabel: catLabel,
@@ -222,7 +222,7 @@ export default function GeneratePage() {
     try {
       const res = await fetch('/api/suggest-keywords', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+        headers: { 'Content-Type': 'application/json', ...({ 'X-Gemini-Key': contextApiKey || localStorage.getItem('geoaio_gemini_key') || '' }) },
         body: JSON.stringify({ topic: topicValue, category: selectedCategory, categoryLabel: catLabel }),
       });
       const data = await res.json();
@@ -475,6 +475,14 @@ export default function GeneratePage() {
 
   const handleGenerate = async () => {
     if (!selectedCategory || !topic.trim()) return;
+
+    // API 키: context → localStorage 순으로 최신값 읽기
+    const apiKey = contextApiKey || localStorage.getItem('geoaio_gemini_key') || '';
+    if (!apiKey) {
+      setError('Gemini API 키가 설정되지 않았습니다. /settings 페이지에서 API 키를 등록해주세요.');
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
 
@@ -495,7 +503,7 @@ export default function GeneratePage() {
         toneOptions.map(async (t) => {
           const res = await fetch('/api/generate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+            headers: { 'Content-Type': 'application/json', 'X-Gemini-Key': apiKey },
             body: JSON.stringify({
               category: selectedCategory,
               topic: topic.trim(),
