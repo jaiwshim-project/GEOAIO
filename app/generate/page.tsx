@@ -153,8 +153,15 @@ export default function GeneratePage() {
     return () => document.removeEventListener('mousedown', handler);
   }, [showTopicDropdown]);
 
-  // 주제 추천 fetch 함수 (useEffect + 버튼 클릭 공용)
-  const fetchTopicSuggestions = useCallback(async (cat: string) => {
+  // 카테고리 변경 시 이전 추천 초기화만 (fetch는 버튼 클릭 시)
+  useEffect(() => {
+    setTopicSuggestions([]);
+    setShowTopicDropdown(false);
+  }, [selectedCategory]);
+
+  // 주제 추천 fetch (버튼 클릭 시 호출)
+  const fetchTopicSuggestions = async (cat: string) => {
+    if (loadingTopics) return;
     setLoadingTopics(true);
     setTopicSuggestions([]);
     let pastTopics: string[] = [];
@@ -178,13 +185,7 @@ export default function GeneratePage() {
       console.error('topic suggestions error:', e);
     }
     setLoadingTopics(false);
-  }, [selectedProject?.id]);
-
-  // 카테고리 선택 시 주제 추천 자동 로드
-  useEffect(() => {
-    if (!selectedCategory) { setTopicSuggestions([]); return; }
-    fetchTopicSuggestions(selectedCategory);
-  }, [selectedCategory, fetchTopicSuggestions]);
+  };
 
   // 주제 선택/변경 시 키워드 추천
   const fetchKeywordSuggestions = async (topicValue: string) => {
