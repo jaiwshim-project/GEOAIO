@@ -44,13 +44,30 @@ const SYSTEM_PROMPT = `당신은 AIO(AI Overview)와 GEO(Generative Engine Optim
   }
 }`;
 
-function extractJSON(text: string): string {
+function extractJSON(text: string): unknown {
+  // 코드 펜스 제거
   const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) return fenceMatch[1].trim();
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}');
-  if (start !== -1 && end !== -1) return text.slice(start, end + 1);
-  return text;
+  const cleaned = fenceMatch ? fenceMatch[1].trim() : text.trim();
+
+  // 직접 파싱 시도
+  try { return JSON.parse(cleaned); } catch {}
+
+  // { ... } 범위 추출 후 파싱
+  const start = cleaned.indexOf('{');
+  if (start !== -1) {
+    let depth = 0;
+    for (let i = start; i < cleaned.length; i++) {
+      if (cleaned[i] === '{') depth++;
+      else if (cleaned[i] === '}') {
+        depth--;
+        if (depth === 0) {
+          try { return JSON.parse(cleaned.slice(start, i + 1)); } catch {}
+          break;
+        }
+      }
+    }
+  }
+  throw new Error('JSON not found');
 }
 
 export async function POST(request: NextRequest) {
@@ -93,15 +110,18 @@ GEO/AIO에 최적화된 고품질 콘텐츠를 마크다운 형식으로 작성�
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
       contents: `${SYSTEM_PROMPT}\n\n${userMessage}`,
-      config: { maxOutputTokens: 8192 },
+      config: {
+        maxOutputTokens: 8192,
+        responseMimeType: 'application/json',
+      },
     });
 
     const text = response.text || '';
     try {
-      const parsed = JSON.parse(extractJSON(text));
+      const parsed = extractJSON(text);
       return withCors(NextResponse.json(parsed));
     } catch {
-      console.error('JSON parse error:', text.slice(0, 300));
+      console.error('JSON parse error. Raw response:', text.slice(0, 500));
       return withCors(NextResponse.json(
         { error: '콘텐츠 생성 결과를 파싱할 수 없습니다. 다시 시도해주세요.' },
         { status: 500 }
