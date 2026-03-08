@@ -130,6 +130,7 @@ export default function GeneratePage() {
   // 주제 추천 드롭다운
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
+  const [topicFetchError, setTopicFetchError] = useState('');
   const [showTopicDropdown, setShowTopicDropdown] = useState(false);
   // 키워드 추천
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
@@ -142,20 +143,11 @@ export default function GeneratePage() {
     getProfiles().then(profiles => setSavedProfiles(profiles));
   }, []);
 
-  // 주제 드롭다운 외부 클릭 닫기
-  useEffect(() => {
-    if (!showTopicDropdown) return;
-    const handler = (e: MouseEvent) => {
-      if (topicDropdownRef.current && !topicDropdownRef.current.contains(e.target as Node))
-        setShowTopicDropdown(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showTopicDropdown]);
 
-  // 카테고리 변경 시 이전 추천 초기화만 (fetch는 버튼 클릭 시)
+  // 카테고리 변경 시 이전 추천 초기화
   useEffect(() => {
     setTopicSuggestions([]);
+    setTopicFetchError('');
     setShowTopicDropdown(false);
   }, [selectedCategory]);
 
@@ -164,6 +156,7 @@ export default function GeneratePage() {
     if (loadingTopics) return;
     setLoadingTopics(true);
     setTopicSuggestions([]);
+    setTopicFetchError('');
     let pastTopics: string[] = [];
     if (selectedProject?.id) {
       try {
@@ -180,9 +173,14 @@ export default function GeneratePage() {
         body: JSON.stringify({ category: cat, categoryLabel: catLabel, pastTopics }),
       });
       const data = await res.json();
-      setTopicSuggestions(data.topics || []);
+      if (!res.ok || data.error) {
+        setTopicFetchError(data.error || `오류 (${res.status})`);
+      } else {
+        setTopicSuggestions(data.topics || []);
+        if (!data.topics?.length) setTopicFetchError('추천 주제를 가져오지 못했습니다.');
+      }
     } catch (e) {
-      console.error('topic suggestions error:', e);
+      setTopicFetchError(e instanceof Error ? e.message : '네트워크 오류');
     }
     setLoadingTopics(false);
   };
@@ -1012,10 +1010,23 @@ export default function GeneratePage() {
                         <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-blue-200 rounded-xl shadow-lg z-50 overflow-hidden">
                           {loadingTopics ? (
                             <div className="p-3 space-y-2">
-                              {[1,2,3,4,5].map(i => <div key={i} className="h-6 bg-gray-100 rounded animate-pulse" />)}
+                              {[1,2,3,4,5].map(i => <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />)}
+                              <p className="text-xs text-center text-gray-400">AI가 주제를 생성하는 중...</p>
                             </div>
-                          ) : topicSuggestions.length === 0 ? (
+                          ) : topicFetchError ? (
+                            <div className="p-3 text-center space-y-2">
+                              <p className="text-xs text-red-500">{topicFetchError}</p>
+                              <button type="button" onClick={() => selectedCategory && fetchTopicSuggestions(selectedCategory)}
+                                className="text-xs text-blue-500 hover:underline">다시 시도</button>
+                            </div>
+                          ) : !selectedCategory ? (
                             <p className="p-3 text-xs text-gray-400 text-center">콘텐츠 유형을 먼저 선택하세요</p>
+                          ) : topicSuggestions.length === 0 ? (
+                            <div className="p-3 text-center space-y-2">
+                              <p className="text-xs text-gray-400">버튼을 클릭하면 AI가 주제를 추천합니다</p>
+                              <button type="button" onClick={() => fetchTopicSuggestions(selectedCategory)}
+                                className="text-xs text-blue-500 hover:underline">추천 받기</button>
+                            </div>
                           ) : (
                             <ul className="py-1">
                               <li className="px-3 py-1.5 text-xs text-blue-500 font-semibold bg-blue-50 border-b border-blue-100 flex items-center justify-between">
