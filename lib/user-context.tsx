@@ -11,12 +11,21 @@ export interface UserProfile {
   email?: string;
 }
 
+export interface ProjectFile {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_size?: number;
+  file_type?: string;
+}
+
 export interface UserProject {
   id: string;
   user_id: string;
   name: string;
   description?: string;
   created_at?: string;
+  files?: ProjectFile[];
 }
 
 interface UserContextType {

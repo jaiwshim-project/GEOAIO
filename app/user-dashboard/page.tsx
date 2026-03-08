@@ -1,9 +1,24 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useUser, UserProject } from '@/lib/user-context';
+import { useUser, UserProject, ProjectFile } from '@/lib/user-context';
+
+const FILE_ICONS: Record<string, string> = {
+  pdf: '📄',
+  docx: '📝',
+  doc: '📝',
+  md: '📋',
+  txt: '📃',
+};
+
+function formatFileSize(bytes?: number) {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes}B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+}
 
 export default function UserDashboardPage() {
   const router = useRouter();
@@ -13,12 +28,15 @@ export default function UserDashboardPage() {
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [addProgress, setAddProgress] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 로그인 안 되어 있으면 user-select로 이동
   useEffect(() => {
     if (!currentUser) router.push('/user-select');
   }, [currentUser, router]);
@@ -39,11 +57,42 @@ export default function UserDashboardPage() {
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
+  // 파일 유효성 검사
+  const validateFile = (file: File) => {
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const allowed = ['pdf', 'docx', 'doc', 'md', 'txt'];
+    if (!allowed.includes(ext)) return `${file.name}: PDF, DOCX, MD, TXT 파일만 가능합니다.`;
+    if (file.size > 20 * 1024 * 1024) return `${file.name}: 20MB 이하 파일만 가능합니다.`;
+    return null;
+  };
+
+  const addFiles = (incoming: FileList | File[]) => {
+    const arr = Array.from(incoming);
+    const errors: string[] = [];
+    const valid: File[] = [];
+    for (const f of arr) {
+      const err = validateFile(f);
+      if (err) errors.push(err);
+      else if (!newFiles.find(e => e.name === f.name)) valid.push(f);
+    }
+    if (errors.length) setError(errors.join('\n'));
+    setNewFiles(prev => [...prev, ...valid]);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    addFiles(e.dataTransfer.files);
+  };
+
   const handleAddProject = async () => {
-    if (!newName.trim()) { setError('항목 이름을 입력해주세요.'); return; }
+    if (!newName.trim()) { setError('카테고리 이름을 입력해주세요.'); return; }
     setAdding(true);
     setError('');
+
     try {
+      // 1. 카테고리 생성
+      setAddProgress('카테고리 생성 중...');
       const res = await fetch('/api/user-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,19 +100,37 @@ export default function UserDashboardPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '추가 실패'); return; }
-      setProjects(prev => [data.project, ...prev]);
+
+      const projectId = data.project.id;
+      const uploadedFiles: ProjectFile[] = [];
+
+      // 2. 파일 업로드
+      for (let i = 0; i < newFiles.length; i++) {
+        const file = newFiles[i];
+        setAddProgress(`파일 업로드 중... (${i + 1}/${newFiles.length}) ${file.name}`);
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('project_id', projectId);
+        const fRes = await fetch('/api/user-projects/files', { method: 'POST', body: fd });
+        const fData = await fRes.json();
+        if (fRes.ok && fData.file) uploadedFiles.push(fData.file);
+      }
+
+      setProjects(prev => [{ ...data.project, files: uploadedFiles }, ...prev]);
       setNewName('');
       setNewDesc('');
+      setNewFiles([]);
       setShowAddForm(false);
     } catch {
       setError('서버 오류가 발생했습니다.');
     } finally {
       setAdding(false);
+      setAddProgress('');
     }
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!confirm('이 항목을 삭제하시겠습니까?')) return;
+    if (!confirm('이 카테고리를 삭제하시겠습니까?')) return;
     setDeletingId(id);
     try {
       await fetch('/api/user-projects', {
@@ -88,6 +155,14 @@ export default function UserDashboardPage() {
     router.push('/user-select');
   };
 
+  const resetAddForm = () => {
+    setShowAddForm(false);
+    setError('');
+    setNewName('');
+    setNewDesc('');
+    setNewFiles([]);
+  };
+
   if (!currentUser) return null;
 
   return (
@@ -96,9 +171,7 @@ export default function UserDashboardPage() {
 
         {/* 상단 헤더 */}
         <div className="flex items-center justify-between mb-6 pt-4">
-          <Link href="/" className="text-gray-400 hover:text-white transition-colors text-sm">
-            ← 홈
-          </Link>
+          <Link href="/" className="text-gray-400 hover:text-white transition-colors text-sm">← 홈</Link>
           <button onClick={handleLogout} className="text-gray-400 hover:text-red-400 transition-colors text-sm flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -118,7 +191,6 @@ export default function UserDashboardPage() {
               <p className="text-indigo-300 text-sm">로그인됨</p>
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-3">
             {currentUser.company_name && (
               <div className="bg-white/5 rounded-xl p-3">
@@ -147,7 +219,7 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        {/* ===== 작업 항목 ===== */}
+        {/* ===== 콘텐츠 카테고리 ===== */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-white font-bold text-base">콘텐츠 카테고리</h3>
@@ -162,31 +234,84 @@ export default function UserDashboardPage() {
             </button>
           </div>
 
-          {/* 항목 추가 폼 */}
+          {/* 추가 폼 */}
           {showAddForm && (
-            <div className="bg-white/5 rounded-xl p-4 mb-4 border border-white/10">
+            <div className="bg-white/5 rounded-xl p-4 mb-4 border border-white/10 space-y-3">
               <input
                 type="text"
                 value={newName}
                 onChange={(e) => { setNewName(e.target.value); setError(''); }}
                 placeholder="카테고리 이름 (예: 치과병원, 동물병원, 줄기세포)"
-                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm mb-2 transition-colors"
-                onKeyDown={(e) => e.key === 'Enter' && handleAddProject()}
+                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
               />
               <input
                 type="text"
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
                 placeholder="설명 (선택사항)"
-                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm mb-3 transition-colors"
+                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
               />
-              {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
+
+              {/* 파일 드롭 존 */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                  isDragging
+                    ? 'border-indigo-400 bg-indigo-500/10'
+                    : 'border-white/20 hover:border-white/40 hover:bg-white/5'
+                }`}
+              >
+                <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="text-gray-300 text-sm font-medium">파일을 여기에 드래그하거나 클릭하여 업로드</p>
+                <p className="text-gray-500 text-xs mt-1">PDF, DOCX, MD, TXT · 최대 20MB</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".pdf,.docx,.doc,.md,.txt"
+                  className="hidden"
+                  onChange={(e) => e.target.files && addFiles(e.target.files)}
+                />
+              </div>
+
+              {/* 선택된 파일 목록 */}
+              {newFiles.length > 0 && (
+                <div className="space-y-1.5">
+                  {newFiles.map((file, i) => {
+                    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+                    return (
+                      <div key={i} className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
+                        <span className="text-sm">{FILE_ICONS[ext] || '📄'}</span>
+                        <span className="text-white text-xs flex-1 truncate">{file.name}</span>
+                        <span className="text-gray-400 text-xs shrink-0">{formatFileSize(file.size)}</span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setNewFiles(prev => prev.filter((_, idx) => idx !== i)); }}
+                          className="text-gray-500 hover:text-red-400 transition-colors ml-1"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {error && <p className="text-red-400 text-xs whitespace-pre-line">{error}</p>}
+              {addProgress && <p className="text-indigo-300 text-xs">{addProgress}</p>}
+
               <div className="flex gap-2">
                 <button onClick={handleAddProject} disabled={adding}
                   className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-all">
-                  {adding ? '추가 중...' : '추가'}
+                  {adding ? addProgress || '처리 중...' : '카테고리 추가'}
                 </button>
-                <button onClick={() => { setShowAddForm(false); setError(''); setNewName(''); setNewDesc(''); }}
+                <button onClick={resetAddForm}
                   className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 text-sm rounded-lg transition-all">
                   취소
                 </button>
@@ -194,7 +319,7 @@ export default function UserDashboardPage() {
             </div>
           )}
 
-          {/* 항목 목록 */}
+          {/* 카테고리 목록 */}
           {loadingProjects ? (
             <div className="text-center py-8 text-gray-400 text-sm">불러오는 중...</div>
           ) : projects.length === 0 ? (
@@ -208,52 +333,70 @@ export default function UserDashboardPage() {
               <p className="text-gray-500 text-xs mt-1">"콘텐츠 카테고리 추가하기" 버튼으로 추가하세요.</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {projects.map((project) => (
                 <div
                   key={project.id}
-                  className={`flex items-center gap-3 p-4 rounded-xl border transition-all group ${
+                  className={`p-4 rounded-xl border transition-all ${
                     selectedProject?.id === project.id
                       ? 'bg-indigo-600/30 border-indigo-400/60'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                    selectedProject?.id === project.id ? 'bg-indigo-500' : 'bg-white/10'
-                  }`}>
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-semibold text-sm">{project.name}</p>
-                    {project.description && (
-                      <p className="text-gray-400 text-xs truncate mt-0.5">{project.description}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => handleSelectProject(project)}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
-                    >
-                      선택
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProject(project.id)}
-                      disabled={deletingId === project.id}
-                      className="p-1.5 text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
+                      selectedProject?.id === project.id ? 'bg-indigo-500' : 'bg-white/10'
+                    }`}>
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                    </button>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-semibold text-sm">{project.name}</p>
+                      {project.description && (
+                        <p className="text-gray-400 text-xs truncate mt-0.5">{project.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleSelectProject(project)}
+                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
+                      >
+                        선택
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProject(project.id)}
+                        disabled={deletingId === project.id}
+                        className="p-1.5 text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
+
+                  {/* 업로드된 파일 목록 */}
+                  {project.files && project.files.length > 0 && (
+                    <div className="mt-3 pt-3 border-t border-white/10 flex flex-wrap gap-1.5">
+                      {project.files.map((f) => {
+                        const ext = f.file_name.split('.').pop()?.toLowerCase() || '';
+                        return (
+                          <span key={f.id} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 rounded-lg text-xs text-gray-300">
+                            <span>{FILE_ICONS[ext] || '📄'}</span>
+                            <span className="max-w-[140px] truncate">{f.file_name}</span>
+                            {f.file_size && <span className="text-gray-500">{formatFileSize(f.file_size)}</span>}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
 
-          {/* 현재 선택된 카테고리 표시 */}
+          {/* 현재 선택된 카테고리 */}
           {selectedProject && (
             <div className="mt-4 p-3 bg-indigo-600/20 border border-indigo-400/30 rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -269,7 +412,7 @@ export default function UserDashboardPage() {
           )}
         </div>
 
-        {/* 바로가기 버튼 */}
+        {/* 바로가기 */}
         {selectedProject && (
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Link href="/analyze" className="flex items-center justify-center gap-2 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold rounded-xl transition-all">

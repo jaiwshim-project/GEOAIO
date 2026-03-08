@@ -8,7 +8,7 @@ function getServiceClient() {
   return createClient(url, key);
 }
 
-// 사용자의 작업 항목 목록 조회
+// 사용자의 작업 항목 목록 조회 (파일 포함)
 export async function GET(req: NextRequest) {
   try {
     const userId = req.nextUrl.searchParams.get('user_id');
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const supabase = getServiceClient();
     const { data, error } = await supabase
       .from('user_projects')
-      .select('*')
+      .select('*, files:project_files(id, file_name, file_path, file_size, file_type)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
