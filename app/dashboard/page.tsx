@@ -25,7 +25,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 type ProjectItem = { id: string; name: string };
-type GenItem = { id: string; title: string; topic: string; created_at: string; selected_ab_index: number };
+type GenItem = { id: string; title: string; topic: string; category?: string; created_at: string; selected_ab_index: number };
 
 export default function DashboardPage() {
   const router = useRouter();
