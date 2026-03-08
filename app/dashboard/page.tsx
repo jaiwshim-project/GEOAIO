@@ -12,9 +12,21 @@ const DashboardStats = dynamic(() => import('@/components/DashboardStats'), { ss
 
 type TabType = 'analysis' | 'generation';
 
+const CATEGORY_LABELS: Record<string, string> = {
+  blog: '블로그',
+  product: '제품/서비스',
+  faq: 'FAQ',
+  howto: 'How-to',
+  landing: '랜딩페이지',
+  technical: '기술문서',
+  social: 'SNS',
+  email: '이메일',
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('generation');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [expandedRevisions, setExpandedRevisions] = useState<Set<string>>(new Set());
   const [showStats, setShowStats] = useState(true);
@@ -23,7 +35,16 @@ export default function DashboardPage() {
     getHistoryAsync().then(setHistory);
   }, []);
 
-  const filteredHistory = history.filter(h => h.type === activeTab);
+  // 생성 탭의 카테고리 목록 (실제 데이터에 있는 것만)
+  const genCategories = Array.from(
+    new Set(history.filter(h => h.type === 'generation' && h.category).map(h => h.category!))
+  );
+
+  const filteredHistory = history.filter(h => {
+    if (h.type !== activeTab) return false;
+    if (activeTab === 'generation' && activeCategory && h.category !== activeCategory) return false;
+    return true;
+  });
 
   const handleDelete = async (id: string) => {
     await deleteHistoryItem(id);
@@ -73,7 +94,7 @@ export default function DashboardPage() {
         {/* 탭 */}
         <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-1.5 flex gap-1">
           <button
-            onClick={() => setActiveTab('analysis')}
+            onClick={() => { setActiveTab('analysis'); setActiveCategory(null); }}
             className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border hover:shadow-md ${
               activeTab === 'analysis'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm border-sky-300'
@@ -89,7 +110,7 @@ export default function DashboardPage() {
             </span>
           </button>
           <button
-            onClick={() => setActiveTab('generation')}
+            onClick={() => { setActiveTab('generation'); setActiveCategory(null); }}
             className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border hover:shadow-md ${
               activeTab === 'generation'
                 ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-sm border-purple-300'
@@ -105,6 +126,38 @@ export default function DashboardPage() {
             </span>
           </button>
         </div>
+
+        {/* 카테고리 필터 버튼 (생성 탭에서만) */}
+        {activeTab === 'generation' && genCategories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveCategory(null)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeCategory === null
+                  ? 'bg-violet-600 text-white shadow-sm'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600'
+              }`}
+            >
+              전체 ({history.filter(h => h.type === 'generation').length})
+            </button>
+            {genCategories.map(cat => {
+              const count = history.filter(h => h.type === 'generation' && h.category === cat).length;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    activeCategory === cat
+                      ? 'bg-violet-600 text-white shadow-sm'
+                      : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600'
+                  }`}
+                >
+                  {CATEGORY_LABELS[cat] || cat} ({count})
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* 이력 목록 */}
         {filteredHistory.length === 0 ? (
