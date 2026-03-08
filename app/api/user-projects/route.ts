@@ -48,6 +48,27 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// 작업 항목 수정
+export async function PATCH(req: NextRequest) {
+  try {
+    const { id, name, description } = await req.json();
+    if (!id || !name?.trim()) return NextResponse.json({ error: 'id와 이름은 필수입니다.' }, { status: 400 });
+
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from('user_projects')
+      .update({ name: name.trim(), description: description || null })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ project: data });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
+  }
+}
+
 // 작업 항목 삭제
 export async function DELETE(req: NextRequest) {
   try {

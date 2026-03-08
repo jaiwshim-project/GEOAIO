@@ -37,6 +37,18 @@ export default function UserDashboardPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 수정 상태
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
+  const [editIsDragging, setEditIsDragging] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editProgress, setEditProgress] = useState('');
+  const [editError, setEditError] = useState('');
+  const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!currentUser) router.push('/user-select');
   }, [currentUser, router]);
@@ -104,26 +116,36 @@ export default function UserDashboardPage() {
       const projectId = data.project.id;
       const uploadedFiles: ProjectFile[] = [];
 
-      // 2. 파일 업로드
+      // 2. 파일 업로드 (parse-file → DB 저장)
       for (let i = 0; i < newFiles.length; i++) {
         const file = newFiles[i];
-        setAddProgress(`파일 업로드 중... (${i + 1}/${newFiles.length}) ${file.name}`);
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('project_id', projectId);
         try {
-          const fRes = await fetch('/api/user-projects/files', { method: 'POST', body: fd });
-          let fData: { file?: unknown; error?: string } = {};
-          try { fData = await fRes.json(); } catch { /* non-JSON response */ }
+          // 2a. 텍스트 추출
+          setAddProgress(`텍스트 추출 중... (${i + 1}/${newFiles.length}) ${file.name}`);
+          const fd = new FormData();
+          fd.append('file', file);
+          const parseRes = await fetch('/api/parse-file', { method: 'POST', body: fd });
+          let content = '';
+          if (parseRes.ok) {
+            const parseData = await parseRes.json();
+            content = parseData.text || '';
+          }
+
+          // 2b. DB 저장
+          setAddProgress(`저장 중... (${i + 1}/${newFiles.length}) ${file.name}`);
+          const fRes = await fetch('/api/user-projects/files', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId, file_name: file.name, file_size: file.size, file_type: file.type, content }),
+          });
+          const fData = await fRes.json();
           if (fRes.ok && fData.file) {
             uploadedFiles.push(fData.file as ProjectFile);
           } else {
-            console.error(`파일 업로드 실패 [${file.name}]:`, fData.error || fRes.status);
-            setError(`파일 업로드 실패 (${file.name}): ${fData.error || `HTTP ${fRes.status}`}`);
+            setError(`파일 저장 실패 (${file.name}): ${fData.error || `HTTP ${fRes.status}`}`);
           }
         } catch (fileErr) {
-          console.error(`파일 업로드 오류 [${file.name}]:`, fileErr);
-          setError(`파일 업로드 오류 (${file.name}): ${fileErr instanceof Error ? fileErr.message : '네트워크 오류'}`);
+          setError(`파일 오류 (${file.name}): ${fileErr instanceof Error ? fileErr.message : '네트워크 오류'}`);
         }
       }
 
@@ -137,6 +159,112 @@ export default function UserDashboardPage() {
     } finally {
       setAdding(false);
       setAddProgress('');
+    }
+  };
+
+  const startEdit = (project: UserProject) => {
+    setEditingId(project.id);
+    setEditName(project.name);
+    setEditDesc(project.description || '');
+    setEditNewFiles([]);
+    setEditError('');
+    setEditProgress('');
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditNewFiles([]);
+    setEditError('');
+  };
+
+  const addEditFiles = (incoming: FileList | File[]) => {
+    const arr = Array.from(incoming);
+    const errors: string[] = [];
+    const valid: File[] = [];
+    for (const f of arr) {
+      const err = validateFile(f);
+      if (err) errors.push(err);
+      else if (!editNewFiles.find(e => e.name === f.name)) valid.push(f);
+    }
+    if (errors.length) setEditError(errors.join('\n'));
+    setEditNewFiles(prev => [...prev, ...valid]);
+  };
+
+  const handleDeleteFile = async (projectId: string, fileId: string) => {
+    setDeletingFileId(fileId);
+    try {
+      const res = await fetch('/api/user-projects/files', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: fileId }),
+      });
+      if (res.ok) {
+        setProjects(prev => prev.map(p =>
+          p.id === projectId
+            ? { ...p, files: p.files?.filter(f => f.id !== fileId) }
+            : p
+        ));
+      }
+    } finally {
+      setDeletingFileId(null);
+    }
+  };
+
+  const handleUpdateProject = async (projectId: string) => {
+    if (!editName.trim()) { setEditError('카테고리 이름을 입력해주세요.'); return; }
+    setEditSaving(true);
+    setEditError('');
+    try {
+      // 1. 이름/설명 수정
+      setEditProgress('정보 저장 중...');
+      const res = await fetch('/api/user-projects', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setEditError(data.error || '수정 실패'); return; }
+
+      // 2. 새 파일 업로드
+      const uploadedFiles: ProjectFile[] = [];
+      for (let i = 0; i < editNewFiles.length; i++) {
+        const file = editNewFiles[i];
+        try {
+          setEditProgress(`파일 추가 중... (${i + 1}/${editNewFiles.length}) ${file.name}`);
+          const fd = new FormData();
+          fd.append('file', file);
+          const parseRes = await fetch('/api/parse-file', { method: 'POST', body: fd });
+          let content = '';
+          if (parseRes.ok) {
+            const parseData = await parseRes.json();
+            content = parseData.text || '';
+          }
+          const fRes = await fetch('/api/user-projects/files', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_id: projectId, file_name: file.name, file_size: file.size, file_type: file.type, content }),
+          });
+          const fData = await fRes.json();
+          if (fRes.ok && fData.file) uploadedFiles.push(fData.file as ProjectFile);
+          else setEditError(`파일 저장 실패 (${file.name}): ${fData.error || ''}`);
+        } catch (fileErr) {
+          setEditError(`파일 오류 (${file.name}): ${fileErr instanceof Error ? fileErr.message : '오류'}`);
+        }
+      }
+
+      setProjects(prev => prev.map(p =>
+        p.id === projectId
+          ? { ...p, name: data.project.name, description: data.project.description, files: [...(p.files || []), ...uploadedFiles] }
+          : p
+      ));
+      if (selectedProject?.id === projectId) {
+        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description });
+      }
+      setEditingId(null);
+      setEditNewFiles([]);
+    } finally {
+      setEditSaving(false);
+      setEditProgress('');
     }
   };
 
@@ -354,53 +482,171 @@ export default function UserDashboardPage() {
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                      selectedProject?.id === project.id ? 'bg-indigo-500' : 'bg-white/10'
-                    }`}>
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-semibold text-sm">{project.name}</p>
-                      {project.description && (
-                        <p className="text-gray-400 text-xs truncate mt-0.5">{project.description}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => handleSelectProject(project)}
-                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
-                      >
-                        선택
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProject(project.id)}
-                        disabled={deletingId === project.id}
-                        className="p-1.5 text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
+                  {editingId === project.id ? (
+                    /* ===== 수정 폼 ===== */
+                    <div className="space-y-3">
+                      <p className="text-indigo-300 text-xs font-semibold">카테고리 수정</p>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="카테고리 이름"
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                      />
+                      <input
+                        type="text"
+                        value={editDesc}
+                        onChange={(e) => setEditDesc(e.target.value)}
+                        placeholder="설명 (선택사항)"
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                      />
 
-                  {/* 업로드된 파일 목록 */}
-                  {project.files && project.files.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-white/10 flex flex-wrap gap-1.5">
-                      {project.files.map((f) => {
-                        const ext = f.file_name.split('.').pop()?.toLowerCase() || '';
-                        return (
-                          <span key={f.id} className="inline-flex items-center gap-1 px-2 py-1 bg-white/10 rounded-lg text-xs text-gray-300">
-                            <span>{FILE_ICONS[ext] || '📄'}</span>
-                            <span className="max-w-[140px] truncate">{f.file_name}</span>
-                            {f.file_size && <span className="text-gray-500">{formatFileSize(f.file_size)}</span>}
-                          </span>
-                        );
-                      })}
+                      {/* 기존 파일 목록 (삭제 가능) */}
+                      {project.files && project.files.length > 0 && (
+                        <div>
+                          <p className="text-gray-500 text-xs mb-1.5">업로드된 파일</p>
+                          <div className="space-y-1">
+                            {project.files.map((f) => {
+                              const ext = f.file_name.split('.').pop()?.toLowerCase() || '';
+                              return (
+                                <div key={f.id} className="flex items-center gap-2 px-2 py-1.5 bg-white/5 rounded-lg">
+                                  <span className="text-sm shrink-0">{FILE_ICONS[ext] || '📄'}</span>
+                                  <span className="text-gray-200 text-xs flex-1 truncate">{f.file_name}</span>
+                                  {f.file_size && <span className="text-gray-500 text-xs shrink-0">{formatFileSize(f.file_size)}</span>}
+                                  <button
+                                    onClick={() => handleDeleteFile(project.id, f.id)}
+                                    disabled={deletingFileId === f.id}
+                                    className="p-1 text-gray-500 hover:text-red-400 transition-colors disabled:opacity-40 shrink-0"
+                                    title="파일 삭제"
+                                  >
+                                    {deletingFileId === f.id
+                                      ? <span className="text-xs">...</span>
+                                      : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    }
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 새 파일 추가 드롭존 */}
+                      <div
+                        onDragOver={(e) => { e.preventDefault(); setEditIsDragging(true); }}
+                        onDragLeave={() => setEditIsDragging(false)}
+                        onDrop={(e) => { e.preventDefault(); setEditIsDragging(false); addEditFiles(e.dataTransfer.files); }}
+                        onClick={() => editFileInputRef.current?.click()}
+                        className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all ${
+                          editIsDragging ? 'border-indigo-400 bg-indigo-500/10' : 'border-white/20 hover:border-white/40'
+                        }`}
+                      >
+                        <p className="text-gray-400 text-xs">새 파일 추가 (드래그 또는 클릭)</p>
+                        <p className="text-gray-600 text-xs mt-0.5">PDF, DOCX, MD, TXT · 최대 20MB</p>
+                        <input ref={editFileInputRef} type="file" multiple accept=".pdf,.docx,.doc,.md,.txt" className="hidden"
+                          onChange={(e) => e.target.files && addEditFiles(e.target.files)} />
+                      </div>
+
+                      {/* 추가할 새 파일 목록 */}
+                      {editNewFiles.length > 0 && (
+                        <div className="space-y-1">
+                          {editNewFiles.map((file, i) => {
+                            const ext = file.name.split('.').pop()?.toLowerCase() || '';
+                            return (
+                              <div key={i} className="flex items-center gap-2 px-2 py-1.5 bg-indigo-500/10 border border-indigo-500/30 rounded-lg">
+                                <span className="text-sm shrink-0">{FILE_ICONS[ext] || '📄'}</span>
+                                <span className="text-indigo-200 text-xs flex-1 truncate">{file.name}</span>
+                                <span className="text-gray-500 text-xs shrink-0">{formatFileSize(file.size)}</span>
+                                <button onClick={() => setEditNewFiles(prev => prev.filter((_, idx) => idx !== i))}
+                                  className="p-1 text-gray-500 hover:text-red-400 transition-colors shrink-0">
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {editError && <p className="text-red-400 text-xs whitespace-pre-line">{editError}</p>}
+                      {editProgress && <p className="text-indigo-300 text-xs">{editProgress}</p>}
+
+                      <div className="flex gap-2">
+                        <button onClick={() => handleUpdateProject(project.id)} disabled={editSaving}
+                          className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-all">
+                          {editSaving ? editProgress || '저장 중...' : '저장'}
+                        </button>
+                        <button onClick={cancelEdit}
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 text-xs rounded-lg transition-all">
+                          취소
+                        </button>
+                      </div>
                     </div>
+                  ) : (
+                    /* ===== 일반 보기 ===== */
+                    <>
+                      {/* 상단: 이름 + 버튼 */}
+                      <div className="flex items-start gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                          selectedProject?.id === project.id ? 'bg-indigo-500' : 'bg-white/10'
+                        }`}>
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-bold text-sm">{project.name}</p>
+                          {project.description && (
+                            <p className="text-gray-400 text-xs mt-1 leading-relaxed">{project.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            onClick={() => handleSelectProject(project)}
+                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
+                          >
+                            선택
+                          </button>
+                          <button
+                            onClick={() => startEdit(project)}
+                            className="p-1.5 text-gray-400 hover:text-indigo-300 transition-colors"
+                            title="수정"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProject(project.id)}
+                            disabled={deletingId === project.id}
+                            className="p-1.5 text-gray-500 hover:text-red-400 transition-colors disabled:opacity-50"
+                            title="삭제"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 업로드된 파일 목록 */}
+                      {project.files && project.files.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-white/10">
+                          <p className="text-gray-500 text-xs mb-1.5">업로드된 파일 ({project.files.length})</p>
+                          <div className="space-y-1">
+                            {project.files.map((f) => {
+                              const ext = f.file_name.split('.').pop()?.toLowerCase() || '';
+                              return (
+                                <div key={f.id} className="flex items-center gap-2 px-2 py-1.5 bg-white/5 rounded-lg">
+                                  <span className="text-sm shrink-0">{FILE_ICONS[ext] || '📄'}</span>
+                                  <span className="text-gray-200 text-xs flex-1 truncate">{f.file_name}</span>
+                                  {f.file_size && <span className="text-gray-500 text-xs shrink-0">{formatFileSize(f.file_size)}</span>}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               ))}

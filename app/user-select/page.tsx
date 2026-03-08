@@ -43,6 +43,8 @@ export default function UserSelectPage() {
   const handlePinKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' && !pin[index] && index > 0)
       document.getElementById(`pin-${index - 1}`)?.focus();
+    if (e.key === 'Enter' && pin.join('').length === 4)
+      handleVerify();
   };
 
   const handleVerify = async () => {
