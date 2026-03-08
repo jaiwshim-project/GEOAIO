@@ -125,10 +125,12 @@ export default function GeneratePage() {
   const [profileSaveMsg, setProfileSaveMsg] = useState('');
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileListRef = useRef<HTMLDivElement>(null);
+  const topicDropdownRef = useRef<HTMLDivElement>(null);
 
-  // 주제 추천
+  // 주제 추천 드롭다운
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
+  const [showTopicDropdown, setShowTopicDropdown] = useState(false);
   // 키워드 추천
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
@@ -139,6 +141,17 @@ export default function GeneratePage() {
   useEffect(() => {
     getProfiles().then(profiles => setSavedProfiles(profiles));
   }, []);
+
+  // 주제 드롭다운 외부 클릭 닫기
+  useEffect(() => {
+    if (!showTopicDropdown) return;
+    const handler = (e: MouseEvent) => {
+      if (topicDropdownRef.current && !topicDropdownRef.current.contains(e.target as Node))
+        setShowTopicDropdown(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showTopicDropdown]);
 
   // 카테고리 선택 시 주제 추천 로드
   useEffect(() => {
@@ -192,6 +205,7 @@ export default function GeneratePage() {
 
   const handleTopicSuggestionClick = (suggestion: string) => {
     setTopic(suggestion);
+    setShowTopicDropdown(false);
     fetchKeywordSuggestions(suggestion);
   };
 
@@ -960,104 +974,107 @@ export default function GeneratePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       주제 <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      onBlur={(e) => { if (e.target.value.trim()) fetchKeywordSuggestions(e.target.value.trim()); }}
-                      placeholder="예: 2024년 AI 마케팅 트렌드, 홈트레이닝 초보자 가이드"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-400"
-                    />
-                    {/* 주제 추천 */}
-                    {(loadingTopics || topicSuggestions.length > 0) && (
-                      <div className="mt-2">
-                        <p className="text-xs text-gray-500 mb-1.5">
-                          {loadingTopics ? '✨ AI가 주제를 추천하는 중...' : '✨ AI 추천 주제 (클릭하여 선택)'}
-                        </p>
-                        {loadingTopics ? (
-                          <div className="flex gap-1.5">
-                            {[1,2,3].map(i => <div key={i} className="h-7 w-24 bg-gray-100 rounded-lg animate-pulse" />)}
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap gap-1.5">
-                            {topicSuggestions.map((s, i) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={() => handleTopicSuggestionClick(s)}
-                                className={`px-3 py-1.5 text-xs rounded-lg border transition-all text-left ${
-                                  topic === s
-                                    ? 'bg-blue-600 text-white border-blue-600'
-                                    : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
-                                }`}
-                              >
-                                {s}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <div className="relative" ref={topicDropdownRef}>
+                      <input
+                        type="text"
+                        value={topic}
+                        onChange={(e) => setTopic(e.target.value)}
+                        onBlur={(e) => { if (e.target.value.trim()) fetchKeywordSuggestions(e.target.value.trim()); }}
+                        placeholder="예: 2024년 AI 마케팅 트렌드, 홈트레이닝 초보자 가이드"
+                        className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-400"
+                      />
+                      {/* 드롭다운 버튼 */}
+                      <button
+                        type="button"
+                        onClick={() => setShowTopicDropdown(v => !v)}
+                        title="AI 주제 추천"
+                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all ${
+                          showTopicDropdown ? 'bg-blue-600 text-white' : 'text-blue-500 hover:bg-blue-50'
+                        }`}
+                      >
+                        {loadingTopics
+                          ? <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                          : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        }
+                      </button>
+
+                      {/* 드롭다운 목록 */}
+                      {showTopicDropdown && (
+                        <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-blue-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                          {loadingTopics ? (
+                            <div className="p-3 space-y-2">
+                              {[1,2,3,4,5].map(i => <div key={i} className="h-6 bg-gray-100 rounded animate-pulse" />)}
+                            </div>
+                          ) : topicSuggestions.length === 0 ? (
+                            <p className="p-3 text-xs text-gray-400 text-center">콘텐츠 유형을 먼저 선택하세요</p>
+                          ) : (
+                            <ul className="py-1">
+                              <li className="px-3 py-1.5 text-xs text-blue-500 font-semibold bg-blue-50 border-b border-blue-100">✨ AI 추천 주제</li>
+                              {topicSuggestions.map((s, i) => (
+                                <li key={i}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleTopicSuggestionClick(s)}
+                                    className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                                  >
+                                    {s}
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* 타겟 키워드 */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">타겟 키워드 (선택)</label>
-                    {/* AI 추천 키워드 칩 */}
-                    {(loadingKeywords || keywordSuggestions.length > 0) && (
-                      <div className="mb-2">
-                        <p className="text-xs text-gray-500 mb-1.5">
-                          {loadingKeywords ? '🔍 AI가 키워드를 추천하는 중...' : '🔍 AI 추천 키워드 (클릭하여 선택/해제)'}
-                        </p>
-                        {loadingKeywords ? (
-                          <div className="flex gap-1.5">
-                            {[1,2,3].map(i => <div key={i} className="h-7 w-20 bg-gray-100 rounded-full animate-pulse" />)}
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap gap-1.5">
-                            {keywordSuggestions.map((kw, i) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={() => toggleKeyword(kw)}
-                                className={`px-3 py-1 text-xs rounded-full border transition-all ${
-                                  selectedKeywords.includes(kw)
-                                    ? 'bg-indigo-600 text-white border-indigo-600'
-                                    : 'bg-gray-50 text-gray-600 border-gray-300 hover:border-indigo-300'
-                                }`}
-                              >
-                                {selectedKeywords.includes(kw) ? '✓ ' : ''}{kw}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {/* 선택된 키워드 + 직접 추가 */}
-                    <div className="flex gap-2">
+
+                    {/* 선택된 키워드 칩 + 입력창 */}
+                    <div className={`flex flex-wrap gap-1.5 px-3 py-2 border border-gray-200 rounded-xl bg-white focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-transparent min-h-[48px] items-center ${loadingKeywords ? 'bg-gray-50' : ''}`}>
+                      {loadingKeywords && (
+                        <span className="text-xs text-indigo-500 flex items-center gap-1">
+                          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                          키워드 추천 중...
+                        </span>
+                      )}
+                      {selectedKeywords.map((kw, i) => (
+                        <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-600 text-white text-xs rounded-full">
+                          {kw}
+                          <button type="button"
+                            onClick={() => { setSelectedKeywords(p => { const n = p.filter(k => k !== kw); setTargetKeyword(n.join(', ')); return n; }); }}
+                            className="hover:text-indigo-200 ml-0.5 leading-none font-bold">×</button>
+                        </span>
+                      ))}
                       <input
                         type="text"
                         value={customKeyword}
                         onChange={(e) => setCustomKeyword(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomKeyword(); } }}
-                        placeholder={selectedKeywords.length > 0 ? `선택됨: ${selectedKeywords.join(', ')}` : '직접 입력하거나 위에서 선택하세요'}
-                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-400"
+                        placeholder={selectedKeywords.length === 0 && !loadingKeywords ? '키워드 직접 입력 후 Enter' : ''}
+                        className="flex-1 min-w-[120px] text-sm outline-none bg-transparent placeholder-gray-400 py-1"
                       />
-                      {customKeyword.trim() && (
-                        <button type="button" onClick={addCustomKeyword}
-                          className="px-3 py-3 bg-indigo-600 text-white text-xs rounded-xl hover:bg-indigo-500 transition-all shrink-0">
-                          추가
-                        </button>
-                      )}
                     </div>
-                    {selectedKeywords.length > 0 && (
-                      <div className="mt-1.5 flex flex-wrap gap-1">
-                        {selectedKeywords.map((kw, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
-                            {kw}
-                            <button type="button" onClick={() => { setSelectedKeywords(p => { const n = p.filter(k => k !== kw); setTargetKeyword(n.join(', ')); return n; }); }}
-                              className="hover:text-red-500 ml-0.5 leading-none">×</button>
-                          </span>
+
+                    {/* AI 추천 키워드 */}
+                    {keywordSuggestions.length > 0 && !loadingKeywords && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        <span className="text-xs text-gray-400 self-center">추천:</span>
+                        {keywordSuggestions.map((kw, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => toggleKeyword(kw)}
+                            className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
+                              selectedKeywords.includes(kw)
+                                ? 'bg-indigo-100 text-indigo-600 border-indigo-300 line-through opacity-50'
+                                : 'bg-gray-50 text-gray-600 border-gray-300 hover:border-indigo-400 hover:text-indigo-600'
+                            }`}
+                          >
+                            + {kw}
+                          </button>
                         ))}
                       </div>
                     )}
