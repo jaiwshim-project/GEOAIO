@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { getGeminiKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
 import type { GenerateRequest } from '@/lib/types';
 
@@ -20,7 +20,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   email: '이메일 마케팅',
 };
 
-const SYSTEM_PROMPT = `당신은 AIO(AI Overview)와 GEO(Generative Engine Optimization) 전문 콘텐츠 작가입니다.
+const SYSTEM_INSTRUCTION = `당신은 AIO(AI Overview)와 GEO(Generative Engine Optimization) 전문 콘텐츠 작가입니다.
 
 콘텐츠 생성 원칙:
 1. 역피라미드 구조: 핵심 정보를 상단에 배치
@@ -30,45 +30,34 @@ const SYSTEM_PROMPT = `당신은 AIO(AI Overview)와 GEO(Generative Engine Optim
 5. FAQ 섹션 포함: AI Overview 노출 확률 증가
 6. 의미적 완성도: 관련 검색어와 롱테일 키워드 자연스럽게 포함
 7. 인용 가능한 문장: "~이란 ~이다", "~의 핵심은 ~이다" 형태의 정의문 활용
+8. 콘텐츠는 반드시 한국어로 작성하고 최소 1000자 이상이어야 합니다.`;
 
-반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트는 포함하지 마세요.
-
-{
-  "title": "생성된 콘텐츠 제목",
-  "content": "전체 콘텐츠 (마크다운 형식)",
-  "hashtags": ["#해시태그1", "#해시태그2", "#해시태그3", "#해시태그4", "#해시태그5", "#해시태그6", "#해시태그7", "#해시태그8", "#해시태그9", "#해시태그10"],
-  "metadata": {
-    "wordCount": 1200,
-    "estimatedReadTime": "약 5분",
-    "seoTips": ["SEO 팁1", "SEO 팁2", "SEO 팁3"]
-  }
-}`;
-
-function extractJSON(text: string): unknown {
-  // 코드 펜스 제거
-  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const cleaned = fenceMatch ? fenceMatch[1].trim() : text.trim();
-
-  // 직접 파싱 시도
-  try { return JSON.parse(cleaned); } catch {}
-
-  // { ... } 범위 추출 후 파싱
-  const start = cleaned.indexOf('{');
-  if (start !== -1) {
-    let depth = 0;
-    for (let i = start; i < cleaned.length; i++) {
-      if (cleaned[i] === '{') depth++;
-      else if (cleaned[i] === '}') {
-        depth--;
-        if (depth === 0) {
-          try { return JSON.parse(cleaned.slice(start, i + 1)); } catch {}
-          break;
-        }
-      }
-    }
-  }
-  throw new Error('JSON not found');
-}
+const RESPONSE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    title: { type: Type.STRING, description: '콘텐츠 제목' },
+    content: { type: Type.STRING, description: '마크다운 형식의 전체 콘텐츠 (최소 1000자)' },
+    hashtags: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: '관련 해시태그 10개 (#포함)',
+    },
+    metadata: {
+      type: Type.OBJECT,
+      properties: {
+        wordCount: { type: Type.NUMBER, description: '글자 수' },
+        estimatedReadTime: { type: Type.STRING, description: '예상 읽기 시간 (예: 약 5분)' },
+        seoTips: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+          description: 'SEO 최적화 팁 3가지',
+        },
+      },
+      required: ['wordCount', 'estimatedReadTime', 'seoTips'],
+    },
+  },
+  required: ['title', 'content', 'hashtags', 'metadata'],
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -97,36 +86,25 @@ export async function POST(request: NextRequest) {
 콘텐츠 유형: ${categoryLabel}
 톤/스타일: ${toneDesc}
 ${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}
-${body.additionalNotes ? `\n${body.additionalNotes}\n` : ''}
-중요 지침:
-- 위 참조 자료가 있다면, 그 안의 정보, 데이터, 수치, 사실관계를 적극 반영하여 콘텐츠를 작성하세요.
-- 참조 자료의 핵심 내용을 인용하거나 재구성하여 콘텐츠의 신뢰성과 구체성을 높이세요.
-- 사용자 요구사항이 있다면 반드시 반영하세요.
-
-GEO/AIO에 최적화된 고품질 콘텐츠를 마크다운 형식으로 작성해주세요.
-콘텐츠는 한국어로 작성하며, 최소 1000자 이상이어야 합니다.`;
+${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : ''}
+GEO/AIO에 최적화된 고품질 콘텐츠를 작성해주세요.`;
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
-      contents: `${SYSTEM_PROMPT}\n\n${userMessage}`,
+      contents: userMessage,
       config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
         maxOutputTokens: 8192,
         responseMimeType: 'application/json',
+        responseSchema: RESPONSE_SCHEMA,
       },
     });
 
     const text = response.text || '';
-    try {
-      const parsed = extractJSON(text);
-      return withCors(NextResponse.json(parsed));
-    } catch {
-      console.error('JSON parse error. Raw response:', text.slice(0, 500));
-      return withCors(NextResponse.json(
-        { error: '콘텐츠 생성 결과를 파싱할 수 없습니다. 다시 시도해주세요.' },
-        { status: 500 }
-      ));
-    }
+    const parsed = JSON.parse(text);
+    return withCors(NextResponse.json(parsed));
+
   } catch (error: unknown) {
     console.error('Content generation error:', error);
     const msg = error instanceof Error ? error.message : '콘텐츠 생성 중 오류가 발생했습니다.';
