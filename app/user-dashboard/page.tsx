@@ -111,9 +111,20 @@ export default function UserDashboardPage() {
         const fd = new FormData();
         fd.append('file', file);
         fd.append('project_id', projectId);
-        const fRes = await fetch('/api/user-projects/files', { method: 'POST', body: fd });
-        const fData = await fRes.json();
-        if (fRes.ok && fData.file) uploadedFiles.push(fData.file);
+        try {
+          const fRes = await fetch('/api/user-projects/files', { method: 'POST', body: fd });
+          let fData: { file?: unknown; error?: string } = {};
+          try { fData = await fRes.json(); } catch { /* non-JSON response */ }
+          if (fRes.ok && fData.file) {
+            uploadedFiles.push(fData.file as ProjectFile);
+          } else {
+            console.error(`파일 업로드 실패 [${file.name}]:`, fData.error || fRes.status);
+            setError(`파일 업로드 실패 (${file.name}): ${fData.error || `HTTP ${fRes.status}`}`);
+          }
+        } catch (fileErr) {
+          console.error(`파일 업로드 오류 [${file.name}]:`, fileErr);
+          setError(`파일 업로드 오류 (${file.name}): ${fileErr instanceof Error ? fileErr.message : '네트워크 오류'}`);
+        }
       }
 
       setProjects(prev => [{ ...data.project, files: uploadedFiles }, ...prev]);

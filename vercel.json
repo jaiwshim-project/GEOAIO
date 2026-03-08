@@ -3,6 +3,10 @@
     "app/api/parse-file/route.ts": {
       "maxDuration": 30,
       "memory": 1024
+    },
+    "app/api/user-projects/files/route.ts": {
+      "maxDuration": 30,
+      "memory": 1024
     }
   },
   "crons": [
