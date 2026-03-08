@@ -84,6 +84,24 @@ export default function AdminPage() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordChecking, setPasswordChecking] = useState(false);
 
+  // 프로젝트 집계 (등급 관리 탭 + 콘텐츠 현황 탭 공용)
+  type AdminProject = { id: string; user_id: string; name: string; description: string | null; created_at: string; content_count: number };
+  const [allProjects, setAllProjects] = useState<AdminProject[]>([]);
+  const [expandedUserProjects, setExpandedUserProjects] = useState<string | null>(null);
+
+  const loadAllProjects = async (pw?: string) => {
+    const password = pw || sessionStorage.getItem('admin_pw') || '';
+    try {
+      const res = await fetch('/api/admin/projects', {
+        headers: password ? { 'X-Admin-Password': password } : {},
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAllProjects(data.projects || []);
+      }
+    } catch { /* ignore */ }
+  };
+
   // 콘텐츠 현황 탭
   type ContentItem = { id: string; title: string; topic: string; category: string; is_ab: boolean; selected_ab_index: number; created_at: string };
   type Project = { id: string; name: string; description: string | null };
@@ -136,6 +154,7 @@ export default function AdminPage() {
           if (res.ok) {
             setAuthenticated(true);
             loadUsers(savedPw);
+            loadAllProjects(savedPw);
             setAuthChecking(false);
             return;
           }
@@ -144,6 +163,7 @@ export default function AdminPage() {
         if (plan === 'admin') {
           setAuthenticated(true);
           loadUsers();
+          loadAllProjects();
         }
       } catch {
         // not logged in
@@ -189,6 +209,7 @@ export default function AdminPage() {
         sessionStorage.setItem('admin_pw', adminPassword);
         setAuthenticated(true);
         loadUsers(adminPassword);
+        loadAllProjects(adminPassword);
       } else {
         const data = await res.json();
         setPasswordError(data.error || '비밀번호가 틀렸습니다.');
@@ -749,49 +770,64 @@ export default function AdminPage() {
                     value={contentUserId}
                     onChange={(e) => {
                       setContentUserId(e.target.value);
-                      loadContentProjects(e.target.value);
+                      setContentProjectId('');
+                      setContentItems([]);
                     }}
                     className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
                   >
                     <option value="">-- 회원을 선택하세요 --</option>
-                    {users.map(u => (
-                      <option key={u.id} value={u.id}>
-                        {u.name || '(이름 없음)'} · {u.email} [{getPlanBadge(u.plan).label}]
-                      </option>
-                    ))}
+                    {users.map(u => {
+                      const projCount = allProjects.filter(p => p.user_id === u.id).length;
+                      const totalContent = allProjects.filter(p => p.user_id === u.id).reduce((sum, p) => sum + p.content_count, 0);
+                      return (
+                        <option key={u.id} value={u.id}>
+                          {u.name || '(이름 없음)'} · {u.email} [{getPlanBadge(u.plan).label}] — 프로젝트 {projCount}개 / 콘텐츠 {totalContent}건
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
                 {/* 프로젝트 목록 */}
-                {contentUserId && (
+                {contentUserId && (() => {
+                  const userProjList = allProjects.filter(p => p.user_id === contentUserId);
+                  return (
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5">프로젝트</label>
-                    {contentProjectsLoading ? (
-                      <p className="text-xs text-gray-400 py-4 text-center">불러오는 중...</p>
-                    ) : contentProjects.length === 0 ? (
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                      프로젝트 <span className="text-gray-400">({userProjList.length}개)</span>
+                    </label>
+                    {userProjList.length === 0 ? (
                       <p className="text-xs text-gray-400 py-4 text-center">등록된 프로젝트가 없습니다.</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        {contentProjects.map(p => (
+                        {userProjList.map(p => (
                           <button
                             key={p.id}
                             onClick={() => {
                               setContentProjectId(p.id);
                               loadContentItems(p.id);
                             }}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                               contentProjectId === p.id
                                 ? 'bg-violet-600 text-white shadow-sm ring-2 ring-violet-400/50'
                                 : 'bg-gray-100 text-gray-600 hover:bg-violet-50 hover:text-violet-700'
                             }`}
                           >
                             {p.name}
+                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              contentProjectId === p.id
+                                ? 'bg-white/20 text-white'
+                                : p.content_count > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-400'
+                            }`}>
+                              {p.content_count}
+                            </span>
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                )}
+                  );
+                })()}
               </div>
 
               {/* 오른쪽 카드: 생성된 콘텐츠 목록 */}
@@ -917,6 +953,7 @@ export default function AdminPage() {
                   </th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-700">가입일</th>
                   <th className="text-center px-4 py-3 font-semibold text-gray-700">최근 로그인</th>
+                  <th className="text-center px-4 py-3 font-semibold text-gray-700">프로젝트</th>
                 </tr>
               </thead>
               <tbody>
@@ -939,7 +976,10 @@ export default function AdminPage() {
                 ) : (
                   filteredUsers.map((user) => {
                     const badge = getPlanBadge(user.plan);
+                    const userProjects = allProjects.filter(p => p.user_id === user.id);
+                    const isProjectExpanded = expandedUserProjects === user.id;
                     return (
+                      <>
                       <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
                         <td className="px-4 py-3">
                           {editingName === user.id ? (
@@ -1018,7 +1058,46 @@ export default function AdminPage() {
                         })}
                         <td className="text-center px-4 py-3 text-gray-500 text-xs">{formatDate(user.created_at)}</td>
                         <td className="text-center px-4 py-3 text-gray-500 text-xs">{formatDate(user.last_sign_in_at)}</td>
+                        <td className="text-center px-4 py-3">
+                          {userProjects.length > 0 ? (
+                            <button
+                              onClick={() => setExpandedUserProjects(isProjectExpanded ? null : user.id)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg hover:bg-violet-100 transition-all"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                              </svg>
+                              {userProjects.length}개
+                              <svg className={`w-3 h-3 transition-transform ${isProjectExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                          ) : (
+                            <span className="text-xs text-gray-300">-</span>
+                          )}
+                        </td>
                       </tr>
+                      {isProjectExpanded && (
+                        <tr key={`${user.id}-projects`}>
+                          <td colSpan={11} className="px-4 py-3 bg-violet-50/60 border-b border-violet-100">
+                            <p className="text-xs font-semibold text-violet-700 mb-2">프로젝트 목록 ({userProjects.length}개)</p>
+                            <div className="flex flex-wrap gap-2">
+                              {userProjects.map(p => (
+                                <div key={p.id} className="flex items-center gap-2 px-3 py-2 bg-white border border-violet-200 rounded-xl shadow-sm">
+                                  <svg className="w-3.5 h-3.5 text-violet-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                  </svg>
+                                  <span className="text-xs font-semibold text-gray-800">{p.name}</span>
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${p.content_count > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-400'}`}>
+                                    콘텐츠 {p.content_count}건
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      </>
                     );
                   })
                 )}
