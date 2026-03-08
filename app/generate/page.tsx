@@ -90,7 +90,9 @@ const toneOptions = [
 
 export default function GeneratePage() {
   const router = useRouter();
-  const { selectedProject, geminiApiKey } = useUser();
+  const { selectedProject, geminiApiKey: contextApiKey } = useUser();
+  // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
+  const geminiApiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
   const [topic, setTopic] = useState('');
   const [targetKeyword, setTargetKeyword] = useState('');
