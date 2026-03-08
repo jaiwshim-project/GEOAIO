@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import type { HistoryItem } from '@/lib/types';
 import { getHistoryAsync, deleteHistoryItem } from '@/lib/history';
+import { useUser } from '@/lib/user-context';
 
 const DashboardStats = dynamic(() => import('@/components/DashboardStats'), { ssr: false });
 
@@ -23,19 +24,56 @@ const CATEGORY_LABELS: Record<string, string> = {
   email: '이메일',
 };
 
+type ProjectItem = { id: string; name: string };
+type GenItem = { id: string; title: string; topic: string; created_at: string; selected_ab_index: number };
+
 export default function DashboardPage() {
   const router = useRouter();
+  const { currentUser } = useUser();
   const [activeTab, setActiveTab] = useState<TabType>('generation');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [expandedRevisions, setExpandedRevisions] = useState<Set<string>>(new Set());
   const [showStats, setShowStats] = useState(true);
 
+  // 프로젝트(콘텐츠 카테고리) 필터
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [activeProject, setActiveProject] = useState<string | null>(null);
+  const [projectItems, setProjectItems] = useState<GenItem[]>([]);
+  const [projectItemsLoading, setProjectItemsLoading] = useState(false);
+
   useEffect(() => {
     getHistoryAsync().then(setHistory);
   }, []);
 
-  // 생성 탭의 카테고리 목록 (실제 데이터에 있는 것만)
+  useEffect(() => {
+    if (!currentUser) return;
+    fetch(`/api/user-projects?user_id=${currentUser.id}`)
+      .then(r => r.json())
+      .then(d => setProjects((d.projects || []).map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }))))
+      .catch(() => {});
+  }, [currentUser]);
+
+  const handleProjectClick = async (projectId: string) => {
+    if (activeProject === projectId) {
+      setActiveProject(null);
+      setProjectItems([]);
+      return;
+    }
+    setActiveProject(projectId);
+    setProjectItemsLoading(true);
+    try {
+      const res = await fetch(`/api/generate-results?project_id=${projectId}`);
+      const data = await res.json();
+      setProjectItems(data.items || []);
+    } catch {
+      setProjectItems([]);
+    } finally {
+      setProjectItemsLoading(false);
+    }
+  };
+
+  // 생성 탭의 콘텐츠 타입 카테고리 목록
   const genCategories = Array.from(
     new Set(history.filter(h => h.type === 'generation' && h.category).map(h => h.category!))
   );
@@ -127,35 +165,94 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* 카테고리 필터 버튼 (생성 탭에서만) */}
-        {activeTab === 'generation' && genCategories.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveCategory(null)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                activeCategory === null
-                  ? 'bg-violet-600 text-white shadow-sm'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600'
-              }`}
-            >
-              전체 ({history.filter(h => h.type === 'generation').length})
-            </button>
-            {genCategories.map(cat => {
-              const count = history.filter(h => h.type === 'generation' && h.category === cat).length;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    activeCategory === cat
-                      ? 'bg-violet-600 text-white shadow-sm'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600'
-                  }`}
-                >
-                  {CATEGORY_LABELS[cat] || cat} ({count})
-                </button>
-              );
-            })}
+        {/* 필터 버튼 영역 (생성 탭에서만) */}
+        {activeTab === 'generation' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+            {/* 콘텐츠 카테고리(프로젝트) 필터 */}
+            {projects.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-2">콘텐츠 카테고리</p>
+                <div className="flex flex-wrap gap-2">
+                  {projects.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleProjectClick(p.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        activeProject === p.id
+                          ? 'bg-pink-500 text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-600 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200 border border-transparent'
+                      }`}
+                    >
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 선택된 프로젝트의 콘텐츠 목록 */}
+                {activeProject && (
+                  <div className="mt-3 border-t border-gray-100 pt-3">
+                    {projectItemsLoading ? (
+                      <p className="text-xs text-gray-400 text-center py-2">불러오는 중...</p>
+                    ) : projectItems.length === 0 ? (
+                      <p className="text-xs text-gray-400 text-center py-2">생성된 콘텐츠가 없습니다.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {projectItems.map(item => (
+                          <div
+                            key={item.id}
+                            onClick={() => router.push(`/generate/result?id=${item.id}`)}
+                            className="flex items-center gap-3 px-3 py-2.5 bg-gray-50 hover:bg-violet-50 rounded-lg cursor-pointer transition-all border border-transparent hover:border-violet-200"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-800 truncate">{item.title || item.topic}</p>
+                              <p className="text-xs text-gray-400 mt-0.5">
+                                {new Date(item.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                            <span className="px-2 py-0.5 bg-violet-100 text-violet-600 text-xs rounded font-medium shrink-0">보기 →</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 콘텐츠 타입 필터 */}
+            {genCategories.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-2">콘텐츠 타입</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setActiveCategory(null)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      activeCategory === null
+                        ? 'bg-violet-600 text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-600 hover:bg-violet-50 hover:text-violet-600'
+                    }`}
+                  >
+                    전체 ({history.filter(h => h.type === 'generation').length})
+                  </button>
+                  {genCategories.map(cat => {
+                    const count = history.filter(h => h.type === 'generation' && h.category === cat).length;
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => setActiveCategory(cat)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          activeCategory === cat
+                            ? 'bg-violet-600 text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-600 hover:bg-violet-50 hover:text-violet-600'
+                        }`}
+                      >
+                        {CATEGORY_LABELS[cat] || cat} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
