@@ -38,6 +38,7 @@ export default function DashboardPage() {
 
   // 프로젝트 필터
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [projectCounts, setProjectCounts] = useState<Record<string, number>>({});
   const [activeProject, setActiveProject] = useState<string | null>(null);
   const [projectItems, setProjectItems] = useState<GenItem[]>([]);
   const [projectItemsLoading, setProjectItemsLoading] = useState(false);
@@ -50,7 +51,19 @@ export default function DashboardPage() {
     if (!currentUser) return;
     fetch(`/api/user-projects?user_id=${currentUser.id}`)
       .then(r => r.json())
-      .then(d => setProjects((d.projects || []).map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }))))
+      .then(async (d) => {
+        const list: ProjectItem[] = (d.projects || []).map((p: { id: string; name: string }) => ({ id: p.id, name: p.name }));
+        setProjects(list);
+        // 각 프로젝트 콘텐츠 수 병렬 조회
+        const counts = await Promise.all(
+          list.map(p => fetch(`/api/generate-results?project_id=${p.id}`)
+            .then(r => r.json())
+            .then(data => ({ id: p.id, count: (data.items || []).length }))
+            .catch(() => ({ id: p.id, count: 0 }))
+          )
+        );
+        setProjectCounts(Object.fromEntries(counts.map(c => [c.id, c.count])));
+      })
       .catch(() => {});
   }, [currentUser]);
 
@@ -193,7 +206,16 @@ export default function DashboardPage() {
                             : 'bg-gray-50 text-gray-700 hover:bg-pink-50 hover:text-pink-700'
                         }`}
                       >
-                        {p.name}
+                        <span className="flex items-center justify-between gap-2">
+                          <span>{p.name}</span>
+                          {projectCounts[p.id] !== undefined && (
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                              activeProject === p.id ? 'bg-white/30 text-white' : 'bg-gray-200 text-gray-500'
+                            }`}>
+                              {projectCounts[p.id]}
+                            </span>
+                          )}
+                        </span>
                       </button>
                     ))}
                   </div>
