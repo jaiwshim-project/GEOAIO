@@ -126,10 +126,94 @@ export default function GeneratePage() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileListRef = useRef<HTMLDivElement>(null);
 
+  // 주제 추천
+  const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
+  const [loadingTopics, setLoadingTopics] = useState(false);
+  // 키워드 추천
+  const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const [loadingKeywords, setLoadingKeywords] = useState(false);
+  const [customKeyword, setCustomKeyword] = useState('');
+
   // Supabase에서 프로필 목록 로드
   useEffect(() => {
     getProfiles().then(profiles => setSavedProfiles(profiles));
   }, []);
+
+  // 카테고리 선택 시 주제 추천 로드
+  useEffect(() => {
+    if (!selectedCategory) { setTopicSuggestions([]); return; }
+    setLoadingTopics(true);
+    setTopicSuggestions([]);
+
+    // 이전 주제 목록 가져오기 (project_id 기반)
+    const fetchAndSuggest = async () => {
+      let pastTopics: string[] = [];
+      if (selectedProject?.id) {
+        try {
+          const res = await fetch(`/api/generate-results?project_id=${selectedProject.id}`);
+          const data = await res.json();
+          pastTopics = (data.items || []).map((item: { topic: string }) => item.topic).filter(Boolean);
+        } catch {}
+      }
+      const catLabel = categories.find(c => c.id === selectedCategory)?.label || selectedCategory;
+      try {
+        const res = await fetch('/api/suggest-topics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ category: selectedCategory, categoryLabel: catLabel, pastTopics }),
+        });
+        const data = await res.json();
+        setTopicSuggestions(data.topics || []);
+      } catch {}
+      setLoadingTopics(false);
+    };
+    fetchAndSuggest();
+  }, [selectedCategory, selectedProject?.id]);
+
+  // 주제 선택/변경 시 키워드 추천
+  const fetchKeywordSuggestions = async (topicValue: string) => {
+    if (!topicValue.trim() || !selectedCategory) return;
+    setLoadingKeywords(true);
+    setKeywordSuggestions([]);
+    setSelectedKeywords([]);
+    const catLabel = categories.find(c => c.id === selectedCategory)?.label || selectedCategory;
+    try {
+      const res = await fetch('/api/suggest-keywords', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: topicValue, category: selectedCategory, categoryLabel: catLabel }),
+      });
+      const data = await res.json();
+      setKeywordSuggestions(data.keywords || []);
+    } catch {}
+    setLoadingKeywords(false);
+  };
+
+  const handleTopicSuggestionClick = (suggestion: string) => {
+    setTopic(suggestion);
+    fetchKeywordSuggestions(suggestion);
+  };
+
+  const toggleKeyword = (kw: string) => {
+    setSelectedKeywords(prev => {
+      const next = prev.includes(kw) ? prev.filter(k => k !== kw) : [...prev, kw];
+      setTargetKeyword(next.join(', '));
+      return next;
+    });
+  };
+
+  const addCustomKeyword = () => {
+    const kw = customKeyword.trim();
+    if (!kw) return;
+    setSelectedKeywords(prev => {
+      if (prev.includes(kw)) return prev;
+      const next = [...prev, kw];
+      setTargetKeyword(next.join(', '));
+      return next;
+    });
+    setCustomKeyword('');
+  };
 
   // 프로필 목록 외부 클릭 시 닫기
   useEffect(() => {
@@ -933,21 +1017,103 @@ export default function GeneratePage() {
                       type="text"
                       value={topic}
                       onChange={(e) => setTopic(e.target.value)}
+                      onBlur={(e) => { if (e.target.value.trim()) fetchKeywordSuggestions(e.target.value.trim()); }}
                       placeholder="예: 2024년 AI 마케팅 트렌드, 홈트레이닝 초보자 가이드"
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-400"
                     />
+                    {/* 주제 추천 */}
+                    {(loadingTopics || topicSuggestions.length > 0) && (
+                      <div className="mt-2">
+                        <p className="text-xs text-gray-500 mb-1.5">
+                          {loadingTopics ? '✨ AI가 주제를 추천하는 중...' : '✨ AI 추천 주제 (클릭하여 선택)'}
+                        </p>
+                        {loadingTopics ? (
+                          <div className="flex gap-1.5">
+                            {[1,2,3].map(i => <div key={i} className="h-7 w-24 bg-gray-100 rounded-lg animate-pulse" />)}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5">
+                            {topicSuggestions.map((s, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => handleTopicSuggestionClick(s)}
+                                className={`px-3 py-1.5 text-xs rounded-lg border transition-all text-left ${
+                                  topic === s
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                                }`}
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* 타겟 키워드 */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">타겟 키워드 (선택)</label>
-                    <input
-                      type="text"
-                      value={targetKeyword}
-                      onChange={(e) => setTargetKeyword(e.target.value)}
-                      placeholder="예: AI 마케팅, 홈트레이닝"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-400"
-                    />
+                    {/* AI 추천 키워드 칩 */}
+                    {(loadingKeywords || keywordSuggestions.length > 0) && (
+                      <div className="mb-2">
+                        <p className="text-xs text-gray-500 mb-1.5">
+                          {loadingKeywords ? '🔍 AI가 키워드를 추천하는 중...' : '🔍 AI 추천 키워드 (클릭하여 선택/해제)'}
+                        </p>
+                        {loadingKeywords ? (
+                          <div className="flex gap-1.5">
+                            {[1,2,3].map(i => <div key={i} className="h-7 w-20 bg-gray-100 rounded-full animate-pulse" />)}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5">
+                            {keywordSuggestions.map((kw, i) => (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => toggleKeyword(kw)}
+                                className={`px-3 py-1 text-xs rounded-full border transition-all ${
+                                  selectedKeywords.includes(kw)
+                                    ? 'bg-indigo-600 text-white border-indigo-600'
+                                    : 'bg-gray-50 text-gray-600 border-gray-300 hover:border-indigo-300'
+                                }`}
+                              >
+                                {selectedKeywords.includes(kw) ? '✓ ' : ''}{kw}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {/* 선택된 키워드 + 직접 추가 */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={customKeyword}
+                        onChange={(e) => setCustomKeyword(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomKeyword(); } }}
+                        placeholder={selectedKeywords.length > 0 ? `선택됨: ${selectedKeywords.join(', ')}` : '직접 입력하거나 위에서 선택하세요'}
+                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-400"
+                      />
+                      {customKeyword.trim() && (
+                        <button type="button" onClick={addCustomKeyword}
+                          className="px-3 py-3 bg-indigo-600 text-white text-xs rounded-xl hover:bg-indigo-500 transition-all shrink-0">
+                          추가
+                        </button>
+                      )}
+                    </div>
+                    {selectedKeywords.length > 0 && (
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {selectedKeywords.map((kw, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
+                            {kw}
+                            <button type="button" onClick={() => { setSelectedKeywords(p => { const n = p.filter(k => k !== kw); setTargetKeyword(n.join(', ')); return n; }); }}
+                              className="hover:text-red-500 ml-0.5 leading-none">×</button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* 톤/스타일 */}
