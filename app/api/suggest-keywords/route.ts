@@ -1,23 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getApiKey } from '@/lib/api-auth';
-import Anthropic from '@anthropic-ai/sdk';
+import { getGeminiKey } from '@/lib/api-auth';
+import { GoogleGenAI } from '@google/genai';
 
 export async function POST(req: NextRequest) {
   try {
     const { topic, category, categoryLabel } = await req.json();
     if (!topic) return NextResponse.json({ error: 'topic 필요' }, { status: 400 });
 
-    const apiKey = getApiKey(req);
-    if (!apiKey) return NextResponse.json({ error: 'API 키 미설정' }, { status: 500 });
+    const apiKey = getGeminiKey(req);
+    if (!apiKey) return NextResponse.json({ error: 'Gemini API 키가 설정되지 않았습니다. /settings 페이지에서 API 키를 등록해주세요.' }, { status: 500 });
 
-    const client = new Anthropic({ apiKey });
-
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
-      messages: [{
-        role: 'user',
-        content: `당신은 SEO 전문가입니다.
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: `당신은 SEO 전문가입니다.
 콘텐츠 유형: ${categoryLabel || category}
 주제: ${topic}
 
@@ -30,10 +26,9 @@ export async function POST(req: NextRequest) {
 3. 키워드3
 4. 키워드4
 5. 키워드5`,
-      }],
     });
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    const text = response.text || '';
     const keywords = text
       .split('\n')
       .map(line => line.replace(/^\d+\.\s*/, '').trim())
@@ -44,8 +39,11 @@ export async function POST(req: NextRequest) {
   } catch (e: unknown) {
     console.error('suggest-keywords error:', e);
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg.includes('credit balance') || msg.includes('insufficient') || msg.includes('billing')) {
-      return NextResponse.json({ error: 'API 크레딧이 부족합니다. Anthropic 콘솔에서 크레딧을 충전해주세요.' }, { status: 402 });
+    if (msg.includes('API_KEY') || msg.includes('api key') || msg.includes('invalid') || msg.includes('401')) {
+      return NextResponse.json({ error: 'Gemini API 키가 유효하지 않습니다. /settings 페이지에서 키를 확인해주세요.' }, { status: 401 });
+    }
+    if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
+      return NextResponse.json({ error: 'Gemini API 할당량을 초과했습니다. 잠시 후 다시 시도해주세요.' }, { status: 429 });
     }
     return NextResponse.json({ error: msg || '오류가 발생했습니다.' }, { status: 500 });
   }

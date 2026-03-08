@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
-import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, type Profile, type ProfileData } from '@/lib/supabase-storage';
+import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, getApiKey as getStoredApiKey, type Profile, type ProfileData } from '@/lib/supabase-storage';
 import { canUseFeature, incrementUsage } from '@/lib/usage';
 import { useUser } from '@/lib/user-context';
 
@@ -138,9 +138,12 @@ export default function GeneratePage() {
   const [loadingKeywords, setLoadingKeywords] = useState(false);
   const [customKeyword, setCustomKeyword] = useState('');
 
-  // Supabase에서 프로필 목록 로드
+  const [geminiApiKey, setGeminiApiKey] = useState('');
+
+  // Supabase에서 프로필 목록 + Gemini 키 로드
   useEffect(() => {
     getProfiles().then(profiles => setSavedProfiles(profiles));
+    getStoredApiKey('gemini').then(key => { if (key) setGeminiApiKey(key); });
   }, []);
 
 
@@ -169,7 +172,7 @@ export default function GeneratePage() {
     try {
       const res = await fetch('/api/suggest-topics', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
         body: JSON.stringify({ category: cat, categoryLabel: catLabel, pastTopics }),
       });
       const data = await res.json();
@@ -195,7 +198,7 @@ export default function GeneratePage() {
     try {
       const res = await fetch('/api/suggest-keywords', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
         body: JSON.stringify({ topic: topicValue, category: selectedCategory, categoryLabel: catLabel }),
       });
       const data = await res.json();
