@@ -448,100 +448,47 @@ export default function GeneratePage() {
       saveBusinessInfo();
       const notes = buildAdditionalNotes();
 
-      if (abTestMode) {
-        // A/B 버전: 3가지 톤으로 동시 생성
-        const tones = [
-          { value: '전문적이고 신뢰감 있는', label: '전문적' },
-          { value: '친근하고 대화체의', label: '친근한' },
-          { value: '설득력 있고 강렬한', label: '설득적' },
-        ];
-        const results = await Promise.all(
-          tones.map(async (t) => {
-            const res = await fetch('/api/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                category: selectedCategory,
-                topic: topic.trim(),
-                targetKeyword: targetKeyword.trim() || undefined,
-                tone: t.value,
-                additionalNotes: notes,
-              }),
-            });
-            if (!res.ok) throw new Error('생성 실패');
-            const data = await res.json();
-            return { ...data, toneName: t.label };
-          })
-        );
-        // A/B 결과를 localStorage에 저장하고 결과 페이지로
-        const now = new Date();
-        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-        // 각 버전을 이력에 저장
-        for (const r of results) {
-          const hid = generateId();
-          await saveHistoryItem({
-            id: hid, type: 'generation',
-            title: `[${r.toneName}] ${r.title || topic.trim()}`,
-            summary: `A/B 테스트 | ${r.toneName} 버전`,
-            date: dateStr, category: selectedCategory || undefined,
-            targetKeyword: targetKeyword.trim() || undefined,
-            generateResult: r, topic: topic.trim(), tone: r.toneName, revisions: [],
+      // 5가지 톤으로 동시 생성
+      const results = await Promise.all(
+        toneOptions.map(async (t) => {
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              category: selectedCategory,
+              topic: topic.trim(),
+              targetKeyword: targetKeyword.trim() || undefined,
+              tone: t.value,
+              additionalNotes: notes,
+            }),
           });
-        }
-        await incrementUsage('generate');
-        // 첫 번째 결과를 메인으로 저장
-        const { saveGenerateResult } = await import('@/lib/supabase-storage');
-        const mainResult = { ...results[0], abVersions: results };
-        const resultId = await saveGenerateResult({
-          result: mainResult, category: selectedCategory,
-          topic: topic.trim(), targetKeyword: targetKeyword.trim(),
-          tone: 'A/B 테스트', historyId: generateId(),
-          project_id: selectedProject?.id,
-          selected_ab_index: 0,
-        });
-        router.push(`/generate/result?id=${resultId}`);
-      } else {
-        // 일반 단일 생성
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            category: selectedCategory,
-            topic: topic.trim(),
-            targetKeyword: targetKeyword.trim() || undefined,
-            tone,
-            additionalNotes: notes,
-          }),
-        });
-
-        if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.error || '콘텐츠 생성에 실패했습니다.');
-        }
-
-        const data = await response.json();
-        await incrementUsage('generate');
-        const now = new Date();
-        const historyId = generateId();
-        await saveHistoryItem({
-          id: historyId, type: 'generation',
-          title: data.title || topic.trim(),
-          summary: `${categories.find(c => c.id === selectedCategory)?.label || ''} | ${topic.trim()}`,
-          date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
-          category: selectedCategory || undefined,
-          targetKeyword: targetKeyword.trim() || undefined,
-          generateResult: data, topic: topic.trim(), tone, revisions: [],
-        });
-        const { saveGenerateResult } = await import('@/lib/supabase-storage');
-        const resultId = await saveGenerateResult({
-          result: data, category: selectedCategory,
-          topic: topic.trim(), targetKeyword: targetKeyword.trim(),
-          tone, historyId,
-          project_id: selectedProject?.id,
-          selected_ab_index: 0,
-        });
-        router.push(`/generate/result?id=${resultId}`);
-      }
+          if (!res.ok) throw new Error(`${t.label} 버전 생성 실패`);
+          const data = await res.json();
+          return { ...data, toneName: t.label, toneValue: t.value };
+        })
+      );
+      await incrementUsage('generate');
+      const now = new Date();
+      const historyId = generateId();
+      const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      await saveHistoryItem({
+        id: historyId, type: 'generation',
+        title: results[0].title || topic.trim(),
+        summary: `5가지 톤 버전 | ${topic.trim()}`,
+        date: dateStr, category: selectedCategory || undefined,
+        targetKeyword: targetKeyword.trim() || undefined,
+        generateResult: results[0], topic: topic.trim(), tone: '5가지 톤', revisions: [],
+      });
+      const { saveGenerateResult } = await import('@/lib/supabase-storage');
+      const mainResult = { ...results[0], abVersions: results };
+      const resultId = await saveGenerateResult({
+        result: mainResult, category: selectedCategory,
+        topic: topic.trim(), targetKeyword: targetKeyword.trim(),
+        tone: '5가지 톤', historyId,
+        project_id: selectedProject?.id,
+        selected_ab_index: 0,
+      });
+      router.push(`/generate/result?id=${resultId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
     } finally {
@@ -1116,22 +1063,15 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* 톤/스타일 */}
+                  {/* 톤/스타일 - 5가지 모두 자동 생성 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">톤/스타일</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">톤/스타일 <span className="text-xs text-indigo-500 font-normal">(5가지 버전 동시 생성)</span></label>
                     <div className="flex flex-wrap gap-2">
                       {toneOptions.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => setTone(opt.value)}
-                          className={`px-4 py-2 text-sm rounded-xl border transition-all ${
-                            tone === opt.value
-                              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-sky-300'
-                              : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300'
-                          }`}
-                        >
+                        <span key={opt.value}
+                          className="px-4 py-2 text-sm rounded-xl border bg-gray-50 text-gray-600 border-gray-200">
                           {opt.label}
-                        </button>
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -1231,23 +1171,6 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* A/B 테스트 모드 */}
-                  <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-amber-200">
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={abTestMode}
-                        onChange={(e) => setAbTestMode(e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
-                    </label>
-                    <div>
-                      <p className="text-sm font-semibold text-amber-800">A/B 버전 생성</p>
-                      <p className="text-[10px] text-amber-600">전문적 / 친근한 / 설득적 3가지 톤으로 동시 생성하여 비교</p>
-                    </div>
-                  </div>
-
                   {/* 생성 버튼 */}
                   <button
                     onClick={handleGenerate}
@@ -1260,7 +1183,7 @@ export default function GeneratePage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        AI 콘텐츠 생성 중...
+                        5가지 톤 콘텐츠 생성 중...
                       </>
                     ) : (
                       <>
