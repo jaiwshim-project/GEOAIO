@@ -79,10 +79,48 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editNameValue, setEditNameValue] = useState('');
-  const [activeTab, setActiveTab] = useState<'users' | 'subscriptions'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'subscriptions' | 'contents'>('subscriptions');
   const [adminPassword, setAdminPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordChecking, setPasswordChecking] = useState(false);
+
+  // 콘텐츠 현황 탭
+  type ContentItem = { id: string; title: string; topic: string; category: string; is_ab: boolean; selected_ab_index: number; created_at: string };
+  type Project = { id: string; name: string; description: string | null };
+  const [contentUserId, setContentUserId] = useState<string>('');
+  const [contentProjects, setContentProjects] = useState<Project[]>([]);
+  const [contentProjectId, setContentProjectId] = useState<string>('');
+  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [contentProjectsLoading, setContentProjectsLoading] = useState(false);
+  const [contentItemsLoading, setContentItemsLoading] = useState(false);
+
+  const loadContentProjects = async (userId: string) => {
+    if (!userId) return;
+    setContentProjectsLoading(true);
+    setContentProjects([]);
+    setContentProjectId('');
+    setContentItems([]);
+    try {
+      const res = await fetch(`/api/user-projects?user_id=${userId}`);
+      const data = await res.json();
+      setContentProjects(data.projects || []);
+    } catch { /* ignore */ } finally {
+      setContentProjectsLoading(false);
+    }
+  };
+
+  const loadContentItems = async (projectId: string) => {
+    if (!projectId) return;
+    setContentItemsLoading(true);
+    setContentItems([]);
+    try {
+      const res = await fetch(`/api/generate-results?project_id=${projectId}`);
+      const data = await res.json();
+      setContentItems(data.items || []);
+    } catch { /* ignore */ } finally {
+      setContentItemsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -449,6 +487,16 @@ export default function AdminPage() {
           >
             등급 관리
           </button>
+          <button
+            onClick={() => setActiveTab('contents')}
+            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all ${
+              activeTab === 'contents'
+                ? 'bg-white text-violet-700 border-t-violet-500 border-l-gray-300 border-r-gray-300 border-b-0 z-10 -mb-px'
+                : 'bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700'
+            }`}
+          >
+            콘텐츠 현황
+          </button>
           <Link
             href="/admin/stats"
             className="px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700"
@@ -678,6 +726,135 @@ export default function AdminPage() {
               </div>
             )}
           </>
+        )}
+
+        {activeTab === 'contents' && (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 왼쪽 카드: 회원 선택 + 프로젝트 */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="w-6 h-6 bg-violet-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </span>
+                  회원 · 프로젝트
+                </h3>
+
+                {/* 회원 선택 */}
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-gray-500 mb-1.5">회원 선택</label>
+                  <select
+                    value={contentUserId}
+                    onChange={(e) => {
+                      setContentUserId(e.target.value);
+                      loadContentProjects(e.target.value);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                  >
+                    <option value="">-- 회원을 선택하세요 --</option>
+                    {users.map(u => (
+                      <option key={u.id} value={u.id}>
+                        {u.name || '(이름 없음)'} · {u.email} [{getPlanBadge(u.plan).label}]
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 프로젝트 목록 */}
+                {contentUserId && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1.5">프로젝트</label>
+                    {contentProjectsLoading ? (
+                      <p className="text-xs text-gray-400 py-4 text-center">불러오는 중...</p>
+                    ) : contentProjects.length === 0 ? (
+                      <p className="text-xs text-gray-400 py-4 text-center">등록된 프로젝트가 없습니다.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {contentProjects.map(p => (
+                          <button
+                            key={p.id}
+                            onClick={() => {
+                              setContentProjectId(p.id);
+                              loadContentItems(p.id);
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                              contentProjectId === p.id
+                                ? 'bg-violet-600 text-white shadow-sm ring-2 ring-violet-400/50'
+                                : 'bg-gray-100 text-gray-600 hover:bg-violet-50 hover:text-violet-700'
+                            }`}
+                          >
+                            {p.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 오른쪽 카드: 생성된 콘텐츠 목록 */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="w-6 h-6 bg-pink-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </span>
+                  생성된 콘텐츠
+                  {contentItems.length > 0 && (
+                    <span className="ml-auto text-xs font-normal text-gray-400">{contentItems.length}건</span>
+                  )}
+                </h3>
+
+                {!contentProjectId ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" />
+                      </svg>
+                    </div>
+                    <p className="text-xs text-gray-400">회원과 프로젝트를 선택하면<br />생성된 콘텐츠 목록이 표시됩니다.</p>
+                  </div>
+                ) : contentItemsLoading ? (
+                  <p className="text-xs text-gray-400 py-8 text-center">불러오는 중...</p>
+                ) : contentItems.length === 0 ? (
+                  <p className="text-xs text-gray-400 py-8 text-center">이 프로젝트에 생성된 콘텐츠가 없습니다.</p>
+                ) : (
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                    {contentItems.map(item => (
+                      <a
+                        key={item.id}
+                        href={`/generate/result?id=${item.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-3 p-3 bg-gray-50 hover:bg-violet-50 rounded-xl cursor-pointer transition-all border border-transparent hover:border-violet-200"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-800 truncate">{item.title || item.topic}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {new Date(item.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {item.category && (
+                            <span className="px-1.5 py-0.5 bg-gray-200 text-gray-600 text-[10px] rounded font-medium">{item.category}</span>
+                          )}
+                          <span className="px-1.5 py-0.5 bg-violet-100 text-violet-700 text-[10px] rounded font-semibold">
+                            5가지 톤
+                          </span>
+                          <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] rounded">
+                            v{(item.selected_ab_index ?? 0) + 1}
+                          </span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
         {activeTab === 'users' && (<>
