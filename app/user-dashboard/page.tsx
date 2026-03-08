@@ -131,8 +131,8 @@ export default function UserDashboardPage() {
     setError('');
 
     try {
-      // 1. 카테고리 생성
-      setAddProgress('카테고리 생성 중...');
+      // 1. 프로젝트 생성
+      setAddProgress('프로젝트 생성 중...');
       const res = await fetch('/api/user-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -297,7 +297,7 @@ export default function UserDashboardPage() {
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!confirm('이 카테고리를 삭제하시겠습니까?')) return;
+    if (!confirm('이 프로젝트를 삭제하시겠습니까?')) return;
     setDeletingId(id);
     try {
       await fetch('/api/user-projects', {
@@ -486,7 +486,7 @@ export default function UserDashboardPage() {
             </div>
           )}
 
-          {/* 카테고리 목록 */}
+          {/* 프로젝트 목록 */}
           {loadingProjects ? (
             <div className="text-center py-8 text-gray-400 text-sm">불러오는 중...</div>
           ) : projects.length === 0 ? (
@@ -513,7 +513,7 @@ export default function UserDashboardPage() {
                   {editingId === project.id ? (
                     /* ===== 수정 폼 ===== */
                     <div className="space-y-3">
-                      <p className="text-indigo-300 text-xs font-semibold">카테고리 수정</p>
+                      <p className="text-indigo-300 text-xs font-semibold">프로젝트 수정</p>
                       <input
                         type="text"
                         value={editName}
@@ -681,13 +681,13 @@ export default function UserDashboardPage() {
             </div>
           )}
 
-          {/* 현재 선택된 카테고리 */}
+          {/* 현재 선택된 프로젝트 */}
           {selectedProject && (
             <div className="mt-4 p-3 bg-indigo-600/20 border border-indigo-400/30 rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <p className="text-indigo-200 text-xs">
-                  선택된 카테고리: <span className="font-bold text-white">{selectedProject.name}</span>
+                  선택된 프로젝트: <span className="font-bold text-white">{selectedProject.name}</span>
                 </p>
               </div>
               <Link href="/analyze" className="text-indigo-300 hover:text-white text-xs font-semibold transition-colors">
@@ -709,7 +709,7 @@ export default function UserDashboardPage() {
             onClick={() => {
               const next = !showGenSection;
               setShowGenSection(next);
-              // 섹션 열 때 카테고리 자동 선택 (현재 선택된 프로젝트 or 첫 번째)
+              // 섹션 열 때 자동 선택 (현재 선택된 프로젝트 or 첫 번째)
               if (next && !genProjectId && projects.length > 0) {
                 const autoId = selectedProject?.id || projects[0].id;
                 setGenProjectId(autoId);
@@ -741,9 +741,9 @@ export default function UserDashboardPage() {
               </Link>
             </div>
 
-            {/* 카테고리(프로젝트) 탭 버튼 */}
+            {/* 프로젝트 탭 버튼 */}
             {projects.length === 0 ? (
-              <p className="text-gray-400 text-xs text-center py-2">등록된 카테고리가 없습니다.</p>
+              <p className="text-gray-400 text-xs text-center py-2">등록된 프로젝트가 없습니다.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {projects.map((p) => (
@@ -762,10 +762,10 @@ export default function UserDashboardPage() {
               </div>
             )}
 
-            {/* 선택된 카테고리의 콘텐츠 목록 */}
+            {/* 선택된 프로젝트의 콘텐츠 목록 */}
             <div className="border-t border-white/10 pt-3">
               {!genProjectId ? (
-                <p className="text-gray-500 text-xs text-center py-3">카테고리를 선택하면 생성된 콘텐츠 목록이 표시됩니다.</p>
+                <p className="text-gray-500 text-xs text-center py-3">프로젝트를 선택하면 생성된 콘텐츠 목록이 표시됩니다.</p>
               ) : genLoading ? (
                 <p className="text-gray-400 text-xs text-center py-3">불러오는 중...</p>
               ) : genItems.length === 0 ? (
