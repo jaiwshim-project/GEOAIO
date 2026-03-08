@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { getApiKey as getStoredApiKey, saveApiKey, deleteApiKey } from '@/lib/supabase-storage';
+const LS_KEY = 'geoaio_gemini_key';
 
 export default function SettingsPage() {
   const [geminiKey, setGeminiKey] = useState('');
@@ -14,13 +14,10 @@ export default function SettingsPage() {
   const [showKey, setShowKey] = useState(false);
 
   useEffect(() => {
-    getStoredApiKey('gemini').then(key => {
-      if (key) setHasKey(true);
-    });
-    fetch('/api/set-api-key')
-      .then(r => r.json())
-      .then(d => { if (d.hasGeminiKey) setHasKey(true); })
-      .catch(() => {});
+    try {
+      const stored = localStorage.getItem(LS_KEY);
+      if (stored) setHasKey(true);
+    } catch {}
   }, []);
 
   const handleSave = async () => {
@@ -29,14 +26,13 @@ export default function SettingsPage() {
     setSaving(true);
     setStatus(null);
     try {
-      await saveApiKey('gemini', key);
-      const res = await fetch('/api/set-api-key', {
+      localStorage.setItem(LS_KEY, key);
+      // 서버 환경변수에도 저장 시도 (선택적)
+      await fetch('/api/set-api-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ geminiApiKey: key }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      }).catch(() => {});
       setStatus({ type: 'success', msg: 'Gemini API 키가 저장되었습니다.' });
       setGeminiKey('');
       setHasKey(true);
@@ -47,8 +43,8 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDelete = async () => {
-    await deleteApiKey('gemini');
+  const handleDelete = () => {
+    try { localStorage.removeItem(LS_KEY); } catch {}
     setHasKey(false);
     setStatus({ type: 'success', msg: 'Gemini API 키가 삭제되었습니다.' });
   };

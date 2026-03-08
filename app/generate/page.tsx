@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
-import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, getApiKey as getStoredApiKey, type Profile, type ProfileData } from '@/lib/supabase-storage';
+import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, type Profile, type ProfileData } from '@/lib/supabase-storage';
 import { canUseFeature, incrementUsage } from '@/lib/usage';
 import { useUser } from '@/lib/user-context';
 
@@ -140,10 +140,14 @@ export default function GeneratePage() {
 
   const [geminiApiKey, setGeminiApiKey] = useState('');
 
-  // Supabase에서 프로필 목록 + Gemini 키 로드
+  // 프로필 목록 + Gemini 키 로드
   useEffect(() => {
     getProfiles().then(profiles => setSavedProfiles(profiles));
-    getStoredApiKey('gemini').then(key => { if (key) setGeminiApiKey(key); });
+    // localStorage에서 Gemini 키 읽기 (Supabase 인증 불필요)
+    try {
+      const key = localStorage.getItem('geoaio_gemini_key');
+      if (key) setGeminiApiKey(key);
+    } catch {}
   }, []);
 
 
