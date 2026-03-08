@@ -30,14 +30,27 @@ export async function POST(req: NextRequest) {
     }
 
     const ai = new GoogleGenAI({ apiKey });
+
+    const projectSection = projectName
+      ? `[작업 대상 카테고리: ${projectName}]${projectDescription ? `\n카테고리 설명: ${projectDescription}` : ''}`
+      : '';
+
+    const filesSection = projectFiles?.length
+      ? `\n\n[카테고리 관련 업로드 파일]\n${(projectFiles as { file_name: string; content: string }[])
+          .slice(0, 3)
+          .map(f => `▶ ${f.file_name}\n${(f.content || '').slice(0, 1500)}`)
+          .join('\n\n')}`
+      : '';
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
       contents: `당신은 콘텐츠 기획 전문가입니다.
-콘텐츠 유형: ${categoryLabel || category}${projectContext}${pastList}
 
-위 콘텐츠 카테고리와 업로드된 파일 내용을 반드시 참고하여, 해당 카테고리와 직접 관련된 새로운 주제 5개를 추천해주세요.
-카테고리 이름과 파일 내용에서 다루는 핵심 주제, 서비스, 제품에 집중하여 독자의 관심을 끌 수 있는 주제를 제안하세요.
-기존에 작성된 주제와 겹치지 않도록 하세요.
+${projectSection}${filesSection}
+
+위 카테고리(${projectName || categoryLabel || category})에 관한 ${categoryLabel || category} 콘텐츠 주제 5개를 추천하세요.
+${projectName ? `⚠️ 반드시 "${projectName}"과 직접 관련된 주제만 작성하세요. 관련 없는 주제는 절대 포함하지 마세요.` : ''}
+${pastList ? `\n이미 작성된 주제와 겹치지 않아야 합니다:${pastList}` : ''}
 
 반드시 아래 형식으로만 응답하세요 (번호와 주제만, 설명 없이):
 1. 주제1

@@ -161,14 +161,23 @@ export default function GeneratePage() {
     setTopicSuggestions([]);
     setTopicFetchError('');
 
+    // selectedProject가 null일 경우 sessionStorage에서 직접 읽기
+    let activeProject = selectedProject;
+    if (!activeProject) {
+      try {
+        const stored = sessionStorage.getItem('geoaio_project');
+        if (stored) activeProject = JSON.parse(stored);
+      } catch {}
+    }
+
     // 이전 작성 주제 + 프로젝트 파일 병렬 조회
     let pastTopics: string[] = [];
     let projectFiles: { file_name: string; content: string }[] = [];
-    if (selectedProject?.id) {
+    if (activeProject?.id) {
       try {
         const [historyRes, filesRes] = await Promise.all([
-          fetch(`/api/generate-results?project_id=${selectedProject.id}`),
-          fetch(`/api/user-projects/files?project_id=${selectedProject.id}`),
+          fetch(`/api/generate-results?project_id=${activeProject.id}`),
+          fetch(`/api/user-projects/files?project_id=${activeProject.id}`),
         ]);
         const historyData = await historyRes.json();
         const filesData = await filesRes.json();
@@ -186,8 +195,8 @@ export default function GeneratePage() {
           category: cat,
           categoryLabel: catLabel,
           pastTopics,
-          projectName: selectedProject?.name,
-          projectDescription: selectedProject?.description,
+          projectName: activeProject?.name,
+          projectDescription: activeProject?.description,
           projectFiles,
         }),
       });
