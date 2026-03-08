@@ -314,7 +314,7 @@ export default function UserDashboardPage() {
 
   const handleSelectProject = (project: UserProject) => {
     setSelectedProject(project);
-    router.push('/analyze');
+    router.push('/generate');
   };
 
   const handleLogout = () => {
@@ -690,8 +690,8 @@ export default function UserDashboardPage() {
                   선택된 프로젝트: <span className="font-bold text-white">{selectedProject.name}</span>
                 </p>
               </div>
-              <Link href="/analyze" className="text-indigo-300 hover:text-white text-xs font-semibold transition-colors">
-                콘텐츠 작업 시작 →
+              <Link href="/generate" className="text-indigo-300 hover:text-white text-xs font-semibold transition-colors">
+                콘텐츠 생성 시작 →
               </Link>
             </div>
           )}
