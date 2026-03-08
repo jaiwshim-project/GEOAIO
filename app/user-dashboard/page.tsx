@@ -711,99 +711,92 @@ export default function UserDashboardPage() {
               </svg>
               콘텐츠 분석
             </Link>
-            <Link href="/generate" className="flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-all">
+            <button
+              onClick={() => setShowGenSection(!showGenSection)}
+              className={`flex items-center justify-center gap-2 py-3 text-white text-sm font-semibold rounded-xl transition-all ${
+                showGenSection ? 'bg-indigo-500' : 'bg-indigo-600 hover:bg-indigo-500'
+              }`}
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               콘텐츠 생성
-            </Link>
+              <svg className={`w-3.5 h-3.5 transition-transform ${showGenSection ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
         )}
 
-        {/* ===== 생성된 콘텐츠 목록 ===== */}
-        <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden">
-          <button
-            onClick={() => setShowGenSection(!showGenSection)}
-            className="w-full flex items-center justify-between px-6 py-4 text-left"
-          >
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="text-white font-bold text-sm">생성된 콘텐츠 목록</span>
+        {/* ===== 콘텐츠 생성 섹션 (콘텐츠 생성 버튼 클릭 시 펼쳐짐) ===== */}
+        {showGenSection && selectedProject && (
+          <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-4 space-y-3">
+            {/* 헤더 */}
+            <div className="flex items-center justify-between">
+              <p className="text-white text-sm font-bold">생성된 콘텐츠 목록</p>
+              <Link href="/generate" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all">
+                + 새 콘텐츠 생성
+              </Link>
             </div>
-            <svg className={`w-4 h-4 text-gray-400 transition-transform ${showGenSection ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
 
-          {showGenSection && (
-            <div className="border-t border-white/10 p-4 space-y-3">
-              {/* 카테고리 선택 버튼 */}
-              {projects.length === 0 ? (
-                <p className="text-gray-400 text-xs text-center py-2">등록된 카테고리가 없습니다.</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {projects.map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => handleGenProjectSelect(p.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        genProjectId === p.id
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
-                      }`}
-                    >
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              )}
+            {/* 카테고리(프로젝트) 선택 버튼 */}
+            {projects.length === 0 ? (
+              <p className="text-gray-400 text-xs text-center py-2">등록된 카테고리가 없습니다.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {projects.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => handleGenProjectSelect(p.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      genProjectId === p.id
+                        ? 'bg-indigo-600 text-white shadow-lg'
+                        : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                    }`}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            )}
 
-              {/* 선택된 카테고리의 생성 목록 */}
-              {genProjectId && (
-                <div className="mt-2">
-                  {genLoading ? (
-                    <p className="text-gray-400 text-xs text-center py-3">불러오는 중...</p>
-                  ) : genItems.length === 0 ? (
-                    <p className="text-gray-500 text-xs text-center py-3">아직 생성된 콘텐츠가 없습니다.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {genItems.map((item) => (
-                        <div
-                          key={item.id}
-                          onClick={() => router.push(`/generate/result?id=${item.id}`)}
-                          className="flex items-start gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-all"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-white text-xs font-semibold truncate">{item.title || item.topic}</p>
-                            <p className="text-gray-500 text-xs mt-0.5">
-                              {new Date(item.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            {item.is_ab ? (
-                              <span className="px-1.5 py-0.5 bg-violet-600/50 text-violet-200 text-xs rounded font-medium">
-                                A/B {item.ab_count}개
-                              </span>
-                            ) : (
-                              <span className="px-1.5 py-0.5 bg-white/10 text-gray-400 text-xs rounded">단일</span>
-                            )}
-                            {item.is_ab && (
-                              <span className="px-1.5 py-0.5 bg-indigo-600/40 text-indigo-200 text-xs rounded">
-                                v{item.selected_ab_index + 1} 선택
-                              </span>
-                            )}
-                          </div>
+            {/* 선택된 카테고리의 콘텐츠 목록 */}
+            {genProjectId && (
+              <div className="border-t border-white/10 pt-3">
+                {genLoading ? (
+                  <p className="text-gray-400 text-xs text-center py-3">불러오는 중...</p>
+                ) : genItems.length === 0 ? (
+                  <p className="text-gray-500 text-xs text-center py-3">아직 생성된 콘텐츠가 없습니다.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {genItems.map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => router.push(`/generate/result?id=${item.id}`)}
+                        className="flex items-start gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-all"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-xs font-semibold truncate">{item.title || item.topic}</p>
+                          <p className="text-gray-500 text-xs mt-0.5">
+                            {new Date(item.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="px-1.5 py-0.5 bg-violet-600/50 text-violet-200 text-xs rounded font-medium">
+                            5가지 톤
+                          </span>
+                          <span className="px-1.5 py-0.5 bg-indigo-600/40 text-indigo-200 text-xs rounded">
+                            v{(item.selected_ab_index ?? 0) + 1}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
