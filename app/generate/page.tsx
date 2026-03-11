@@ -1214,18 +1214,41 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* 톤/스타일 - 5가지 모두 자동 생성 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">톤/스타일 <span className="text-xs text-indigo-500 font-normal">(5가지 버전 동시 생성)</span></label>
-                    <div className="flex flex-wrap gap-2">
-                      {toneOptions.map((opt) => (
-                        <span key={opt.value}
-                          className="px-4 py-2 text-sm rounded-xl border bg-gray-50 text-gray-600 border-gray-200">
-                          {opt.label}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  {/* 톤/스타일 - 10가지 모두 자동 생성 */}
+                  {(() => {
+                    const TONE_STYLES = [
+                      { bg: 'bg-indigo-50', border: 'border-indigo-300', text: 'text-indigo-700', dot: 'bg-indigo-400' },
+                      { bg: 'bg-emerald-50', border: 'border-emerald-300', text: 'text-emerald-700', dot: 'bg-emerald-400' },
+                      { bg: 'bg-rose-50', border: 'border-rose-300', text: 'text-rose-700', dot: 'bg-rose-400' },
+                      { bg: 'bg-amber-50', border: 'border-amber-300', text: 'text-amber-700', dot: 'bg-amber-400' },
+                      { bg: 'bg-violet-50', border: 'border-violet-300', text: 'text-violet-700', dot: 'bg-violet-400' },
+                      { bg: 'bg-sky-50', border: 'border-sky-300', text: 'text-sky-700', dot: 'bg-sky-400' },
+                      { bg: 'bg-teal-50', border: 'border-teal-300', text: 'text-teal-700', dot: 'bg-teal-400' },
+                      { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-700', dot: 'bg-orange-400' },
+                      { bg: 'bg-cyan-50', border: 'border-cyan-300', text: 'text-cyan-700', dot: 'bg-cyan-400' },
+                      { bg: 'bg-pink-50', border: 'border-pink-300', text: 'text-pink-700', dot: 'bg-pink-400' },
+                    ];
+                    return (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          톤/스타일
+                          <span className="text-xs text-indigo-500 font-normal ml-1.5">(10가지 버전 동시 생성)</span>
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {toneOptions.map((opt, i) => {
+                            const s = TONE_STYLES[i % TONE_STYLES.length];
+                            return (
+                              <span key={opt.value}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border ${s.bg} ${s.border} ${s.text}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+                                {opt.label}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* 추가 요구사항 + 참조 파일 업로드 */}
                   <div>
