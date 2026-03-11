@@ -19,6 +19,8 @@ const FEATURE_LABELS: Record<FeatureType, string> = {
   series: '시리즈 기획',
 };
 
+const VALID_PLANS = new Set(['admin', 'free', 'tester', 'pro', 'max']);
+
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.replace(/\s/g, '');
@@ -39,45 +41,46 @@ export async function GET(req: NextRequest) {
     const supabase = getServiceClient();
     const month = getCurrentMonth();
 
-    // user_profiles에서 이메일 조회 (커스텀 auth 시스템)
+    // 1. user_profiles에서 plan 직접 조회 (커스텀 user 시스템 전용)
     const { data: profileData } = await supabase
       .from('user_profiles')
-      .select('email')
+      .select('email, plan')
       .eq('id', userId)
       .maybeSingle();
 
-    // Supabase Auth user ID 찾기 (이메일로 매핑)
-    let authUserId: string | null = null;
-    if (profileData?.email) {
-      const { data: { users: authUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      const matched = authUsers.find(u => u.email === profileData.email);
-      if (matched) authUserId = matched.id;
-    }
-
-    // 플랜 조회 (auth user ID 기준, 없으면 profile ID로 fallback)
-    const lookupId = authUserId || userId;
-    const { data: planData } = await supabase
-      .from('user_plans')
-      .select('plan, expires_at')
-      .eq('user_id', lookupId)
-      .maybeSingle();
-
     let plan: PlanType = 'free';
-    if (planData) {
-      if (planData.plan === 'admin') {
-        plan = 'admin';
-      } else if (planData.expires_at && new Date(planData.expires_at) < new Date()) {
-        plan = 'free';
-      } else {
-        plan = planData.plan as PlanType;
+
+    if (profileData?.plan && VALID_PLANS.has(profileData.plan)) {
+      // user_profiles.plan 컬럼이 설정된 경우 최우선 사용
+      plan = profileData.plan as PlanType;
+    } else {
+      // fallback: Supabase Auth user ID로 user_plans 조회 (이메일 매핑)
+      if (profileData?.email) {
+        const { data: { users: authUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+        const matched = authUsers.find(u => u.email === profileData.email);
+        if (matched) {
+          const { data: planData } = await supabase
+            .from('user_plans')
+            .select('plan, expires_at')
+            .eq('user_id', matched.id)
+            .maybeSingle();
+
+          if (planData) {
+            if (planData.plan === 'admin') {
+              plan = 'admin';
+            } else if (!planData.expires_at || new Date(planData.expires_at) >= new Date()) {
+              plan = planData.plan as PlanType;
+            }
+          }
+        }
       }
     }
 
-    // 이번 달 사용량 조회 (auth user ID 기준, 없으면 profile ID로 fallback)
+    // 이번 달 사용량 조회 (user_profiles.id 기준)
     const { data: usageData } = await supabase
       .from('usage_counts')
       .select('feature, count')
-      .eq('user_id', lookupId)
+      .eq('user_id', userId)
       .eq('month', month);
 
     const usageMap: Record<string, number> = {};
@@ -98,15 +101,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({
-      plan, summary, month,
-      _debug: {
-        profileEmail: profileData?.email || null,
-        authUserIdFound: !!authUserId,
-        lookupId,
-        planDataRaw: planData,
-      },
-    });
+    return NextResponse.json({ plan, summary, month });
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
   }
