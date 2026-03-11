@@ -52,8 +52,8 @@ export default function ManualPage() {
           <h2 className="text-sm font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent mb-3">GEO-AIO란?</h2>
           <p className="text-[11px] text-gray-800 leading-relaxed">
             GEO-AIO는 AI 검색엔진(AI Overview, Generative Engine)에 최적화된 콘텐츠를 작성할 수 있도록
-            도와주는 종합 콘텐츠 플랫폼입니다. Gemini API를 활용하여 콘텐츠 분석, 생성, 키워드 경쟁 분석, 시리즈 기획,
-            SNS 채널별 변환, A/B 테스트 등 다양한 기능을 제공하며, Make.com 연동을 통한 자동화도 지원합니다.
+            도와주는 종합 콘텐츠 플랫폼입니다. Google Gemini API를 활용하여 콘텐츠 분석, 생성, 키워드 경쟁 분석, 시리즈 기획,
+            SNS 채널별 변환, <strong>10가지 톤</strong>의 콘텐츠 동시 생성, 프로젝트별 콘텐츠 관리 등 다양한 기능을 제공하며, Make.com 연동을 통한 자동화도 지원합니다.
           </p>
         </section>
 
@@ -102,35 +102,96 @@ export default function ManualPage() {
             <span className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">1</span>
             <span className="bg-gradient-to-r from-amber-700 to-orange-600 bg-clip-text text-transparent">API 키 설정</span>
           </h2>
-          <p className="text-[11px] text-gray-800 mb-3">콘텐츠 분석/생성 및 이미지 생성을 위해 API 키를 입력해야 합니다. 상단 네비게이션의 &quot;API Key&quot; 버튼을 클릭하면 입력 패널이 열립니다.</p>
+          <p className="text-[11px] text-gray-800 mb-3">콘텐츠 분석/생성 및 이미지 생성을 위해 Gemini API 키가 필요합니다. 아래 3가지 방법으로 등록할 수 있습니다.</p>
           <div className="space-y-3">
             <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
               <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
-                Gemini API Key
-                <span className="px-2 py-0.5 bg-amber-200 text-amber-700 text-[11px] font-bold rounded-full">필수</span>
+                API 키 등록 방법 3가지
+              </h3>
+              <div className="space-y-2">
+                <div className="bg-white rounded-lg p-3 border border-amber-200">
+                  <p className="text-[11px] font-semibold text-amber-700 mb-1">① 헤더 드롭다운 메뉴 (모달)</p>
+                  <p className="text-[11px] text-gray-700">로그인 후 우측 상단 사용자 이름 클릭 → <strong>API 키 설정</strong> 선택 → 팝업 모달에서 키 입력 후 저장. 어느 페이지에서든 바로 접근 가능합니다.</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-amber-200">
+                  <p className="text-[11px] font-semibold text-amber-700 mb-1">② 콘텐츠 생성 페이지 하단 상시 패널</p>
+                  <p className="text-[11px] text-gray-700">콘텐츠 생성 페이지(<code className="bg-amber-100 px-1 py-0.5 rounded text-amber-700">/generate</code>) 하단 &quot;GEO/AIO 최적화 콘텐츠 생성&quot; 버튼 바로 아래에 API 키 설정 카드가 <strong>상시 표시</strong>됩니다. 생성 도중 키 오류가 발생해도 페이지를 벗어나지 않고 즉시 새 키를 입력·저장할 수 있습니다.</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-amber-200">
+                  <p className="text-[11px] font-semibold text-amber-700 mb-1">③ 설정 페이지</p>
+                  <p className="text-[11px] text-gray-700">헤더 드롭다운 → <strong>API 키 설정</strong>은 모달로 열리며, 직접 <code className="bg-amber-100 px-1 py-0.5 rounded text-amber-700">/settings</code> 페이지에도 접근 가능합니다.</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+              <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                Gemini API Key 발급 방법
+                <span className="px-2 py-0.5 bg-amber-200 text-amber-700 text-[11px] font-bold rounded-full">무료</span>
               </h3>
               <p className="text-[11px] text-gray-800 mb-2">콘텐츠 분석, 생성, AI 이미지 생성에 사용됩니다.</p>
               <div className="bg-white rounded-lg p-3 border border-amber-200">
-                <p className="text-[11px] font-medium text-amber-700 mb-1">발급 방법</p>
                 <ol className="space-y-1 text-[11px] text-gray-700">
                   <li>1. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline hover:text-indigo-800">Google AI Studio</a>에 접속합니다</li>
                   <li>2. Google 계정으로 로그인합니다</li>
                   <li>3. &quot;API 키 만들기&quot; 또는 &quot;Create API Key&quot; 버튼을 클릭합니다</li>
-                  <li>4. 생성된 키를 복사하여 API Key 입력란에 붙여넣습니다</li>
+                  <li>4. 생성된 키를 복사하여 API 키 입력란에 붙여넣고 저장합니다</li>
                 </ol>
               </div>
             </div>
             <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
               <h3 className="text-[13pt] font-semibold text-amber-800 mb-2">키 저장 방식</h3>
-              <p className="text-[11px] text-gray-800">입력한 API 키는 브라우저 로컬 스토리지에 안전하게 저장되며, 서버로 전송되지 않습니다. 브라우저를 닫아도 키가 유지되므로 매번 다시 입력할 필요가 없습니다.</p>
+              <p className="text-[11px] text-gray-800">입력한 API 키는 브라우저 로컬 스토리지 및 Supabase에 안전하게 저장됩니다. 브라우저를 닫아도 키가 유지되므로 매번 다시 입력할 필요가 없습니다. 키 오류 발생 시 생성 페이지 하단 패널에서 바로 교체할 수 있습니다.</p>
             </div>
           </div>
         </section>
 
-        {/* 시작하기 */}
+        {/* 프로젝트 관리 (사용자 대시보드) */}
+        <section className="bg-white rounded-xl shadow-sm border border-indigo-200 p-6">
+          <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <span className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">2</span>
+            <span className="bg-gradient-to-r from-indigo-700 to-violet-600 bg-clip-text text-transparent">프로젝트 관리 (사용자 대시보드)</span>
+          </h2>
+          <p className="text-[11px] text-gray-800 mb-3">GEO-AIO는 <strong>프로젝트</strong> 단위로 콘텐츠를 관리합니다. 사용자 대시보드(<code className="bg-indigo-100 px-1.5 py-0.5 rounded text-indigo-700 text-[11px]">/user-dashboard</code>)에서 프로젝트를 생성하고 참조 자료 파일을 업로드한 뒤, 해당 프로젝트로 콘텐츠를 생성할 수 있습니다.</p>
+          <div className="space-y-3">
+            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+              <h3 className="text-[13pt] font-semibold text-indigo-800 mb-2 flex items-center gap-2">
+                프로젝트 추가
+                <span className="px-2 py-0.5 bg-indigo-200 text-indigo-700 text-[11px] font-bold rounded-full">NEW</span>
+              </h3>
+              <ul className="space-y-2 text-[11px] text-gray-800">
+                <li className="flex items-start gap-2"><span className="text-indigo-500 font-bold">&#8226;</span> <strong>프로젝트 이름 (필수):</strong> AX덴탈그룹, 디지털스마일치과 등 클라이언트/브랜드명</li>
+                <li className="flex items-start gap-2"><span className="text-indigo-500 font-bold">&#8226;</span> <strong>설명 (선택):</strong> 프로젝트에 대한 간단한 메모</li>
+                <li className="flex items-start gap-2"><span className="text-indigo-500 font-bold">&#8226;</span> <strong>참조 파일 업로드 (선택):</strong> PDF, DOCX, MD, TXT 형식 지원 · 각 20MB 이하</li>
+              </ul>
+              <div className="mt-3 bg-white rounded-lg p-3 border border-indigo-200">
+                <p className="text-[11px] font-medium text-indigo-700 mb-1">파일 드래그앤드롭 지원</p>
+                <p className="text-[11px] text-gray-700">병원 소개서, 서비스 설명서, 기존 블로그 글 등을 파일로 업로드하면 AI가 해당 정보를 참조하여 더 정확한 콘텐츠를 생성합니다.</p>
+              </div>
+            </div>
+            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+              <h3 className="text-[13pt] font-semibold text-indigo-800 mb-2">프로젝트 선택 → 콘텐츠 생성</h3>
+              <p className="text-[11px] text-gray-800 mb-2">프로젝트 목록에서 <strong>"선택"</strong> 버튼을 클릭하면 해당 프로젝트가 활성화되고 <strong>콘텐츠 생성 페이지(/generate)</strong>로 자동 이동합니다. 이후 생성되는 모든 콘텐츠는 이 프로젝트에 저장됩니다.</p>
+              <div className="bg-white rounded-lg p-3 border border-indigo-200">
+                <p className="text-[11px] font-medium text-indigo-700 mb-1">상단 배너 확인</p>
+                <p className="text-[11px] text-gray-700">콘텐츠 생성 페이지 상단에 현재 선택된 프로젝트 이름이 표시됩니다. 다른 프로젝트로 콘텐츠를 생성하려면 사용자 대시보드로 돌아가 프로젝트를 재선택하세요.</p>
+              </div>
+            </div>
+            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+              <h3 className="text-[13pt] font-semibold text-indigo-800 mb-2">생성된 콘텐츠 목록 보기</h3>
+              <p className="text-[11px] text-gray-800 mb-2">사용자 대시보드 하단의 <strong>"콘텐츠 생성"</strong> 버튼을 클릭하면 프로젝트별 생성 이력을 확인할 수 있습니다.</p>
+              <ul className="space-y-1 text-[11px] text-gray-700">
+                <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">&#8226;</span> 프로젝트 탭 버튼 클릭 → 해당 프로젝트의 콘텐츠 목록 표시</li>
+                <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">&#8226;</span> 각 항목 클릭 → 생성 결과 상세 페이지로 이동</li>
+                <li className="flex items-start gap-2"><span className="text-indigo-400 font-bold">&#8226;</span> &quot;+ 새 콘텐츠 생성&quot; 버튼 → 콘텐츠 생성 페이지로 이동</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* 콘텐츠 분석 */}
         <section className="bg-white rounded-xl shadow-sm border border-blue-200 p-6">
           <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">2</span>
+            <span className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">3</span>
             <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">콘텐츠 분석</span>
           </h2>
           <p className="text-[11px] text-gray-800 mb-3">기존 콘텐츠의 GEO/AIO 최적화 수준을 분석합니다. 상단 메뉴에서 &quot;분석&quot;을 클릭하여 접근합니다.</p>
@@ -175,17 +236,14 @@ export default function ManualPage() {
         {/* 콘텐츠 생성 */}
         <section className="bg-white rounded-xl shadow-sm border border-emerald-200 p-6">
           <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">3</span>
+            <span className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">4</span>
             <span className="bg-gradient-to-r from-emerald-700 to-green-600 bg-clip-text text-transparent">콘텐츠 생성</span>
           </h2>
-          <p className="text-[11px] text-gray-800 mb-3">AI가 GEO/AIO에 최적화된 콘텐츠를 자동으로 생성합니다. 3단계(사업 정보 → 콘텐츠 유형 → 생성)로 진행됩니다.</p>
+          <p className="text-[11px] text-gray-800 mb-3">Gemini AI가 GEO/AIO에 최적화된 콘텐츠를 자동으로 생성합니다. 프로젝트 선택 후 사업 정보 → 콘텐츠 유형 → 생성 순서로 진행됩니다. 생성 시 <strong>10가지 톤</strong>이 동시 생성되며 결과 페이지에서 원하는 버전을 탭으로 선택합니다.</p>
           <div className="space-y-3">
             <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
-              <h3 className="text-[13pt] font-semibold text-emerald-800 mb-2 flex items-center gap-2">
-                Step 1: 사업 정보 입력
-                <span className="px-2 py-0.5 bg-emerald-200 text-emerald-700 text-[11px] font-bold rounded-full">NEW</span>
-              </h3>
-              <p className="text-[11px] text-gray-800 mb-2">사업 정보를 입력하면 맥락에 맞는 고품질 콘텐츠가 생성됩니다.</p>
+              <h3 className="text-[13pt] font-semibold text-emerald-800 mb-2">Step 1: 사업 정보 입력</h3>
+              <p className="text-[11px] text-gray-800 mb-2">사업 정보를 입력하면 맥락에 맞는 고품질 콘텐츠가 생성됩니다. 상단에 현재 선택된 <strong>프로젝트</strong>가 표시되며, 해당 프로젝트의 참조 파일이 자동으로 반영됩니다.</p>
               <ul className="space-y-2 text-[11px] text-gray-800">
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>회사 정보:</strong> 회사명, 소재지, 웹사이트 URL</li>
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>브랜드 정보:</strong> 브랜드명, 슬로건</li>
@@ -202,10 +260,11 @@ export default function ManualPage() {
             <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
               <h3 className="text-[13pt] font-semibold text-emerald-800 mb-2">Step 2: 콘텐츠 유형 선택</h3>
               <ul className="space-y-2 text-[11px] text-gray-800">
-                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>카테고리:</strong> 블로그, 제품 설명, FAQ, How-to 가이드, 랜딩 페이지, 기술 문서, SNS 포스트, 이메일</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>콘텐츠 유형:</strong> 블로그, 제품 설명, FAQ, How-to 가이드, 랜딩 페이지, 기술 문서, SNS 포스트, 이메일</li>
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>타겟 키워드:</strong> SEO에 활용할 핵심 키워드를 지정합니다</li>
-                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>톤/스타일:</strong> 전문적, 친근한, 설득력 있는, 간결한, 스토리텔링 중 선택</li>
-                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>A/B 테스트 모드:</strong> 활성화하면 3가지 톤으로 동시 생성하여 비교 가능</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>10가지 톤 동시 생성:</strong> 전문적 / 친근한 / 설득적 / 간결한 / 스토리텔링 / 뉴스형 / 교육형 / 비교분석형 / 사례연구형 / 감성형 — 생성 완료 후 결과 페이지에서 탭으로 선택</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>톤별 맞춤 제목·내용:</strong> 동일한 주제라도 톤마다 제목 형식·도입부·문체·구조가 완전히 다르게 생성됩니다</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>하단 API 키 패널:</strong> 생성 버튼 아래에 API 키 설정 카드가 상시 표시 — 키 오류 시 페이지 이동 없이 즉시 교체 가능</li>
               </ul>
             </div>
             <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
@@ -232,6 +291,10 @@ export default function ManualPage() {
               <p className="text-[11px] text-gray-800 mb-3">콘텐츠 생성이 완료되면 결과 페이지에서 다양한 후속 작업을 수행할 수 있습니다.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="bg-white rounded-lg p-3 border border-emerald-200">
+                  <p className="text-[11px] font-medium text-emerald-700 mb-1">톤/스타일 탭 (10가지 컬러 카드)</p>
+                  <p className="text-[11px] text-gray-700">결과 페이지 상단에 10가지 톤이 컬러 카드 그리드로 표시됩니다. 각 탭은 고유 배경색·테두리색을 가지며, 활성 탭에는 체크 뱃지가 표시됩니다. 클릭하면 해당 톤의 제목·내용으로 전환됩니다.</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-emerald-200">
                   <p className="text-[11px] font-medium text-emerald-700 mb-1">콘텐츠 헤더</p>
                   <p className="text-[11px] text-gray-700">생성된 제목, 글자 수, 예상 읽기 시간, 카테고리 뱃지가 표시됩니다.</p>
                 </div>
@@ -255,7 +318,7 @@ export default function ManualPage() {
         {/* 4. 키워드 경쟁 분석 */}
         <section className="bg-white rounded-xl shadow-sm border border-cyan-200 p-6">
           <h2 className="text-sm font-bold flex items-center gap-3 mb-3">
-            <span className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">4</span>
+            <span className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">5</span>
             <span className="bg-gradient-to-r from-cyan-700 to-blue-600 bg-clip-text text-transparent">키워드 경쟁 분석</span>
           </h2>
           <p className="text-[11px] text-gray-800 mb-3">타겟 키워드의 AI 검색 경쟁도를 분석하고, 차별화 전략을 수립합니다. 상단 메뉴에서 &quot;키워드&quot;를 클릭하여 접근합니다.</p>
@@ -366,7 +429,7 @@ export default function ManualPage() {
         {/* 5. 시리즈 기획 */}
         <section className="bg-white rounded-xl shadow-sm border border-orange-200 p-6">
           <h2 className="text-sm font-bold flex items-center gap-3 mb-3">
-            <span className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">5</span>
+            <span className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">6</span>
             <span className="bg-gradient-to-r from-orange-700 to-red-600 bg-clip-text text-transparent">콘텐츠 시리즈 기획</span>
           </h2>
           <p className="text-[11px] text-gray-800 mb-3">하나의 주제로 연관된 시리즈 콘텐츠 기획안을 자동으로 생성합니다. 상단 메뉴에서 &quot;시리즈&quot;를 클릭하여 접근합니다.</p>
@@ -461,26 +524,27 @@ export default function ManualPage() {
         {/* 6. A/B 버전 & SNS 채널별 변환 */}
         <section className="bg-white rounded-xl shadow-sm border border-sky-200 p-6">
           <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span className="w-8 h-8 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">6</span>
-            <span className="bg-gradient-to-r from-sky-700 to-blue-600 bg-clip-text text-transparent">A/B 버전 생성 &amp; SNS 채널별 변환</span>
+            <span className="w-8 h-8 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">7</span>
+            <span className="bg-gradient-to-r from-sky-700 to-blue-600 bg-clip-text text-transparent">5가지 톤 생성 &amp; SNS 채널별 변환</span>
           </h2>
-          <p className="text-[11px] text-gray-800 mb-3">같은 주제로 3가지 톤의 콘텐츠를 동시 생성하고, SNS 채널에 최적화된 형식으로 자동 변환합니다.</p>
+          <p className="text-[11px] text-gray-800 mb-3">같은 주제로 <strong>5가지 톤</strong>의 콘텐츠를 동시 생성하고, SNS 채널에 최적화된 형식으로 자동 변환합니다.</p>
           <div className="space-y-3">
             <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
-              <h3 className="text-[13pt] font-semibold text-sky-800 mb-2">A/B 버전 생성</h3>
-              <p className="text-[11px] text-gray-800 mb-2">콘텐츠 생성 시 &quot;A/B 버전 생성&quot; 토글을 켜면 전문적 / 친근한 / 설득적 3가지 톤으로 동시에 생성됩니다.</p>
+              <h3 className="text-[13pt] font-semibold text-sky-800 mb-2">5가지 톤 동시 생성</h3>
+              <p className="text-[11px] text-gray-800 mb-2">콘텐츠 생성 시 하나의 요청으로 <strong>5가지 톤</strong>이 자동으로 동시 생성됩니다. 결과 페이지에서 탭을 클릭해 각 톤을 비교하고 원하는 버전을 선택하세요.</p>
               <div className="space-y-2 text-[11px] text-gray-700 mb-3">
-                <p>1. 콘텐츠 생성 페이지에서 주제, 카테고리 등 기본 정보 입력</p>
-                <p>2. 생성 버튼 위의 <span className="font-semibold text-sky-700">A/B 버전 생성</span> 토글을 켜기</p>
-                <p>3. 생성 버튼 클릭 → 전문적 / 친근한 / 설득적 3가지 톤으로 동시 생성</p>
-                <p>4. 결과 페이지에서 탭을 클릭하여 각 버전 비교</p>
-                <p>5. 가장 적합한 버전을 선택하여 활용</p>
+                <p>1. 콘텐츠 생성 페이지에서 프로젝트, 주제, 콘텐츠 유형 입력</p>
+                <p>2. &quot;콘텐츠 생성&quot; 버튼 클릭 → 5가지 톤이 자동으로 병렬 생성</p>
+                <p>3. 결과 페이지에서 탭을 클릭하여 각 버전 비교</p>
+                <p>4. 가장 적합한 버전을 선택하여 저장/활용</p>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                 {[
-                  { tone: '전문적', desc: '신뢰감 있고 권위적인 어조', color: 'blue' },
-                  { tone: '친근한', desc: '대화체의 편안한 어조', color: 'green' },
-                  { tone: '설득적', desc: '강렬하고 행동을 유도하는 어조', color: 'rose' },
+                  { tone: '전문적', desc: '권위 있는 어조', color: 'blue' },
+                  { tone: '친근한', desc: '대화체 어조', color: 'green' },
+                  { tone: '설득적', desc: '행동 유도 어조', color: 'rose' },
+                  { tone: '간결한', desc: '핵심만 전달', color: 'amber' },
+                  { tone: '스토리텔링', desc: '서사 중심 어조', color: 'violet' },
                 ].map(t => (
                   <div key={t.tone} className={`bg-${t.color}-50 rounded-lg p-3 border border-${t.color}-200 text-center`}>
                     <p className={`text-[11pt] font-bold text-${t.color}-700`}>{t.tone}</p>
@@ -522,10 +586,10 @@ export default function ManualPage() {
         {/* 대시보드 */}
         <section className="bg-white rounded-xl shadow-sm border border-violet-200 p-6">
           <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <span className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">7</span>
+            <span className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">8</span>
             <span className="bg-gradient-to-r from-violet-700 to-purple-600 bg-clip-text text-transparent">대시보드 활용하기</span>
           </h2>
-          <p className="text-[11px] text-gray-800 mb-3">대시보드에서는 분석 및 생성한 모든 콘텐츠의 이력을 관리하고, 다양한 방식으로 콘텐츠를 활용할 수 있습니다.</p>
+          <p className="text-[11px] text-gray-800 mb-3">대시보드(<code className="bg-violet-100 px-1.5 py-0.5 rounded text-violet-700 text-[11px]">/dashboard</code>)에서는 분석 및 생성한 모든 콘텐츠의 이력을 관리하고, 다양한 방식으로 콘텐츠를 활용할 수 있습니다.</p>
 
           <div className="space-y-3">
             <div className="bg-violet-50 rounded-xl p-4 border border-violet-100">
