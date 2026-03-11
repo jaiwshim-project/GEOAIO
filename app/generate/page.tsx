@@ -86,6 +86,11 @@ const toneOptions = [
   { value: '설득력 있고 강렬한', label: '설득적' },
   { value: '간결하고 명확한', label: '간결한' },
   { value: '스토리텔링 중심의', label: '스토리텔링' },
+  { value: '뉴스/저널리즘 스타일의', label: '뉴스형' },
+  { value: '교육적이고 강의형의', label: '교육형' },
+  { value: '비교분석 중심의', label: '비교분석형' },
+  { value: '사례연구 중심의', label: '사례연구형' },
+  { value: '감성적이고 공감하는', label: '감성형' },
 ];
 
 export default function GeneratePage() {
