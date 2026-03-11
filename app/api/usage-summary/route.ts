@@ -125,6 +125,15 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    // 구독 날짜가 없으면 이번 달 1일 ~ 말일로 fallback
+    if (!periodStart || !periodEnd) {
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      periodStart = formatDate(firstDay);
+      periodEnd = formatDate(lastDay);
+    }
+
     return NextResponse.json({ plan, summary, month, periodStart, periodEnd });
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
