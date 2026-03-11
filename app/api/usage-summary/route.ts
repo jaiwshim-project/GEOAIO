@@ -98,7 +98,15 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ plan, summary, month });
+    return NextResponse.json({
+      plan, summary, month,
+      _debug: {
+        profileEmail: profileData?.email || null,
+        authUserIdFound: !!authUserId,
+        lookupId,
+        planDataRaw: planData,
+      },
+    });
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
   }
