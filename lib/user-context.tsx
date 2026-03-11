@@ -35,6 +35,7 @@ interface UserContextType {
   currentUser: UserProfile | null;
   selectedProject: UserProject | null;
   geminiApiKey: string;
+  initialized: boolean;
   setCurrentUser: (user: UserProfile | null) => void;
   setSelectedProject: (project: UserProject | null) => void;
   setGeminiApiKey: (key: string) => void;
@@ -45,6 +46,7 @@ const UserContext = createContext<UserContextType>({
   currentUser: null,
   selectedProject: null,
   geminiApiKey: '',
+  initialized: false,
   setCurrentUser: () => {},
   setSelectedProject: () => {},
   setGeminiApiKey: () => {},
@@ -55,6 +57,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUserState] = useState<UserProfile | null>(null);
   const [selectedProject, setSelectedProjectState] = useState<UserProject | null>(null);
   const [geminiApiKey, setGeminiApiKeyState] = useState('');
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     try {
@@ -68,6 +71,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const key = localStorage.getItem('geoaio_gemini_key');
       if (key) setGeminiApiKeyState(key);
     } catch {}
+    setInitialized(true);
   }, []);
 
   const setCurrentUser = (user: UserProfile | null) => {
@@ -97,7 +101,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const logout = () => setCurrentUser(null);
 
   return (
-    <UserContext.Provider value={{ currentUser, selectedProject, geminiApiKey, setCurrentUser, setSelectedProject, setGeminiApiKey, logout }}>
+    <UserContext.Provider value={{ currentUser, selectedProject, geminiApiKey, initialized, setCurrentUser, setSelectedProject, setGeminiApiKey, logout }}>
       {children}
     </UserContext.Provider>
   );

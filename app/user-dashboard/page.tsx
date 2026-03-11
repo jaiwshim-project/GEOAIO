@@ -22,7 +22,7 @@ function formatFileSize(bytes?: number) {
 
 export default function UserDashboardPage() {
   const router = useRouter();
-  const { currentUser, selectedProject, setSelectedProject, logout } = useUser();
+  const { currentUser, selectedProject, setSelectedProject, logout, initialized } = useUser();
 
   const [projects, setProjects] = useState<UserProject[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
@@ -72,8 +72,8 @@ export default function UserDashboardPage() {
   const [genLoading, setGenLoading] = useState(false);
 
   useEffect(() => {
-    if (!currentUser) router.push('/user-select');
-  }, [currentUser, router]);
+    if (initialized && !currentUser) router.push('/user-select');
+  }, [initialized, currentUser, router]);
 
   const fetchProjects = useCallback(async () => {
     if (!currentUser) return;
@@ -364,6 +364,7 @@ export default function UserDashboardPage() {
     setNewFiles([]);
   };
 
+  if (!initialized) return null;
   if (!currentUser) return null;
 
   return (
