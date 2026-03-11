@@ -30,6 +30,7 @@ export default function UserDashboardPage() {
   const [newDesc, setNewDesc] = useState('');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newRepName, setNewRepName] = useState('');
+  const [newRegion, setNewRegion] = useState('');
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -45,6 +46,7 @@ export default function UserDashboardPage() {
   const [editDesc, setEditDesc] = useState('');
   const [editCompanyName, setEditCompanyName] = useState('');
   const [editRepName, setEditRepName] = useState('');
+  const [editRegion, setEditRegion] = useState('');
   const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
   const [editIsDragging, setEditIsDragging] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
@@ -52,6 +54,12 @@ export default function UserDashboardPage() {
   const [editError, setEditError] = useState('');
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
+
+  // 사용량 상태
+  type UsageSummaryItem = { feature: string; label: string; used: number; limit: number; remaining: number };
+  const [usageSummary, setUsageSummary] = useState<UsageSummaryItem[]>([]);
+  const [usagePlan, setUsagePlan] = useState('');
+  const [usageLoading, setUsageLoading] = useState(true);
 
   // 콘텐츠 생성 목록 상태
   type GenerateItem = {
@@ -82,6 +90,19 @@ export default function UserDashboardPage() {
   }, [currentUser]);
 
   useEffect(() => { fetchProjects(); }, [fetchProjects]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    setUsageLoading(true);
+    fetch(`/api/usage-summary?user_id=${currentUser.id}`)
+      .then(r => r.json())
+      .then(data => {
+        setUsageSummary(data.summary || []);
+        setUsagePlan(data.plan || '');
+      })
+      .catch(() => {})
+      .finally(() => setUsageLoading(false));
+  }, [currentUser]);
 
   const fetchGenItems = async (projectId: string) => {
     setGenLoading(true);
@@ -140,7 +161,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null }),
+        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null, region: newRegion.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '추가 실패'); return; }
@@ -186,6 +207,7 @@ export default function UserDashboardPage() {
       setNewDesc('');
       setNewCompanyName('');
       setNewRepName('');
+      setNewRegion('');
       setNewFiles([]);
       setShowAddForm(false);
     } catch {
@@ -202,6 +224,7 @@ export default function UserDashboardPage() {
     setEditDesc(project.description || '');
     setEditCompanyName(project.company_name || '');
     setEditRepName(project.representative_name || '');
+    setEditRegion(project.region || '');
     setEditNewFiles([]);
     setEditError('');
     setEditProgress('');
@@ -256,7 +279,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null }),
+        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null, region: editRegion.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setEditError(data.error || '수정 실패'); return; }
@@ -290,11 +313,11 @@ export default function UserDashboardPage() {
 
       setProjects(prev => prev.map(p =>
         p.id === projectId
-          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, files: [...(p.files || []), ...uploadedFiles] }
+          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, files: [...(p.files || []), ...uploadedFiles] }
           : p
       ));
       if (selectedProject?.id === projectId) {
-        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name });
+        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region });
       }
       setEditingId(null);
       setEditNewFiles([]);
@@ -337,6 +360,7 @@ export default function UserDashboardPage() {
     setNewDesc('');
     setNewCompanyName('');
     setNewRepName('');
+    setNewRegion('');
     setNewFiles([]);
   };
 
@@ -396,6 +420,63 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
+        {/* ===== 이용 현황 ===== */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-white font-bold text-base">이번 달 이용 현황</h3>
+            {usagePlan && (
+              <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${
+                usagePlan === 'admin' ? 'bg-yellow-500/30 text-yellow-300 border border-yellow-500/40' :
+                usagePlan === 'max' ? 'bg-violet-600/40 text-violet-200 border border-violet-500/40' :
+                usagePlan === 'pro' ? 'bg-indigo-600/40 text-indigo-200 border border-indigo-500/40' :
+                usagePlan === 'tester' ? 'bg-emerald-600/40 text-emerald-200 border border-emerald-500/40' :
+                'bg-gray-600/40 text-gray-300 border border-gray-500/40'
+              }`}>
+                {usagePlan === 'admin' ? '관리자' : usagePlan === 'max' ? 'MAX' : usagePlan === 'pro' ? 'PRO' : usagePlan === 'tester' ? '테스터' : 'FREE'} 플랜
+              </span>
+            )}
+          </div>
+          {usageLoading ? (
+            <div className="text-center py-3 text-gray-400 text-sm">불러오는 중...</div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2.5">
+              {usageSummary.map((item) => {
+                const isUnlimited = item.limit === -1;
+                const pct = isUnlimited ? 0 : item.limit > 0 ? Math.min(100, (item.used / item.limit) * 100) : 0;
+                const isAlmostFull = !isUnlimited && pct >= 80;
+                const isFull = !isUnlimited && item.remaining === 0;
+                return (
+                  <div key={item.feature} className={`rounded-xl p-3 border ${
+                    isFull ? 'bg-red-500/10 border-red-500/30' :
+                    isAlmostFull ? 'bg-orange-500/10 border-orange-500/30' :
+                    'bg-white/5 border-white/10'
+                  }`}>
+                    <p className="text-gray-400 text-xs mb-2">{item.label}</p>
+                    <div className="flex items-end justify-between mb-2">
+                      <span className={`text-lg font-bold ${isFull ? 'text-red-400' : isAlmostFull ? 'text-orange-400' : 'text-white'}`}>
+                        {isUnlimited ? '∞' : item.remaining}
+                      </span>
+                      <span className="text-gray-500 text-xs">남음</span>
+                    </div>
+                    {!isUnlimited && (
+                      <div className="w-full bg-white/10 rounded-full h-1 mb-1.5">
+                        <div
+                          className={`h-1 rounded-full transition-all ${isFull ? 'bg-red-500' : isAlmostFull ? 'bg-orange-400' : 'bg-indigo-400'}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    )}
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>사용 {isUnlimited ? '∞' : item.used}</span>
+                      <span>총 {isUnlimited ? '무제한' : item.limit}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         {/* ===== 프로젝트 ===== */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <div className="flex items-center justify-between mb-5">
@@ -437,6 +518,13 @@ export default function UserDashboardPage() {
                   className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
                 />
               </div>
+              <input
+                type="text"
+                value={newRegion}
+                onChange={(e) => setNewRegion(e.target.value)}
+                placeholder="지역 (선택, 예: 서울 강남구, 부산 해운대구)"
+                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
+              />
               <input
                 type="text"
                 value={newDesc}
@@ -563,6 +651,13 @@ export default function UserDashboardPage() {
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
                         />
                       </div>
+                      <input
+                        type="text"
+                        value={editRegion}
+                        onChange={(e) => setEditRegion(e.target.value)}
+                        placeholder="지역 (선택, 예: 서울 강남구, 부산 해운대구)"
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                      />
                       <input
                         type="text"
                         value={editDesc}

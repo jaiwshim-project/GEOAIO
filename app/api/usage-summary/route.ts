@@ -1,0 +1,89 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+type PlanType = 'admin' | 'free' | 'tester' | 'pro' | 'max';
+type FeatureType = 'analyze' | 'generate' | 'keyword' | 'series';
+
+const PLAN_FEATURE_LIMITS: Record<PlanType, Record<FeatureType, number>> = {
+  admin:  { analyze: -1, generate: -1, keyword: -1, series: -1 },
+  free:   { analyze: 3, generate: 3, keyword: 3, series: 3 },
+  tester: { analyze: 50, generate: 50, keyword: 50, series: 50 },
+  pro:    { analyze: 15, generate: 15, keyword: 15, series: 15 },
+  max:    { analyze: 50, generate: 50, keyword: 50, series: 50 },
+};
+
+const FEATURE_LABELS: Record<FeatureType, string> = {
+  analyze: '콘텐츠 분석',
+  generate: '콘텐츠 생성',
+  keyword: '키워드 분석',
+  series: '시리즈 기획',
+};
+
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.replace(/\s/g, '');
+  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY 미설정');
+  return createClient(url, key);
+}
+
+function getCurrentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const userId = req.nextUrl.searchParams.get('user_id');
+    if (!userId) return NextResponse.json({ error: 'user_id 필요' }, { status: 400 });
+
+    const supabase = getServiceClient();
+    const month = getCurrentMonth();
+
+    // 플랜 조회
+    const { data: planData } = await supabase
+      .from('user_plans')
+      .select('plan, expires_at')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    let plan: PlanType = 'free';
+    if (planData) {
+      if (planData.plan === 'admin') {
+        plan = 'admin';
+      } else if (planData.expires_at && new Date(planData.expires_at) < new Date()) {
+        plan = 'free';
+      } else {
+        plan = planData.plan as PlanType;
+      }
+    }
+
+    // 이번 달 사용량 조회
+    const { data: usageData } = await supabase
+      .from('usage_counts')
+      .select('feature, count')
+      .eq('user_id', userId)
+      .eq('month', month);
+
+    const usageMap: Record<string, number> = {};
+    for (const row of usageData || []) {
+      usageMap[row.feature] = row.count;
+    }
+
+    const features: FeatureType[] = ['analyze', 'generate', 'keyword', 'series'];
+    const summary = features.map((feature) => {
+      const limit = PLAN_FEATURE_LIMITS[plan][feature];
+      const used = usageMap[feature] || 0;
+      return {
+        feature,
+        label: FEATURE_LABELS[feature],
+        used,
+        limit,
+        remaining: limit === -1 ? -1 : Math.max(0, limit - used),
+      };
+    });
+
+    return NextResponse.json({ plan, summary, month });
+  } catch (e: unknown) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
+  }
+}
