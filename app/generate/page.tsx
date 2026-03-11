@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
-import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, type Profile, type ProfileData } from '@/lib/supabase-storage';
+import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, type Profile, type ProfileData } from '@/lib/supabase-storage';
 import { canUseFeature, incrementUsage } from '@/lib/usage';
 import { useUser } from '@/lib/user-context';
 
@@ -95,7 +95,7 @@ const toneOptions = [
 
 export default function GeneratePage() {
   const router = useRouter();
-  const { selectedProject, geminiApiKey: contextApiKey } = useUser();
+  const { selectedProject, geminiApiKey: contextApiKey, setGeminiApiKey: setContextApiKey } = useUser();
   // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
   const geminiApiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
@@ -106,6 +106,11 @@ export default function GeneratePage() {
   const [referenceFiles, setReferenceFiles] = useState<{ name: string; content: string }[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showKeyRecovery, setShowKeyRecovery] = useState(false);
+  const [recoveryKey, setRecoveryKey] = useState('');
+  const [recoveryKeyVisible, setRecoveryKeyVisible] = useState(false);
+  const [recoverySaving, setRecoverySaving] = useState(false);
+  const [recoverySaved, setRecoverySaved] = useState(false);
   const [abTestMode, setAbTestMode] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [showBusinessInfo, setShowBusinessInfo] = useState(false);
@@ -484,12 +489,14 @@ export default function GeneratePage() {
     // API 키: context → localStorage 순으로 최신값 읽기
     const apiKey = contextApiKey || localStorage.getItem('geoaio_gemini_key') || '';
     if (!apiKey) {
-      setError('Gemini API 키가 설정되지 않았습니다. /settings 페이지에서 API 키를 등록해주세요.');
+      setError('Gemini API 키가 설정되지 않았습니다.');
+      setShowKeyRecovery(true);
       return;
     }
 
     setIsGenerating(true);
     setError(null);
+    setShowKeyRecovery(false);
 
     try {
       // 사용량 체크
@@ -503,7 +510,7 @@ export default function GeneratePage() {
       saveBusinessInfo();
       const notes = buildAdditionalNotes();
 
-      // 5가지 톤으로 동시 생성
+      // 10가지 톤으로 동시 생성
       const results = await Promise.all(
         toneOptions.map(async (t) => {
           const res = await fetch('/api/generate', {
@@ -529,25 +536,58 @@ export default function GeneratePage() {
       await saveHistoryItem({
         id: historyId, type: 'generation',
         title: results[0].title || topic.trim(),
-        summary: `5가지 톤 버전 | ${topic.trim()}`,
+        summary: `10가지 톤 버전 | ${topic.trim()}`,
         date: dateStr, category: selectedCategory || undefined,
         targetKeyword: targetKeyword.trim() || undefined,
-        generateResult: results[0], topic: topic.trim(), tone: '5가지 톤', revisions: [],
+        generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
       });
       const { saveGenerateResult } = await import('@/lib/supabase-storage');
       const mainResult = { ...results[0], abVersions: results };
       const resultId = await saveGenerateResult({
         result: mainResult, category: selectedCategory,
         topic: topic.trim(), targetKeyword: targetKeyword.trim(),
-        tone: '5가지 톤', historyId,
+        tone: '10가지 톤', historyId,
         project_id: selectedProject?.id,
         selected_ab_index: 0,
       });
       router.push(`/generate/result?id=${resultId}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      const msg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
+      setError(msg);
+      // API 키 관련 오류면 복구 패널 표시
+      const isKeyError = msg.includes('API_KEY') || msg.includes('api key') || msg.includes('401')
+        || msg.includes('유효하지 않') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')
+        || msg.includes('할당량') || msg.includes('키가 필요');
+      if (isKeyError) setShowKeyRecovery(true);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleSaveRecoveryKey = async (andRetry = false) => {
+    const key = recoveryKey.trim();
+    if (!key) return;
+    setRecoverySaving(true);
+    try {
+      localStorage.setItem('geoaio_gemini_key', key);
+      setContextApiKey(key);
+      await saveApiKey('gemini', key);
+      await fetch('/api/set-api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ geminiApiKey: key }),
+      }).catch(() => {});
+      setRecoverySaved(true);
+      setRecoveryKey('');
+      setError(null);
+      if (andRetry) {
+        setShowKeyRecovery(false);
+        setRecoverySaved(false);
+        // 새 키가 context에 반영된 후 생성 재시도
+        setTimeout(() => handleGenerate(), 100);
+      }
+    } finally {
+      setRecoverySaving(false);
     }
   };
 
@@ -1294,7 +1334,7 @@ export default function GeneratePage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        5가지 톤 콘텐츠 생성 중...
+                        10가지 톤 콘텐츠 생성 중...
                       </>
                     ) : (
                       <>
@@ -1312,15 +1352,105 @@ export default function GeneratePage() {
             {/* 에러 */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-                <svg className="w-5 h-5 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-red-700">{error}</p>
                   {error.includes('소진했습니다') && (
                     <Link href="/pricing" className="inline-block mt-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800 underline">
                       요금제 확인하기 &rarr;
                     </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* API 키 에러 복구 패널 */}
+            {showKeyRecovery && (
+              <div className="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden shadow-md">
+                {/* 헤더 */}
+                <div className="flex items-center gap-3 px-5 py-3.5 bg-amber-500">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-white">API 키를 재입력하고 바로 재시도하세요</p>
+                    <p className="text-xs text-amber-100">새 키를 저장하면 이 페이지를 벗어나지 않고 즉시 생성을 재시작합니다</p>
+                  </div>
+                  <button onClick={() => setShowKeyRecovery(false)} className="w-6 h-6 flex items-center justify-center rounded-md bg-white/15 hover:bg-white/30 text-white transition-all">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+
+                {/* 본문 */}
+                <div className="px-5 py-4 space-y-3">
+                  {/* 안내 링크 */}
+                  <div className="flex items-center gap-2 text-xs text-amber-800 bg-amber-100 border border-amber-200 rounded-lg px-3 py-2">
+                    <svg className="w-4 h-4 shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>API 키가 없으신가요?</span>
+                    <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
+                      className="font-semibold text-amber-700 hover:text-amber-900 underline underline-offset-2">
+                      Google AI Studio에서 무료 발급 →
+                    </a>
+                  </div>
+
+                  {/* 입력 */}
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={recoveryKeyVisible ? 'text' : 'password'}
+                        value={recoveryKey}
+                        onChange={e => { setRecoveryKey(e.target.value); setRecoverySaved(false); }}
+                        onKeyDown={e => e.key === 'Enter' && handleSaveRecoveryKey(false)}
+                        placeholder="AIza... 로 시작하는 Gemini API 키 입력"
+                        className="w-full pl-4 pr-10 py-2.5 border-2 border-amber-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent font-mono bg-white placeholder-gray-400"
+                      />
+                      <button type="button" onClick={() => setRecoveryKeyVisible(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        {recoveryKeyVisible
+                          ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                          : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        }
+                      </button>
+                    </div>
+                    {/* 저장만 */}
+                    <button
+                      onClick={() => handleSaveRecoveryKey(false)}
+                      disabled={recoverySaving || !recoveryKey.trim()}
+                      className="px-4 py-2.5 bg-white border-2 border-amber-300 text-amber-700 text-sm font-semibold rounded-xl hover:bg-amber-50 transition-all disabled:opacity-40 whitespace-nowrap"
+                    >
+                      {recoverySaved ? '✓ 저장됨' : '저장'}
+                    </button>
+                    {/* 저장 후 바로 재시도 */}
+                    <button
+                      onClick={() => handleSaveRecoveryKey(true)}
+                      disabled={recoverySaving || !recoveryKey.trim()}
+                      className="px-4 py-2.5 bg-amber-500 text-white text-sm font-bold rounded-xl hover:bg-amber-600 transition-all disabled:opacity-40 whitespace-nowrap flex items-center gap-1.5 shadow-md"
+                    >
+                      {recoverySaving ? (
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      )}
+                      저장 후 재시도
+                    </button>
+                  </div>
+
+                  {recoverySaved && !recoverySaving && (
+                    <p className="text-xs text-emerald-700 font-medium flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                      키가 저장되었습니다. 생성 버튼을 눌러 다시 시도하세요.
+                    </p>
                   )}
                 </div>
               </div>
