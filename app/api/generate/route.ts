@@ -157,18 +157,25 @@ export async function POST(request: NextRequest) {
     const toneDesc = body.tone || '전문적이고 신뢰감 있는';
     const toneGuide = TONE_GUIDE[toneDesc] || '';
 
+    const companyInfo = [
+      body.company_name ? `회사명: ${body.company_name}` : '',
+      body.representative_name ? `대표자명: ${body.representative_name}` : '',
+      body.region ? `지역: ${body.region}` : '',
+    ].filter(Boolean).join('\n');
+
     const userMessage = `다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
 톤/스타일: ${toneDesc}
 ${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}
-${toneGuide}
+${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${toneGuide}
 ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : ''}
 [필수 사항]
 - 제목은 위의 톤 가이드에 맞게 작성하세요. 단순히 주제를 그대로 사용하지 마세요.
 - 본문 전체의 문체·구조·어조가 "${toneDesc}" 톤을 일관되게 반영해야 합니다.
-- GEO/AIO에 최적화된 고품질 콘텐츠를 작성해주세요.`;
+- GEO/AIO에 최적화된 고품질 콘텐츠를 작성해주세요.
+${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문 내용에 자연스럽게 반드시 포함하세요.` : ''}`;
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({

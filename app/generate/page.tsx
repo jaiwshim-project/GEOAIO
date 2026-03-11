@@ -517,6 +517,15 @@ export default function GeneratePage() {
       saveBusinessInfo();
       const notes = buildAdditionalNotes();
 
+      // 선택된 프로젝트의 업체 정보
+      let activeProjectInfo = selectedProject;
+      if (!activeProjectInfo) {
+        try {
+          const stored = sessionStorage.getItem('geoaio_project');
+          if (stored) activeProjectInfo = JSON.parse(stored);
+        } catch {}
+      }
+
       // 10가지 톤으로 동시 생성
       const results = await Promise.all(
         toneOptions.map(async (t) => {
@@ -529,6 +538,9 @@ export default function GeneratePage() {
               targetKeyword: targetKeyword.trim() || undefined,
               tone: t.value,
               additionalNotes: notes,
+              company_name: activeProjectInfo?.company_name || undefined,
+              representative_name: activeProjectInfo?.representative_name || undefined,
+              region: activeProjectInfo?.region || undefined,
             }),
           });
           const data = await res.json();

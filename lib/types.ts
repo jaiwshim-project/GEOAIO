@@ -160,6 +160,9 @@ export interface GenerateRequest {
   targetKeyword?: string;
   tone?: string;
   additionalNotes?: string;
+  company_name?: string;
+  representative_name?: string;
+  region?: string;
 }
 
 export interface GenerateResponse {
