@@ -59,6 +59,8 @@ export default function UserDashboardPage() {
   type UsageSummaryItem = { feature: string; label: string; used: number; limit: number; remaining: number };
   const [usageSummary, setUsageSummary] = useState<UsageSummaryItem[]>([]);
   const [usagePlan, setUsagePlan] = useState('');
+  const [usagePeriodStart, setUsagePeriodStart] = useState<string | null>(null);
+  const [usagePeriodEnd, setUsagePeriodEnd] = useState<string | null>(null);
   const [usageLoading, setUsageLoading] = useState(true);
 
   // 콘텐츠 생성 목록 상태
@@ -99,6 +101,8 @@ export default function UserDashboardPage() {
       .then(data => {
         setUsageSummary(data.summary || []);
         setUsagePlan(data.plan || '');
+        setUsagePeriodStart(data.periodStart || null);
+        setUsagePeriodEnd(data.periodEnd || null);
       })
       .catch(() => {})
       .finally(() => setUsageLoading(false));
@@ -424,7 +428,12 @@ export default function UserDashboardPage() {
         {/* ===== 이용 현황 ===== */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white font-bold text-base">이번 달 이용 현황</h3>
+            <div>
+              <h3 className="text-white font-bold text-base">이번 달 이용 현황</h3>
+              {usagePeriodStart && usagePeriodEnd && (
+                <p className="text-gray-400 text-xs mt-0.5">{usagePeriodStart} ~ {usagePeriodEnd}</p>
+              )}
+            </div>
             {usagePlan && (
               <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${
                 usagePlan === 'admin' ? 'bg-yellow-500/30 text-yellow-300 border border-yellow-500/40' :
