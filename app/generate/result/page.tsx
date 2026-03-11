@@ -456,28 +456,65 @@ export default function GenerateResultPage() {
         )}
 
         {/* 톤 버전 탭 */}
-        {abVersions.length > 1 && (
-          <div className="bg-white rounded-xl shadow-sm border border-indigo-200 overflow-hidden">
-            <div className="px-4 py-2 bg-indigo-50 border-b border-indigo-100">
-              <p className="text-xs font-semibold text-indigo-700">톤/스타일 버전 선택 ({abVersions.length}가지)</p>
+        {abVersions.length > 1 && (() => {
+          const TONE_COLORS = [
+            { idle: 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100', active: 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-200', dot: 'bg-indigo-400' },
+            { idle: 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100', active: 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200', dot: 'bg-emerald-400' },
+            { idle: 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100', active: 'bg-rose-600 border-rose-600 text-white shadow-rose-200', dot: 'bg-rose-400' },
+            { idle: 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100', active: 'bg-amber-500 border-amber-500 text-white shadow-amber-200', dot: 'bg-amber-400' },
+            { idle: 'bg-violet-50 border-violet-200 text-violet-700 hover:bg-violet-100', active: 'bg-violet-600 border-violet-600 text-white shadow-violet-200', dot: 'bg-violet-400' },
+            { idle: 'bg-sky-50 border-sky-200 text-sky-700 hover:bg-sky-100', active: 'bg-sky-600 border-sky-600 text-white shadow-sky-200', dot: 'bg-sky-400' },
+            { idle: 'bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100', active: 'bg-teal-600 border-teal-600 text-white shadow-teal-200', dot: 'bg-teal-400' },
+            { idle: 'bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100', active: 'bg-orange-500 border-orange-500 text-white shadow-orange-200', dot: 'bg-orange-400' },
+            { idle: 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:bg-cyan-100', active: 'bg-cyan-600 border-cyan-600 text-white shadow-cyan-200', dot: 'bg-cyan-400' },
+            { idle: 'bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100', active: 'bg-pink-600 border-pink-600 text-white shadow-pink-200', dot: 'bg-pink-400' },
+          ];
+          return (
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              {/* 헤더 */}
+              <div className="px-5 py-3 bg-gradient-to-r from-slate-800 to-indigo-900 flex items-center gap-2">
+                <svg className="w-4 h-4 text-indigo-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                <p className="text-sm font-bold text-white">톤/스타일 버전 선택</p>
+                <span className="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-indigo-200 border border-white/20">
+                  {abVersions.length}가지
+                </span>
+              </div>
+              {/* 탭 그리드 */}
+              <div className="p-3 grid grid-cols-5 gap-2">
+                {abVersions.map((v, i) => {
+                  const color = TONE_COLORS[i % TONE_COLORS.length];
+                  const isActive = activeAbTab === i;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => { setActiveAbTab(i); setResult(v); }}
+                      className={`relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all duration-200 whitespace-nowrap shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
+                        isActive ? `${color.active} shadow-lg` : `${color.idle}`
+                      }`}
+                    >
+                      {/* 번호 뱃지 */}
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                        isActive ? 'bg-white/25 text-white' : `${color.dot} text-white`
+                      }`}>
+                        {i + 1}
+                      </span>
+                      {v.toneName || `버전 ${i + 1}`}
+                      {isActive && (
+                        <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-white rounded-full flex items-center justify-center shadow">
+                          <svg className="w-2.5 h-2.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="flex overflow-x-auto">
-              {abVersions.map((v, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setActiveAbTab(i); setResult(v); }}
-                  className={`flex-1 min-w-[80px] px-4 py-3 text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
-                    activeAbTab === i
-                      ? 'border-indigo-600 text-indigo-700 bg-indigo-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {v.toneName || `버전 ${i + 1}`}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* 결과 헤더 */}
         <div className="bg-white rounded-xl shadow-sm border border-emerald-200 p-5">
