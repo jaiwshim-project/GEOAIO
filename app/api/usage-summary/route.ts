@@ -39,11 +39,27 @@ export async function GET(req: NextRequest) {
     const supabase = getServiceClient();
     const month = getCurrentMonth();
 
-    // 플랜 조회
+    // user_profiles에서 이메일 조회 (커스텀 auth 시스템)
+    const { data: profileData } = await supabase
+      .from('user_profiles')
+      .select('email')
+      .eq('id', userId)
+      .maybeSingle();
+
+    // Supabase Auth user ID 찾기 (이메일로 매핑)
+    let authUserId: string | null = null;
+    if (profileData?.email) {
+      const { data: { users: authUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+      const matched = authUsers.find(u => u.email === profileData.email);
+      if (matched) authUserId = matched.id;
+    }
+
+    // 플랜 조회 (auth user ID 기준, 없으면 profile ID로 fallback)
+    const lookupId = authUserId || userId;
     const { data: planData } = await supabase
       .from('user_plans')
       .select('plan, expires_at')
-      .eq('user_id', userId)
+      .eq('user_id', lookupId)
       .maybeSingle();
 
     let plan: PlanType = 'free';
@@ -57,11 +73,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 이번 달 사용량 조회
+    // 이번 달 사용량 조회 (auth user ID 기준, 없으면 profile ID로 fallback)
     const { data: usageData } = await supabase
       .from('usage_counts')
       .select('feature, count')
-      .eq('user_id', userId)
+      .eq('user_id', lookupId)
       .eq('month', month);
 
     const usageMap: Record<string, number> = {};
