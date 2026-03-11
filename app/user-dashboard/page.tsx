@@ -760,8 +760,27 @@ export default function UserDashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-bold text-sm">{project.name}</p>
+                          {(project.company_name || project.representative_name || project.region) && (
+                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                              {project.company_name && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-indigo-300 text-xs">
+                                  🏢 {project.company_name}
+                                </span>
+                              )}
+                              {project.representative_name && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-500/20 border border-violet-500/30 rounded-full text-violet-300 text-xs">
+                                  👤 {project.representative_name}
+                                </span>
+                              )}
+                              {project.region && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-300 text-xs">
+                                  📍 {project.region}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           {project.description && (
-                            <p className="text-gray-400 text-xs mt-1 leading-relaxed">{project.description}</p>
+                            <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">{project.description}</p>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
