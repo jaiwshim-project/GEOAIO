@@ -111,6 +111,13 @@ export default function GeneratePage() {
   const [recoveryKeyVisible, setRecoveryKeyVisible] = useState(false);
   const [recoverySaving, setRecoverySaving] = useState(false);
   const [recoverySaved, setRecoverySaved] = useState(false);
+
+  // 하단 상시 API 키 패널
+  const [inlineKey, setInlineKey] = useState('');
+  const [inlineKeyVisible, setInlineKeyVisible] = useState(false);
+  const [inlineSaving, setInlineSaving] = useState(false);
+  const [inlineHasKey, setInlineHasKey] = useState(false);
+  const [inlineStatus, setInlineStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [abTestMode, setAbTestMode] = useState(false);
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [showBusinessInfo, setShowBusinessInfo] = useState(false);
@@ -591,6 +598,51 @@ export default function GeneratePage() {
     }
   };
 
+  // 하단 패널 초기 키 상태 확인
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('geoaio_gemini_key')) setInlineHasKey(true);
+    } catch {}
+    fetch('/api/set-api-key').then(r => r.json()).then(d => {
+      if (d.hasGeminiKey) setInlineHasKey(true);
+    }).catch(() => {});
+  }, []);
+
+  const handleSaveInlineKey = async (andGenerate = false) => {
+    const key = inlineKey.trim();
+    if (!key) return;
+    setInlineSaving(true);
+    setInlineStatus(null);
+    try {
+      localStorage.setItem('geoaio_gemini_key', key);
+      setContextApiKey(key);
+      await saveApiKey('gemini', key);
+      await fetch('/api/set-api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ geminiApiKey: key }),
+      }).catch(() => {});
+      setInlineStatus({ type: 'success', msg: 'API 키가 저장되었습니다.' });
+      setInlineKey('');
+      setInlineHasKey(true);
+      setError(null);
+      setShowKeyRecovery(false);
+      if (andGenerate) setTimeout(() => handleGenerate(), 100);
+    } catch (e) {
+      setInlineStatus({ type: 'error', msg: e instanceof Error ? e.message : '저장 실패' });
+    } finally {
+      setInlineSaving(false);
+    }
+  };
+
+  const handleDeleteInlineKey = async () => {
+    try { localStorage.removeItem('geoaio_gemini_key'); } catch {}
+    setContextApiKey('');
+    const { deleteApiKey } = await import('@/lib/supabase-storage');
+    await deleteApiKey('gemini');
+    setInlineHasKey(false);
+    setInlineStatus({ type: 'success', msg: 'API 키가 삭제되었습니다.' });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1368,6 +1420,99 @@ export default function GeneratePage() {
                       </>
                     )}
                   </button>
+
+                  {/* ── 상시 API 키 설정 카드 ── */}
+                  <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                    {/* 헤더 */}
+                    <div className="flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-blue-500 to-indigo-600">
+                      <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-bold text-sm">API 키 설정</p>
+                        <p className="text-blue-100 text-xs">Google Gemini API 키를 등록하세요</p>
+                      </div>
+                      {inlineHasKey && (
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-400 text-white shrink-0">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          등록됨
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 본문 */}
+                    <div className="px-5 py-4 space-y-3 bg-white">
+                      {/* 안내 박스 */}
+                      <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
+                        <p className="text-xs font-bold text-blue-800 mb-1">Gemini API 키란?</p>
+                        <p className="text-xs text-blue-700 leading-relaxed">
+                          Google AI Studio에서 무료로 발급받을 수 있는 키입니다. 등록하면 AI 주제 추천, 키워드 제안, 콘텐츠 생성 기능을 사용할 수 있습니다.
+                        </p>
+                      </div>
+
+                      {/* 입력 */}
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                          API 키 입력
+                          {inlineHasKey && <span className="text-gray-400 font-normal ml-1">(새 키 입력 시 기존 키 교체)</span>}
+                        </label>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <input
+                              type={inlineKeyVisible ? 'text' : 'password'}
+                              value={inlineKey}
+                              onChange={e => { setInlineKey(e.target.value); setInlineStatus(null); }}
+                              onKeyDown={e => e.key === 'Enter' && handleSaveInlineKey(false)}
+                              placeholder={inlineHasKey ? '새 키를 입력하면 기존 키가 교체됩니다' : 'AIza... 로 시작하는 Gemini API 키'}
+                              className="w-full pl-4 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-300 font-mono bg-gray-50"
+                            />
+                            <button type="button" onClick={() => setInlineKeyVisible(v => !v)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                              {inlineKeyVisible
+                                ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                                : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                              }
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => handleSaveInlineKey(false)}
+                            disabled={inlineSaving || !inlineKey.trim()}
+                            className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                          >
+                            {inlineSaving ? '저장 중...' : '저장'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 상태 메시지 */}
+                      {inlineStatus && (
+                        <p className={`text-xs font-medium ${inlineStatus.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {inlineStatus.type === 'success' ? '✓ ' : '✗ '}{inlineStatus.msg}
+                        </p>
+                      )}
+
+                      {/* 하단 링크 행 */}
+                      <div className="flex items-center justify-between pt-1">
+                        {inlineHasKey ? (
+                          <button onClick={handleDeleteInlineKey}
+                            className="text-xs text-red-500 hover:text-red-700 hover:underline transition-all">
+                            등록된 키 삭제
+                          </button>
+                        ) : <span />}
+                        <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline transition-all">
+                          키 무료 발급받기
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  {/* ── /상시 API 키 설정 카드 ── */}
+
                 </div>
               </div>
             )}
