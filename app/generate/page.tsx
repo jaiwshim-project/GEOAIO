@@ -10,7 +10,7 @@ import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
 import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, type Profile, type ProfileData } from '@/lib/supabase-storage';
-import { canUseFeature, incrementUsage } from '@/lib/usage';
+// canUseFeature, incrementUsage는 커스텀 사용자 시스템에서 API 방식으로 대체
 import { useUser } from '@/lib/user-context';
 
 const categories: { id: ContentCategory; label: string; description: string; icon: string; color: string; bgIdle: string }[] = [
@@ -95,7 +95,7 @@ const toneOptions = [
 
 export default function GeneratePage() {
   const router = useRouter();
-  const { selectedProject, geminiApiKey: contextApiKey, setGeminiApiKey: setContextApiKey } = useUser();
+  const { selectedProject, geminiApiKey: contextApiKey, setGeminiApiKey: setContextApiKey, currentUser } = useUser();
   // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
   const geminiApiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
@@ -506,12 +506,18 @@ export default function GeneratePage() {
     setShowKeyRecovery(false);
 
     try {
-      // 사용량 체크
-      const usage = await canUseFeature('generate');
-      if (!usage.allowed) {
-        setError(`이번 달 콘텐츠 생성 사용 횟수(${usage.limit}회)를 모두 소진했습니다. 요금제를 업그레이드하세요.`);
-        setIsGenerating(false);
-        return;
+      // 사용량 체크 (커스텀 사용자 시스템: usage-summary API 사용)
+      if (currentUser) {
+        const usageRes = await fetch(`/api/usage-summary?user_id=${currentUser.id}`);
+        if (usageRes.ok) {
+          const usageData = await usageRes.json();
+          const genItem = usageData.summary?.find((s: { feature: string; remaining: number; limit: number }) => s.feature === 'generate');
+          if (genItem && genItem.limit !== -1 && genItem.remaining <= 0) {
+            setError(`이번 달 콘텐츠 생성 사용 횟수(${genItem.limit}회)를 모두 소진했습니다. 요금제를 업그레이드하세요.`);
+            setIsGenerating(false);
+            return;
+          }
+        }
       }
 
       saveBusinessInfo();
@@ -548,7 +554,14 @@ export default function GeneratePage() {
           return { ...data, toneName: t.label, toneValue: t.value };
         })
       );
-      await incrementUsage('generate');
+      // 사용량 기록 (커스텀 사용자 시스템)
+      if (currentUser) {
+        fetch('/api/usage-count', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: currentUser.id, feature: 'generate' }),
+        }).catch(() => {});
+      }
       const now = new Date();
       const historyId = generateId();
       const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
