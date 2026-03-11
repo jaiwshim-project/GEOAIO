@@ -28,6 +28,8 @@ export default function UserDashboardPage() {
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
+  const [newCompanyName, setNewCompanyName] = useState('');
+  const [newRepName, setNewRepName] = useState('');
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -41,6 +43,8 @@ export default function UserDashboardPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editDesc, setEditDesc] = useState('');
+  const [editCompanyName, setEditCompanyName] = useState('');
+  const [editRepName, setEditRepName] = useState('');
   const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
   const [editIsDragging, setEditIsDragging] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
@@ -136,7 +140,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null }),
+        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '추가 실패'); return; }
@@ -180,6 +184,8 @@ export default function UserDashboardPage() {
       setProjects(prev => [{ ...data.project, files: uploadedFiles }, ...prev]);
       setNewName('');
       setNewDesc('');
+      setNewCompanyName('');
+      setNewRepName('');
       setNewFiles([]);
       setShowAddForm(false);
     } catch {
@@ -194,6 +200,8 @@ export default function UserDashboardPage() {
     setEditingId(project.id);
     setEditName(project.name);
     setEditDesc(project.description || '');
+    setEditCompanyName(project.company_name || '');
+    setEditRepName(project.representative_name || '');
     setEditNewFiles([]);
     setEditError('');
     setEditProgress('');
@@ -248,7 +256,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null }),
+        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setEditError(data.error || '수정 실패'); return; }
@@ -282,11 +290,11 @@ export default function UserDashboardPage() {
 
       setProjects(prev => prev.map(p =>
         p.id === projectId
-          ? { ...p, name: data.project.name, description: data.project.description, files: [...(p.files || []), ...uploadedFiles] }
+          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, files: [...(p.files || []), ...uploadedFiles] }
           : p
       ));
       if (selectedProject?.id === projectId) {
-        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description });
+        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name });
       }
       setEditingId(null);
       setEditNewFiles([]);
@@ -327,6 +335,8 @@ export default function UserDashboardPage() {
     setError('');
     setNewName('');
     setNewDesc('');
+    setNewCompanyName('');
+    setNewRepName('');
     setNewFiles([]);
   };
 
@@ -408,9 +418,25 @@ export default function UserDashboardPage() {
                 type="text"
                 value={newName}
                 onChange={(e) => { setNewName(e.target.value); setError(''); }}
-                placeholder="프로젝트 이름 (예: 치과병원, 동물병원, 줄기세포)"
+                placeholder="프로젝트 이름 * (예: AX덴탈그룹, 강남피부과, 동물병원)"
                 className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
               />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  value={newCompanyName}
+                  onChange={(e) => setNewCompanyName(e.target.value)}
+                  placeholder="회사명 (선택)"
+                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
+                />
+                <input
+                  type="text"
+                  value={newRepName}
+                  onChange={(e) => setNewRepName(e.target.value)}
+                  placeholder="대표자 이름 (선택)"
+                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
+                />
+              </div>
               <input
                 type="text"
                 value={newDesc}
@@ -518,9 +544,25 @@ export default function UserDashboardPage() {
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        placeholder="프로젝트 이름"
+                        placeholder="프로젝트 이름 *"
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
                       />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={editCompanyName}
+                          onChange={(e) => setEditCompanyName(e.target.value)}
+                          placeholder="회사명 (선택)"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                        />
+                        <input
+                          type="text"
+                          value={editRepName}
+                          onChange={(e) => setEditRepName(e.target.value)}
+                          placeholder="대표자 이름 (선택)"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                        />
+                      </div>
                       <input
                         type="text"
                         value={editDesc}

@@ -24,6 +24,8 @@ export interface UserProject {
   user_id: string;
   name: string;
   description?: string;
+  company_name?: string;
+  representative_name?: string;
   created_at?: string;
   files?: ProjectFile[];
 }
