@@ -500,7 +500,21 @@ export async function saveBlogCategory(cat: {
   color?: string;
 }): Promise<string> {
   const userId = await getUserId();
-  const { data, error } = await getSupabase()
+  const supabase = getSupabase();
+
+  // 중복 확인
+  const { data: existing } = await supabase
+    .from('blog_categories')
+    .select('id')
+    .eq('slug', cat.slug)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (existing) {
+    throw new Error(`'${cat.label}' 카테고리가 이미 존재합니다.`);
+  }
+
+  const { data, error } = await supabase
     .from('blog_categories')
     .insert({
       slug: cat.slug,
@@ -512,7 +526,7 @@ export async function saveBlogCategory(cat: {
     })
     .select('id')
     .single();
-  if (error) throw error;
+  if (error) throw new Error(`카테고리 추가 실패: ${error.message}`);
   return data.id;
 }
 

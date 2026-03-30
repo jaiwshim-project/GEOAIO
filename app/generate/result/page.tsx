@@ -191,7 +191,9 @@ export default function GenerateResultPage() {
       setShowNewCategory(false);
       setNewCategoryLabel('');
     } catch (err) {
-      setCategoryError(err instanceof Error ? err.message : '카테고리 추가 실패');
+      const msg = err instanceof Error ? err.message : '카테고리 추가 실패';
+      setCategoryError(msg);
+      alert(msg);
     }
   };
 
