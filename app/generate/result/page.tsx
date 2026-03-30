@@ -108,10 +108,28 @@ export default function GenerateResultPage() {
     });
   }, [router]);
 
+  const autoTag = (category: ContentCategory | null): string => {
+    const tagMap: Record<string, string> = {
+      blog: '블로그',
+      product: '제품소개',
+      faq: 'FAQ',
+      howto: '가이드',
+      landing: '랜딩',
+      technical: '기술문서',
+      social: 'SNS',
+      email: '이메일',
+    };
+    return category ? tagMap[category] || '콘텐츠' : '콘텐츠';
+  };
+
   const handleOpenBlogPublish = async () => {
     setShowBlogPublish(true);
     setPublishSuccess(false);
-    // 자동 요약 생성 (콘텐츠 첫 200자)
+    // 자동 태그 설정
+    if (!blogTag) {
+      setBlogTag(autoTag(selectedCategory));
+    }
+    // 자동 요약 생성 (콘텐츠 첫 150자)
     if (result && !blogSummary) {
       const plain = result.content.replace(/[#*>\-|`]/g, '').replace(/\n+/g, ' ').trim();
       setBlogSummary(plain.slice(0, 150) + (plain.length > 150 ? '...' : ''));
