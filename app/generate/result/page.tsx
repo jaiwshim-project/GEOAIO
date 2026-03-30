@@ -171,7 +171,8 @@ export default function GenerateResultPage() {
         router.push('/blog');
       }, 1500);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '블로그 게시에 실패했습니다.';
+      console.error('publish error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
       setError(msg);
       alert('게시 실패: ' + msg);
     } finally {

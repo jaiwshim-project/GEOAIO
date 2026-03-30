@@ -374,9 +374,8 @@ export async function saveBlogPost(post: {
   targetKeyword?: string;
   historyId?: string;
 }): Promise<string> {
-  const { data, error } = await getSupabase()
-    .from('blog_articles')
-    .insert({
+  try {
+    const insertData = {
       title: post.title,
       content: post.content,
       category: post.category,
@@ -388,11 +387,23 @@ export async function saveBlogPost(post: {
         historyId: post.historyId || '',
         metadata: post.metadata || {},
       }),
-    })
-    .select('id')
-    .single();
-  if (error) throw error;
-  return data.id;
+    };
+    console.log('saveBlogPost inserting:', insertData);
+    const { data, error } = await getSupabase()
+      .from('blog_articles')
+      .insert(insertData)
+      .select('id')
+      .single();
+    if (error) {
+      console.error('saveBlogPost error:', error);
+      throw new Error(`DB 오류: ${error.message} (code: ${error.code})`);
+    }
+    console.log('saveBlogPost success:', data);
+    return data.id;
+  } catch (err) {
+    console.error('saveBlogPost catch:', err);
+    throw err instanceof Error ? err : new Error(String(err));
+  }
 }
 
 export async function saveBlogPostsBatch(posts: {
