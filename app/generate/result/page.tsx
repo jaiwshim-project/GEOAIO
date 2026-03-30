@@ -68,6 +68,7 @@ export default function GenerateResultPage() {
   // A/B 버전
   const [abVersions, setAbVersions] = useState<(GenerateResponse & { toneName?: string })[]>([]);
   const [activeAbTab, setActiveAbTab] = useState(0);
+  const [selectedVersions, setSelectedVersions] = useState<Set<number>>(new Set([0]));
 
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
@@ -193,13 +194,13 @@ export default function GenerateResultPage() {
     }
   };
 
-  const [publishAllMode, setPublishAllMode] = useState(false);
-
-  const handlePublishAllToBlog = async () => {
-    if (abVersions.length === 0) return;
+  const handlePublishSelectedToBlog = async () => {
+    const selectedIdxs = Array.from(selectedVersions).sort((a, b) => a - b);
+    const versionsToPublish = selectedIdxs.map(i => abVersions[i]).filter(Boolean);
+    if (versionsToPublish.length === 0) return;
     setIsPublishing(true);
     try {
-      const posts = abVersions.map((v) => {
+      const posts = versionsToPublish.map((v) => {
         const plain = v.content.replace(/[#*>\-|`]/g, '').replace(/\n+/g, ' ').trim();
         return {
           title: v.title,
@@ -213,8 +214,13 @@ export default function GenerateResultPage() {
           historyId: currentHistoryId || '',
         };
       });
-      const ids = await saveBlogPostsBatch(posts);
-      console.log('All blog posts saved:', ids);
+      if (posts.length === 1) {
+        const id = await saveBlogPost(posts[0]);
+        console.log('Blog post saved:', id);
+      } else {
+        const ids = await saveBlogPostsBatch(posts);
+        console.log('Blog posts saved:', ids);
+      }
       setPublishSuccess(true);
       setTimeout(() => {
         setShowBlogPublish(false);
@@ -222,10 +228,10 @@ export default function GenerateResultPage() {
         router.push('/blog');
       }, 1500);
     } catch (err) {
-      console.error('publish all error:', err);
+      console.error('publish error:', err);
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg);
-      alert('일괄 게시 실패: ' + msg);
+      alert('게시 실패: ' + msg);
     } finally {
       setIsPublishing(false);
     }
@@ -656,37 +662,71 @@ export default function GenerateResultPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                 </svg>
                 <p className="text-sm font-bold text-white">톤/스타일 버전 선택</p>
-                <span className="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-indigo-200 border border-white/20">
-                  {abVersions.length}가지
+                <span className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      if (selectedVersions.size === abVersions.length) {
+                        setSelectedVersions(new Set([activeAbTab]));
+                      } else {
+                        setSelectedVersions(new Set(abVersions.map((_, i) => i)));
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/20 text-white hover:bg-white/30 transition-colors"
+                  >
+                    {selectedVersions.size === abVersions.length ? '선택 해제' : '전체 선택'}
+                  </button>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-indigo-200 border border-white/20">
+                    {selectedVersions.size}/{abVersions.length} 선택
+                  </span>
                 </span>
               </div>
               {/* 탭 그리드 */}
               <div className="p-3 grid grid-cols-5 gap-2">
                 {abVersions.map((v, i) => {
                   const color = TONE_COLORS[i % TONE_COLORS.length];
-                  const isActive = activeAbTab === i;
+                  const isViewing = activeAbTab === i;
+                  const isChecked = selectedVersions.has(i);
                   return (
                     <button
                       key={i}
-                      onClick={() => { setActiveAbTab(i); setResult(v); }}
+                      onClick={(e) => {
+                        if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                          // Shift/Ctrl 클릭: 체크 토글만
+                          setSelectedVersions(prev => {
+                            const next = new Set(prev);
+                            if (next.has(i)) { if (next.size > 1) next.delete(i); }
+                            else next.add(i);
+                            return next;
+                          });
+                        } else {
+                          // 일반 클릭: 미리보기 전환 + 체크 토글
+                          setActiveAbTab(i);
+                          setResult(v);
+                          setSelectedVersions(prev => {
+                            const next = new Set(prev);
+                            if (next.has(i)) { if (next.size > 1) next.delete(i); }
+                            else next.add(i);
+                            return next;
+                          });
+                        }
+                      }}
                       className={`relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all duration-200 whitespace-nowrap shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
-                        isActive ? `${color.active} shadow-lg` : `${color.idle}`
+                        isViewing ? `${color.active} shadow-lg` : isChecked ? `${color.idle} ring-2 ring-emerald-400 ring-offset-1` : `${color.idle} opacity-60`
                       }`}
                     >
+                      {/* 체크 표시 */}
+                      <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center shadow text-[10px] ${
+                        isChecked ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400'
+                      }`}>
+                        {isChecked ? '✓' : ''}
+                      </span>
                       {/* 번호 뱃지 */}
                       <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                        isActive ? 'bg-white/25 text-white' : `${color.dot} text-white`
+                        isViewing ? 'bg-white/25 text-white' : `${color.dot} text-white`
                       }`}>
                         {i + 1}
                       </span>
                       {v.toneName || `버전 ${i + 1}`}
-                      {isActive && (
-                        <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-white rounded-full flex items-center justify-center shadow">
-                          <svg className="w-2.5 h-2.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      )}
                     </button>
                   );
                 })}
@@ -1216,18 +1256,11 @@ export default function GenerateResultPage() {
 
             <div className="px-6 py-4 border-t border-gray-200 space-y-3">
               {abVersions.length > 1 && (
-                <div className="flex items-center gap-2 p-2.5 bg-indigo-50 rounded-lg border border-indigo-200">
-                  <input
-                    type="checkbox"
-                    id="publishAll"
-                    checked={publishAllMode}
-                    onChange={(e) => setPublishAllMode(e.target.checked)}
-                    className="w-4 h-4 text-indigo-600 rounded border-gray-300"
-                  />
-                  <label htmlFor="publishAll" className="text-sm font-semibold text-indigo-800 cursor-pointer">
-                    {abVersions.length}개 버전 모두 게시
-                  </label>
-                  <span className="text-xs text-indigo-500">각 톤별로 별도 포스트로 게시됩니다</span>
+                <div className="p-2.5 bg-indigo-50 rounded-lg border border-indigo-200">
+                  <p className="text-sm font-semibold text-indigo-800">
+                    선택된 버전: <span className="text-indigo-600">{selectedVersions.size}개</span> / {abVersions.length}개
+                  </p>
+                  <p className="text-xs text-indigo-500 mt-0.5">위 톤 버전에서 체크된 것만 게시됩니다</p>
                 </div>
               )}
               <div className="flex items-center justify-end gap-3">
@@ -1238,12 +1271,12 @@ export default function GenerateResultPage() {
                   취소
                 </button>
                 <button
-                  onClick={publishAllMode ? handlePublishAllToBlog : handlePublishToBlog}
+                  onClick={abVersions.length > 1 ? handlePublishSelectedToBlog : handlePublishToBlog}
                   disabled={isPublishing || publishSuccess}
                   className={`inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 border shadow-sm ${
                     publishSuccess
                       ? 'bg-emerald-500 text-white border-emerald-300'
-                      : publishAllMode
+                      : selectedVersions.size > 1
                         ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-indigo-300 hover:from-indigo-600 hover:to-purple-600 hover:shadow-lg disabled:opacity-50'
                         : 'bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg disabled:opacity-50'
                   }`}
@@ -1254,7 +1287,7 @@ export default function GenerateResultPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      {publishAllMode ? `${abVersions.length}개 게시 중...` : '게시 중...'}
+                      {selectedVersions.size}개 게시 중...
                     </>
                   ) : publishSuccess ? (
                     <>
@@ -1268,7 +1301,7 @@ export default function GenerateResultPage() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                       </svg>
-                      {publishAllMode ? `${abVersions.length}개 모두 게시` : '게시하기'}
+                      {selectedVersions.size > 1 ? `${selectedVersions.size}개 게시` : '게시하기'}
                     </>
                   )}
                 </button>
