@@ -1163,8 +1163,8 @@ export default function GenerateResultPage() {
 
       {/* 블로그 게시 모달 */}
       {showBlogPublish && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowBlogPublish(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowBlogPublish(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative my-4 max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-pink-600 rounded-lg flex items-center justify-center">
@@ -1181,7 +1181,7 @@ export default function GenerateResultPage() {
               </button>
             </div>
 
-            <div className="px-6 py-5 space-y-4">
+            <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1">
               {/* 제목 미리보기 */}
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">제목</label>
