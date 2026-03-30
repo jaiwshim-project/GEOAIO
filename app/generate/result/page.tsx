@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory, GenerateResponse } from '@/lib/types';
 import { addRevision, generateId } from '@/lib/history';
-import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, getBlogCategories, saveBlogCategory, deleteBlogCategory, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
+import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -175,39 +175,39 @@ export default function GenerateResultPage() {
     return label.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9가-힣\-]/g, '') || `cat-${Date.now()}`;
   };
 
-  const handleAddCategory = async () => {
+  const handleAddCategory = () => {
     const label = newCategoryLabel.trim();
     if (!label) {
       setCategoryError('카테고리 이름을 입력하세요.');
       return;
     }
     const slug = labelToSlug(label);
-    setCategoryError(null);
-    try {
-      await saveBlogCategory({ slug, label });
-      const cats = await getBlogCategories();
-      setBlogCategories(cats);
-      setSelectedBlogCategory(slug);
-      setShowNewCategory(false);
-      setNewCategoryLabel('');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : '카테고리 추가 실패';
-      setCategoryError(msg);
-      alert(msg);
+    if (blogCategories.find(c => c.slug === slug)) {
+      setCategoryError('이미 존재하는 카테고리입니다.');
+      return;
     }
+    setCategoryError(null);
+    const extraColors = ['from-rose-500 to-pink-600','from-cyan-500 to-blue-600','from-lime-500 to-green-600','from-fuchsia-500 to-purple-600','from-orange-500 to-red-600'];
+    const newCat: BlogCategory = {
+      id: `custom-${Date.now()}`,
+      slug,
+      label,
+      description: '',
+      color: extraColors[blogCategories.length % extraColors.length],
+      icon: 'document',
+      sortOrder: blogCategories.length,
+    };
+    setBlogCategories(prev => [...prev, newCat]);
+    setSelectedBlogCategory(slug);
+    setShowNewCategory(false);
+    setNewCategoryLabel('');
   };
 
-  const handleDeleteCategory = async (catId: string, catSlug: string) => {
+  const handleDeleteCategory = (catId: string, catSlug: string) => {
     if (!confirm('이 카테고리를 삭제하시겠습니까?')) return;
-    try {
-      await deleteBlogCategory(catId);
-      const cats = await getBlogCategories();
-      setBlogCategories(cats);
-      if (selectedBlogCategory === catSlug && cats.length > 0) {
-        setSelectedBlogCategory(cats[0].slug);
-      }
-    } catch (err) {
-      setCategoryError(err instanceof Error ? err.message : '카테고리 삭제 실패');
+    setBlogCategories(prev => prev.filter(c => c.id !== catId));
+    if (selectedBlogCategory === catSlug) {
+      setSelectedBlogCategory(blogCategories[0]?.slug || 'geo-aio');
     }
   };
 
