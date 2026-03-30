@@ -122,6 +122,8 @@ export default function GenerateResultPage() {
     return category ? tagMap[category] || '콘텐츠' : '콘텐츠';
   };
 
+  const categoriesLoaded = useRef(false);
+
   const handleOpenBlogPublish = async () => {
     setShowBlogPublish(true);
     setPublishSuccess(false);
@@ -134,11 +136,15 @@ export default function GenerateResultPage() {
       const plain = result.content.replace(/[#*>\-|`]/g, '').replace(/\n+/g, ' ').trim();
       setBlogSummary(plain.slice(0, 150) + (plain.length > 150 ? '...' : ''));
     }
-    try {
-      const cats = await getBlogCategories();
-      if (cats.length > 0) setBlogCategories(cats);
-    } catch {
-      // 카테고리 로드 실패 시 기본값 유지
+    // 카테고리는 최초 1회만 로드
+    if (!categoriesLoaded.current) {
+      try {
+        const cats = await getBlogCategories();
+        if (cats.length > 0) setBlogCategories(cats);
+        categoriesLoaded.current = true;
+      } catch {
+        // 로드 실패 시 기본값 유지
+      }
     }
   };
 
@@ -203,12 +209,15 @@ export default function GenerateResultPage() {
     setNewCategoryLabel('');
   };
 
-  const handleDeleteCategory = (catId: string, catSlug: string) => {
+  const handleDeleteCategory = (_catId: string, catSlug: string) => {
     if (!confirm('이 카테고리를 삭제하시겠습니까?')) return;
-    setBlogCategories(prev => prev.filter(c => c.id !== catId));
-    if (selectedBlogCategory === catSlug) {
-      setSelectedBlogCategory(blogCategories[0]?.slug || 'geo-aio');
-    }
+    setBlogCategories(prev => {
+      const updated = prev.filter(c => c.slug !== catSlug);
+      if (selectedBlogCategory === catSlug && updated.length > 0) {
+        setSelectedBlogCategory(updated[0].slug);
+      }
+      return updated;
+    });
   };
 
   const handleSnsConvert = async (channel: string) => {
@@ -1074,9 +1083,9 @@ export default function GenerateResultPage() {
                       >
                         {cat.label}
                       </button>
-                      {'id' in cat && cat.id && (
+                      {(
                         <button
-                          onClick={() => handleDeleteCategory(cat.id as string, cat.slug)}
+                          onClick={() => handleDeleteCategory(cat.id || cat.slug, cat.slug)}
                           className="w-5 h-5 bg-red-100 text-red-500 rounded-full text-[10px] font-bold flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
                           title="삭제"
                         >
