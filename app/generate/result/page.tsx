@@ -152,7 +152,7 @@ export default function GenerateResultPage() {
     if (!result) return;
     setIsPublishing(true);
     try {
-      await saveBlogPost({
+      const postId = await saveBlogPost({
         title: result.title,
         content: result.content,
         summary: blogSummary,
@@ -163,13 +163,17 @@ export default function GenerateResultPage() {
         targetKeyword: targetKeyword,
         historyId: currentHistoryId || '',
       });
+      console.log('Blog post saved:', postId);
       setPublishSuccess(true);
       setTimeout(() => {
         setShowBlogPublish(false);
         setPublishSuccess(false);
-      }, 2000);
+        router.push('/blog');
+      }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '블로그 게시에 실패했습니다.');
+      const msg = err instanceof Error ? err.message : '블로그 게시에 실패했습니다.';
+      setError(msg);
+      alert('게시 실패: ' + msg);
     } finally {
       setIsPublishing(false);
     }
