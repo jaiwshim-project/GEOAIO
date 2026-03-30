@@ -1,6 +1,36 @@
 import { createClient } from './supabase-client';
 import type { HistoryItem, RevisionItem, ContentCategory, GenerateResponse } from './types';
 
+// ============================
+// 블로그 포스트 타입
+// ============================
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  summary: string;
+  category: string;
+  tag: string;
+  hashtags: string[];
+  metadata: Record<string, unknown>;
+  targetKeyword: string;
+  historyId: string;
+  published: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BlogCategory {
+  id: string;
+  slug: string;
+  label: string;
+  description: string;
+  color: string;
+  icon: string;
+  sortOrder: number;
+}
+
 function getSupabase() {
   return createClient();
 }
@@ -327,4 +357,161 @@ export async function getImages(historyId: string): Promise<{ url: string; promp
     .order('created_at', { ascending: true });
   if (error) return [];
   return (data || []).map(row => ({ url: row.image_url, prompt: row.prompt || '' }));
+}
+
+// ============================
+// 블로그 포스트 CRUD
+// ============================
+
+export async function saveBlogPost(post: {
+  title: string;
+  content: string;
+  summary?: string;
+  category: string;
+  tag?: string;
+  hashtags?: string[];
+  metadata?: Record<string, unknown>;
+  targetKeyword?: string;
+  historyId?: string;
+}): Promise<string> {
+  const userId = await getUserId();
+  const { data, error } = await getSupabase()
+    .from('blog_posts')
+    .insert({
+      title: post.title,
+      content: post.content,
+      summary: post.summary || '',
+      category: post.category,
+      tag: post.tag || '',
+      hashtags: post.hashtags || [],
+      metadata: post.metadata || {},
+      target_keyword: post.targetKeyword || '',
+      history_id: post.historyId || '',
+      published: true,
+      user_id: userId,
+    })
+    .select('id')
+    .single();
+  if (error) throw error;
+  return data.id;
+}
+
+export async function saveBlogPostsBatch(posts: {
+  title: string;
+  content: string;
+  summary?: string;
+  category: string;
+  tag?: string;
+  hashtags?: string[];
+  metadata?: Record<string, unknown>;
+  targetKeyword?: string;
+  historyId?: string;
+}[]): Promise<string[]> {
+  const userId = await getUserId();
+  const rows = posts.map(post => ({
+    title: post.title,
+    content: post.content,
+    summary: post.summary || '',
+    category: post.category,
+    tag: post.tag || '',
+    hashtags: post.hashtags || [],
+    metadata: post.metadata || {},
+    target_keyword: post.targetKeyword || '',
+    history_id: post.historyId || '',
+    published: true,
+    user_id: userId,
+  }));
+  const { data, error } = await getSupabase()
+    .from('blog_posts')
+    .insert(rows)
+    .select('id');
+  if (error) throw error;
+  return (data || []).map(row => row.id);
+}
+
+export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
+  let query = getSupabase()
+    .from('blog_posts')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false });
+
+  if (category) {
+    query = query.eq('category', category);
+  }
+
+  const { data, error } = await query.limit(200);
+  if (error) throw error;
+  return (data || []).map(row => ({
+    id: row.id,
+    title: row.title,
+    content: row.content,
+    summary: row.summary || '',
+    category: row.category,
+    tag: row.tag || '',
+    hashtags: row.hashtags || [],
+    metadata: row.metadata || {},
+    targetKeyword: row.target_keyword || '',
+    historyId: row.history_id || '',
+    published: row.published,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+}
+
+export async function deleteBlogPost(id: string): Promise<void> {
+  const { error } = await getSupabase().from('blog_posts').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function toggleBlogPostPublished(id: string, published: boolean): Promise<void> {
+  const { error } = await getSupabase()
+    .from('blog_posts')
+    .update({ published, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+// ============================
+// 블로그 카테고리 CRUD
+// ============================
+
+export async function getBlogCategories(): Promise<BlogCategory[]> {
+  const { data, error } = await getSupabase()
+    .from('blog_categories')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data || []).map(row => ({
+    id: row.id,
+    slug: row.slug,
+    label: row.label,
+    description: row.description || '',
+    color: row.color || 'from-gray-500 to-gray-600',
+    icon: row.icon || 'document',
+    sortOrder: row.sort_order || 0,
+  }));
+}
+
+export async function saveBlogCategory(cat: {
+  slug: string;
+  label: string;
+  description?: string;
+  color?: string;
+}): Promise<string> {
+  const userId = await getUserId();
+  const { data, error } = await getSupabase()
+    .from('blog_categories')
+    .insert({
+      slug: cat.slug,
+      label: cat.label,
+      description: cat.description || '',
+      color: cat.color || 'from-gray-500 to-gray-600',
+      icon: 'document',
+      user_id: userId,
+    })
+    .select('id')
+    .single();
+  if (error) throw error;
+  return data.id;
 }

@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory, GenerateResponse } from '@/lib/types';
 import { addRevision, generateId } from '@/lib/history';
-import { uploadImage, getGenerateResult, saveGenerateResult, type GenerateResultData } from '@/lib/supabase-storage';
+import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, getBlogCategories, saveBlogCategory, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -69,6 +69,18 @@ export default function GenerateResultPage() {
   const [abVersions, setAbVersions] = useState<(GenerateResponse & { toneName?: string })[]>([]);
   const [activeAbTab, setActiveAbTab] = useState(0);
 
+  // 블로그 게시
+  const [showBlogPublish, setShowBlogPublish] = useState(false);
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [selectedBlogCategory, setSelectedBlogCategory] = useState('geo-aio');
+  const [blogTag, setBlogTag] = useState('');
+  const [blogSummary, setBlogSummary] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategorySlug, setNewCategorySlug] = useState('');
+  const [newCategoryLabel, setNewCategoryLabel] = useState('');
+
   // Supabase 또는 localStorage에서 결과 데이터 로드
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -96,6 +108,67 @@ export default function GenerateResultPage() {
       }
     });
   }, [router]);
+
+  const handleOpenBlogPublish = async () => {
+    setShowBlogPublish(true);
+    setPublishSuccess(false);
+    // 자동 요약 생성 (콘텐츠 첫 200자)
+    if (result && !blogSummary) {
+      const plain = result.content.replace(/[#*>\-|`]/g, '').replace(/\n+/g, ' ').trim();
+      setBlogSummary(plain.slice(0, 150) + (plain.length > 150 ? '...' : ''));
+    }
+    try {
+      const cats = await getBlogCategories();
+      if (cats.length > 0) setBlogCategories(cats);
+    } catch {
+      // 카테고리 로드 실패 시 기본값 유지
+    }
+  };
+
+  const handlePublishToBlog = async () => {
+    if (!result) return;
+    setIsPublishing(true);
+    try {
+      await saveBlogPost({
+        title: result.title,
+        content: result.content,
+        summary: blogSummary,
+        category: selectedBlogCategory,
+        tag: blogTag,
+        hashtags: result.hashtags || [],
+        metadata: result.metadata as unknown as Record<string, unknown>,
+        targetKeyword: targetKeyword,
+        historyId: currentHistoryId || '',
+      });
+      setPublishSuccess(true);
+      setTimeout(() => {
+        setShowBlogPublish(false);
+        setPublishSuccess(false);
+      }, 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '블로그 게시에 실패했습니다.');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleAddCategory = async () => {
+    if (!newCategorySlug.trim() || !newCategoryLabel.trim()) return;
+    try {
+      await saveBlogCategory({
+        slug: newCategorySlug.trim(),
+        label: newCategoryLabel.trim(),
+      });
+      const cats = await getBlogCategories();
+      setBlogCategories(cats);
+      setSelectedBlogCategory(newCategorySlug.trim());
+      setShowNewCategory(false);
+      setNewCategorySlug('');
+      setNewCategoryLabel('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '카테고리 추가 실패');
+    }
+  };
 
   const handleSnsConvert = async (channel: string) => {
     if (!result?.content) return;
@@ -885,10 +958,182 @@ export default function GenerateResultPage() {
             </div>
           </div>
 
+        {/* 블로그 게시 버튼 */}
+        <div className="bg-white rounded-xl shadow-sm border border-rose-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-rose-50 to-pink-50 px-5 py-2 border-b border-rose-200">
+            <h3 className="text-sm font-bold text-rose-800 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+              블로그 자동 게시
+            </h3>
+          </div>
+          <div className="p-4">
+            <p className="text-xs text-gray-500 mb-3">생성된 콘텐츠를 블로그 페이지에 바로 게시합니다. 카테고리를 선택하면 해당 탭에 자동으로 분류됩니다.</p>
+            <button
+              onClick={handleOpenBlogPublish}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:scale-105 shadow-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+              블로그에 게시하기
+            </button>
+          </div>
+        </div>
+
         </div>
       </main>
 
       <Footer />
+
+      {/* 블로그 게시 모달 */}
+      {showBlogPublish && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-pink-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">블로그에 게시</h3>
+              </div>
+              <button onClick={() => setShowBlogPublish(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              {/* 제목 미리보기 */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">제목</label>
+                <p className="text-sm font-medium text-gray-900 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">{result?.title}</p>
+              </div>
+
+              {/* 카테고리 선택 */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-2">카테고리 선택</label>
+                <div className="flex flex-wrap gap-2">
+                  {(blogCategories.length > 0 ? blogCategories : [
+                    { slug: 'geo-aio', label: 'GEO-AIO', color: 'from-indigo-500 to-violet-600' },
+                    { slug: 'regenmed', label: '리젠메드컨설팅', color: 'from-emerald-500 to-teal-600' },
+                    { slug: 'brewery', label: '대전맥주장 수제맥주', color: 'from-amber-500 to-orange-600' },
+                    { slug: 'dental', label: '치과병원', color: 'from-sky-500 to-blue-600' },
+                  ]).map((cat) => (
+                    <button
+                      key={cat.slug}
+                      onClick={() => setSelectedBlogCategory(cat.slug)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                        selectedBlogCategory === cat.slug
+                          ? `bg-gradient-to-r ${cat.color} text-white border-transparent shadow-md`
+                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setShowNewCategory(!showNewCategory)}
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-dashed border-gray-300 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-all"
+                  >
+                    + 새 카테고리
+                  </button>
+                </div>
+
+                {/* 새 카테고리 추가 */}
+                {showNewCategory && (
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      value={newCategorySlug}
+                      onChange={(e) => setNewCategorySlug(e.target.value.replace(/\s/g, '-').toLowerCase())}
+                      placeholder="slug (예: marketing)"
+                      className="flex-1 px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                    />
+                    <input
+                      value={newCategoryLabel}
+                      onChange={(e) => setNewCategoryLabel(e.target.value)}
+                      placeholder="표시명 (예: 마케팅)"
+                      className="flex-1 px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                    />
+                    <button
+                      onClick={handleAddCategory}
+                      className="px-3 py-1.5 text-xs font-semibold bg-rose-500 text-white rounded-lg hover:bg-rose-600"
+                    >
+                      추가
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 태그 */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">태그</label>
+                <input
+                  value={blogTag}
+                  onChange={(e) => setBlogTag(e.target.value)}
+                  placeholder="예: 가이드, 전략, 분석, 입문..."
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                />
+              </div>
+
+              {/* 요약 */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">요약 (목록에 표시)</label>
+                <textarea
+                  value={blogSummary}
+                  onChange={(e) => setBlogSummary(e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowBlogPublish(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handlePublishToBlog}
+                disabled={isPublishing || publishSuccess}
+                className={`inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 border shadow-sm ${
+                  publishSuccess
+                    ? 'bg-emerald-500 text-white border-emerald-300'
+                    : 'bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg disabled:opacity-50'
+                }`}
+              >
+                {isPublishing ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    게시 중...
+                  </>
+                ) : publishSuccess ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    게시 완료!
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    게시하기
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 최종 콘텐츠 모달 (이미지 + 글) */}
       {showFinalContent && (
