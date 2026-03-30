@@ -71,7 +71,13 @@ export default function GenerateResultPage() {
 
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
-  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem('blog_categories');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
   const [selectedBlogCategory, setSelectedBlogCategory] = useState('geo-aio');
   const [blogTag, setBlogTag] = useState('');
   const [blogSummary, setBlogSummary] = useState('');
@@ -79,6 +85,13 @@ export default function GenerateResultPage() {
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategoryLabel, setNewCategoryLabel] = useState('');
+
+  // 카테고리 변경 시 localStorage에 저장
+  useEffect(() => {
+    if (blogCategories.length > 0) {
+      localStorage.setItem('blog_categories', JSON.stringify(blogCategories));
+    }
+  }, [blogCategories]);
 
   // Supabase 또는 localStorage에서 결과 데이터 로드
   useEffect(() => {
@@ -136,15 +149,15 @@ export default function GenerateResultPage() {
       const plain = result.content.replace(/[#*>\-|`]/g, '').replace(/\n+/g, ' ').trim();
       setBlogSummary(plain.slice(0, 150) + (plain.length > 150 ? '...' : ''));
     }
-    // 카테고리는 최초 1회만 로드
-    if (!categoriesLoaded.current) {
+    // 카테고리: localStorage에 없으면 DB에서 로드
+    if (!categoriesLoaded.current && blogCategories.length === 0) {
       try {
         const cats = await getBlogCategories();
         if (cats.length > 0) setBlogCategories(cats);
-        categoriesLoaded.current = true;
       } catch {
         // 로드 실패 시 기본값 유지
       }
+      categoriesLoaded.current = true;
     }
   };
 

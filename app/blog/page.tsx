@@ -70,14 +70,22 @@ export default function BlogPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const [cats, allPosts] = await Promise.all([
+        // localStorage에서 사용자 커스텀 카테고리 로드
+        let savedCats: BlogCategory[] = [];
+        try {
+          const saved = localStorage.getItem('blog_categories');
+          if (saved) savedCats = JSON.parse(saved);
+        } catch { /* ignore */ }
+
+        const [dbCats, allPosts] = await Promise.all([
           getBlogCategories().catch(() => []),
           getBlogPosts().catch(() => []),
         ]);
-        if (cats.length > 0) {
-          setCategories(cats);
-          setActiveTab(cats[0].slug);
-        }
+
+        // localStorage 카테고리 우선, 없으면 DB 카테고리
+        const finalCats = savedCats.length > 0 ? savedCats : dbCats.length > 0 ? dbCats : DEFAULT_CATEGORIES;
+        setCategories(finalCats);
+        setActiveTab(finalCats[0].slug);
         setPosts(allPosts);
       } catch {
         // 로드 실패 시 기본값 유지
