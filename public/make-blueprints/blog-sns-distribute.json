@@ -1,0 +1,85 @@
+{
+  "name": "블로그 콘텐츠 SNS 자동 배포",
+  "description": "블로그에 게시된 콘텐츠를 LinkedIn, Facebook, 네이버 블로그 등에 자동으로 배포하는 시나리오",
+  "version": 1,
+  "modules": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "name": "트리거: 게시 요청 수신",
+      "parameters": {
+        "note": "GEO-AIO 앱에서 블로그 게시 시 자동으로 호출됩니다. 수신 데이터: title, content, summary, hashtags, channels, category, index, total"
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "name": "채널별 분기",
+      "parameters": {
+        "note": "channels 배열에 포함된 채널에 따라 분기합니다."
+      }
+    },
+    {
+      "id": 3,
+      "module": "linkedin:CreateShareUpdate",
+      "name": "LinkedIn 게시",
+      "parameters": {
+        "note": "LinkedIn 연동 후 사용. text에 {{1.summary}}와 해시태그를 조합합니다.",
+        "condition": "{{contains(1.channels; \"linkedin\")}}",
+        "text": "{{1.title}}\n\n{{1.summary}}\n\n{{join(1.hashtags; \" \")}}"
+      }
+    },
+    {
+      "id": 4,
+      "module": "facebook:CreatePost",
+      "name": "Facebook 페이지 게시",
+      "parameters": {
+        "note": "Facebook 페이지 연동 후 사용. 개인 프로필은 불가.",
+        "condition": "{{contains(1.channels; \"facebook\")}}",
+        "message": "{{1.title}}\n\n{{1.summary}}\n\n{{join(1.hashtags; \" \")}}"
+      }
+    },
+    {
+      "id": 5,
+      "module": "http:ActionSendData",
+      "name": "네이버 블로그 API 호출",
+      "parameters": {
+        "note": "네이버 개발자센터에서 Blog API 연동 후 사용.",
+        "condition": "{{contains(1.channels; \"naver_blog\")}}",
+        "url": "https://openapi.naver.com/blog/writePost.json",
+        "method": "POST",
+        "headers": [
+          { "name": "Authorization", "value": "Bearer {{YOUR_NAVER_ACCESS_TOKEN}}" }
+        ],
+        "body": {
+          "title": "{{1.title}}",
+          "contents": "{{1.content}}"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "twitter:CreateTweet",
+      "name": "X (Twitter) 게시",
+      "parameters": {
+        "note": "X API v2 연동 후 사용. 280자 제한 주의.",
+        "condition": "{{contains(1.channels; \"twitter\")}}",
+        "text": "{{1.title}}\n\n{{substring(1.summary; 0; 200)}}\n\n{{join(1.hashtags; \" \")}}"
+      }
+    }
+  ],
+  "connections": [
+    { "from": 1, "to": 2 },
+    { "from": 2, "to": 3 },
+    { "from": 2, "to": 4 },
+    { "from": 2, "to": 5 },
+    { "from": 2, "to": 6 }
+  ],
+  "setup_guide": {
+    "step1": "Make.com에서 새 시나리오를 생성하고 Custom Webhook 트리거를 추가합니다.",
+    "step2": "Webhook URL을 복사하여 GEO-AIO 앱의 SNS 배포 설정에 입력합니다.",
+    "step3": "사용할 SNS 채널을 Make.com에서 연동합니다 (LinkedIn, Facebook 등).",
+    "step4": "각 모듈의 condition 필터를 설정하여 선택된 채널만 실행되게 합니다.",
+    "step5": "GEO-AIO에서 블로그 게시 시 'SNS 동시 배포'를 체크하면 자동으로 배포됩니다."
+  }
+}

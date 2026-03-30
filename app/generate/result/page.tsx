@@ -87,6 +87,15 @@ export default function GenerateResultPage() {
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategoryLabel, setNewCategoryLabel] = useState('');
 
+  // SNS 배포
+  const [snsDistribute, setSnsDistribute] = useState(false);
+  const [snsChannels, setSnsChannels] = useState<Set<string>>(new Set());
+  const [makeWebhookUrl, setMakeWebhookUrl] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem('make_webhook_url') || '';
+  });
+  const [distributeResult, setDistributeResult] = useState<string | null>(null);
+
   // 카테고리 변경 시 localStorage에 저장
   useEffect(() => {
     if (blogCategories.length > 0) {
@@ -221,12 +230,33 @@ export default function GenerateResultPage() {
         const ids = await saveBlogPostsBatch(posts);
         console.log('Blog posts saved:', ids);
       }
+      // SNS 배포
+      if (snsDistribute && makeWebhookUrl && snsChannels.size > 0) {
+        try {
+          localStorage.setItem('make_webhook_url', makeWebhookUrl);
+          const distRes = await fetch('/api/blog/distribute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              posts: posts.map(p => ({ title: p.title, content: p.content, summary: p.summary, hashtags: p.hashtags, category: p.category })),
+              webhookUrl: makeWebhookUrl,
+              channels: Array.from(snsChannels),
+            }),
+          });
+          const distData = await distRes.json();
+          setDistributeResult(`SNS 배포: ${distData.sent || 0}건 전송 완료`);
+        } catch (e) {
+          console.error('SNS distribute error:', e);
+          setDistributeResult('SNS 배포 중 오류 발생 (블로그 게시는 완료)');
+        }
+      }
       setPublishSuccess(true);
       setTimeout(() => {
         setShowBlogPublish(false);
         setPublishSuccess(false);
+        setDistributeResult(null);
         router.push('/blog');
-      }, 1500);
+      }, 2000);
     } catch (err) {
       console.error('publish error:', err);
       const msg = err instanceof Error ? err.message : String(err);
@@ -1251,6 +1281,60 @@ export default function GenerateResultPage() {
                   rows={2}
                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 resize-none"
                 />
+              </div>
+
+              {/* SNS 동시 배포 */}
+              <div className="border-t border-gray-200 pt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="snsDistribute"
+                    checked={snsDistribute}
+                    onChange={(e) => setSnsDistribute(e.target.checked)}
+                    className="w-4 h-4 text-indigo-600 rounded border-gray-300"
+                  />
+                  <label htmlFor="snsDistribute" className="text-xs font-semibold text-gray-700 cursor-pointer">SNS 동시 배포 (Make.com 연동)</label>
+                </div>
+                {snsDistribute && (
+                  <div className="space-y-2 pl-6">
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        { id: 'linkedin', label: 'LinkedIn', color: 'blue' },
+                        { id: 'facebook', label: 'Facebook', color: 'indigo' },
+                        { id: 'instagram', label: 'Instagram', color: 'pink' },
+                        { id: 'naver_blog', label: '네이버 블로그', color: 'green' },
+                        { id: 'twitter', label: 'X (Twitter)', color: 'gray' },
+                      ].map((ch) => (
+                        <button
+                          key={ch.id}
+                          type="button"
+                          onClick={() => setSnsChannels(prev => {
+                            const next = new Set(prev);
+                            if (next.has(ch.id)) next.delete(ch.id); else next.add(ch.id);
+                            return next;
+                          })}
+                          className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-all ${
+                            snsChannels.has(ch.id)
+                              ? `bg-${ch.color}-500 text-white border-${ch.color}-400`
+                              : `bg-white text-gray-500 border-gray-200 hover:border-${ch.color}-300`
+                          }`}
+                        >
+                          {snsChannels.has(ch.id) ? '✓ ' : ''}{ch.label}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      value={makeWebhookUrl}
+                      onChange={(e) => setMakeWebhookUrl(e.target.value)}
+                      placeholder="Make.com 웹훅 URL 붙여넣기"
+                      className="w-full px-3 py-2 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-gray-50"
+                    />
+                    <p className="text-[10px] text-gray-400">Make.com에서 Webhook 시나리오를 만들고 URL을 입력하세요. 선택한 채널로 자동 배포됩니다.</p>
+                  </div>
+                )}
+                {distributeResult && (
+                  <p className="mt-2 text-xs font-medium text-emerald-600 pl-6">{distributeResult}</p>
+                )}
               </div>
             </div>
 
