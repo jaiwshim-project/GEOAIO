@@ -152,21 +152,26 @@ export default function GenerateResultPage() {
     }
   };
 
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+
   const handleAddCategory = async () => {
-    if (!newCategorySlug.trim() || !newCategoryLabel.trim()) return;
+    const slug = newCategorySlug.trim();
+    const label = newCategoryLabel.trim();
+    if (!slug || !label) {
+      setCategoryError('slug와 표시명을 모두 입력하세요.');
+      return;
+    }
+    setCategoryError(null);
     try {
-      await saveBlogCategory({
-        slug: newCategorySlug.trim(),
-        label: newCategoryLabel.trim(),
-      });
+      await saveBlogCategory({ slug, label });
       const cats = await getBlogCategories();
       setBlogCategories(cats);
-      setSelectedBlogCategory(newCategorySlug.trim());
+      setSelectedBlogCategory(slug);
       setShowNewCategory(false);
       setNewCategorySlug('');
       setNewCategoryLabel('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '카테고리 추가 실패');
+      setCategoryError(err instanceof Error ? err.message : '카테고리 추가 실패');
     }
   };
 
@@ -1044,25 +1049,31 @@ export default function GenerateResultPage() {
 
                 {/* 새 카테고리 추가 */}
                 {showNewCategory && (
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      value={newCategorySlug}
-                      onChange={(e) => setNewCategorySlug(e.target.value.replace(/\s/g, '-').toLowerCase())}
-                      placeholder="slug (예: marketing)"
-                      className="flex-1 px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
-                    />
-                    <input
-                      value={newCategoryLabel}
-                      onChange={(e) => setNewCategoryLabel(e.target.value)}
-                      placeholder="표시명 (예: 마케팅)"
-                      className="flex-1 px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
-                    />
-                    <button
-                      onClick={handleAddCategory}
-                      className="px-3 py-1.5 text-xs font-semibold bg-rose-500 text-white rounded-lg hover:bg-rose-600"
-                    >
-                      추가
-                    </button>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        value={newCategorySlug}
+                        onChange={(e) => setNewCategorySlug(e.target.value.replace(/\s/g, '-').toLowerCase())}
+                        placeholder="slug (예: marketing)"
+                        className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                      />
+                      <input
+                        value={newCategoryLabel}
+                        onChange={(e) => setNewCategoryLabel(e.target.value)}
+                        placeholder="표시명 (예: 마케팅)"
+                        className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                      />
+                      <button
+                        onClick={handleAddCategory}
+                        type="button"
+                        className="px-4 py-2 text-sm font-semibold bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors whitespace-nowrap"
+                      >
+                        추가
+                      </button>
+                    </div>
+                    {categoryError && (
+                      <p className="text-xs text-red-500 px-1">{categoryError}</p>
+                    )}
                   </div>
                 )}
               </div>
