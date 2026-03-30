@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory, GenerateResponse } from '@/lib/types';
 import { addRevision, generateId } from '@/lib/history';
-import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, getBlogCategories, saveBlogCategory, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
+import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, getBlogCategories, saveBlogCategory, deleteBlogCategory, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -174,6 +174,20 @@ export default function GenerateResultPage() {
       setNewCategoryLabel('');
     } catch (err) {
       setCategoryError(err instanceof Error ? err.message : '카테고리 추가 실패');
+    }
+  };
+
+  const handleDeleteCategory = async (catId: string, catSlug: string) => {
+    if (!confirm('이 카테고리를 삭제하시겠습니까?')) return;
+    try {
+      await deleteBlogCategory(catId);
+      const cats = await getBlogCategories();
+      setBlogCategories(cats);
+      if (selectedBlogCategory === catSlug && cats.length > 0) {
+        setSelectedBlogCategory(cats[0].slug);
+      }
+    } catch (err) {
+      setCategoryError(err instanceof Error ? err.message : '카테고리 삭제 실패');
     }
   };
 
@@ -1024,22 +1038,32 @@ export default function GenerateResultPage() {
                 <label className="block text-xs font-semibold text-gray-600 mb-2">카테고리 선택</label>
                 <div className="flex flex-wrap gap-2">
                   {(blogCategories.length > 0 ? blogCategories : [
-                    { slug: 'geo-aio', label: 'GEO-AIO', color: 'from-indigo-500 to-violet-600' },
-                    { slug: 'regenmed', label: '리젠메드컨설팅', color: 'from-emerald-500 to-teal-600' },
-                    { slug: 'brewery', label: '대전맥주장 수제맥주', color: 'from-amber-500 to-orange-600' },
-                    { slug: 'dental', label: '치과병원', color: 'from-sky-500 to-blue-600' },
+                    { id: '', slug: 'geo-aio', label: 'GEO-AIO', color: 'from-indigo-500 to-violet-600' },
+                    { id: '', slug: 'regenmed', label: '리젠메드컨설팅', color: 'from-emerald-500 to-teal-600' },
+                    { id: '', slug: 'brewery', label: '대전맥주장 수제맥주', color: 'from-amber-500 to-orange-600' },
+                    { id: '', slug: 'dental', label: '치과병원', color: 'from-sky-500 to-blue-600' },
                   ]).map((cat) => (
-                    <button
-                      key={cat.slug}
-                      onClick={() => setSelectedBlogCategory(cat.slug)}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
-                        selectedBlogCategory === cat.slug
-                          ? `bg-gradient-to-r ${cat.color} text-white border-transparent shadow-md`
-                          : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
+                    <div key={cat.slug} className="relative group/cat">
+                      <button
+                        onClick={() => setSelectedBlogCategory(cat.slug)}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all pr-7 ${
+                          selectedBlogCategory === cat.slug
+                            ? `bg-gradient-to-r ${cat.color} text-white border-transparent shadow-md`
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                      {'id' in cat && cat.id && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id as string, cat.slug); }}
+                          className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center opacity-0 group-hover/cat:opacity-100 transition-opacity hover:bg-red-600"
+                          title="삭제"
+                        >
+                          X
+                        </button>
+                      )}
+                    </div>
                   ))}
                   <button
                     onClick={() => setShowNewCategory(!showNewCategory)}

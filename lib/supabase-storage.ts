@@ -515,3 +515,8 @@ export async function saveBlogCategory(cat: {
   if (error) throw error;
   return data.id;
 }
+
+export async function deleteBlogCategory(id: string): Promise<void> {
+  const { error } = await getSupabase().from('blog_categories').delete().eq('id', id);
+  if (error) throw error;
+}
