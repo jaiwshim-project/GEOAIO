@@ -375,18 +375,19 @@ export async function saveBlogPost(post: {
   historyId?: string;
 }): Promise<string> {
   try {
+    const meta = JSON.stringify({
+      tag: post.tag || '',
+      summary: post.summary || '',
+      targetKeyword: post.targetKeyword || '',
+      historyId: post.historyId || '',
+      metadata: post.metadata || {},
+    });
     const insertData = {
       title: post.title,
       content: post.content,
       category: post.category,
-      tags: JSON.stringify({
-        tag: post.tag || '',
-        hashtags: post.hashtags || [],
-        summary: post.summary || '',
-        targetKeyword: post.targetKeyword || '',
-        historyId: post.historyId || '',
-        metadata: post.metadata || {},
-      }),
+      tags: post.hashtags || [],
+      author: meta,
     };
     console.log('saveBlogPost inserting:', insertData);
     const { data, error } = await getSupabase()
@@ -421,9 +422,9 @@ export async function saveBlogPostsBatch(posts: {
     title: post.title,
     content: post.content,
     category: post.category,
-    tags: JSON.stringify({
+    tags: post.hashtags || [],
+    author: JSON.stringify({
       tag: post.tag || '',
-      hashtags: post.hashtags || [],
       summary: post.summary || '',
       targetKeyword: post.targetKeyword || '',
       historyId: post.historyId || '',
@@ -451,18 +452,21 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
   const { data, error } = await query.limit(200);
   if (error) throw error;
   return (data || []).map(row => {
-    const tagsData = typeof row.tags === 'string' ? (() => { try { return JSON.parse(row.tags); } catch { return {}; } })() : (row.tags || {});
+    let meta: Record<string, unknown> = {};
+    if (row.author) {
+      try { meta = JSON.parse(row.author); } catch { /* ignore */ }
+    }
     return {
       id: row.id,
       title: row.title,
       content: row.content,
-      summary: tagsData.summary || '',
+      summary: (meta.summary as string) || '',
       category: row.category || '',
-      tag: tagsData.tag || '',
-      hashtags: tagsData.hashtags || [],
-      metadata: tagsData.metadata || {},
-      targetKeyword: tagsData.targetKeyword || '',
-      historyId: tagsData.historyId || '',
+      tag: (meta.tag as string) || '',
+      hashtags: Array.isArray(row.tags) ? row.tags : [],
+      metadata: (meta.metadata as Record<string, unknown>) || {},
+      targetKeyword: (meta.targetKeyword as string) || '',
+      historyId: (meta.historyId as string) || '',
       published: true,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
