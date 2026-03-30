@@ -992,8 +992,8 @@ export default function GenerateResultPage() {
 
       {/* 블로그 게시 모달 */}
       {showBlogPublish && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowBlogPublish(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-pink-600 rounded-lg flex items-center justify-center">
@@ -1049,30 +1049,30 @@ export default function GenerateResultPage() {
 
                 {/* 새 카테고리 추가 */}
                 {showNewCategory && (
-                  <div className="mt-2 space-y-2">
-                    <div className="flex gap-2">
+                  <div className="mt-3 p-3 bg-rose-50 rounded-lg border border-rose-200 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <input
                         value={newCategorySlug}
                         onChange={(e) => setNewCategorySlug(e.target.value.replace(/\s/g, '-').toLowerCase())}
                         placeholder="slug (예: marketing)"
-                        className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white"
                       />
                       <input
                         value={newCategoryLabel}
                         onChange={(e) => setNewCategoryLabel(e.target.value)}
                         placeholder="표시명 (예: 마케팅)"
-                        className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white"
                       />
-                      <button
-                        onClick={handleAddCategory}
-                        type="button"
-                        className="px-4 py-2 text-sm font-semibold bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors whitespace-nowrap"
-                      >
-                        추가
-                      </button>
                     </div>
+                    <button
+                      onClick={() => handleAddCategory()}
+                      type="button"
+                      className="w-full py-2.5 text-sm font-semibold bg-rose-500 text-white rounded-lg hover:bg-rose-600 active:bg-rose-700 transition-colors cursor-pointer"
+                    >
+                      카테고리 추가
+                    </button>
                     {categoryError && (
-                      <p className="text-xs text-red-500 px-1">{categoryError}</p>
+                      <p className="text-xs text-red-600 font-medium">{categoryError}</p>
                     )}
                   </div>
                 )}
