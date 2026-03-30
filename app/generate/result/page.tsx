@@ -1127,13 +1127,23 @@ export default function GenerateResultPage() {
 
               {/* 태그 */}
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">태그</label>
-                <input
-                  value={blogTag}
-                  onChange={(e) => setBlogTag(e.target.value)}
-                  placeholder="예: 가이드, 전략, 분석, 입문..."
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300"
-                />
+                <label className="block text-xs font-semibold text-gray-600 mb-2">태그</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {['가이드', '전략', '분석', '비교분석', '입문', '서비스', '소개', '마케팅', '팁', '사례'].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setBlogTag(t)}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-all ${
+                        blogTag === t
+                          ? 'bg-rose-500 text-white border-rose-400 shadow-sm'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-rose-300 hover:text-rose-500'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* 요약 */}
