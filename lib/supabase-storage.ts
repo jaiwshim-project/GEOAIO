@@ -374,21 +374,20 @@ export async function saveBlogPost(post: {
   targetKeyword?: string;
   historyId?: string;
 }): Promise<string> {
-  const userId = await getUserId();
   const { data, error } = await getSupabase()
-    .from('blog_posts')
+    .from('blog_articles')
     .insert({
       title: post.title,
       content: post.content,
-      summary: post.summary || '',
       category: post.category,
-      tag: post.tag || '',
-      hashtags: post.hashtags || [],
-      metadata: post.metadata || {},
-      target_keyword: post.targetKeyword || '',
-      history_id: post.historyId || '',
-      published: true,
-      user_id: userId,
+      tags: JSON.stringify({
+        tag: post.tag || '',
+        hashtags: post.hashtags || [],
+        summary: post.summary || '',
+        targetKeyword: post.targetKeyword || '',
+        historyId: post.historyId || '',
+        metadata: post.metadata || {},
+      }),
     })
     .select('id')
     .single();
@@ -407,22 +406,21 @@ export async function saveBlogPostsBatch(posts: {
   targetKeyword?: string;
   historyId?: string;
 }[]): Promise<string[]> {
-  const userId = await getUserId();
   const rows = posts.map(post => ({
     title: post.title,
     content: post.content,
-    summary: post.summary || '',
     category: post.category,
-    tag: post.tag || '',
-    hashtags: post.hashtags || [],
-    metadata: post.metadata || {},
-    target_keyword: post.targetKeyword || '',
-    history_id: post.historyId || '',
-    published: true,
-    user_id: userId,
+    tags: JSON.stringify({
+      tag: post.tag || '',
+      hashtags: post.hashtags || [],
+      summary: post.summary || '',
+      targetKeyword: post.targetKeyword || '',
+      historyId: post.historyId || '',
+      metadata: post.metadata || {},
+    }),
   }));
   const { data, error } = await getSupabase()
-    .from('blog_posts')
+    .from('blog_articles')
     .insert(rows)
     .select('id');
   if (error) throw error;
@@ -431,9 +429,8 @@ export async function saveBlogPostsBatch(posts: {
 
 export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
   let query = getSupabase()
-    .from('blog_posts')
+    .from('blog_articles')
     .select('*')
-    .eq('published', true)
     .order('created_at', { ascending: false });
 
   if (category) {
@@ -442,95 +439,90 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
 
   const { data, error } = await query.limit(200);
   if (error) throw error;
-  return (data || []).map(row => ({
-    id: row.id,
-    title: row.title,
-    content: row.content,
-    summary: row.summary || '',
-    category: row.category,
-    tag: row.tag || '',
-    hashtags: row.hashtags || [],
-    metadata: row.metadata || {},
-    targetKeyword: row.target_keyword || '',
-    historyId: row.history_id || '',
-    published: row.published,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  }));
+  return (data || []).map(row => {
+    const tagsData = typeof row.tags === 'string' ? (() => { try { return JSON.parse(row.tags); } catch { return {}; } })() : (row.tags || {});
+    return {
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      summary: tagsData.summary || '',
+      category: row.category || '',
+      tag: tagsData.tag || '',
+      hashtags: tagsData.hashtags || [],
+      metadata: tagsData.metadata || {},
+      targetKeyword: tagsData.targetKeyword || '',
+      historyId: tagsData.historyId || '',
+      published: true,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  });
 }
 
 export async function deleteBlogPost(id: string): Promise<void> {
-  const { error } = await getSupabase().from('blog_posts').delete().eq('id', id);
-  if (error) throw error;
-}
-
-export async function toggleBlogPostPublished(id: string, published: boolean): Promise<void> {
-  const { error } = await getSupabase()
-    .from('blog_posts')
-    .update({ published, updated_at: new Date().toISOString() })
-    .eq('id', id);
+  const { error } = await getSupabase().from('blog_articles').delete().eq('id', id);
   if (error) throw error;
 }
 
 // ============================
-// 블로그 카테고리 CRUD
+// 블로그 카테고리 (blog_articles의 category 컬럼 기반)
 // ============================
+
+const DEFAULT_CATEGORIES: BlogCategory[] = [
+  { id: '1', slug: 'geo-aio', label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600', icon: 'search', sortOrder: 0 },
+  { id: '2', slug: 'regenmed', label: '리젠메드컨설팅', description: '컨설팅 관련 콘텐츠', color: 'from-emerald-500 to-teal-600', icon: 'building', sortOrder: 1 },
+  { id: '3', slug: 'brewery', label: '대전맥주장 수제맥주', description: '수제맥주 관련 콘텐츠', color: 'from-amber-500 to-orange-600', icon: 'badge', sortOrder: 2 },
+  { id: '4', slug: 'dental', label: '치과병원', description: '치과 관련 콘텐츠', color: 'from-sky-500 to-blue-600', icon: 'heart', sortOrder: 3 },
+];
+
+const EXTRA_COLORS = [
+  'from-rose-500 to-pink-600',
+  'from-cyan-500 to-blue-600',
+  'from-lime-500 to-green-600',
+  'from-fuchsia-500 to-purple-600',
+  'from-orange-500 to-red-600',
+];
 
 export async function getBlogCategories(): Promise<BlogCategory[]> {
-  const { data, error } = await getSupabase()
-    .from('blog_categories')
-    .select('*')
-    .order('sort_order', { ascending: true });
-  if (error) throw error;
-  return (data || []).map(row => ({
-    id: row.id,
-    slug: row.slug,
-    label: row.label,
-    description: row.description || '',
-    color: row.color || 'from-gray-500 to-gray-600',
-    icon: row.icon || 'document',
-    sortOrder: row.sort_order || 0,
-  }));
+  // DB에서 사용된 카테고리 목록을 가져와 기본 카테고리와 병합
+  try {
+    const { data } = await getSupabase()
+      .from('blog_articles')
+      .select('category');
+    const dbCategories = [...new Set((data || []).map(r => r.category).filter(Boolean))];
+    const result = [...DEFAULT_CATEGORIES];
+    let extraIdx = 0;
+    for (const cat of dbCategories) {
+      if (!result.find(c => c.slug === cat)) {
+        result.push({
+          id: `custom-${extraIdx}`,
+          slug: cat,
+          label: cat,
+          description: '',
+          color: EXTRA_COLORS[extraIdx % EXTRA_COLORS.length],
+          icon: 'document',
+          sortOrder: DEFAULT_CATEGORIES.length + extraIdx,
+        });
+        extraIdx++;
+      }
+    }
+    return result;
+  } catch {
+    return DEFAULT_CATEGORIES;
+  }
 }
 
-export async function saveBlogCategory(cat: {
+export async function saveBlogCategory(_cat: {
   slug: string;
   label: string;
   description?: string;
   color?: string;
 }): Promise<string> {
-  const userId = await getUserId();
-  const supabase = getSupabase();
-
-  // 중복 확인
-  const { data: existing } = await supabase
-    .from('blog_categories')
-    .select('id')
-    .eq('slug', cat.slug)
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (existing) {
-    throw new Error(`'${cat.label}' 카테고리가 이미 존재합니다.`);
-  }
-
-  const { data, error } = await supabase
-    .from('blog_categories')
-    .insert({
-      slug: cat.slug,
-      label: cat.label,
-      description: cat.description || '',
-      color: cat.color || 'from-gray-500 to-gray-600',
-      icon: 'document',
-      user_id: userId,
-    })
-    .select('id')
-    .single();
-  if (error) throw new Error(`카테고리 추가 실패: ${error.message}`);
-  return data.id;
+  // 카테고리는 blog_articles의 category 컬럼으로 자동 생성됨
+  // 별도 저장 불필요 - 첫 포스트 게시 시 자동으로 카테고리가 됨
+  return _cat.slug;
 }
 
-export async function deleteBlogCategory(id: string): Promise<void> {
-  const { error } = await getSupabase().from('blog_categories').delete().eq('id', id);
-  if (error) throw error;
+export async function deleteBlogCategory(_id: string): Promise<void> {
+  // 카테고리 삭제는 해당 카테고리의 포스트가 없으면 자동으로 사라짐
 }

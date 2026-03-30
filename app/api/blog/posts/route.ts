@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category');
 
   let query = getSupabase()
-    .from('blog_posts')
+    .from('blog_articles')
     .select('id, title, summary, category, tag, hashtags, target_keyword, published, created_at, updated_at')
     .eq('published', true)
     .order('created_at', { ascending: false });
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }));
 
     const { data, error } = await getSupabase()
-      .from('blog_posts')
+      .from('blog_articles')
       .insert(rows)
       .select('id');
 
