@@ -78,7 +78,6 @@ export default function GenerateResultPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [showNewCategory, setShowNewCategory] = useState(false);
-  const [newCategorySlug, setNewCategorySlug] = useState('');
   const [newCategoryLabel, setNewCategoryLabel] = useState('');
 
   // Supabase 또는 localStorage에서 결과 데이터 로드
@@ -154,13 +153,17 @@ export default function GenerateResultPage() {
 
   const [categoryError, setCategoryError] = useState<string | null>(null);
 
+  const labelToSlug = (label: string) => {
+    return label.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9가-힣\-]/g, '') || `cat-${Date.now()}`;
+  };
+
   const handleAddCategory = async () => {
-    const slug = newCategorySlug.trim();
     const label = newCategoryLabel.trim();
-    if (!slug || !label) {
-      setCategoryError('slug와 표시명을 모두 입력하세요.');
+    if (!label) {
+      setCategoryError('카테고리 이름을 입력하세요.');
       return;
     }
+    const slug = labelToSlug(label);
     setCategoryError(null);
     try {
       await saveBlogCategory({ slug, label });
@@ -168,7 +171,6 @@ export default function GenerateResultPage() {
       setBlogCategories(cats);
       setSelectedBlogCategory(slug);
       setShowNewCategory(false);
-      setNewCategorySlug('');
       setNewCategoryLabel('');
     } catch (err) {
       setCategoryError(err instanceof Error ? err.message : '카테고리 추가 실패');
@@ -1050,20 +1052,12 @@ export default function GenerateResultPage() {
                 {/* 새 카테고리 추가 */}
                 {showNewCategory && (
                   <div className="mt-3 p-3 bg-rose-50 rounded-lg border border-rose-200 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        value={newCategorySlug}
-                        onChange={(e) => setNewCategorySlug(e.target.value.replace(/\s/g, '-').toLowerCase())}
-                        placeholder="slug (예: marketing)"
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white"
-                      />
-                      <input
-                        value={newCategoryLabel}
-                        onChange={(e) => setNewCategoryLabel(e.target.value)}
-                        placeholder="표시명 (예: 마케팅)"
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white"
-                      />
-                    </div>
+                    <input
+                      value={newCategoryLabel}
+                      onChange={(e) => setNewCategoryLabel(e.target.value)}
+                      placeholder="카테고리 이름 (예: 피부과, 마케팅, 음식점)"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white"
+                    />
                     <button
                       onClick={() => handleAddCategory()}
                       type="button"
