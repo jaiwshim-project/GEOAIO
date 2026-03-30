@@ -1043,10 +1043,10 @@ export default function GenerateResultPage() {
                     { id: '', slug: 'brewery', label: '대전맥주장 수제맥주', color: 'from-amber-500 to-orange-600' },
                     { id: '', slug: 'dental', label: '치과병원', color: 'from-sky-500 to-blue-600' },
                   ]).map((cat) => (
-                    <div key={cat.slug} className="relative group/cat">
+                    <div key={cat.slug} className="flex items-center gap-1">
                       <button
                         onClick={() => setSelectedBlogCategory(cat.slug)}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all pr-7 ${
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
                           selectedBlogCategory === cat.slug
                             ? `bg-gradient-to-r ${cat.color} text-white border-transparent shadow-md`
                             : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
@@ -1056,8 +1056,8 @@ export default function GenerateResultPage() {
                       </button>
                       {'id' in cat && cat.id && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id as string, cat.slug); }}
-                          className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white rounded-full text-[9px] font-bold flex items-center justify-center opacity-0 group-hover/cat:opacity-100 transition-opacity hover:bg-red-600"
+                          onClick={() => handleDeleteCategory(cat.id as string, cat.slug)}
+                          className="w-5 h-5 bg-red-100 text-red-500 rounded-full text-[10px] font-bold flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
                           title="삭제"
                         >
                           X
