@@ -87,22 +87,14 @@ async function getServerBlogData() {
       }
     }
 
-    return { posts, categories, error: null };
-  } catch (e) {
-    console.error('[Blog SSR] Supabase fetch failed:', e);
-    return { posts: [], categories: DEFAULT_CATEGORIES, error: String(e) };
+    return { posts, categories };
+  } catch {
+    return { posts: [], categories: DEFAULT_CATEGORIES };
   }
 }
 
 export default async function BlogPage() {
-  const { posts, categories, error } = await getServerBlogData();
+  const { posts, categories } = await getServerBlogData();
 
-  return (
-    <>
-      {/* 디버그 (임시) */}
-      {error && <div style={{display:'none'}} data-debug-error={error} />}
-      <div style={{display:'none'}} data-debug-posts={posts.length} data-debug-url={process.env.NEXT_PUBLIC_SUPABASE_URL ? 'set' : 'unset'} data-debug-key={process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'set' : 'unset'} />
-      <BlogClient initialPosts={posts} initialCategories={categories} />
-    </>
-  );
+  return <BlogClient initialPosts={posts} initialCategories={categories} />;
 }
