@@ -39,6 +39,8 @@ yarn-error.log*
 # 자료 폴더 (대용량 파일 포함)
 "1 자료모음/"
 1\ 자료모음/
+"1 제안서/"
+1\ 제안서/
 
 # typescript
 *.tsbuildinfo
