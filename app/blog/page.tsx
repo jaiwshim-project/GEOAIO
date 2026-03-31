@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
-// 60초마다 페이지 재생성 (ISR) — 새 포스트가 크롤러에 빠르게 반영됨
-export const revalidate = 60;
+// 매 요청마다 서버에서 최신 데이터로 렌더링
+export const dynamic = 'force-dynamic';
 
 const DEFAULT_CATEGORIES: BlogCategory[] = [
   { id: '1', slug: 'geo-aio', label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600', icon: 'search', sortOrder: 0 },
