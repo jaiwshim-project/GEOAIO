@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createClient } from '@/lib/supabase-server';
+import { createClient as createServerClient } from '@supabase/supabase-js';
 import BlogClient from './BlogClient';
 import type { BlogPost, BlogCategory } from '@/lib/supabase-storage';
 
@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     type: 'website',
   },
 };
+
+// 60초마다 페이지 재생성 (ISR) — 새 포스트가 크롤러에 빠르게 반영됨
+export const revalidate = 60;
 
 const DEFAULT_CATEGORIES: BlogCategory[] = [
   { id: '1', slug: 'geo-aio', label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600', icon: 'search', sortOrder: 0 },
@@ -32,7 +35,10 @@ const EXTRA_ICONS = ['document', 'document', 'document', 'document', 'document']
 
 async function getServerBlogData() {
   try {
-    const supabase = await createClient();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
 
     const { data: postsData } = await supabase
       .from('blog_articles')
