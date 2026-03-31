@@ -155,6 +155,7 @@ export default function GeneratePage() {
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [loadingKeywords, setLoadingKeywords] = useState(false);
+  // 타겟 키워드 입력 (초기값은 빈 문자열)
   const [customKeyword, setCustomKeyword] = useState('');
 
   // 프로필 목록 로드

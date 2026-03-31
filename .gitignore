@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# 자료 폴더 (대용량 파일 포함)
+"1 자료모음/"
+1\ 자료모음/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
