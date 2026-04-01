@@ -224,9 +224,12 @@ export default function AdminPage() {
   const handlePlanChange = async (userId: string, newPlan: string) => {
     setUpdatingUser(userId);
     try {
+      const password = sessionStorage.getItem('admin_pw') || '';
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (password) headers['X-Admin-Password'] = password;
       const res = await fetch('/api/admin/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ userId, plan: newPlan }),
       });
       if (!res.ok) {
@@ -250,9 +253,12 @@ export default function AdminPage() {
   const handleNameChange = async (userId: string, newName: string) => {
     setUpdatingUser(userId);
     try {
+      const password = sessionStorage.getItem('admin_pw') || '';
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (password) headers['X-Admin-Password'] = password;
       const res = await fetch('/api/admin/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ userId, name: newName }),
       });
       if (!res.ok) {
@@ -287,9 +293,12 @@ export default function AdminPage() {
 
     setSendingEmail(user.id);
     try {
+      const password = sessionStorage.getItem('admin_pw') || '';
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (password) headers['X-Admin-Password'] = password;
       const res = await fetch('/api/admin/send-expiry-notice', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           email: user.email,
           name: user.name,
@@ -318,9 +327,12 @@ export default function AdminPage() {
   const handleRenew = async (userId: string) => {
     setUpdatingUser(userId);
     try {
+      const password = sessionStorage.getItem('admin_pw') || '';
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (password) headers['X-Admin-Password'] = password;
       const res = await fetch('/api/admin/users', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ userId }),
       });
       if (!res.ok) {
