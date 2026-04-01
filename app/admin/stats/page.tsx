@@ -85,6 +85,21 @@ export default function AdminStatsPage() {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
+        // 세션에 저장된 관리자 비밀번호 확인
+        const savedPw = sessionStorage.getItem('admin_pw');
+        if (savedPw) {
+          const res = await fetch('/api/admin/verify-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: savedPw }),
+          });
+          if (res.ok) {
+            setAuthenticated(true);
+            loadStats(savedPw);
+            setAuthChecking(false);
+            return;
+          }
+        }
         const plan = await getUserPlan();
         if (plan === 'admin') {
           setAuthenticated(true);
@@ -99,11 +114,14 @@ export default function AdminStatsPage() {
     checkAdmin();
   }, []);
 
-  const loadStats = async () => {
+  const loadStats = async (pw?: string) => {
     setLoading(true);
     setError('');
+    const password = pw || sessionStorage.getItem('admin_pw') || '';
     try {
-      const res = await fetch('/api/admin/stats');
+      const res = await fetch('/api/admin/stats', {
+        headers: password ? { 'X-Admin-Password': password } : {},
+      });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || '조회 실패');
