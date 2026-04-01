@@ -382,6 +382,12 @@ export default function AdminPage() {
       });
   }, [users]);
 
+  const freeUsers = useMemo(() => {
+    return users
+      .filter(u => u.plan === 'free' && !(u.previous_plan && ['pro', 'max'].includes(u.previous_plan)))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [users]);
+
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
   const planStats = {
@@ -758,6 +764,54 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+
+            {/* 무료 구독자 목록 */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-5">
+              <h3 className="px-4 py-3 text-sm font-bold text-gray-700 border-b border-gray-200 bg-gray-50">
+                무료 구독자
+                <span className="ml-2 text-xs font-normal text-gray-400">({freeUsers.length}명)</span>
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b-2 border-gray-200">
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700">이름</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700">이메일</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">등급</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">가입일</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">최근 로그인</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">이번 달 사용량</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {freeUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center py-12 text-gray-400">무료 구독자가 없습니다.</td>
+                      </tr>
+                    ) : (
+                      freeUsers.map((user) => (
+                        <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+                          <td className="px-4 py-3 font-medium text-gray-800">{user.name || <span className="text-gray-400 italic">이름 없음</span>}</td>
+                          <td className="px-4 py-3 text-gray-600 text-xs">{user.email}</td>
+                          <td className="text-center px-4 py-3">
+                            <span className="inline-block px-2.5 py-1 text-xs font-bold rounded-full border bg-gray-100 text-gray-700 border-gray-300">무료</span>
+                          </td>
+                          <td className="text-center px-4 py-3 text-xs text-gray-600">{formatDate(user.created_at).split(' ')[0]}</td>
+                          <td className="text-center px-4 py-3 text-xs text-gray-600">{user.last_sign_in_at ? formatDate(user.last_sign_in_at) : '-'}</td>
+                          <td className="text-center px-4 py-3 text-xs text-gray-500">
+                            {user.usage.analyze + user.usage.generate + user.usage.keyword + user.usage.series > 0 ? (
+                              <span>분석 {user.usage.analyze} · 생성 {user.usage.generate} · 키워드 {user.usage.keyword} · 시리즈 {user.usage.series}</span>
+                            ) : (
+                              <span className="text-gray-300">사용 없음</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </>
         )}
 
