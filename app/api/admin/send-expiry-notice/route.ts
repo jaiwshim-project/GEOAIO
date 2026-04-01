@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { createClient as createServerClient } from '@/lib/supabase-server';
 
-async function verifyAdmin(): Promise<boolean> {
+async function verifyAdmin(request?: NextRequest): Promise<boolean> {
+  // 비밀번호 헤더로 인증
+  if (request) {
+    const pw = request.headers.get('X-Admin-Password');
+    if (pw && pw === process.env.ADMIN_PASSWORD) return true;
+  }
+  // Supabase 인증
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return false;
@@ -17,7 +23,7 @@ async function verifyAdmin(): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
-  const isAdmin = await verifyAdmin();
+  const isAdmin = await verifyAdmin(request);
   if (!isAdmin) {
     return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 });
   }
