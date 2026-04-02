@@ -1,0 +1,8 @@
+node_modules
+.next
+1 자료모음
+1 제안서
+*.docx
+*.pdf
+*.pem
+.env*

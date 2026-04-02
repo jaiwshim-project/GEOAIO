@@ -12,6 +12,11 @@ export default function AXDiagnosisPage() {
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             AX Ontology OS
           </div>
+          <div className="inline-block px-6 py-2.5 mb-5 bg-gradient-to-r from-indigo-600/30 via-violet-600/30 to-purple-600/30 border border-indigo-400/40 rounded-xl backdrop-blur-sm">
+            <span className="text-sm md:text-base font-bold bg-gradient-to-r from-blue-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent tracking-wide">
+              AI-Powered Enterprise Transformation
+            </span>
+          </div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4 leading-tight">
             AX 사전 진단
           </h1>
