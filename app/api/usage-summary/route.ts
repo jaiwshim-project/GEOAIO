@@ -158,7 +158,13 @@ export async function GET(req: NextRequest) {
       periodEnd = formatDate(lastDay);
     }
 
-    return NextResponse.json({ plan, summary, month, periodStart, periodEnd });
+    // debug: 플랜 조회 경로 추적
+    const debug = {
+      profileFound: !!profileData,
+      profileEmail: profileData?.email || null,
+      profileUsername: profileData?.username || null,
+    };
+    return NextResponse.json({ plan, summary, month, periodStart, periodEnd, debug });
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
   }
