@@ -382,6 +382,12 @@ export default function AdminPage() {
       });
   }, [users]);
 
+  const testerUsers = useMemo(() => {
+    return users
+      .filter(u => u.plan === 'tester')
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [users]);
+
   const freeUsers = useMemo(() => {
     return users
       .filter(u => u.plan === 'free' && !(u.previous_plan && ['pro', 'max'].includes(u.previous_plan)))
@@ -476,7 +482,7 @@ export default function AdminPage() {
         </div>
 
         {/* 통계 카드 */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
           <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
             <p className="text-xs font-medium text-gray-500">전체 회원</p>
             <p className="text-2xl font-bold text-gray-900">{planStats.total}</p>
@@ -492,6 +498,10 @@ export default function AdminPage() {
           <div className="bg-white rounded-xl p-4 border border-blue-200 shadow-sm">
             <p className="text-xs font-medium text-blue-500">프로</p>
             <p className="text-2xl font-bold text-blue-600">{planStats.pro}</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 border border-emerald-200 shadow-sm">
+            <p className="text-xs font-medium text-emerald-500">테스터</p>
+            <p className="text-2xl font-bold text-emerald-600">{planStats.tester}</p>
           </div>
           <div className="bg-white rounded-xl p-4 border border-violet-200 shadow-sm">
             <p className="text-xs font-medium text-violet-500">맥스</p>
@@ -764,6 +774,73 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+
+            {/* 테스터 구독자 목록 */}
+            <div className="bg-white rounded-2xl shadow-sm border border-emerald-200 overflow-hidden mb-5">
+              <h3 className="px-4 py-3 text-sm font-bold text-emerald-700 border-b border-emerald-200 bg-emerald-50">
+                테스터 구독자
+                <span className="ml-2 text-xs font-normal text-emerald-400">({testerUsers.length}명)</span>
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-emerald-50/50 border-b-2 border-emerald-200">
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700">이름</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-700">이메일</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">등급</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">가입일</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">최근 로그인</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">이번 달 사용량</th>
+                      <th className="text-center px-4 py-3 font-semibold text-gray-700">액션</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {testerUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="text-center py-12 text-gray-400">테스터 구독자가 없습니다.</td>
+                      </tr>
+                    ) : (
+                      testerUsers.map((user) => (
+                        <tr key={user.id} className="border-b border-gray-100 hover:bg-emerald-50/30 transition-colors">
+                          <td className="px-4 py-3 font-medium text-gray-800">{user.name || <span className="text-gray-400 italic">이름 없음</span>}</td>
+                          <td className="px-4 py-3 text-gray-600 text-xs">{user.email}</td>
+                          <td className="text-center px-4 py-3">
+                            <span className="inline-block px-2.5 py-1 text-xs font-bold rounded-full border bg-emerald-100 text-emerald-700 border-emerald-300">테스터</span>
+                          </td>
+                          <td className="text-center px-4 py-3 text-xs text-gray-600">{formatDate(user.created_at).split(' ')[0]}</td>
+                          <td className="text-center px-4 py-3 text-xs text-gray-600">{user.last_sign_in_at ? formatDate(user.last_sign_in_at) : '-'}</td>
+                          <td className="text-center px-4 py-3 text-xs text-gray-500">
+                            {user.usage.analyze + user.usage.generate + user.usage.keyword + user.usage.series > 0 ? (
+                              <span>분석 {user.usage.analyze} · 생성 {user.usage.generate} · 키워드 {user.usage.keyword} · 시리즈 {user.usage.series}</span>
+                            ) : (
+                              <span className="text-gray-300">사용 없음</span>
+                            )}
+                          </td>
+                          <td className="text-center px-4 py-3">
+                            <div className="flex items-center gap-1 justify-center">
+                              <button
+                                onClick={() => handlePlanChange(user.id, 'pro')}
+                                disabled={updatingUser === user.id}
+                                className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all disabled:opacity-50"
+                              >
+                                {updatingUser === user.id ? '...' : '프로 전환'}
+                              </button>
+                              <button
+                                onClick={() => handlePlanChange(user.id, 'free')}
+                                disabled={updatingUser === user.id}
+                                className="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+                              >
+                                {updatingUser === user.id ? '...' : '해제'}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
             {/* 무료 구독자 목록 */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-5">
