@@ -172,7 +172,7 @@ export default function GeneratePage() {
   }, [selectedCategory]);
 
   // 주제 추천 fetch (버튼 클릭 시 호출)
-  const fetchTopicSuggestions = async (cat: string) => {
+  const fetchTopicSuggestions = async (cat: string, inputTopic?: string) => {
     if (loadingTopics) return;
     setLoadingTopics(true);
     setTopicSuggestions([]);
@@ -215,6 +215,7 @@ export default function GeneratePage() {
           projectName: activeProject?.name,
           projectDescription: activeProject?.description,
           projectFiles,
+          inputTopic: inputTopic || '',
         }),
       });
       const data = await res.json();
@@ -1180,8 +1181,12 @@ export default function GeneratePage() {
                           setShowTopicDropdown(false);
                         } else {
                           setShowTopicDropdown(true);
-                          if (selectedCategory && topicSuggestions.length === 0 && !loadingTopics) {
-                            fetchTopicSuggestions(selectedCategory);
+                          const currentTopic = topic.trim();
+                          if (selectedCategory && !loadingTopics) {
+                            // 주제가 입력된 경우: 항상 새로 추천 (입력 기반), 빈칸인 경우: 기존 방식
+                            if (currentTopic || topicSuggestions.length === 0) {
+                              fetchTopicSuggestions(selectedCategory, currentTopic || undefined);
+                            }
                           }
                         }
                       }}
@@ -1209,7 +1214,7 @@ export default function GeneratePage() {
                         ) : topicFetchError ? (
                           <div className="p-3 text-center space-y-2">
                             <p className="text-xs text-red-500">{topicFetchError}</p>
-                            <button type="button" onClick={() => selectedCategory && fetchTopicSuggestions(selectedCategory)}
+                            <button type="button" onClick={() => selectedCategory && fetchTopicSuggestions(selectedCategory, topic.trim() || undefined)}
                               className="text-xs text-blue-500 hover:underline">다시 시도</button>
                           </div>
                         ) : topicSuggestions.length === 0 ? (
@@ -1220,7 +1225,7 @@ export default function GeneratePage() {
                           <ul className="py-1">
                             <li className="px-3 py-1.5 text-xs text-blue-500 font-semibold bg-blue-50 border-b border-blue-100 flex items-center justify-between">
                               <span>✨ AI 추천 주제 (클릭하면 입력됩니다)</span>
-                              <button type="button" onClick={() => selectedCategory && fetchTopicSuggestions(selectedCategory)}
+                              <button type="button" onClick={() => selectedCategory && fetchTopicSuggestions(selectedCategory, topic.trim() || undefined)}
                                 className="text-blue-400 hover:text-blue-600 transition-colors text-base" title="새로 추천">↺</button>
                             </li>
                             {topicSuggestions.map((s, i) => (
