@@ -45,58 +45,37 @@ export async function GET(req: NextRequest) {
     const supabase = getServiceClient();
     const month = getCurrentMonth();
 
-    // 1. user_profiles에서 plan 직접 조회
-    const { data: profileData } = await supabase
-      .from('user_profiles')
-      .select('email, plan')
-      .eq('id', userId)
-      .maybeSingle();
-
     let plan: PlanType = 'free';
     let periodStart: string | null = null;
     let periodEnd: string | null = null;
 
-    if (profileData?.plan && VALID_PLANS.has(profileData.plan)) {
-      plan = profileData.plan as PlanType;
-    }
+    // 1. user_plans에서 직접 조회 (user_id 기준)
+    const { data: planData } = await supabase
+      .from('user_plans')
+      .select('plan, expires_at, created_at')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    // 2. user_plans에서 구독 기간 조회 (이메일 매핑)
-    if (profileData?.email) {
-      const { data: { users: authUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      const matched = authUsers.find(u => u.email === profileData.email);
-      if (matched) {
-        const { data: planData } = await supabase
-          .from('user_plans')
-          .select('plan, expires_at, created_at')
-          .eq('user_id', matched.id)
-          .maybeSingle();
+    if (planData && VALID_PLANS.has(planData.plan)) {
+      if (planData.plan === 'admin') {
+        plan = 'admin';
+      } else if (!planData.expires_at || new Date(planData.expires_at) >= new Date()) {
+        plan = planData.plan as PlanType;
+      }
 
-        if (planData) {
-          // plan이 user_profiles에 없으면 user_plans에서 가져옴
-          if (!profileData.plan && VALID_PLANS.has(planData.plan)) {
-            if (planData.plan === 'admin') {
-              plan = 'admin';
-            } else if (!planData.expires_at || new Date(planData.expires_at) >= new Date()) {
-              plan = planData.plan as PlanType;
-            }
-          }
-
-          // 구독 기간 계산: expires_at 기준 -30일 = 시작일
-          if (planData.expires_at) {
-            const expiry = new Date(planData.expires_at);
-            const start = new Date(expiry);
-            start.setDate(start.getDate() - 30);
-            periodStart = formatDate(start);
-            periodEnd = formatDate(expiry);
-          } else if (planData.created_at) {
-            // expires_at 없으면 created_at 기준
-            const start = new Date(planData.created_at);
-            const end = new Date(start);
-            end.setDate(end.getDate() + 30);
-            periodStart = formatDate(start);
-            periodEnd = formatDate(end);
-          }
-        }
+      // 구독 기간 계산
+      if (planData.expires_at) {
+        const expiry = new Date(planData.expires_at);
+        const start = new Date(expiry);
+        start.setDate(start.getDate() - 30);
+        periodStart = formatDate(start);
+        periodEnd = formatDate(expiry);
+      } else if (planData.created_at) {
+        const start = new Date(planData.created_at);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 30);
+        periodStart = formatDate(start);
+        periodEnd = formatDate(end);
       }
     }
 
