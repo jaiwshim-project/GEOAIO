@@ -221,19 +221,26 @@ export default function GeneratePage() {
   }, []);
 
 
-  // 카테고리 변경 시 이전 추천 초기화 + 동적 분야 로드
+  // 카테고리 변경 시 이전 추천 초기화
   useEffect(() => {
     setTopicSuggestions([]);
     setTopicFetchError('');
     setShowTopicDropdown(false);
     setSelectedSubKeyword('');
+  }, [selectedCategory]);
+
+  // 동적 분야 로드 (카테고리 또는 프로젝트 변경 시)
+  useEffect(() => {
     setDynamicSubKeywords([]);
 
-    // 프로젝트가 선택되어 있으면 동적 분야 로드
-    if (selectedCategory && selectedProject) {
+    if (selectedCategory && selectedProject?.name) {
+      console.log('[분야] useEffect 트리거:', {
+        category: selectedCategory,
+        projectName: selectedProject.name
+      });
       loadDynamicSubKeywords(selectedCategory);
     }
-  }, [selectedCategory, selectedProject]);
+  }, [selectedCategory, selectedProject?.name]);
 
   // 동적 분야 생성 (프로젝트 중심 + 비즈니스 정보 보조)
   const loadDynamicSubKeywords = async (category: ContentCategory) => {
