@@ -235,7 +235,7 @@ export default function GeneratePage() {
     }
   }, [selectedCategory, selectedProject]);
 
-  // 동적 분야 생성 (프로젝트 기반)
+  // 동적 분야 생성 (프로젝트 중심 + 비즈니스 정보 보조)
   const loadDynamicSubKeywords = async (category: ContentCategory) => {
     setLoadingSubKeywords(true);
     try {
@@ -252,6 +252,13 @@ export default function GeneratePage() {
           projectName: selectedProject?.name,
           projectDescription: selectedProject?.description,
           projectFiles: selectedProject?.files,
+          // 비즈니스 정보는 보조 참고
+          businessInfo: {
+            industry: businessInfo.industry || businessInfo.customIndustry,
+            mainProduct: businessInfo.mainProduct,
+            mainBenefit: businessInfo.mainBenefit,
+            targetAudience: businessInfo.targetAudience,
+          },
         }),
       });
       if (res.ok) {

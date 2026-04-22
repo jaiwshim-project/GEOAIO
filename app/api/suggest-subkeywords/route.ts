@@ -5,7 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(req: NextRequest) {
   try {
-    const { category, projectName, projectDescription, projectFiles } = await req.json();
+    const { category, projectName, projectDescription, projectFiles, businessInfo } = await req.json();
     if (!category) return NextResponse.json({ error: 'category 필요' }, { status: 400 });
 
     // 프로젝트 정보가 없으면 기본값 반환
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 프로젝트 설명
+    // 프로젝트 파일 정보
     const filesSection = projectFiles?.length
       ? `\n\n[프로젝트 파일]\n${(projectFiles as { file_name: string; content: string }[])
           .slice(0, 2)
@@ -42,14 +42,23 @@ export async function POST(req: NextRequest) {
           .join('\n\n')}`
       : '';
 
+    // 비즈니스 정보 (보조)
+    const businessSection = businessInfo?.industry || businessInfo?.mainProduct
+      ? `\n\n[추가 비즈니스 정보 (참고)]
+업종: ${businessInfo?.industry || '미입력'}
+주요 상품/서비스: ${businessInfo?.mainProduct || '미입력'}
+주요 장점: ${businessInfo?.mainBenefit || '미입력'}
+대상 고객: ${businessInfo?.targetAudience || '미입력'}`
+      : '';
+
     const prompt = `당신은 콘텐츠 기획 전문가입니다.
 
 다음 프로젝트를 분석하고, ${category} 콘텐츠 카테고리에서 사용할 수 있는 세부 분야/주제를 추천하세요.
 
 [프로젝트명]: ${projectName}
-[프로젝트 설명]: ${projectDescription || '상세 설명 없음'}${filesSection}
+[프로젝트 설명]: ${projectDescription || '상세 설명 없음'}${filesSection}${businessSection}
 
-위 프로젝트의 특성을 반영한 5개의 세부 분야를 추천하세요.
+⭐️ 프로젝트명 "${projectName}"을 최우선으로 고려하여, 이 프로젝트에 가장 적합한 5개의 세부 분야를 추천하세요.
 각 분야는 1~3단어의 구체적인 용어여야 합니다.
 
 반드시 아래 형식으로만 응답하세요 (번호와 분야명만):
