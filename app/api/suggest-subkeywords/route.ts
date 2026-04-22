@@ -70,6 +70,7 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
     // Claude 우선, 실패 시 Gemini 폴백
     if (selectedProvider === 'claude') {
       try {
+        console.log('[API] Claude로 분야 생성 시도');
         const client = new Anthropic({ apiKey });
         const message = await client.messages.create({
           model: 'claude-3-5-sonnet-20241022',
@@ -77,6 +78,7 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
           messages: [{ role: 'user', content: prompt }],
         });
         text = message.content[0].type === 'text' ? message.content[0].text : '';
+        console.log('[API] Claude 성공');
       } catch (claudeError: unknown) {
         lastError = claudeError instanceof Error ? claudeError : new Error(String(claudeError));
         console.log('[API] Claude 실패, Gemini로 폴백:', lastError.message);
@@ -84,8 +86,9 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
         // Claude 실패 → Gemini로 자동 전환
         try {
           const geminiKey = getGeminiKey(req);
-          if (!geminiKey) throw new Error('Gemini API 키 없음');
+          if (!geminiKey) throw new Error('Gemini API 키가 설정되지 않았습니다.');
 
+          console.log('[API] Gemini로 분야 생성 시도');
           const ai = new GoogleGenAI({ apiKey: geminiKey });
           const response = await ai.models.generateContent({
             model: 'gemini-2.0-flash',

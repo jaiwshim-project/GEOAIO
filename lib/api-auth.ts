@@ -44,6 +44,8 @@ export function getClaudeKey(request: NextRequest): string | undefined {
  * Allowed origins for CORS.
  */
 const ALLOWED_ORIGINS = [
+  'https://www.geo-aio.com',
+  'https://geo-aio.com',
   'https://aio-geo-optimizer.vercel.app',
   'https://ai-optimized-contents.vercel.app',
   'https://41-4-ai-optimized-contents.vercel.app',
