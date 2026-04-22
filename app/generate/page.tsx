@@ -736,6 +736,7 @@ export default function GeneratePage() {
               category: selectedCategory,
               topic: topic.trim(),
               targetKeyword: targetKeyword.trim() || undefined,
+              subKeyword: selectedSubKeyword || undefined,
               tone: t.value,
               additionalNotes: notes,
               company_name: activeProjectInfo?.company_name || undefined,

@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
+import { createClient } from '@supabase/supabase-js';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.geo-aio.com';
   const now = new Date();
 
@@ -48,6 +49,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
     },
   ];
+
+  // 블로그 개별 글 URL 동적 추가
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+    const { data: posts } = await supabase
+      .from('blog_articles')
+      .select('id, updated_at, created_at')
+      .order('created_at', { ascending: false })
+      .limit(500);
+
+    if (posts) {
+      for (const post of posts) {
+        staticPages.push({
+          url: `${siteUrl}/blog/${post.id}`,
+          lastModified: new Date(post.updated_at || post.created_at),
+          changeFrequency: 'weekly',
+          priority: 0.8,
+        });
+      }
+    }
+  } catch {
+    // Supabase 접속 실패 시 정적 페이지만 반환
+  }
 
   return staticPages;
 }

@@ -239,9 +239,10 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                   className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-all group"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div
+                    <a
+                      href={`/blog/${post.id}`}
                       className="flex-1 min-w-0 cursor-pointer"
-                      onClick={() => setSelectedPost(post)}
+                      onClick={(e) => { e.preventDefault(); router.push(`/blog/${post.id}`); }}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         {post.tag && (
@@ -258,7 +259,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                         {post.title}
                       </h3>
                       <p className="text-sm text-gray-500 line-clamp-2">{post.summary}</p>
-                    </div>
+                    </a>
                     <div className="shrink-0 flex items-center gap-2">
                       <button
                         onClick={() => handleDeletePost(post.id)}

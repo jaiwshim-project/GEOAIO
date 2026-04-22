@@ -172,6 +172,7 @@ export async function POST(request: NextRequest) {
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
+${body.subKeyword ? `분야/카테고리: ${body.subKeyword}` : ''}
 톤/스타일: ${toneDesc}
 ${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}
 ${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${toneGuide}

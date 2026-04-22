@@ -158,6 +158,7 @@ export interface GenerateRequest {
   category: ContentCategory;
   topic: string;
   targetKeyword?: string;
+  subKeyword?: string;
   tone?: string;
   additionalNotes?: string;
   company_name?: string;
