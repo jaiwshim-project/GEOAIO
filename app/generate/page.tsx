@@ -162,6 +162,10 @@ export default function GeneratePage() {
   const [availableApis, setAvailableApis] = useState<string[]>([]);
   const [selectedApi, setSelectedApi] = useState<'gemini' | 'claude' | 'geo-aio'>('claude');
 
+  // ==================== 동적 분야 생성 ====================
+  const [dynamicSubKeywords, setDynamicSubKeywords] = useState<string[]>([]);
+  const [loadingSubKeywords, setLoadingSubKeywords] = useState(false);
+
   // API 가용성 확인 (페이지 로드 시)
   useEffect(() => {
     const checkApis = async () => {
@@ -217,13 +221,50 @@ export default function GeneratePage() {
   }, []);
 
 
-  // 카테고리 변경 시 이전 추천 초기화 + 서브키워드 초기화
+  // 카테고리 변경 시 이전 추천 초기화 + 동적 분야 로드
   useEffect(() => {
     setTopicSuggestions([]);
     setTopicFetchError('');
     setShowTopicDropdown(false);
-    setSelectedSubKeyword(''); // 카테고리 변경 시 서브키워드 초기화
-  }, [selectedCategory]);
+    setSelectedSubKeyword('');
+    setDynamicSubKeywords([]);
+
+    // 프로젝트가 선택되어 있으면 동적 분야 로드
+    if (selectedCategory && selectedProject) {
+      loadDynamicSubKeywords(selectedCategory);
+    }
+  }, [selectedCategory, selectedProject]);
+
+  // 동적 분야 생성 (프로젝트 기반)
+  const loadDynamicSubKeywords = async (category: ContentCategory) => {
+    setLoadingSubKeywords(true);
+    try {
+      const headers = getApiHeaders(selectedApi);
+      const res = await fetch('/api/suggest-subkeywords', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers,
+          'X-API-Provider': selectedApi,
+        },
+        body: JSON.stringify({
+          category,
+          projectName: selectedProject?.name,
+          projectDescription: selectedProject?.description,
+          projectFiles: selectedProject?.files,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDynamicSubKeywords(data.subKeywords || []);
+      }
+    } catch (e) {
+      console.error('동적 분야 로드 실패:', e);
+      setDynamicSubKeywords([]);
+    } finally {
+      setLoadingSubKeywords(false);
+    }
+  };
 
   // ==================== AI별 헤더 생성 ====================
   const getApiHeaders = (api: string): Record<string, string> => {
@@ -1284,9 +1325,15 @@ export default function GeneratePage() {
                       <label className="block text-sm font-medium text-gray-700">
                         주제 <span className="text-red-500">*</span>
                       </label>
-                      {selectedCategory && subKeywordsByCategory[selectedCategory]?.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 justify-end">
-                          {subKeywordsByCategory[selectedCategory].map((kw) => (
+                      {selectedCategory && (
+                        <div className="flex flex-wrap gap-1.5 justify-end items-center">
+                          {loadingSubKeywords && (
+                            <span className="text-xs text-blue-500 flex items-center gap-1">
+                              <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                              분야 로딩 중...
+                            </span>
+                          )}
+                          {(dynamicSubKeywords.length > 0 ? dynamicSubKeywords : subKeywordsByCategory[selectedCategory] || []).map((kw) => (
                             <button
                               key={kw}
                               onClick={() => setSelectedSubKeyword(selectedSubKeyword === kw ? '' : kw)}
