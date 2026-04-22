@@ -1697,6 +1697,116 @@ export default function GeneratePage() {
           </>
         )}
 
+        {/* Claude API 키 설정 섹션 - 페이지 하단 */}
+        <div className="mt-12 max-w-2xl mx-auto bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 p-8 shadow-sm">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-slate-400 to-slate-500 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-slate-900">🔐 Claude API 키 설정</h3>
+              <p className="text-sm text-slate-600 mt-1">
+                생성 실패 시 Claude API 키를 등록하여 추가 AI 모델을 사용하세요
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {/* Claude API 키 입력 */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Anthropic Claude API 키
+              </label>
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <input
+                    type="password"
+                    id="claudeKeyInput"
+                    placeholder="sk-ant-... (Claude API 키)"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent font-mono bg-white placeholder-slate-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      const input = (e.currentTarget.previousElementSibling as HTMLInputElement);
+                      input.type = input.type === 'password' ? 'text' : 'password';
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
+                </div>
+                <a
+                  href="https://console.anthropic.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-slate-600 to-slate-700 border border-slate-700 rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all whitespace-nowrap"
+                >
+                  발급받기
+                </a>
+              </div>
+              <p className="text-xs text-slate-500 mt-1.5">
+                ℹ️ <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700">Anthropic Console</a>에서 API 키를 발급받은 후 등록하세요
+              </p>
+            </div>
+
+            {/* 저장 및 삭제 버튼 */}
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => {
+                  const keyInput = document.getElementById('claudeKeyInput') as HTMLInputElement;
+                  if (keyInput?.value.trim()) {
+                    localStorage.setItem('ai_claude_key', keyInput.value.trim());
+                    alert('✅ Claude API 키가 저장되었습니다');
+                    keyInput.value = '';
+                  } else {
+                    alert('❌ API 키를 입력해주세요');
+                  }
+                }}
+                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all"
+              >
+                💾 저장
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('저장된 Claude API 키를 삭제하시겠습니까?')) {
+                    localStorage.removeItem('ai_claude_key');
+                    alert('✅ Claude API 키가 삭제되었습니다');
+                  }
+                }}
+                className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl transition-all"
+              >
+                🗑️ 삭제
+              </button>
+              <button
+                onClick={() => {
+                  const storedKey = localStorage.getItem('ai_claude_key');
+                  if (storedKey) {
+                    alert('✅ Claude API 키가 저장되어 있습니다');
+                  } else {
+                    alert('❌ 저장된 Claude API 키가 없습니다');
+                  }
+                }}
+                className="ml-auto px-5 py-2.5 bg-slate-500 hover:bg-slate-600 text-white text-sm font-semibold rounded-xl transition-all"
+              >
+                ✓ 상태 확인
+              </button>
+            </div>
+          </div>
+
+          {/* 안내 박스 */}
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-800 leading-relaxed">
+              💡 <strong>Claude API 사용:</strong> 생성 과정에서 Gemini 또는 다른 API가 실패할 경우 저장된 Claude API 키를 사용하여 자동으로 재시도합니다.
+            </p>
+          </div>
+        </div>
+
       </main>
 
       <Footer />
