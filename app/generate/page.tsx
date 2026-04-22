@@ -545,7 +545,7 @@ export default function GeneratePage() {
       return '';
     };
 
-    const getApiHeader = (api: string, key: string) => {
+    const getApiHeader = (api: string, key: string): Record<string, string> => {
       if (api === 'gemini') {
         return { 'X-Gemini-Key': key };
       } else if (api === 'claude') {
