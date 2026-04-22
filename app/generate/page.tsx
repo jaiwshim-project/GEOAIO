@@ -145,6 +145,46 @@ export default function GeneratePage() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const profileListRef = useRef<HTMLDivElement>(null);
 
+  // ==================== API 자동 선택 ====================
+  const [availableApis, setAvailableApis] = useState<string[]>([]);
+  const [selectedApi, setSelectedApi] = useState<'gemini' | 'claude' | 'geo-aio'>('gemini');
+
+  // API 가용성 확인 (페이지 로드 시)
+  useEffect(() => {
+    const checkApis = async () => {
+      const available: string[] = [];
+
+      // Gemini 확인
+      const geminiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') : '') || '';
+      if (geminiKey) available.push('gemini');
+
+      // Claude 확인
+      if (typeof window !== 'undefined') {
+        const claudeKey = localStorage.getItem('ai_claude_key') || '';
+        if (claudeKey) available.push('claude');
+      }
+
+      // 서버 환경변수 확인 (Vercel)
+      try {
+        const res = await fetch('/api/ai-status');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.availableModels) {
+            if (data.availableModels.includes('🧠 Claude')) available.push('claude');
+          }
+        }
+      } catch {}
+
+      setAvailableApis(available);
+      if (available.length > 0) {
+        // 우선순위: Gemini > Claude > Geo-AIO
+        if (available.includes('gemini')) setSelectedApi('gemini');
+        else if (available.includes('claude')) setSelectedApi('claude');
+      }
+    };
+
+    checkApis();
+  }, [contextApiKey]);
 
   // 주제 추천 드롭다운
   const [topicSuggestions, setTopicSuggestions] = useState<string[]>([]);
@@ -495,10 +535,42 @@ export default function GeneratePage() {
   const handleGenerate = async () => {
     if (!selectedCategory || !topic.trim()) return;
 
-    // API 키: context → localStorage 순으로 최신값 읽기
-    const apiKey = contextApiKey || localStorage.getItem('geoaio_gemini_key') || '';
+    // ==================== API 자동 선택 로직 ====================
+    const getApiKey = (api: string): string => {
+      if (api === 'gemini') {
+        return contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
+      } else if (api === 'claude') {
+        return typeof window !== 'undefined' ? localStorage.getItem('ai_claude_key') || '' : '';
+      }
+      return '';
+    };
+
+    const getApiHeader = (api: string, key: string) => {
+      if (api === 'gemini') {
+        return { 'X-Gemini-Key': key };
+      } else if (api === 'claude') {
+        return { 'X-Claude-Key': key };
+      }
+      return {};
+    };
+
+    // 사용 가능한 API 목록에서 선택
+    let apiToUse = selectedApi;
+    let apiKey = getApiKey(apiToUse);
+
+    // 선택된 API 키가 없으면 다음 우선순위로
     if (!apiKey) {
-      setError('Gemini API 키가 설정되지 않았습니다.');
+      if (availableApis.includes('gemini')) {
+        apiToUse = 'gemini';
+        apiKey = getApiKey('gemini');
+      } else if (availableApis.includes('claude')) {
+        apiToUse = 'claude';
+        apiKey = getApiKey('claude');
+      }
+    }
+
+    if (!apiKey) {
+      setError('API 키가 설정되지 않았습니다. Gemini 또는 Claude API 키를 등록해주세요.');
       setShowKeyRecovery(true);
       return;
     }
@@ -539,7 +611,11 @@ export default function GeneratePage() {
         toneOptions.map(async (t) => {
           const res = await fetch('/api/generate', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Gemini-Key': apiKey },
+            headers: {
+              'Content-Type': 'application/json',
+              ...getApiHeader(apiToUse, apiKey),
+              'X-API-Provider': apiToUse,
+            },
             body: JSON.stringify({
               category: selectedCategory,
               topic: topic.trim(),
@@ -1427,6 +1503,45 @@ export default function GeneratePage() {
                       </div>
                     )}
                   </div>
+
+                  {/* AI API 상태 표시 */}
+                  {availableApis.length > 0 && (
+                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-gray-900">🤖 사용 가능한 AI</span>
+                        <span className="text-xs font-bold text-emerald-600">{availableApis.length}개 활성</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {availableApis.includes('gemini') && (
+                          <button
+                            onClick={() => setSelectedApi('gemini')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                              selectedApi === 'gemini'
+                                ? 'bg-blue-500 text-white shadow-sm'
+                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                            }`}
+                          >
+                            🌐 Gemini
+                          </button>
+                        )}
+                        {availableApis.includes('claude') && (
+                          <button
+                            onClick={() => setSelectedApi('claude')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                              selectedApi === 'claude'
+                                ? 'bg-slate-600 text-white shadow-sm'
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            }`}
+                          >
+                            🧠 Claude
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 mt-2">
+                        💡 선택한 AI로 생성합니다. 실패 시 다른 AI로 자동 재시도됩니다.
+                      </p>
+                    </div>
+                  )}
 
                   {/* 생성 버튼 */}
                   <button
