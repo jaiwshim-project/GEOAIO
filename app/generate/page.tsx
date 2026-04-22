@@ -177,9 +177,9 @@ export default function GeneratePage() {
 
       setAvailableApis(available);
       if (available.length > 0) {
-        // 우선순위: Gemini > Claude > Geo-AIO
-        if (available.includes('gemini')) setSelectedApi('gemini');
-        else if (available.includes('claude')) setSelectedApi('claude');
+        // 우선순위: Claude > Gemini > Geo-AIO (Claude를 디폴트로)
+        if (available.includes('claude')) setSelectedApi('claude');
+        else if (available.includes('gemini')) setSelectedApi('gemini');
       }
     };
 
@@ -572,18 +572,18 @@ export default function GeneratePage() {
       return {};
     };
 
-    // 사용 가능한 API 목록에서 선택
+    // 사용 가능한 API 목록에서 선택 (우선순위: Claude > Gemini > Geo-AIO)
     let apiToUse = selectedApi;
     let apiKey = getApiKey(apiToUse);
 
     // 선택된 API 키가 없으면 다음 우선순위로
     if (!apiKey) {
-      if (availableApis.includes('gemini')) {
-        apiToUse = 'gemini';
-        apiKey = getApiKey('gemini');
-      } else if (availableApis.includes('claude')) {
+      if (availableApis.includes('claude')) {
         apiToUse = 'claude';
         apiKey = getApiKey('claude');
+      } else if (availableApis.includes('gemini')) {
+        apiToUse = 'gemini';
+        apiKey = getApiKey('gemini');
       }
     }
 

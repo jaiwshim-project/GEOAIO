@@ -8,16 +8,27 @@ export async function POST(req: NextRequest) {
     const { topic, category, categoryLabel } = await req.json();
     if (!topic) return NextResponse.json({ error: 'topic 필요' }, { status: 400 });
 
-    // API 제공자 결정
-    const apiProvider = req.headers.get('X-API-Provider') || 'gemini';
+    // API 제공자 결정 (기본값: claude, 우선순위: Claude > Gemini)
+    const apiProvider = req.headers.get('X-API-Provider') || 'claude';
     let apiKey: string | undefined;
+    let selectedProvider = apiProvider;
 
     if (apiProvider === 'claude') {
       apiKey = getClaudeKey(req);
-      if (!apiKey) return NextResponse.json({ error: 'Claude API 키가 설정되지 않았습니다.' }, { status: 500 });
+      if (!apiKey) {
+        // Claude 키가 없으면 Gemini로 자동 전환
+        apiKey = getGeminiKey(req);
+        if (!apiKey) return NextResponse.json({ error: 'Claude/Gemini API 키가 설정되지 않았습니다.' }, { status: 500 });
+        selectedProvider = 'gemini';
+      }
     } else {
       apiKey = getGeminiKey(req);
-      if (!apiKey) return NextResponse.json({ error: 'Gemini API 키가 설정되지 않았습니다. /settings 페이지에서 API 키를 등록해주세요.' }, { status: 500 });
+      if (!apiKey) {
+        // Gemini 키가 없으면 Claude로 자동 전환
+        apiKey = getClaudeKey(req);
+        if (!apiKey) return NextResponse.json({ error: 'Gemini/Claude API 키가 설정되지 않았습니다.' }, { status: 500 });
+        selectedProvider = 'claude';
+      }
     }
 
     const prompt = `당신은 SEO 전문가입니다.
@@ -36,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     let text = '';
 
-    if (apiProvider === 'claude') {
+    if (selectedProvider === 'claude') {
       // Claude API 사용
       const client = new Anthropic({ apiKey });
       const message = await client.messages.create({
@@ -65,8 +76,12 @@ export async function POST(req: NextRequest) {
   } catch (e: unknown) {
     console.error('suggest-keywords error:', e);
     const msg = e instanceof Error ? e.message : String(e);
-    const apiProvider = (req as unknown as { headers: { get: (key: string) => string | null } }).headers.get('X-API-Provider') || 'gemini';
-    const apiName = apiProvider === 'claude' ? 'Claude' : 'Gemini';
+
+    // 에러 메시지로부터 사용된 API 판단
+    let usedApi = 'unknown';
+    if (msg.includes('Claude') || msg.includes('CLAUDE')) usedApi = 'Claude';
+    else if (msg.includes('Gemini') || msg.includes('GEMINI') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) usedApi = 'Gemini';
+    const apiName = usedApi === 'Claude' ? 'Claude' : usedApi === 'Gemini' ? 'Gemini' : 'AI';
 
     if (msg.includes('API_KEY') || msg.includes('api key') || msg.includes('invalid') || msg.includes('401')) {
       return NextResponse.json({ error: `${apiName} API 키가 유효하지 않습니다.` }, { status: 401 });
