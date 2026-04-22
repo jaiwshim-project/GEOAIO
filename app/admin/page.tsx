@@ -79,10 +79,17 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingName, setEditingName] = useState<string | null>(null);
   const [editNameValue, setEditNameValue] = useState('');
-  const [activeTab, setActiveTab] = useState<'users' | 'subscriptions' | 'contents'>('subscriptions');
+  const [activeTab, setActiveTab] = useState<'users' | 'subscriptions' | 'contents' | 'api-keys'>('subscriptions');
   const [adminPassword, setAdminPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordChecking, setPasswordChecking] = useState(false);
+
+  // API 키 관리
+  const [geminApiKey, setGeminApiKey] = useState('');
+  const [claudeApiKey, setClaudeApiKey] = useState('');
+  const [geoAioApiKey, setGeoAioApiKey] = useState('');
+  const [apiKeySaving, setApiKeySaving] = useState(false);
+  const [apiKeyMessage, setApiKeyMessage] = useState('');
 
   // 프로젝트 집계 (등급 관리 탭 + 콘텐츠 현황 탭 공용)
   type AdminProject = { id: string; user_id: string; name: string; description: string | null; created_at: string; content_count: number };
@@ -545,6 +552,16 @@ export default function AdminPage() {
             }`}
           >
             콘텐츠 현황
+          </button>
+          <button
+            onClick={() => setActiveTab('api-keys')}
+            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all ${
+              activeTab === 'api-keys'
+                ? 'bg-white text-amber-700 border-t-amber-500 border-l-gray-300 border-r-gray-300 border-b-0 z-10 -mb-px'
+                : 'bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700'
+            }`}
+          >
+            🔑 API 키 관리
           </button>
           <Link
             href="/admin/stats"
@@ -1032,6 +1049,158 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'api-keys' && (
+          <div className="max-w-3xl">
+            <div className="bg-white rounded-2xl shadow-sm border border-amber-200 p-6 mb-6">
+              <h3 className="text-lg font-bold text-amber-900 mb-4 flex items-center gap-2">
+                <span className="text-2xl">🔑</span>
+                AI API 키 관리
+              </h3>
+              <p className="text-sm text-gray-600 mb-6">
+                각 AI 제공자의 API 키를 등록하세요. Vercel 환경변수 또는 로컬 저장소에 저장됩니다.
+              </p>
+
+              {apiKeyMessage && (
+                <div className={`mb-4 p-3 rounded-lg ${apiKeyMessage.includes('✅') ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                  <p className="text-sm font-medium">{apiKeyMessage}</p>
+                </div>
+              )}
+
+              <div className="space-y-4 mb-6">
+                {/* Google Gemini */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    🌐 Google Gemini API 키
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="password"
+                      value={geminApiKey}
+                      onChange={(e) => setGeminApiKey(e.target.value)}
+                      placeholder="AIzaSy... (Gemini API 키)"
+                      className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                    />
+                    <a
+                      href="https://aistudio.google.com/app/apikey"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all"
+                    >
+                      발급받기
+                    </a>
+                  </div>
+                </div>
+
+                {/* Claude API */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    🧠 Claude API 키
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="password"
+                      value={claudeApiKey}
+                      onChange={(e) => setClaudeApiKey(e.target.value)}
+                      placeholder="sk-ant-... (Claude API 키)"
+                      className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                    />
+                    <a
+                      href="https://console.anthropic.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all"
+                    >
+                      발급받기
+                    </a>
+                  </div>
+                </div>
+
+                {/* Geo-AIO API */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    ⚡ Geo-AIO API 키
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="password"
+                      value={geoAioApiKey}
+                      onChange={(e) => setGeoAioApiKey(e.target.value)}
+                      placeholder="Geo-AIO API 키"
+                      className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                    />
+                    <a
+                      href="https://www.geo-aio.com/generate"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all"
+                    >
+                      발급받기
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    setApiKeySaving(true);
+                    setApiKeyMessage('');
+                    try {
+                      // localStorage에 저장
+                      const keys = { gemini: geminApiKey, claude: claudeApiKey, geoAio: geoAioApiKey };
+                      localStorage.setItem('ai_keys_v1', JSON.stringify(keys));
+                      setApiKeyMessage('✅ API 키가 로컬 저장소에 저장되었습니다');
+                    } catch (e) {
+                      setApiKeyMessage(`❌ 저장 실패: ${e instanceof Error ? e.message : '오류 발생'}`);
+                    } finally {
+                      setApiKeySaving(false);
+                    }
+                  }}
+                  disabled={apiKeySaving || (!geminApiKey && !claudeApiKey && !geoAioApiKey)}
+                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-all"
+                >
+                  {apiKeySaving ? '저장 중...' : '💾 로컬 저장'}
+                </button>
+                <button
+                  onClick={async () => {
+                    if (confirm('저장된 모든 API 키를 삭제하시겠습니까?')) {
+                      localStorage.removeItem('ai_keys_v1');
+                      setGeminApiKey('');
+                      setClaudeApiKey('');
+                      setGeoAioApiKey('');
+                      setApiKeyMessage('✅ API 키가 삭제되었습니다');
+                    }
+                  }}
+                  className="px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-all"
+                >
+                  🗑️ 삭제
+                </button>
+              </div>
+            </div>
+
+            {/* Vercel 환경변수 안내 */}
+            <div className="bg-blue-50 rounded-2xl border border-blue-200 p-6">
+              <h4 className="text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2z" clipRule="evenodd" />
+                </svg>
+                Vercel 배포 환경변수 설정
+              </h4>
+              <p className="text-sm text-blue-700 mb-3">
+                배포된 애플리케이션에서 API 키를 사용하려면 Vercel CLI를 통해 환경변수를 등록하세요:
+              </p>
+              <div className="bg-blue-900 text-blue-100 rounded-lg p-3 text-xs font-mono space-y-2 mb-3">
+                <div>vercel env add GEMINI_API_KEY</div>
+                <div>vercel env add CLAUDE_API_KEY</div>
+                <div>vercel env add GEO_AIO_API_KEY</div>
+              </div>
+              <p className="text-xs text-blue-600">
+                또는 <a href="https://vercel.com/dashboard" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Vercel 대시보드</a>에서 직접 설정할 수 있습니다.
+              </p>
             </div>
           </div>
         )}
