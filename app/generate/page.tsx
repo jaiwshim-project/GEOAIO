@@ -285,7 +285,7 @@ export default function GeneratePage() {
     setLoadingTopics(false);
   };
 
-  // 주제 선택/변경 시 키워드 추천
+  // 주제 선택/변경 시 키워드 추천 + 자동 선택
   const fetchKeywordSuggestions = async (topicValue: string) => {
     if (!topicValue.trim() || !selectedCategory) return;
     setLoadingKeywords(true);
@@ -303,7 +303,16 @@ export default function GeneratePage() {
         body: JSON.stringify({ topic: topicValue, category: selectedCategory, categoryLabel: catLabel }),
       });
       const data = await res.json();
-      setKeywordSuggestions(data.keywords || []);
+      const keywords = data.keywords || [];
+      setKeywordSuggestions(keywords);
+
+      // 자동으로 상위 2-3개 키워드 선택
+      if (keywords.length > 0) {
+        const autoSelectedCount = Math.min(3, keywords.length); // 최대 3개
+        const autoSelected = keywords.slice(0, autoSelectedCount);
+        setSelectedKeywords(autoSelected);
+        setTargetKeyword(autoSelected.join(', '));
+      }
     } catch {}
     setLoadingKeywords(false);
   };
