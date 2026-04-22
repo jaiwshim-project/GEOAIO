@@ -37,13 +37,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 프로젝트 파일 정보
-    const filesSection = projectFiles?.length
-      ? `\n\n[프로젝트 파일]\n${(projectFiles as { file_name: string; content: string }[])
-          .slice(0, 2)
-          .map(f => `▶ ${f.file_name}\n${(f.content || '').slice(0, 500)}`)
-          .join('\n\n')}`
-      : '';
+    // 프로젝트 파일 정보 (선택사항)
+    const filesSection = '';
 
     // 비즈니스 정보 (보조)
     const businessSection = businessInfo?.industry || businessInfo?.mainProduct
@@ -56,15 +51,13 @@ export async function POST(req: NextRequest) {
 
     const prompt = `당신은 콘텐츠 기획 전문가입니다.
 
-다음 프로젝트를 분석하고, ${category} 콘텐츠 카테고리에서 사용할 수 있는 세부 분야/주제를 추천하세요.
+"${projectName}"라는 프로젝트에서 ${category} 콘텐츠를 생성할 때 사용할 수 있는 세부 분야/주제 5개를 추천해주세요.
+${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${businessSection}
 
-[프로젝트명]: ${projectName}
-[프로젝트 설명]: ${projectDescription || '상세 설명 없음'}${filesSection}${businessSection}
+⭐️ 반드시 "${projectName}"의 특성을 최우선으로 반영하세요.
+각 분야는 1~3단어로 작성하세요.
 
-⭐️ 프로젝트명 "${projectName}"을 최우선으로 고려하여, 이 프로젝트에 가장 적합한 5개의 세부 분야를 추천하세요.
-각 분야는 1~3단어의 구체적인 용어여야 합니다.
-
-반드시 아래 형식으로만 응답하세요 (번호와 분야명만):
+형식 (번호와 분야명만):
 1. 분야1
 2. 분야2
 3. 분야3

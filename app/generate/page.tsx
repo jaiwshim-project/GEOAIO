@@ -251,7 +251,7 @@ export default function GeneratePage() {
         category,
         projectName: selectedProject.name,
         projectDescription: selectedProject.description || '',
-        projectFiles: selectedProject.files || [],
+        projectFiles: [], // files는 선택사항이므로 제외
         businessInfo: businessInfo ? {
           industry: businessInfo.industry || businessInfo.customIndustry || '',
           mainProduct: businessInfo.mainProduct || '',
