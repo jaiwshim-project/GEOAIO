@@ -65,22 +65,70 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
 5. 분야5`;
 
     let text = '';
+    let lastError: Error | null = null;
 
+    // Claude 우선, 실패 시 Gemini 폴백
     if (selectedProvider === 'claude') {
-      const client = new Anthropic({ apiKey });
-      const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 512,
-        messages: [{ role: 'user', content: prompt }],
-      });
-      text = message.content[0].type === 'text' ? message.content[0].text : '';
+      try {
+        const client = new Anthropic({ apiKey });
+        const message = await client.messages.create({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 512,
+          messages: [{ role: 'user', content: prompt }],
+        });
+        text = message.content[0].type === 'text' ? message.content[0].text : '';
+      } catch (claudeError: unknown) {
+        lastError = claudeError instanceof Error ? claudeError : new Error(String(claudeError));
+        console.log('[API] Claude 실패, Gemini로 폴백:', lastError.message);
+
+        // Claude 실패 → Gemini로 자동 전환
+        try {
+          const geminiKey = getGeminiKey(req);
+          if (!geminiKey) throw new Error('Gemini API 키 없음');
+
+          const ai = new GoogleGenAI({ apiKey: geminiKey });
+          const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: prompt,
+          });
+          text = response.text || '';
+          console.log('[API] Gemini 성공');
+        } catch (geminiError: unknown) {
+          console.error('[API] Gemini도 실패:', geminiError);
+          throw lastError; // 원래 Claude 에러 반환
+        }
+      }
     } else {
-      const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
-        contents: prompt,
-      });
-      text = response.text || '';
+      // Gemini 우선, 실패 시 Claude 폴백
+      try {
+        const ai = new GoogleGenAI({ apiKey });
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.0-flash',
+          contents: prompt,
+        });
+        text = response.text || '';
+      } catch (geminiError: unknown) {
+        lastError = geminiError instanceof Error ? geminiError : new Error(String(geminiError));
+        console.log('[API] Gemini 실패, Claude로 폴백:', lastError.message);
+
+        // Gemini 실패 → Claude로 자동 전환
+        try {
+          const claudeKey = getClaudeKey(req);
+          if (!claudeKey) throw new Error('Claude API 키 없음');
+
+          const client = new Anthropic({ apiKey: claudeKey });
+          const message = await client.messages.create({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 512,
+            messages: [{ role: 'user', content: prompt }],
+          });
+          text = message.content[0].type === 'text' ? message.content[0].text : '';
+          console.log('[API] Claude 성공');
+        } catch (claudeError: unknown) {
+          console.error('[API] Claude도 실패:', claudeError);
+          throw lastError; // 원래 Gemini 에러 반환
+        }
+      }
     }
 
     const subKeywords = text
