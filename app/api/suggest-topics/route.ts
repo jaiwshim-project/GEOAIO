@@ -88,6 +88,7 @@ ${pastList ? `\n이미 작성된 주제와 겹치지 않아야 합니다:${pastL
   } catch (e: unknown) {
     console.error('suggest-topics error:', e);
     const msg = e instanceof Error ? e.message : String(e);
+    const apiProvider = req.headers.get('X-API-Provider') || 'gemini';
     const apiName = apiProvider === 'claude' ? 'Claude' : 'Gemini';
 
     if (msg.includes('API_KEY') || msg.includes('api key') || msg.includes('invalid') || msg.includes('401')) {
