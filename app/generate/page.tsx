@@ -80,6 +80,18 @@ const categories: { id: ContentCategory; label: string; description: string; ico
   },
 ];
 
+// ==================== 카테고리별 서브키워드 ====================
+const subKeywordsByCategory: Record<ContentCategory, string[]> = {
+  blog: ['일반 블로그', '뷰티', '푸드', '여행', '라이프스타일', '기술', '금융', '건강'],
+  product: ['의료 제품', '화장품', '패션', '전자제품', '식품', '가구', '서비스'],
+  faq: ['일반 FAQ', '기술 지원', '고객 서비스', '제품 사용법', '결제/배송', '회원 관리'],
+  howto: ['일상 가이드', '요리 레시피', 'DIY', '기술 튜토리얼', '운동/피트니스', '학습'],
+  landing: ['SaaS', 'E-commerce', '서비스', '구독형', '모바일 앱', '교육'],
+  technical: ['API 문서', '시스템 설계', '개발 가이드', '운영 매뉴얼', '보안 가이드'],
+  social: ['인스타그램', '페이스북', '유튜브', '틱톡', '링크드인', '트위터'],
+  email: ['뉴스레터', '프로모션', '고객 유지', '이벤트 안내', '제품 소개'],
+};
+
 const toneOptions = [
   { value: '전문적이고 신뢰감 있는', label: '전문적' },
   { value: '친근하고 대화체의', label: '친근한' },
@@ -99,6 +111,7 @@ export default function GeneratePage() {
   // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
   const geminiApiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
+  const [selectedSubKeyword, setSelectedSubKeyword] = useState<string>('');
   const [topic, setTopic] = useState('');
   const [targetKeyword, setTargetKeyword] = useState('');
   const [tone, setTone] = useState('전문적이고 신뢰감 있는');
@@ -204,11 +217,12 @@ export default function GeneratePage() {
   }, []);
 
 
-  // 카테고리 변경 시 이전 추천 초기화
+  // 카테고리 변경 시 이전 추천 초기화 + 서브키워드 초기화
   useEffect(() => {
     setTopicSuggestions([]);
     setTopicFetchError('');
     setShowTopicDropdown(false);
+    setSelectedSubKeyword(''); // 카테고리 변경 시 서브키워드 초기화
   }, [selectedCategory]);
 
   // ==================== AI별 헤더 생성 ====================
@@ -270,6 +284,7 @@ export default function GeneratePage() {
           projectDescription: activeProject?.description,
           projectFiles,
           inputTopic: inputTopic || '',
+          subKeyword: selectedSubKeyword || undefined,
         }),
       });
       const data = await res.json();
@@ -1265,9 +1280,33 @@ export default function GeneratePage() {
                 <div className="space-y-3">
                   {/* 주제 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      주제 <span className="text-red-500">*</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-medium text-gray-700">
+                        주제 <span className="text-red-500">*</span>
+                      </label>
+                      {selectedCategory && subKeywordsByCategory[selectedCategory]?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 justify-end">
+                          {subKeywordsByCategory[selectedCategory].map((kw) => (
+                            <button
+                              key={kw}
+                              onClick={() => setSelectedSubKeyword(selectedSubKeyword === kw ? '' : kw)}
+                              className={`px-2.5 py-1 text-xs font-semibold rounded-full transition-all ${
+                                selectedSubKeyword === kw
+                                  ? 'bg-blue-600 text-white shadow-sm'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                              }`}
+                            >
+                              {kw}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {selectedSubKeyword && (
+                      <p className="text-xs text-blue-600 mb-2 font-medium">
+                        📌 선택됨: <strong>{selectedSubKeyword}</strong> (이것을 기반으로 주제가 추천됩니다)
+                      </p>
+                    )}
                     <input
                       type="text"
                       value={topic}

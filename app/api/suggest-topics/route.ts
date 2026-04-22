@@ -5,7 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(req: NextRequest) {
   try {
-    const { category, categoryLabel, pastTopics, projectName, projectDescription, projectFiles, inputTopic } = await req.json();
+    const { category, categoryLabel, pastTopics, projectName, projectDescription, projectFiles, inputTopic, subKeyword } = await req.json();
     if (!category) return NextResponse.json({ error: 'category 필요' }, { status: 400 });
 
     // API 제공자 결정 (기본값: claude, 우선순위: Claude > Gemini)
@@ -51,13 +51,17 @@ export async function POST(req: NextRequest) {
 ⚠️ 사용자가 위 주제를 입력했습니다. 이 주제를 기반으로 관련된 세부 주제, 확장 주제, 또는 유사한 주제 5개를 추천하세요. 입력된 주제와 직접적으로 관련이 있어야 합니다.`
       : '';
 
+    const subKeywordSection = subKeyword
+      ? `\n\n[선택된 분야]: ${subKeyword}\n⚠️ 추천하는 모든 주제는 "${subKeyword}" 분야에 특화되어야 합니다. 이 분야를 기반으로만 주제를 제안하세요.`
+      : '';
+
     const prompt = `당신은 콘텐츠 기획 전문가입니다.
 
-${projectSection}${filesSection}${inputTopicSection}
+${projectSection}${filesSection}${inputTopicSection}${subKeywordSection}
 
 ${inputTopic?.trim()
   ? `"${inputTopic.trim()}" 주제를 기반으로 관련 ${categoryLabel || category} 콘텐츠 주제 5개를 추천하세요. 입력 주제의 세부 주제, 확장 주제, 다른 각도의 접근 등 다양하게 제안해주세요.`
-  : `위 카테고리(${projectName || categoryLabel || category})에 관한 ${categoryLabel || category} 콘텐츠 주제 5개를 추천하세요.`}
+  : `위 카테고리(${projectName || categoryLabel || category})${subKeyword ? ` - ${subKeyword} 분야` : ''}에 관한 ${categoryLabel || category} 콘텐츠 주제 5개를 추천하세요.`}
 ${projectName ? `⚠️ 반드시 "${projectName}"과 직접 관련된 주제만 작성하세요. 관련 없는 주제는 절대 포함하지 마세요.` : ''}
 ${pastList ? `\n이미 작성된 주제와 겹치지 않아야 합니다:${pastList}` : ''}
 
