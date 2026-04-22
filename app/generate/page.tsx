@@ -211,6 +211,16 @@ export default function GeneratePage() {
     setShowTopicDropdown(false);
   }, [selectedCategory]);
 
+  // ==================== AI별 헤더 생성 ====================
+  const getApiHeaders = (api: string): Record<string, string> => {
+    if (api === 'gemini') {
+      return { 'X-Gemini-Key': contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '') };
+    } else if (api === 'claude') {
+      return { 'X-Claude-Key': typeof window !== 'undefined' ? localStorage.getItem('ai_claude_key') || '' : '' };
+    }
+    return {};
+  };
+
   // 주제 추천 fetch (버튼 클릭 시 호출)
   const fetchTopicSuggestions = async (cat: string, inputTopic?: string) => {
     if (loadingTopics) return;
@@ -247,7 +257,11 @@ export default function GeneratePage() {
     try {
       const res = await fetch('/api/suggest-topics', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...({ 'X-Gemini-Key': contextApiKey || localStorage.getItem('geoaio_gemini_key') || '' }) },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getApiHeaders(selectedApi),
+          'X-API-Provider': selectedApi,
+        },
         body: JSON.stringify({
           category: cat,
           categoryLabel: catLabel,
@@ -281,7 +295,11 @@ export default function GeneratePage() {
     try {
       const res = await fetch('/api/suggest-keywords', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...({ 'X-Gemini-Key': contextApiKey || localStorage.getItem('geoaio_gemini_key') || '' }) },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getApiHeaders(selectedApi),
+          'X-API-Provider': selectedApi,
+        },
         body: JSON.stringify({ topic: topicValue, category: selectedCategory, categoryLabel: catLabel }),
       });
       const data = await res.json();
@@ -1268,15 +1286,24 @@ export default function GeneratePage() {
                       }}
                       className={`mt-1.5 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all ${
                         showTopicDropdown
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'
+                          ? selectedApi === 'claude'
+                            ? 'bg-slate-600 text-white border-slate-600'
+                            : 'bg-blue-600 text-white border-blue-600'
+                          : selectedApi === 'claude'
+                            ? 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                            : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'
                       }`}
                     >
                       {loadingTopics
                         ? <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                         : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                       }
-                      {loadingTopics ? 'AI 주제 생성 중...' : showTopicDropdown ? '주제 추천 닫기' : '✨ AI 주제 추천받기'}
+                      {loadingTopics
+                        ? 'AI 주제 생성 중...'
+                        : showTopicDropdown
+                          ? '주제 추천 닫기'
+                          : `✨ ${selectedApi === 'claude' ? '🧠 Claude' : '🌐 Gemini'}로 주제 추천받기`
+                      }
                     </button>
 
                     {/* 추천 주제 패널 (일반 흐름, absolute 아님) */}
@@ -1299,10 +1326,18 @@ export default function GeneratePage() {
                           </div>
                         ) : (
                           <ul className="py-1">
-                            <li className="px-3 py-1.5 text-xs text-blue-500 font-semibold bg-blue-50 border-b border-blue-100 flex items-center justify-between">
-                              <span>✨ AI 추천 주제 (클릭하면 입력됩니다)</span>
+                            <li className={`px-3 py-1.5 text-xs font-semibold border-b flex items-center justify-between ${
+                              selectedApi === 'claude'
+                                ? 'text-slate-600 bg-slate-50 border-slate-100'
+                                : 'text-blue-500 bg-blue-50 border-blue-100'
+                            }`}>
+                              <span>✨ {selectedApi === 'claude' ? '🧠 Claude' : '🌐 Gemini'} 추천 주제 (클릭하면 입력됩니다)</span>
                               <button type="button" onClick={() => selectedCategory && fetchTopicSuggestions(selectedCategory, topic.trim() || undefined)}
-                                className="text-blue-400 hover:text-blue-600 transition-colors text-base" title="새로 추천">↺</button>
+                                className={`transition-colors text-base ${
+                                  selectedApi === 'claude'
+                                    ? 'text-slate-400 hover:text-slate-600'
+                                    : 'text-blue-400 hover:text-blue-600'
+                                }`} title="새로 추천">↺</button>
                             </li>
                             {topicSuggestions.map((s, i) => (
                               <li key={i}>
