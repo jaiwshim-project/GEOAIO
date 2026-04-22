@@ -6,10 +6,13 @@ import Anthropic from '@anthropic-ai/sdk';
 export async function POST(req: NextRequest) {
   try {
     const { category, projectName, projectDescription, projectFiles, businessInfo } = await req.json();
+    console.log('[API] suggest-subkeywords 요청:', { category, projectName });
+
     if (!category) return NextResponse.json({ error: 'category 필요' }, { status: 400 });
 
     // 프로젝트 정보가 없으면 기본값 반환
     if (!projectName) {
+      console.log('[API] 프로젝트명 없음, 기본값 반환');
       return NextResponse.json({ subKeywords: [] }, { status: 200 });
     }
 
@@ -93,10 +96,11 @@ export async function POST(req: NextRequest) {
       .filter(line => line.length > 0)
       .slice(0, 5);
 
+    console.log('[API] 생성된 분야:', subKeywords);
     return NextResponse.json({ subKeywords });
   } catch (e: unknown) {
-    console.error('suggest-subkeywords error:', e);
     const msg = e instanceof Error ? e.message : String(e);
+    console.error('[API] suggest-subkeywords 에러:', msg, e);
     return NextResponse.json({ error: msg || '오류가 발생했습니다.', subKeywords: [] }, { status: 500 });
   }
 }

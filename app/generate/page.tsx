@@ -237,9 +237,32 @@ export default function GeneratePage() {
 
   // 동적 분야 생성 (프로젝트 중심 + 비즈니스 정보 보조)
   const loadDynamicSubKeywords = async (category: ContentCategory) => {
+    if (!selectedProject?.name) {
+      console.log('[분야] 프로젝트 정보 없음');
+      return;
+    }
+
     setLoadingSubKeywords(true);
+    console.log('[분야] 로드 시작:', { projectName: selectedProject.name, category });
+
     try {
       const headers = getApiHeaders(selectedApi);
+      const payload = {
+        category,
+        projectName: selectedProject.name,
+        projectDescription: selectedProject.description || '',
+        projectFiles: selectedProject.files || [],
+        businessInfo: businessInfo ? {
+          industry: businessInfo.industry || businessInfo.customIndustry || '',
+          mainProduct: businessInfo.mainProduct || '',
+          mainBenefit: businessInfo.mainBenefit || '',
+          targetAudience: businessInfo.targetAudience || '',
+        } : {},
+      };
+
+      console.log('[분야] 요청 페이로드:', payload);
+      console.log('[분야] 요청 헤더:', { ...headers, 'X-API-Provider': selectedApi });
+
       const res = await fetch('/api/suggest-subkeywords', {
         method: 'POST',
         headers: {
@@ -247,26 +270,22 @@ export default function GeneratePage() {
           ...headers,
           'X-API-Provider': selectedApi,
         },
-        body: JSON.stringify({
-          category,
-          projectName: selectedProject?.name,
-          projectDescription: selectedProject?.description,
-          projectFiles: selectedProject?.files,
-          // 비즈니스 정보는 보조 참고
-          businessInfo: {
-            industry: businessInfo.industry || businessInfo.customIndustry,
-            mainProduct: businessInfo.mainProduct,
-            mainBenefit: businessInfo.mainBenefit,
-            targetAudience: businessInfo.targetAudience,
-          },
-        }),
+        body: JSON.stringify(payload),
       });
+
+      console.log('[분야] 응답 상태:', res.status, res.statusText);
+
       if (res.ok) {
         const data = await res.json();
+        console.log('[분야] 응답 데이터:', data);
         setDynamicSubKeywords(data.subKeywords || []);
+      } else {
+        const errorText = await res.text();
+        console.error('[분야] API 에러:', res.status, errorText);
+        setDynamicSubKeywords([]);
       }
     } catch (e) {
-      console.error('동적 분야 로드 실패:', e);
+      console.error('[분야] 예외 발생:', e);
       setDynamicSubKeywords([]);
     } finally {
       setLoadingSubKeywords(false);
