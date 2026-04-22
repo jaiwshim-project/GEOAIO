@@ -722,33 +722,43 @@ export default function GeneratePage() {
         } catch {}
       }
 
-      // 10가지 톤으로 동시 생성
-      const results = await Promise.all(
-        toneOptions.map(async (t) => {
-          const res = await fetch('/api/generate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...getApiHeader(apiToUse, apiKey),
-              'X-API-Provider': apiToUse,
-            },
-            body: JSON.stringify({
-              category: selectedCategory,
-              topic: topic.trim(),
-              targetKeyword: targetKeyword.trim() || undefined,
-              subKeyword: selectedSubKeyword || undefined,
-              tone: t.value,
-              additionalNotes: notes,
-              company_name: activeProjectInfo?.company_name || undefined,
-              representative_name: activeProjectInfo?.representative_name || undefined,
-              region: activeProjectInfo?.region || undefined,
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(`[${t.label}] ${data.error || `HTTP ${res.status}`}`);
-          return { ...data, toneName: t.label, toneValue: t.value };
-        })
-      );
+      // 10가지 톤을 배치로 생성 (3개씩, 레이트 제한 회피)
+      const results: any[] = [];
+      const batchSize = 3;
+      for (let i = 0; i < toneOptions.length; i += batchSize) {
+        const batch = toneOptions.slice(i, i + batchSize);
+        const batchResults = await Promise.all(
+          batch.map(async (t) => {
+            const res = await fetch('/api/generate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...getApiHeader(apiToUse, apiKey),
+                'X-API-Provider': apiToUse,
+              },
+              body: JSON.stringify({
+                category: selectedCategory,
+                topic: topic.trim(),
+                targetKeyword: targetKeyword.trim() || undefined,
+                subKeyword: selectedSubKeyword || undefined,
+                tone: t.value,
+                additionalNotes: notes,
+                company_name: activeProjectInfo?.company_name || undefined,
+                representative_name: activeProjectInfo?.representative_name || undefined,
+                region: activeProjectInfo?.region || undefined,
+              }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(`[${t.label}] ${data.error || `HTTP ${res.status}`}`);
+            return { ...data, toneName: t.label, toneValue: t.value };
+          })
+        );
+        results.push(...batchResults);
+        // 다음 배치 전에 500ms 딜레이 (마지막 배치 제외)
+        if (i + batchSize < toneOptions.length) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
       // 사용량 기록 (커스텀 사용자 시스템)
       if (currentUser) {
         fetch('/api/usage-count', {
