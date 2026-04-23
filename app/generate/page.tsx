@@ -717,13 +717,23 @@ export default function GeneratePage() {
       saveBusinessInfo();
       const notes = buildAdditionalNotes();
 
-      // 선택된 프로젝트의 업체 정보
+      // 선택된 프로젝트의 업체 정보 (+ 비즈니스 정보 fallback)
       let activeProjectInfo = selectedProject;
       if (!activeProjectInfo) {
         try {
           const stored = sessionStorage.getItem('geoaio_project');
           if (stored) activeProjectInfo = JSON.parse(stored);
         } catch {}
+      }
+
+      // 업체 정보가 없으면 비즈니스 정보에서 가져오기 (항상 포함되도록)
+      if (!activeProjectInfo?.company_name && businessInfo?.industry) {
+        activeProjectInfo = {
+          ...activeProjectInfo,
+          company_name: businessInfo.industry || '(회사명)',
+          representative_name: businessInfo.mainProduct || '(원장/대표명)',
+          region: businessInfo.targetAudience || '',
+        };
       }
 
       // 10가지 톤을 배치로 생성 (3개씩, 레이트 제한 회피)
