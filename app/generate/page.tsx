@@ -166,6 +166,9 @@ export default function GeneratePage() {
   const [dynamicSubKeywords, setDynamicSubKeywords] = useState<string[]>([]);
   const [loadingSubKeywords, setLoadingSubKeywords] = useState(false);
 
+  // ==================== 톤 생성 진행 상황 ====================
+  const [toneProgress, setToneProgress] = useState(0);
+
   // API 가용성 확인 (페이지 로드 시)
   useEffect(() => {
     const checkApis = async () => {
@@ -694,6 +697,7 @@ export default function GeneratePage() {
     setIsGenerating(true);
     setError(null);
     setShowKeyRecovery(false);
+    setToneProgress(0);
 
     try {
       // 사용량 체크 (커스텀 사용자 시스템: usage-summary API 사용)
@@ -754,6 +758,11 @@ export default function GeneratePage() {
           })
         );
         results.push(...batchResults);
+
+        // 배치 완료 후 진행 상황 업데이트
+        const completedCount = Math.min(i + batchSize, toneOptions.length);
+        setToneProgress(completedCount);
+
         // 다음 배치 전에 500ms 딜레이 (마지막 배치 제외)
         if (i + batchSize < toneOptions.length) {
           await new Promise(resolve => setTimeout(resolve, 500));
@@ -1729,7 +1738,7 @@ export default function GeneratePage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        10가지 톤 콘텐츠 생성 중...
+                        {toneProgress > 0 ? `콘텐츠 생성 중... ${toneProgress}/10` : '10가지 톤 콘텐츠 생성 중...'}
                       </>
                     ) : (
                       <>
