@@ -109,7 +109,7 @@ export default function GeneratePage() {
   const router = useRouter();
   const { selectedProject, geminiApiKey: contextApiKey, setGeminiApiKey: setContextApiKey, currentUser } = useUser();
   // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
-  const geminiApiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
+  const geminiApiKey = contextApiKey;
 
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
   const [selectedSubKeyword, setSelectedSubKeyword] = useState<string>('');
@@ -175,17 +175,7 @@ export default function GeneratePage() {
     const checkApis = async () => {
       const available: string[] = [];
 
-      // Gemini 확인
-      const geminiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') : '') || '';
-      if (geminiKey) available.push('gemini');
-
-      // Claude 확인
-      if (typeof window !== 'undefined') {
-        const claudeKey = localStorage.getItem('ai_claude_key') || '';
-        if (claudeKey) available.push('claude');
-      }
-
-      // 서버 환경변수 확인 (Vercel)
+      // 서버 환경변수 확인 (Vercel에서만 관리)
       try {
         const res = await fetch('/api/ai-status');
         if (res.ok) {
@@ -304,16 +294,12 @@ export default function GeneratePage() {
   };
 
   // ==================== AI별 헤더 생성 ====================
+  // 주의: API 키는 서버 환경 변수에서만 관리
+  // localStorage 사용 금지 (캐시 문제 방지)
   const getApiHeaders = (api: string): Record<string, string> => {
-    const headers: Record<string, string> = {};
-    if (api === 'gemini') {
-      const geminiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') : null);
-      if (geminiKey) headers['X-Gemini-Key'] = geminiKey;
-    } else if (api === 'claude') {
-      const claudeKey = typeof window !== 'undefined' ? localStorage.getItem('ai_claude_key') : null;
-      if (claudeKey) headers['X-Claude-Key'] = claudeKey;
-    }
-    return headers;
+    // 클라이언트에서 API 키를 보내지 않음
+    // 서버에서 process.env 환경 변수를 사용하도록 위임
+    return {};
   };
 
   // 주제 추천 fetch (버튼 클릭 시 호출)
@@ -661,9 +647,9 @@ export default function GeneratePage() {
     // ==================== API 자동 선택 로직 ====================
     const getApiKey = (api: string): string => {
       if (api === 'gemini') {
-        return contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
+        return contextApiKey;
       } else if (api === 'claude') {
-        return typeof window !== 'undefined' ? localStorage.getItem('ai_claude_key') || '' : '';
+        return typeof window !== 'undefined' ?  : '';
       }
       return '';
     };
