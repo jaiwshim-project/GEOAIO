@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { saveApiKey, getApiKey } from '@/lib/supabase-storage';
 
 export async function POST(request: NextRequest) {
   try {
     const { apiKey, geminiApiKey } = await request.json();
 
-    // Claude API Key 처리 (Supabase 저장)
+    // Claude API Key 처리
     if (apiKey !== undefined) {
       if (apiKey && !apiKey.startsWith('sk-ant-')) {
         return NextResponse.json(
@@ -14,12 +13,11 @@ export async function POST(request: NextRequest) {
         );
       }
       if (apiKey) {
-        await saveApiKey('claude', apiKey);
         process.env.ANTHROPIC_API_KEY = apiKey;
       }
     }
 
-    // Gemini API Key 처리 (Supabase 저장)
+    // Gemini API Key 처리
     if (geminiApiKey !== undefined) {
       if (!geminiApiKey || geminiApiKey.trim().length < 10) {
         return NextResponse.json(
@@ -27,7 +25,6 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      await saveApiKey('gemini', geminiApiKey);
       process.env.GEMINI_API_KEY = geminiApiKey;
     }
 
@@ -39,17 +36,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  try {
-    const claudeKey = await getApiKey('claude');
-    const geminiKey = await getApiKey('gemini');
-    return NextResponse.json({
-      hasKey: !!claudeKey,
-      hasGeminiKey: !!geminiKey,
-      claudeKey: claudeKey || undefined,
-      geminiKey: geminiKey || undefined
-    });
-  } catch (error) {
-    console.error('API Key 조회 오류:', error);
-    return NextResponse.json({ hasKey: false, hasGeminiKey: false }, { status: 200 });
-  }
+  const claudeKey = process.env.ANTHROPIC_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY;
+  return NextResponse.json({
+    hasKey: !!claudeKey,
+    hasGeminiKey: !!geminiKey,
+    status: '✅ 환경변수 기반 API 키 관리'
+  });
 }
