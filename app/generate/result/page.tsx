@@ -764,10 +764,10 @@ export default function GenerateResultPage() {
         })()}
 
         {/* 결과 헤더 - 블로그 아티클 스타일 */}
-        <article className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           {/* 블로그 상단 그라디언트 바 */}
           <div className="h-2 bg-gradient-to-r from-indigo-500 to-violet-600" />
-          <div className="p-6 sm:p-8">
+          <div className="p-6">
           {/* 메타 정보 + 액션 버튼 */}
           <div className="flex items-start justify-between mb-4 gap-4">
             <div>
@@ -777,7 +777,7 @@ export default function GenerateResultPage() {
                   {categories.find(c => c.id === selectedCategory)?.label}
                 </span>
                 <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-purple-100 text-purple-700">
-                  {result.toneName || '10가지 톤'}
+                  {(result as GenerateResponse & { toneName?: string }).toneName || tone || '10가지 톤'}
                 </span>
                 <span className="text-xs text-gray-400">{result.metadata.wordCount.toLocaleString()}자 · {result.metadata.estimatedReadTime}</span>
                 {topic && <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{topic}</span>}
@@ -971,10 +971,7 @@ export default function GenerateResultPage() {
                 ))}
               </div>
             )}
-          </div>{/* p-6 sm:p-8 end */}
-
-          {/* AI 이미지·SNS·수정 등 액션 영역 */}
-          <div className="border-t border-gray-100 px-6 sm:px-8 pb-6 pt-4 space-y-4">
+          </div>
 
           {/* AI 이미지 생성 */}
           <div className="mt-4 pt-3 border-t border-gray-200">
@@ -1162,8 +1159,8 @@ export default function GenerateResultPage() {
               </svg>
               블로그에 게시하기
             </button>
-          </div>{/* action area end */}
-        </article>
+          </div>
+        </div>
 
         </div>
       </main>
