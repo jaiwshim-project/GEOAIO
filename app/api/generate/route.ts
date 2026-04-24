@@ -238,7 +238,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 5000,
+          max_tokens: 4096,
           messages: [
             {
               role: 'user',
@@ -261,7 +261,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
               contents: userMessage,
               config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
-                maxOutputTokens: 5000,
+                maxOutputTokens: 4096,
                 responseMimeType: 'application/json',
                 responseSchema: RESPONSE_SCHEMA,
               },
@@ -286,7 +286,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 5000,
+            maxOutputTokens: 4096,
             responseMimeType: 'application/json',
             responseSchema: RESPONSE_SCHEMA,
           },
@@ -303,7 +303,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
             const client = new Anthropic({ apiKey: claudeKey });
             const message = await client.messages.create({
               model: 'claude-sonnet-4-20250514',
-              max_tokens: 5000,
+              max_tokens: 4096,
               messages: [
                 {
                   role: 'user',

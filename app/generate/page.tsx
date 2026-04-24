@@ -692,9 +692,9 @@ export default function GeneratePage() {
         } as UserProject;
       }
 
-      // 10가지 톤을 배치로 생성 (3개씩, 레이트 제한 회피)
+      // 10가지 톤을 5개씩 병렬 생성
       const results: any[] = [];
-      const batchSize = 1;
+      const batchSize = 5;
       for (let i = 0; i < toneOptions.length; i += batchSize) {
         const batch = toneOptions.slice(i, i + batchSize);
         const batchResults = await Promise.all(
@@ -728,9 +728,9 @@ export default function GeneratePage() {
         const completedCount = Math.min(i + batchSize, toneOptions.length);
         setToneProgress(completedCount);
 
-        // 다음 요청 전 1초 딜레이 (rate limit 회피)
+        // 배치 간 200ms 딜레이
         if (i + batchSize < toneOptions.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
       }
       // 사용량 기록 (커스텀 사용자 시스템)
