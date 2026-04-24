@@ -763,205 +763,71 @@ export default function GenerateResultPage() {
           );
         })()}
 
-        {/* 결과 헤더 - 블로그 아티클 스타일 */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          {/* 블로그 상단 그라디언트 바 */}
+        {/* 블로그 아티클 — 단일 통합 카드 */}
+        <article className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          {/* 상단 그라디언트 바 */}
           <div className="h-2 bg-gradient-to-r from-indigo-500 to-violet-600" />
-          <div className="p-6">
-          {/* 메타 정보 + 액션 버튼 */}
-          <div className="flex items-start justify-between mb-4 gap-4">
-            <div>
-              {/* 메타 배지 */}
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-indigo-100 text-indigo-700">
-                  {categories.find(c => c.id === selectedCategory)?.label}
-                </span>
-                <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-purple-100 text-purple-700">
-                  {(result as GenerateResponse & { toneName?: string }).toneName || tone || '10가지 톤'}
-                </span>
-                <span className="text-xs text-gray-400">{result.metadata.wordCount.toLocaleString()}자 · {result.metadata.estimatedReadTime}</span>
-                {topic && <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{topic}</span>}
-              </div>
-              {/* 제목 - 블로그 h1 스타일 */}
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{result.title}</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleCopyTitle}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] ${
-                  copiedTitle
-                    ? 'bg-emerald-500 text-white border-emerald-300'
-                    : 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={copiedTitle ? 'M5 13l4 4L19 7' : 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'} />
-                </svg>
-                {copiedTitle ? '복사됨!' : '제목 복사'}
-              </button>
-              <button
-                onClick={handleCopy}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] ${
-                  copied
-                    ? 'bg-emerald-500 text-white border-emerald-300'
-                    : 'border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100'
-                }`}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={copied ? 'M5 13l4 4L19 7' : 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'} />
-                </svg>
-                {copied ? '복사됨!' : '본문 복사'}
-              </button>
-              <button
-                onClick={handleCopyAsImage}
-                disabled={isCapturing}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] disabled:opacity-50 ${
-                  copiedImage
-                    ? 'bg-emerald-500 text-white border-emerald-300'
-                    : 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                }`}
-              >
-                {isCapturing ? (
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={copiedImage ? 'M5 13l4 4L19 7' : 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'} />
-                  </svg>
-                )}
-                {copiedImage ? '복사됨!' : isCapturing ? '캡처 중...' : '이미지로 복사'}
-              </button>
-              <button
-                onClick={handleReset}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border border-violet-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:shadow-md hover:scale-[1.03]"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                새로 만들기
-              </button>
-            </div>
-          </div>
 
-          {/* SEO 팁 */}
-          {result.metadata.seoTips.length > 0 && (
-            <div className="bg-blue-50 rounded-xl p-3 border border-blue-200">
-              <h3 className="text-sm font-semibold text-blue-800 mb-1.5 flex items-center gap-1.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                GEO/AIO SEO 팁
-              </h3>
-              <ul className="space-y-1">
-                {result.metadata.seoTips.map((tip, i) => (
-                  <li key={i} className="text-xs text-blue-700 flex items-start gap-1.5">
-                    <span className="text-blue-400 mt-0.5">&#8226;</span>
-                    {tip}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* 수정 입력창 */}
-        {showEditInput && (
-          <div className="bg-violet-50 rounded-xl shadow-sm border border-violet-300 p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <svg className="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              <h4 className="text-sm font-semibold text-violet-800">콘텐츠 수정 요청</h4>
-            </div>
-            <textarea
-              value={editNotes}
-              onChange={(e) => setEditNotes(e.target.value)}
-              placeholder="수정하거나 추가하고 싶은 내용을 입력하세요...&#10;예: '서론을 더 강렬하게', '통계 데이터 추가', 'FAQ 섹션 보강'"
-              rows={3}
-              className="w-full px-4 py-3 border border-violet-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent placeholder-gray-400 resize-none bg-white"
-            />
-            <button
-              onClick={handleRegenerate}
-              disabled={isRegenerating || !editNotes.trim()}
-              className="mt-3 w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-medium rounded-xl hover:from-violet-700 hover:to-purple-700 hover:shadow-lg hover:scale-[1.01] transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed border border-violet-300 flex items-center justify-center gap-2"
-            >
-              {isRegenerating ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  수정 반영하여 재생성 중...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  재생성
-                </>
-              )}
+          {/* 액션 툴바 */}
+          <div className="flex flex-wrap items-center gap-2 px-6 pt-4 pb-3 border-b border-gray-100">
+            <button onClick={handleCopyTitle} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${copiedTitle ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100'}`}>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+              {copiedTitle ? '복사됨!' : '제목 복사'}
             </button>
-          </div>
-        )}
-
-        {/* 생성된 콘텐츠 */}
-        <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-5 relative">
-          {/* 상단 버튼 그룹 */}
-          <div className="absolute top-4 right-4 flex items-center gap-2">
-            <button
-              onClick={() => {
-                if (!contentRef.current) return;
-                const html = contentRef.current.innerHTML;
-                const text = contentRef.current.innerText;
-                const blob = new Blob([html], { type: 'text/html' });
-                const textBlob = new Blob([text], { type: 'text/plain' });
-                navigator.clipboard.write([
-                  new ClipboardItem({
-                    'text/html': blob,
-                    'text/plain': textBlob,
-                  }),
-                ]).then(() => {
-                  setCopiedContent(true);
-                  setTimeout(() => setCopiedContent(false), 2000);
-                });
-              }}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border hover:shadow-md hover:scale-105 ${
-                copiedContent
-                  ? 'bg-emerald-500 text-white border-emerald-300'
-                  : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-indigo-300'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={copiedContent ? 'M5 13l4 4L19 7' : 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z'} />
-              </svg>
-              {copiedContent ? '복사됨!' : '복사'}
+            <button onClick={handleCopy} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${copied ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-sky-50 text-sky-700 border-sky-300 hover:bg-sky-100'}`}>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+              {copied ? '복사됨!' : '본문 복사'}
             </button>
-            <button
-              onClick={() => setShowEditInput(!showEditInput)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border hover:shadow-md hover:scale-105 ${
-                showEditInput
-                  ? 'bg-violet-500 text-white border-violet-300'
-                  : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:border-violet-300'
-              }`}
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
+            <button onClick={handleCopyAsImage} disabled={isCapturing} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all disabled:opacity-50 ${copiedImage ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'}`}>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              {copiedImage ? '복사됨!' : isCapturing ? '캡처 중...' : '이미지 복사'}
+            </button>
+            <button onClick={() => setShowEditInput(!showEditInput)} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${showEditInput ? 'bg-violet-500 text-white border-violet-300' : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100'}`}>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
               수정
             </button>
+            <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-all ml-auto">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+              새로 만들기
+            </button>
           </div>
-          <div className="prose prose-sm max-w-none" ref={contentRef}>
-            <div
-              className="text-sm text-gray-800 leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: markdownToHtml(result.content)
-              }}
-            />
-          </div>
-            {/* 해시태그 - 블로그 스타일 border-t */}
+
+          {/* 수정 입력창 */}
+          {showEditInput && (
+            <div className="mx-6 my-3 bg-violet-50 rounded-xl border border-violet-200 p-4">
+              <textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} placeholder="수정하거나 추가하고 싶은 내용을 입력하세요..." rows={3} className="w-full px-3 py-2 border border-violet-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-400 resize-none bg-white" />
+              <button onClick={handleRegenerate} disabled={isRegenerating || !editNotes.trim()} className="mt-2 w-full py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                {isRegenerating ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>재생성 중...</> : '재생성'}
+              </button>
+            </div>
+          )}
+
+          {/* 아티클 본문 — 블로그와 동일한 레이아웃 */}
+          <div className="px-6 sm:px-8 py-6">
+            {/* 메타 배지 */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-indigo-100 text-indigo-700">
+                {categories.find(c => c.id === selectedCategory)?.label}
+              </span>
+              <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-purple-100 text-purple-700">
+                {(result as GenerateResponse & { toneName?: string }).toneName || tone || '10가지 톤'}
+              </span>
+              <span className="text-xs text-gray-400">{result.metadata.wordCount.toLocaleString()}자 · {result.metadata.estimatedReadTime}</span>
+              {topic && <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{topic}</span>}
+            </div>
+
+            {/* 제목 */}
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 leading-tight">{result.title}</h1>
+
+            {/* 본문 */}
+            <div className="prose prose-sm max-w-none" ref={contentRef}>
+              <div
+                className="text-gray-800 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: markdownToHtml(result.content) }}
+              />
+            </div>
+
+            {/* 해시태그 */}
             {result.hashtags && result.hashtags.length > 0 && (
               <div className="mt-8 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
                 {result.hashtags.map((tag, i) => (
@@ -971,10 +837,25 @@ export default function GenerateResultPage() {
                 ))}
               </div>
             )}
-          </div>
 
-          {/* AI 이미지 생성 */}
-          <div className="mt-4 pt-3 border-t border-gray-200">
+            {/* SEO 팁 */}
+            {result.metadata.seoTips.length > 0 && (
+              <div className="mt-6 bg-blue-50 rounded-xl p-3 border border-blue-200">
+                <h3 className="text-sm font-semibold text-blue-800 mb-1.5">GEO/AIO SEO 팁</h3>
+                <ul className="space-y-1">
+                  {result.metadata.seoTips.map((tip, i) => (
+                    <li key={i} className="text-xs text-blue-700 flex items-start gap-1.5">
+                      <span className="text-blue-400 mt-0.5">&#8226;</span>{tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </article>
+
+        {/* AI 이미지 생성 */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
             {generatedImages.length === 0 ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1162,7 +1043,6 @@ export default function GenerateResultPage() {
           </div>
         </div>
 
-        </div>
       </main>
 
       <Footer />
