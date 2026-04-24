@@ -247,7 +247,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: userMessage,
-          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 6000, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
+          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 4096, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
         });
         text = response.text || '';
         console.log('[API] Gemini 성공');
@@ -272,7 +272,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 6000,
+          max_tokens: 4096,
           messages: [
             {
               role: 'user',
@@ -295,7 +295,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
               contents: userMessage,
               config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
-                maxOutputTokens: 6000,
+                maxOutputTokens: 4096,
                 responseMimeType: 'application/json',
                 responseSchema: RESPONSE_SCHEMA,
               },
@@ -320,7 +320,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 6000,
+            maxOutputTokens: 4096,
             responseMimeType: 'application/json',
             responseSchema: RESPONSE_SCHEMA,
           },
@@ -337,7 +337,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
             const client = new Anthropic({ apiKey: claudeKey });
             const message = await client.messages.create({
               model: 'claude-sonnet-4-20250514',
-              max_tokens: 6000,
+              max_tokens: 4096,
               messages: [
                 {
                   role: 'user',
