@@ -5,6 +5,7 @@ import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib
 import type { GenerateRequest } from '@/lib/types';
 
 export const maxDuration = 60;
+export const runtime = 'nodejs';
 
 export async function OPTIONS() {
   return corsOptionsResponse();
@@ -193,7 +194,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 8192,
+          max_tokens: 3000,
           messages: [
             {
               role: 'user',
@@ -216,7 +217,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
               contents: userMessage,
               config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
-                maxOutputTokens: 8192,
+                maxOutputTokens: 3000,
                 responseMimeType: 'application/json',
                 responseSchema: RESPONSE_SCHEMA,
               },
@@ -241,7 +242,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 8192,
+            maxOutputTokens: 3000,
             responseMimeType: 'application/json',
             responseSchema: RESPONSE_SCHEMA,
           },
@@ -258,7 +259,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
             const client = new Anthropic({ apiKey: claudeKey });
             const message = await client.messages.create({
               model: 'claude-sonnet-4-20250514',
-              max_tokens: 8192,
+              max_tokens: 3000,
               messages: [
                 {
                   role: 'user',
