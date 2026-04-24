@@ -95,7 +95,9 @@
       "Bash(gh workflow *)",
       "Bash(pkill -f \"npm run dev\")",
       "Bash(grep -o \".{0,100}AI 선택.{0,100}\\\\|.{0,100}🤖.{0,100}\")",
-      "Bash(awk 'NR >= 1378 && NR <= 1850 { *)"
+      "Bash(awk 'NR >= 1378 && NR <= 1850 { *)",
+      "Bash(grep -o \".{0,80}AI 선택.{0,80}\")",
+      "Bash(pkill -f \"msedge\\\\|chrome\\\\|firefox\")"
     ]
   }
 }

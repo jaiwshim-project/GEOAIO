@@ -110,6 +110,22 @@ export default function GeneratePage() {
   const { selectedProject, geminiApiKey: contextApiKey, setGeminiApiKey: setContextApiKey, currentUser } = useUser();
   // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
   const geminiApiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '');
+
+  // Claude API 키 초기화 (환경 변수 또는 localStorage)
+  const [claudeApiKey, setClaudeApiKey] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const envKey = process.env.NEXT_PUBLIC_CLAUDE_API_KEY;
+      const localKey = localStorage.getItem('ai_claude_key');
+      const finalKey = localKey || envKey || '';
+      if (finalKey && !localKey) {
+        localStorage.setItem('ai_claude_key', finalKey);
+      }
+      setClaudeApiKey(finalKey);
+    }
+  }, []);
+
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
   const [selectedSubKeyword, setSelectedSubKeyword] = useState<string>('');
   const [topic, setTopic] = useState('');
