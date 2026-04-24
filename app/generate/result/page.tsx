@@ -522,14 +522,12 @@ export default function GenerateResultPage() {
     const paragraphs = text.split(/\n\n+/);
     let h2Index = 0;
     const sectionColors = [
-      { bg: '#eef2ff', border: '#818cf8', accent: '#4f46e5', gradient: 'linear-gradient(135deg, #6366f1, #818cf8)' },
-      { bg: '#ecfdf5', border: '#6ee7b7', accent: '#059669', gradient: 'linear-gradient(135deg, #10b981, #34d399)' },
-      { bg: '#fef3c7', border: '#fbbf24', accent: '#d97706', gradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
-      { bg: '#fce7f3', border: '#f9a8d4', accent: '#db2777', gradient: 'linear-gradient(135deg, #ec4899, #f9a8d4)' },
-      { bg: '#e0e7ff', border: '#a5b4fc', accent: '#4338ca', gradient: 'linear-gradient(135deg, #6366f1, #a5b4fc)' },
-      { bg: '#f0fdf4', border: '#86efac', accent: '#16a34a', gradient: 'linear-gradient(135deg, #22c55e, #86efac)' },
-      { bg: '#fff7ed', border: '#fdba74', accent: '#ea580c', gradient: 'linear-gradient(135deg, #f97316, #fdba74)' },
-      { bg: '#fdf2f8', border: '#f9a8d4', accent: '#be185d', gradient: 'linear-gradient(135deg, #ec4899, #f9a8d4)' },
+      { bg: '#eef2ff', border: '#818cf8', accent: '#4f46e5' },
+      { bg: '#ecfdf5', border: '#6ee7b7', accent: '#059669' },
+      { bg: '#fef3c7', border: '#fbbf24', accent: '#d97706' },
+      { bg: '#fce7f3', border: '#f9a8d4', accent: '#db2777' },
+      { bg: '#e0e7ff', border: '#a5b4fc', accent: '#4338ca' },
+      { bg: '#f0fdf4', border: '#86efac', accent: '#16a34a' },
     ];
     return paragraphs.map(para => {
       const lines = para.trim().split('\n');
@@ -541,7 +539,7 @@ export default function GenerateResultPage() {
       html = html.replace(/^## (.*$)/gm, (_match, title) => {
         const color = sectionColors[h2Index % sectionColors.length];
         h2Index++;
-        return `<div style="margin:36px 0 16px;padding:12px 20px;background:${color.bg};border-left:4px solid ${color.border};border-radius:0 12px 12px 0"><h2 style="font-size:1.2em;font-weight:700;color:${color.accent};margin:0">${title}</h2></div>`;
+        return `<div style="margin:28px 0 12px;padding:10px 16px;background:${color.bg};border-left:4px solid ${color.border};border-radius:0 10px 10px 0"><h2 style="font-size:1.1em;font-weight:700;color:${color.accent};margin:0">${title}</h2></div>`;
       });
       // H3 with subtle style
       html = html
@@ -765,20 +763,27 @@ export default function GenerateResultPage() {
           );
         })()}
 
-        {/* 결과 헤더 */}
-        <div className="bg-white rounded-xl shadow-sm border border-emerald-200 p-5">
-          <div className="flex items-center justify-between mb-3">
+        {/* 결과 헤더 - 블로그 아티클 스타일 */}
+        <article className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          {/* 블로그 상단 그라디언트 바 */}
+          <div className="h-2 bg-gradient-to-r from-indigo-500 to-violet-600" />
+          <div className="p-6 sm:p-8">
+          {/* 메타 정보 + 액션 버튼 */}
+          <div className="flex items-start justify-between mb-4 gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">{result.title}</h2>
-              <div className="flex items-center gap-4 mt-1">
-                <span className="text-xs text-gray-500">
-                  {result.metadata.wordCount.toLocaleString()}자
-                </span>
-                <span className="text-xs text-gray-500">{result.metadata.estimatedReadTime}</span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-200">
+              {/* 메타 배지 */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-indigo-100 text-indigo-700">
                   {categories.find(c => c.id === selectedCategory)?.label}
                 </span>
+                <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-purple-100 text-purple-700">
+                  {result.toneName || '10가지 톤'}
+                </span>
+                <span className="text-xs text-gray-400">{result.metadata.wordCount.toLocaleString()}자 · {result.metadata.estimatedReadTime}</span>
+                {topic && <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{topic}</span>}
               </div>
+              {/* 제목 - 블로그 h1 스타일 */}
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{result.title}</h1>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -955,17 +960,21 @@ export default function GenerateResultPage() {
                 __html: markdownToHtml(result.content)
               }}
             />
-            {/* 해시태그 - 본문 안에 포함하여 복사 시 함께 복사됨 */}
+          </div>
+            {/* 해시태그 - 블로그 스타일 border-t */}
             {result.hashtags && result.hashtags.length > 0 && (
-              <div className="mt-5 pt-3 flex flex-wrap gap-2">
+              <div className="mt-8 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
                 {result.hashtags.map((tag, i) => (
-                  <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 hover:scale-105 transition-all duration-200 cursor-default">
+                  <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 transition-all cursor-default">
                     {tag.startsWith('#') ? tag : `#${tag}`}
                   </span>
                 ))}
               </div>
             )}
-          </div>
+          </div>{/* p-6 sm:p-8 end */}
+
+          {/* AI 이미지·SNS·수정 등 액션 영역 */}
+          <div className="border-t border-gray-100 px-6 sm:px-8 pb-6 pt-4 space-y-4">
 
           {/* AI 이미지 생성 */}
           <div className="mt-4 pt-3 border-t border-gray-200">
@@ -1153,8 +1162,8 @@ export default function GenerateResultPage() {
               </svg>
               블로그에 게시하기
             </button>
-          </div>
-        </div>
+          </div>{/* action area end */}
+        </article>
 
         </div>
       </main>
