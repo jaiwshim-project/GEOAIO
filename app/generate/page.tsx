@@ -786,21 +786,17 @@ export default function GeneratePage() {
         throw new Error('콘텐츠 생성에 실패했습니다. 다시 시도해주세요.');
       }
       const mainResult = { ...validResults[0], abVersions: results };
-      let resultId: string;
-      try {
-        const { saveGenerateResult } = await import('@/lib/supabase-storage');
-        resultId = await saveGenerateResult({
-          result: mainResult, category: selectedCategory,
-          topic: topic.trim(), targetKeyword: targetKeyword.trim(),
-          tone: '10가지 톤', historyId,
-          project_id: selectedProject?.id,
-          selected_ab_index: 0,
-        });
-      } catch {
-        // DB 저장 실패 시 sessionStorage 폴백으로 결과 전달
-        resultId = `session_${Date.now()}`;
-        sessionStorage.setItem(`gr_${resultId}`, JSON.stringify({ result: mainResult, category: selectedCategory, topic: topic.trim(), targetKeyword: targetKeyword.trim(), tone: '10가지 톤', historyId }));
-      }
+      // 생성 즉시 sessionStorage로 전달 → 블로그 게시 시 DB 저장 (generate_results 불필요)
+      const resultId = `session_${Date.now()}`;
+      sessionStorage.setItem(`gr_${resultId}`, JSON.stringify({
+        result: mainResult,
+        category: selectedCategory,
+        topic: topic.trim(),
+        targetKeyword: targetKeyword.trim(),
+        tone: '10가지 톤',
+        historyId,
+        project_id: selectedProject?.id,
+      }));
       router.push(`/generate/result?id=${resultId}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';

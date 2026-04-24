@@ -111,7 +111,21 @@ export default function GenerateResultPage() {
       router.push('/generate');
       return;
     }
-    getGenerateResult(id).then(data => {
+    // session_ ID면 sessionStorage에서 로드, 아니면 Supabase에서 로드
+    const loadData = async () => {
+      let data: import('@/lib/supabase-storage').GenerateResultData | null = null;
+      if (id.startsWith('session_')) {
+        try {
+          const raw = sessionStorage.getItem(`gr_${id}`);
+          if (raw) data = JSON.parse(raw);
+        } catch {}
+      } else {
+        data = await getGenerateResult(id);
+      }
+      return data;
+    };
+
+    loadData().then(data => {
       if (!data) {
         router.push('/generate');
         return;
