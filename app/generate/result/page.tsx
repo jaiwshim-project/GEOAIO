@@ -116,7 +116,24 @@ export default function GenerateResultPage() {
         router.push('/generate');
         return;
       }
-      setResult(data.result);
+
+      // content가 JSON 문자열로 이중 저장된 경우 정규화
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const normalizeResult = (r: any): any => {
+        if (!r) return r;
+        let content = r.content || '';
+        // content가 JSON 문자열인 경우 파싱
+        if (typeof content === 'string' && content.trim().startsWith('{')) {
+          try {
+            const parsed = JSON.parse(content);
+            if (parsed.content) return { ...r, ...parsed };
+          } catch {}
+        }
+        return r;
+      };
+
+      const normalized = normalizeResult(data.result);
+      setResult(normalized);
       setSelectedCategory(data.category);
       setTopic(data.topic);
       setTargetKeyword(data.targetKeyword);
@@ -124,9 +141,9 @@ export default function GenerateResultPage() {
       setCurrentHistoryId(data.historyId);
       // A/B 버전이 있으면 로드
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((data.result as any)?.abVersions) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setAbVersions((data.result as any).abVersions);
+      const versions = (data.result as any)?.abVersions || [];
+      if (versions.length > 0) {
+        setAbVersions(versions.map(normalizeResult));
       }
     });
   }, [router]);
