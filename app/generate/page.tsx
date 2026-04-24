@@ -706,57 +706,50 @@ export default function GeneratePage() {
         }
       }
 
-      // 10가지 톤을 5개씩 병렬 생성
-      const results: any[] = [];
-      const batchSize = 1;
-      for (let i = 0; i < toneOptions.length; i += batchSize) {
-        const batch = toneOptions.slice(i, i + batchSize);
-        const batchResults = await Promise.all(
-          batch.map(async (t) => {
-            try {
-              const res = await fetch('/api/generate', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-API-Provider': apiToUse,
-                },
-                body: JSON.stringify({
-                  category: selectedCategory,
-                  topic: topic.trim(),
-                  targetKeyword: targetKeyword.trim() || undefined,
-                  subKeyword: selectedSubKeyword || undefined,
-                  tone: t.value,
-                  additionalNotes: notes,
-                  company_name: activeProjectInfo?.company_name || undefined,
-                  representative_name: activeProjectInfo?.representative_name || undefined,
-                  region: activeProjectInfo?.region || undefined,
-                  projectFiles: projectFiles.slice(0, 3).map(f => ({
-                    file_name: f.file_name,
-                    content: f.content.slice(0, 3000),
-                  })),
-                }),
-              });
-              const data = await res.json();
-              if (!res.ok || data.error) {
-                // 개별 실패 시 폴백 반환 (전체 중단 방지)
-                return { title: topic.trim(), content: `${t.label} 톤 생성 실패: ${data.error || res.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
-              }
-              return { ...data, toneName: t.label, toneValue: t.value };
-            } catch {
-              return { title: topic.trim(), content: `${t.label} 톤 생성 중 오류 발생`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
-            }
-          })
-        );
-        results.push(...batchResults);
+      // ── 멀티 에이전트 병렬 생성 ──
+      // 마크다운 단순 생성이라 빠름 → 3개씩 병렬로 안전하게 처리
+      const AGENT_BATCH = 3; // 동시 실행 에이전트 수
+      const results: any[] = new Array(toneOptions.length).fill(null);
 
-        // 배치 완료 후 진행 상황 업데이트
-        const completedCount = Math.min(i + batchSize, toneOptions.length);
-        setToneProgress(completedCount);
-
-        // 배치 간 200ms 딜레이
-        if (i + batchSize < toneOptions.length) {
-          await new Promise(resolve => setTimeout(resolve, 200));
+      const generateTone = async (t: typeof toneOptions[0], idx: number) => {
+        try {
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
+            body: JSON.stringify({
+              category: selectedCategory,
+              topic: topic.trim(),
+              targetKeyword: targetKeyword.trim() || undefined,
+              subKeyword: selectedSubKeyword || undefined,
+              tone: t.value,
+              additionalNotes: notes,
+              company_name: activeProjectInfo?.company_name || undefined,
+              representative_name: activeProjectInfo?.representative_name || undefined,
+              region: activeProjectInfo?.region || undefined,
+              projectFiles: projectFiles.slice(0, 3).map(f => ({
+                file_name: f.file_name,
+                content: f.content.slice(0, 3000),
+              })),
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            return { title: topic.trim(), content: `${t.label} 생성 실패: ${data.error || res.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
+          }
+          return { ...data, toneName: t.label, toneValue: t.value };
+        } catch {
+          return { title: topic.trim(), content: `${t.label} 생성 오류`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
         }
+      };
+
+      // AGENT_BATCH 개씩 병렬 실행 (멀티 에이전트)
+      for (let i = 0; i < toneOptions.length; i += AGENT_BATCH) {
+        const agentGroup = toneOptions.slice(i, i + AGENT_BATCH);
+        const agentResults = await Promise.all(
+          agentGroup.map((t, j) => generateTone(t, i + j))
+        );
+        agentResults.forEach((r, j) => { results[i + j] = r; });
+        setToneProgress(Math.min(i + AGENT_BATCH, toneOptions.length));
       }
       // 사용량 기록 (커스텀 사용자 시스템)
       if (currentUser) {

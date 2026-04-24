@@ -216,9 +216,9 @@ export default function GenerateResultPage() {
     setEeatDone(false);
 
     const converted: (GenerateResponse & { toneName?: string })[] = [...versions];
+    const CONVERT_BATCH = 3; // E-E-A-T 변환 동시 에이전트 수
 
-    for (let i = 0; i < versions.length; i++) {
-      const v = versions[i];
+    const convertOne = async (v: GenerateResponse & { toneName?: string }, idx: number) => {
       try {
         const res = await fetch('/api/convert-eeat', {
           method: 'POST',
@@ -226,20 +226,23 @@ export default function GenerateResultPage() {
           body: JSON.stringify({
             content: v.content,
             title: v.title,
-            tone: (v as { toneName?: string; toneValue?: string }).toneValue || currentTone,
+            tone: (v as { toneValue?: string }).toneValue || currentTone,
           }),
         });
         if (res.ok) {
           const data = await res.json();
-          converted[i] = { ...v, title: data.title || v.title, content: data.content || v.content };
+          converted[idx] = { ...v, title: data.title || v.title, content: data.content || v.content };
         }
-      } catch {
-        // 실패 시 원본 유지
-      }
-      setEeatProgress(i + 1);
-      // 변환된 버전 즉시 반영
+      } catch { /* 실패 시 원본 유지 */ }
+    };
+
+    // CONVERT_BATCH 개씩 병렬 변환 (멀티 에이전트)
+    for (let i = 0; i < versions.length; i += CONVERT_BATCH) {
+      const group = versions.slice(i, i + CONVERT_BATCH);
+      await Promise.all(group.map((v, j) => convertOne(v, i + j)));
+      setEeatProgress(Math.min(i + CONVERT_BATCH, versions.length));
       setAbVersions([...converted]);
-      if (i === 0) setResult(converted[0]); // 첫 번째 완료 시 바로 표시
+      if (i === 0) setResult(converted[0]); // 첫 배치 완료 시 즉시 표시
     }
 
     setEeatConverting(false);
