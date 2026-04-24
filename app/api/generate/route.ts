@@ -192,7 +192,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         console.log('[API] Claude로 콘텐츠 생성 시도');
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'claude-sonnet-4-20250514',
           max_tokens: 8192,
           messages: [
             {
@@ -257,7 +257,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           try {
             const client = new Anthropic({ apiKey: claudeKey });
             const message = await client.messages.create({
-              model: 'claude-3-5-sonnet-20241022',
+              model: 'claude-sonnet-4-20250514',
               max_tokens: 8192,
               messages: [
                 {

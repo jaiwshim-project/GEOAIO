@@ -1,0 +1,16 @@
+
+> aio-geo-optimizer@0.1.0 dev
+> next dev
+
+⚠ Port 3000 is in use by process 20624, using available port 3001 instead.
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://211.226.168.72:3001
+- Environments: .env.local
+- Experiments (use with caution):
+  · serverActions
+
+✓ Starting...
+⨯ Unable to acquire lock at C:\01 클로드코드\40-10 GEO-AIO 콘텐츠(41-4 AI Optimized Contents)\.next\dev\lock, is another instance of next dev running?
+  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+[?25h
