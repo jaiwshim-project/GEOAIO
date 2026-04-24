@@ -305,12 +305,15 @@ export default function GeneratePage() {
 
   // ==================== AI별 헤더 생성 ====================
   const getApiHeaders = (api: string): Record<string, string> => {
+    const headers: Record<string, string> = {};
     if (api === 'gemini') {
-      return { 'X-Gemini-Key': contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') || '' : '') };
+      const geminiKey = contextApiKey || (typeof window !== 'undefined' ? localStorage.getItem('geoaio_gemini_key') : null);
+      if (geminiKey) headers['X-Gemini-Key'] = geminiKey;
     } else if (api === 'claude') {
-      return { 'X-Claude-Key': typeof window !== 'undefined' ? localStorage.getItem('ai_claude_key') || '' : '' };
+      const claudeKey = typeof window !== 'undefined' ? localStorage.getItem('ai_claude_key') : null;
+      if (claudeKey) headers['X-Claude-Key'] = claudeKey;
     }
-    return {};
+    return headers;
   };
 
   // 주제 추천 fetch (버튼 클릭 시 호출)
