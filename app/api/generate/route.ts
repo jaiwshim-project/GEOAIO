@@ -187,6 +187,15 @@ export async function POST(request: NextRequest) {
       body.region ? `지역: ${body.region}` : '',
     ].filter(Boolean).join('\n');
 
+    // 프로젝트 파일 RAG 컨텍스트
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pFiles = (body as any).projectFiles as { file_name: string; content: string }[] | undefined;
+    const ragSection = pFiles && pFiles.length > 0
+      ? `\n[RAG 참조 자료 - 아래 파일의 정보·수치·사실·표현을 최대한 활용하여 콘텐츠를 작성하세요]\n${
+          pFiles.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n')
+        }\n`
+      : '';
+
     const userMessage = `다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
@@ -194,12 +203,13 @@ export async function POST(request: NextRequest) {
 ${body.subKeyword ? `분야/카테고리: ${body.subKeyword}` : ''}
 톤/스타일: ${toneDesc}
 ${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}
-${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${toneGuide}
+${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${ragSection}${toneGuide}
 ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : ''}
 [필수 사항]
 - 제목은 위의 톤 가이드에 맞게 작성하세요. 단순히 주제를 그대로 사용하지 마세요.
 - 본문 전체의 문체·구조·어조가 "${toneDesc}" 톤을 일관되게 반영해야 합니다.
 - GEO/AIO에 최적화된 고품질 콘텐츠를 작성해주세요.
+${pFiles && pFiles.length > 0 ? `- RAG 참조 자료의 핵심 내용, 수치, 사례를 본문에 자연스럽게 녹여 작성하세요.` : ''}
 ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문 내용에 자연스럽게 반드시 포함하세요.` : ''}`;
 
     let text = '';

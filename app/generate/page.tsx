@@ -252,7 +252,7 @@ export default function GeneratePage() {
         category,
         projectName: selectedProject.name,
         projectDescription: selectedProject.description || '',
-        projectFiles: [], // files는 선택사항이므로 제외
+        projectFiles: [], // 분야 추천은 프로젝트명 기반으로 충분
         businessInfo: businessInfo ? {
           industry: businessInfo.industry || businessInfo.customIndustry || '',
           mainProduct: businessInfo.mainProduct || '',
@@ -692,6 +692,16 @@ export default function GeneratePage() {
         } as UserProject;
       }
 
+      // 프로젝트 파일 로드 (RAG 컨텍스트)
+      let projectFiles: { file_name: string; content: string }[] = [];
+      if (activeProjectInfo?.id) {
+        try {
+          const filesRes = await fetch(`/api/user-projects/files?project_id=${activeProjectInfo.id}`);
+          const filesData = await filesRes.json();
+          projectFiles = (filesData.files || []).filter((f: { content: string }) => f.content);
+        } catch {}
+      }
+
       // 10가지 톤을 5개씩 병렬 생성
       const results: any[] = [];
       const batchSize = 5;
@@ -715,6 +725,10 @@ export default function GeneratePage() {
                 company_name: activeProjectInfo?.company_name || undefined,
                 representative_name: activeProjectInfo?.representative_name || undefined,
                 region: activeProjectInfo?.region || undefined,
+                projectFiles: projectFiles.slice(0, 3).map(f => ({
+                  file_name: f.file_name,
+                  content: f.content.slice(0, 3000),
+                })),
               }),
             });
             const data = await res.json();
