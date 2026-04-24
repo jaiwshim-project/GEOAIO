@@ -692,14 +692,18 @@ export default function GeneratePage() {
         } as UserProject;
       }
 
-      // 프로젝트 파일 로드 (RAG 컨텍스트)
+      // 프로젝트 RAG 파일 로드 (모든 프로젝트에 RAG 파일 존재)
       let projectFiles: { file_name: string; content: string }[] = [];
-      if (activeProjectInfo?.id) {
+      const projectId = activeProjectInfo?.id || selectedProject?.id;
+      if (projectId) {
         try {
-          const filesRes = await fetch(`/api/user-projects/files?project_id=${activeProjectInfo.id}`);
+          const filesRes = await fetch(`/api/user-projects/files?project_id=${projectId}`);
           const filesData = await filesRes.json();
-          projectFiles = (filesData.files || []).filter((f: { content: string }) => f.content);
-        } catch {}
+          projectFiles = (filesData.files || []).filter((f: { content: string }) => f.content && f.content.length > 0);
+          console.log(`[RAG] 프로젝트 파일 ${projectFiles.length}개 로드`);
+        } catch (e) {
+          console.error('[RAG] 파일 로드 실패:', e);
+        }
       }
 
       // 10가지 톤을 5개씩 병렬 생성

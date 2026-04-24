@@ -190,27 +190,59 @@ export async function POST(request: NextRequest) {
     // 프로젝트 파일 RAG 컨텍스트
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pFiles = (body as any).projectFiles as { file_name: string; content: string }[] | undefined;
-    const ragSection = pFiles && pFiles.length > 0
-      ? `\n[RAG 참조 자료 - 아래 파일의 정보·수치·사실·표현을 최대한 활용하여 콘텐츠를 작성하세요]\n${
-          pFiles.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n')
-        }\n`
-      : '';
+    const hasRag = pFiles && pFiles.length > 0;
 
-    const userMessage = `다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
+    let userMessage: string;
+
+    if (hasRag) {
+      // ── RAG 기반 생성: RAG 지식 → E-E-A-T 구조화 콘텐츠 ──
+      const ragContent = pFiles!.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n');
+      userMessage = `[프로젝트 RAG 지식 기반]
+아래 문서는 이 프로젝트의 핵심 자료입니다. 이 내용을 1차 지식 기반으로 삼아 E-E-A-T 구조화 콘텐츠를 작성하세요.
+
+${ragContent}
+
+────────────────────────────────────────
+[콘텐츠 생성 조건]
+주제: ${body.topic}
+콘텐츠 유형: ${categoryLabel}
+${body.subKeyword ? `분야/카테고리: ${body.subKeyword}` : ''}
+톤/스타일: ${toneDesc}
+${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}
+${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${toneGuide}
+${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : ''}
+[RAG 기반 E-E-A-T 필수 구조]
+1. 도입부 (RAG 자료의 핵심 가치·문제 제기 + 업계 통계, 2~3문단)
+2. H2 섹션 5~7개 (RAG 핵심 정보를 구조화, 각 섹션에 불릿 * 3개 이상)
+3. 단계별 프로세스 (번호 리스트)
+4. RAG 기반 실제 사례·수치 (구체적 성과 포함)
+5. FAQ (Q: A: 형식 3개 이상, RAG 내용 기반)
+6. 결론 + CTA
+7. 비교 표 (장점·단점·고려사항 3열 마크다운 표)
+
+[품질 기준]
+- 분량: 최소 2,000자
+- 제목: "${toneDesc}" 톤 + 수치 포함 (예: "95% 달성", "3배 향상")
+- RAG 자료의 사실·수치·표현을 반드시 본문에 녹여 작성
+- ${toneDesc} 톤을 제목부터 마지막까지 일관 유지
+${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문에 자연스럽게 포함` : ''}`;
+    } else {
+      // ── 일반 생성 (RAG 없음) ──
+      userMessage = `다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
 ${body.subKeyword ? `분야/카테고리: ${body.subKeyword}` : ''}
 톤/스타일: ${toneDesc}
 ${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}
-${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${ragSection}${toneGuide}
+${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${toneGuide}
 ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : ''}
 [필수 사항]
-- 제목은 위의 톤 가이드에 맞게 작성하세요. 단순히 주제를 그대로 사용하지 마세요.
+- 제목은 위의 톤 가이드에 맞게 작성하세요.
 - 본문 전체의 문체·구조·어조가 "${toneDesc}" 톤을 일관되게 반영해야 합니다.
 - GEO/AIO에 최적화된 고품질 콘텐츠를 작성해주세요.
-${pFiles && pFiles.length > 0 ? `- RAG 참조 자료의 핵심 내용, 수치, 사례를 본문에 자연스럽게 녹여 작성하세요.` : ''}
 ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문 내용에 자연스럽게 반드시 포함하세요.` : ''}`;
+    }
 
     let text = '';
     let lastError: Error | null = null;
@@ -223,7 +255,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: userMessage,
-          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 3000, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
+          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 6000, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
         });
         text = response.text || '';
         console.log('[API] Gemini 성공');
@@ -248,7 +280,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 4096,
+          max_tokens: 6000,
           messages: [
             {
               role: 'user',
@@ -271,7 +303,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
               contents: userMessage,
               config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
-                maxOutputTokens: 4096,
+                maxOutputTokens: 6000,
                 responseMimeType: 'application/json',
                 responseSchema: RESPONSE_SCHEMA,
               },
@@ -296,7 +328,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 4096,
+            maxOutputTokens: 6000,
             responseMimeType: 'application/json',
             responseSchema: RESPONSE_SCHEMA,
           },
@@ -313,7 +345,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
             const client = new Anthropic({ apiKey: claudeKey });
             const message = await client.messages.create({
               model: 'claude-sonnet-4-20250514',
-              max_tokens: 4096,
+              max_tokens: 6000,
               messages: [
                 {
                   role: 'user',
