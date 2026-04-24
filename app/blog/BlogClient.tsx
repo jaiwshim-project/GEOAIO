@@ -156,7 +156,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
             return (
               <button
                 key={cat.slug}
-                onClick={() => { setActiveTab(cat.slug); setSelectedPost(null); }}
+                onClick={() => router.push(`/blog/category/${encodeURIComponent(cat.slug)}`)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                   isActive
                     ? `bg-gradient-to-r ${cat.color} text-white shadow-md`
