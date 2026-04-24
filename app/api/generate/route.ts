@@ -166,8 +166,8 @@ export async function POST(request: NextRequest) {
       ));
     }
 
-    // 사용자가 선택한 AI를 우선 사용
-    const useClaudeFirst = apiProvider !== 'gemini';
+    // Gemini 기본값 고정 (Claude는 폴백으로만 사용)
+    const useClaudeFirst = false;
 
     const categoryLabel = CATEGORY_LABELS[body.category] || body.category;
     const toneDesc = body.tone || '전문적이고 신뢰감 있는';

@@ -1382,18 +1382,15 @@ export default function GeneratePage() {
                   🌐 Gemini
                 </button>
                 <button
-                  onClick={() => setSelectedApi('claude')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    selectedApi === 'claude'
-                      ? 'bg-slate-600 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  }`}
+                  disabled
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-400 cursor-not-allowed opacity-50"
+                  title="Claude는 현재 사용 불가"
                 >
                   🧠 Claude
                 </button>
               </div>
               <p className="text-xs text-gray-600 mt-2">
-                💡 선택한 AI로 생성합니다. 실패 시 다른 AI로 자동 재시도됩니다.
+                💡 Gemini로 생성합니다. 실패 시 Claude로 자동 재시도됩니다.
               </p>
             </div>
 
