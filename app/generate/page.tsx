@@ -161,7 +161,7 @@ export default function GeneratePage() {
 
   // ==================== API 자동 선택 ====================
   const [availableApis, setAvailableApis] = useState<string[]>([]);
-  const [selectedApi, setSelectedApi] = useState<'gemini' | 'claude' | 'geo-aio'>('claude');
+  const [selectedApi, setSelectedApi] = useState<'gemini' | 'claude' | 'geo-aio'>('gemini');
 
   // ==================== 동적 분야 생성 ====================
   const [dynamicSubKeywords, setDynamicSubKeywords] = useState<string[]>([]);
@@ -189,8 +189,8 @@ export default function GeneratePage() {
       setAvailableApis(available);
       if (available.length > 0) {
         // 우선순위: Claude > Gemini > Geo-AIO (Claude를 디폴트로)
-        if (available.includes('claude')) setSelectedApi('claude');
-        else if (available.includes('gemini')) setSelectedApi('gemini');
+        if (available.includes('gemini')) setSelectedApi('gemini');
+        else if (available.includes('claude')) setSelectedApi('claude');
       }
     };
 
@@ -647,7 +647,7 @@ export default function GeneratePage() {
     // ==================== API 자동 선택 로직 ====================
     // 주의: API 키는 서버 환경 변수에서만 관리 (localStorage 사용 금지)
     // API 키는 서버 환경 변수에서 관리 — 클라이언트 검사 불필요
-    const apiToUse = selectedApi || 'claude';
+    const apiToUse = selectedApi || 'gemini';
 
     setIsGenerating(true);
     setError(null);
