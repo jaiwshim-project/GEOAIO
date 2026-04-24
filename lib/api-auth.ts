@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Extract Anthropic API key from request.
- * Priority: X-API-Key header > Authorization Bearer > process.env
+ * Priority: process.env > X-API-Key header > Authorization Bearer
  */
 export function getApiKey(request: NextRequest): string | undefined {
+  // 서버 환경 변수를 먼저 시도
+  const envKey = process.env.ANTHROPIC_API_KEY;
+  if (envKey) return envKey;
+
+  // 폴백: 클라이언트 헤더 또는 Authorization
   const xApiKey = request.headers.get('X-API-Key');
   if (xApiKey) return xApiKey;
 
@@ -13,31 +18,42 @@ export function getApiKey(request: NextRequest): string | undefined {
     return authHeader.slice(7);
   }
 
-  return process.env.ANTHROPIC_API_KEY;
+  return undefined;
 }
 
 /**
  * Extract Gemini API key from request.
- * Priority: X-Gemini-Key header > body.geminiApiKey > process.env
+ * Priority: process.env.GEMINI_API_KEY > X-Gemini-Key header > body.geminiApiKey
  */
 export function getGeminiKey(request: NextRequest, body?: Record<string, unknown>): string | undefined {
+  // 서버 환경 변수를 먼저 시도 (신뢰할 수 있는 출처)
+  const envKey = process.env.GEMINI_API_KEY;
+  if (envKey) return envKey;
+
+  // 폴백: 헤더 또는 body (테스트용)
   const headerKey = request.headers.get('X-Gemini-Key');
   if (headerKey) return headerKey;
 
   if (body && typeof body.geminiApiKey === 'string') return body.geminiApiKey;
 
-  return process.env.GEMINI_API_KEY;
+  return undefined;
 }
 
 /**
  * Extract Claude API key from request.
- * Priority: X-Claude-Key header > process.env.ANTHROPIC_API_KEY > process.env.CLAUDE_API_KEY
+ * Priority: process.env 환경 변수 (서버) > X-Claude-Key header (폴백용)
+ * 주의: 클라이언트 헤더를 우선으로 사용하면 로컬 캐시된 키 문제 발생
  */
 export function getClaudeKey(request: NextRequest): string | undefined {
+  // 서버 환경 변수를 먼저 시도 (신뢰할 수 있는 출처)
+  const envKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
+  if (envKey) return envKey;
+
+  // 폴백: 클라이언트가 보낸 헤더 (디버깅/테스트용)
   const headerKey = request.headers.get('X-Claude-Key');
   if (headerKey) return headerKey;
 
-  return process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
+  return undefined;
 }
 
 /**
