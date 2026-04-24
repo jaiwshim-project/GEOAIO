@@ -148,7 +148,8 @@ export async function POST(request: NextRequest) {
       return withCors(NextResponse.json({ error: '콘텐츠 유형을 선택해주세요.' }, { status: 400 }));
     }
 
-    // Claude 우선, Gemini 폴백
+    // X-API-Provider 헤더로 선택된 AI 우선 적용 (기본값: claude)
+    const apiProvider = request.headers.get('X-API-Provider') || 'claude';
     const claudeKey = getClaudeKey(request);
     const geminiKey = getGeminiKey(request);
 
@@ -158,6 +159,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       ));
     }
+
+    // 사용자가 선택한 AI를 우선 사용
+    const useClaudeFirst = apiProvider !== 'gemini';
 
     const categoryLabel = CATEGORY_LABELS[body.category] || body.category;
     const toneDesc = body.tone || '전문적이고 신뢰감 있는';
@@ -187,8 +191,34 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
     let text = '';
     let lastError: Error | null = null;
 
-    // Claude 우선 시도 (권장)
-    if (claudeKey) {
+    // Gemini 선택 시 먼저 Gemini 시도
+    if (!useClaudeFirst && geminiKey) {
+      try {
+        console.log('[API] Gemini 우선 선택으로 콘텐츠 생성');
+        const ai = new GoogleGenAI({ apiKey: geminiKey });
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: userMessage,
+          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 3000, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
+        });
+        text = response.text || '';
+        console.log('[API] Gemini 성공');
+      } catch (geminiError: unknown) {
+        lastError = geminiError instanceof Error ? geminiError : new Error(String(geminiError));
+        console.log('[API] Gemini 실패, Claude로 폴백:', lastError.message);
+        if (claudeKey) {
+          const client = new Anthropic({ apiKey: claudeKey });
+          const message = await client.messages.create({
+            model: 'claude-sonnet-4-20250514', max_tokens: 3000,
+            messages: [{ role: 'user', content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1"]}}` }],
+          });
+          text = message.content[0].type === 'text' ? message.content[0].text : '';
+        } else throw lastError;
+      }
+    }
+
+    // 선택된 AI 우선 시도, 실패 시 자동 폴백
+    if (useClaudeFirst && claudeKey) {
       try {
         console.log('[API] Claude로 콘텐츠 생성 시도');
         const client = new Anthropic({ apiKey: claudeKey });
@@ -233,7 +263,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         }
       }
     } else if (geminiKey) {
-      // Claude 없으면 Gemini 시도
+      // Gemini 우선 선택 또는 Claude 없을 때 Gemini 시도
       try {
         console.log('[API] Gemini로 콘텐츠 생성 시도');
         const ai = new GoogleGenAI({ apiKey: geminiKey });
