@@ -80,3 +80,5 @@ ${industry ? `산업 분야: ${industry}` : ''}
     ));
   }
 }
+
+// v1777031107 - Cache bust

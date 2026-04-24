@@ -22,3 +22,5 @@ export async function GET(request: NextRequest) {
     return withCors(NextResponse.json({ error: 'Failed to check API status' }, { status: 500 }));
   }
 }
+
+// v1777031107 - Cache bust

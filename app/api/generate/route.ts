@@ -301,3 +301,5 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
     return withCors(NextResponse.json({ error: msg || '콘텐츠 생성 중 오류가 발생했습니다.' }, { status: 500 }));
   }
 }
+
+// v1777031107 - Cache bust

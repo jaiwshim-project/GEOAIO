@@ -36,3 +36,5 @@ export async function POST(request: NextRequest) {
     return withCors(NextResponse.json({ error: '분석 중 오류가 발생했습니다.' }, { status: 500 }));
   }
 }
+
+// v1777031107 - Cache bust

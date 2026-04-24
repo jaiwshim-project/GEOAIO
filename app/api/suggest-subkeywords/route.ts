@@ -148,3 +148,5 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
     return NextResponse.json({ error: msg || '오류가 발생했습니다.', subKeywords: [] }, { status: 500 });
   }
 }
+
+// v1777031107 - Cache bust

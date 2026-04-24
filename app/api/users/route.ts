@@ -44,3 +44,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
   }
 }
+
+// v1777031107 - Cache bust

@@ -44,3 +44,5 @@ export async function GET() {
     status: '✅ 환경변수 기반 API 키 관리'
   });
 }
+
+// v1777031107 - Cache bust
