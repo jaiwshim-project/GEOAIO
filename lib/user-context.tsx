@@ -66,11 +66,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       if (storedUser) setCurrentUserState(JSON.parse(storedUser));
       if (storedProject) setSelectedProjectState(JSON.parse(storedProject));
     } catch {}
-    // Gemini 키는 localStorage에서 로드 (인증 불필요)
-    try {
-      const key = localStorage.getItem('geoaio_gemini_key');
-      if (key) setGeminiApiKeyState(key);
-    } catch {}
+    // 주의: API 키는 localStorage에서 로드하지 않음
+    // 서버 환경 변수만 사용
     setInitialized(true);
   }, []);
 
