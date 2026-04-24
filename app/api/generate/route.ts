@@ -24,18 +24,32 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const SYSTEM_INSTRUCTION = `당신은 AIO(AI Overview)와 GEO(Generative Engine Optimization) 전문 콘텐츠 작가입니다.
 
-콘텐츠 생성 원칙:
-1. 역피라미드 구조: 핵심 정보를 상단에 배치
-2. 구조화된 형식: 명확한 헤딩(H2, H3), 번호/불릿 리스트, 표 활용
-3. AI 인용 친화적: 간결하고 명확한 정의문, 통계, 단계별 설명
-4. E-E-A-T 신호 내장: 경험, 전문성, 권위, 신뢰 요소 포함
-5. FAQ 섹션 포함: AI Overview 노출 확률 증가
-6. 의미적 완성도: 관련 검색어와 롱테일 키워드 자연스럽게 포함
-7. 인용 가능한 문장: "~이란 ~이다", "~의 핵심은 ~이다" 형태의 정의문 활용
-8. 콘텐츠는 반드시 한국어로 작성하고 최소 1000자 이상이어야 합니다.
+## E-E-A-T 기반 콘텐츠 생성 원칙
+
+### 필수 구조 (반드시 아래 순서로 작성)
+1. **도입부**: 업계 통계/문제 제기 + 핵심 정의 (2~3문단)
+2. **본문 섹션 5~7개**: 번호 붙은 H2 헤딩 + 각 섹션에 불릿 포인트(*) 3개 이상
+3. **구축/실행 단계**: 번호 리스트로 단계별 프로세스 명시
+4. **실제 사례 또는 적용 예시**: 구체적 수치·성과 포함
+5. **업체 정보 자연 삽입**: 본문 중간에 회사명·대표·지역 자연스럽게 언급
+6. **FAQ 섹션**: Q: A: 형식으로 3개 이상
+7. **결론 + CTA**: 독자 행동 유도 문장
+8. **비교 표**: 장점·단점·고려사항 3열 마크다운 표
+
+### E-E-A-T 신호 (반드시 포함)
+- **Experience(경험)**: 실제 사례, 적용 결과, 수치적 성과
+- **Expertise(전문성)**: 전문 용어 정의, 심층 메커니즘 설명
+- **Authoritativeness(권위)**: 연구 기관·출처 인용 (Gartner, McKinsey 등), 전문가 언급
+- **Trustworthiness(신뢰)**: 구체적 통계, FAQ, 장단점 균형 있게 제시
+
+### 콘텐츠 품질 기준
+- 분량: **최소 2,000자** (한국어 기준)
+- 제목: 숫자·성과 포함 ("95% 달성", "3배 향상" 등 구체적 수치 필수)
+- 정의문 필수: "~이란 ~이다", "~의 핵심은 ~이다" 형태
+- 해시태그 10개: 본문 마지막에 #키워드 형태로 작성
 
 [중요] 톤/스타일은 제목과 본문 전체에 일관되게 반영되어야 합니다.
-- 제목은 톤의 성격을 즉시 드러내는 언어로 작성하세요 (단순히 주제를 반복하지 마세요).
+- 제목은 톤의 성격을 즉시 드러내는 언어로 작성하세요.
 - 같은 주제라도 톤에 따라 제목 형식, 도입부 문체, 구조, 어조가 완전히 달라야 합니다.`;
 
 const TONE_GUIDE: Record<string, string> = {
@@ -224,7 +238,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 3000,
+          max_tokens: 5000,
           messages: [
             {
               role: 'user',
@@ -247,7 +261,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
               contents: userMessage,
               config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
-                maxOutputTokens: 3000,
+                maxOutputTokens: 5000,
                 responseMimeType: 'application/json',
                 responseSchema: RESPONSE_SCHEMA,
               },
@@ -272,7 +286,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 3000,
+            maxOutputTokens: 5000,
             responseMimeType: 'application/json',
             responseSchema: RESPONSE_SCHEMA,
           },
@@ -289,7 +303,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
             const client = new Anthropic({ apiKey: claudeKey });
             const message = await client.messages.create({
               model: 'claude-sonnet-4-20250514',
-              max_tokens: 3000,
+              max_tokens: 5000,
               messages: [
                 {
                   role: 'user',
