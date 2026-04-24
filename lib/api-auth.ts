@@ -31,13 +31,13 @@ export function getGeminiKey(request: NextRequest, body?: Record<string, unknown
 
 /**
  * Extract Claude API key from request.
- * Priority: X-Claude-Key header > process.env.CLAUDE_API_KEY
+ * Priority: X-Claude-Key header > process.env.ANTHROPIC_API_KEY > process.env.CLAUDE_API_KEY
  */
 export function getClaudeKey(request: NextRequest): string | undefined {
   const headerKey = request.headers.get('X-Claude-Key');
   if (headerKey) return headerKey;
 
-  return process.env.CLAUDE_API_KEY;
+  return process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
 }
 
 /**
