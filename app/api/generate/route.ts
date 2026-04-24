@@ -284,12 +284,20 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
   } catch (error: unknown) {
     console.error('Content generation error:', error);
     const msg = error instanceof Error ? error.message : '콘텐츠 생성 중 오류가 발생했습니다.';
-    if (msg.includes('API_KEY') || msg.includes('api key') || msg.includes('401')) {
-      return withCors(NextResponse.json({ error: 'Gemini API 키가 유효하지 않습니다. /settings에서 키를 확인해주세요.' }, { status: 401 }));
+
+    // 더 정확한 오류 분류
+    if (msg.includes('Gemini') && (msg.includes('401') || msg.includes('authentication'))) {
+      return withCors(NextResponse.json({ error: 'Gemini API 키가 유효하지 않습니다.' }, { status: 401 }));
     }
-    if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')) {
-      return withCors(NextResponse.json({ error: 'Gemini API 할당량을 초과했습니다. 잠시 후 다시 시도해주세요.' }, { status: 429 }));
+    if (msg.includes('Claude') && (msg.includes('401') || msg.includes('authentication'))) {
+      return withCors(NextResponse.json({ error: 'Claude API 키가 유효하지 않습니다.' }, { status: 401 }));
     }
-    return withCors(NextResponse.json({ error: msg }, { status: 500 }));
+    if (msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('rate_limit')) {
+      return withCors(NextResponse.json({ error: 'API 할당량을 초과했습니다. 잠시 후 다시 시도해주세요.' }, { status: 429 }));
+    }
+    if (msg.includes('model') && msg.includes('not found')) {
+      return withCors(NextResponse.json({ error: 'API 모델이 더 이상 사용 가능하지 않습니다. 관리자에게 문의해주세요.' }, { status: 400 }));
+    }
+    return withCors(NextResponse.json({ error: msg || '콘텐츠 생성 중 오류가 발생했습니다.' }, { status: 500 }));
   }
 }
