@@ -1374,6 +1374,39 @@ export default function GeneratePage() {
               </div>
             </div>
 
+            {/* AI API 선택 섹션 - 카테고리 선택과 무관하게 항상 표시 */}
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-gray-900">🤖 AI 선택</span>
+                <span className="text-xs font-bold text-emerald-600">{availableApis.length > 0 ? `${availableApis.length}개 활성` : '자동 선택'}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSelectedApi('gemini')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    selectedApi === 'gemini'
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                  }`}
+                >
+                  🌐 Gemini
+                </button>
+                <button
+                  onClick={() => setSelectedApi('claude')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    selectedApi === 'claude'
+                      ? 'bg-slate-600 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  🧠 Claude
+                </button>
+              </div>
+              <p className="text-xs text-gray-600 mt-2">
+                💡 선택한 AI로 생성합니다. 실패 시 다른 AI로 자동 재시도됩니다.
+              </p>
+            </div>
+
             {/* 입력 폼 */}
             {selectedCategory && (
               <div className="bg-white rounded-xl shadow-sm border border-sky-200 p-5">
@@ -1602,39 +1635,6 @@ export default function GeneratePage() {
                       </div>
                     );
                   })()}
-
-                  {/* AI API 선택 섹션 - 항상 표시 */}
-                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-200">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-semibold text-gray-900">🤖 AI 선택</span>
-                      <span className="text-xs font-bold text-emerald-600">{availableApis.length > 0 ? `${availableApis.length}개 활성` : '자동 선택'}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() => setSelectedApi('gemini')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                          selectedApi === 'gemini'
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                        }`}
-                      >
-                        🌐 Gemini
-                      </button>
-                      <button
-                        onClick={() => setSelectedApi('claude')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                          selectedApi === 'claude'
-                            ? 'bg-slate-600 text-white shadow-sm'
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                        }`}
-                      >
-                        🧠 Claude
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-2">
-                      💡 선택한 AI로 생성합니다. 실패 시 다른 AI로 자동 재시도됩니다.
-                    </p>
-                  </div>
 
                   {/* 추가 요구사항 + 참조 파일 업로드 */}
                   <div>

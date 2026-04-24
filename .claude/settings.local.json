@@ -91,7 +91,11 @@
       "Bash(py --version)",
       "Bash(pip --version)",
       "Bash(pip3 --version)",
-      "Bash(gh --version)"
+      "Bash(gh --version)",
+      "Bash(gh workflow *)",
+      "Bash(pkill -f \"npm run dev\")",
+      "Bash(grep -o \".{0,100}AI 선택.{0,100}\\\\|.{0,100}🤖.{0,100}\")",
+      "Bash(awk 'NR >= 1378 && NR <= 1850 { *)"
     ]
   }
 }
