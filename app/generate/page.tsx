@@ -708,7 +708,7 @@ export default function GeneratePage() {
 
       // 10가지 톤을 5개씩 병렬 생성
       const results: any[] = [];
-      const batchSize = 2;
+      const batchSize = 1;
       for (let i = 0; i < toneOptions.length; i += batchSize) {
         const batch = toneOptions.slice(i, i + batchSize);
         const batchResults = await Promise.all(
