@@ -645,21 +645,16 @@ export default function GeneratePage() {
     if (!selectedCategory || !topic.trim()) return;
 
     // ==================== API 자동 선택 로직 ====================
+    // 주의: API 키는 서버 환경 변수에서만 관리 (localStorage 사용 금지)
     const getApiKey = (api: string): string => {
-      if (api === 'gemini') {
-        return contextApiKey;
-      } else if (api === 'claude') {
-        return typeof window !== 'undefined' ?  : '';
-      }
+      // 클라이언트에서는 API 키를 반환하지 않음
+      // 서버에서 process.env를 사용
       return '';
     };
 
     const getApiHeader = (api: string, key: string): Record<string, string> => {
-      if (api === 'gemini') {
-        return { 'X-Gemini-Key': key };
-      } else if (api === 'claude') {
-        return { 'X-Claude-Key': key };
-      }
+      // 클라이언트에서 API 키를 헤더에 추가하지 않음
+      // 서버에서만 환경 변수 사용
       return {};
     };
 
