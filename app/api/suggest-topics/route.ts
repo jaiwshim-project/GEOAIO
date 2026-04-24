@@ -87,7 +87,7 @@ ${pastList ? `\n이미 작성된 주제와 겹치지 않아야 합니다:${pastL
       // Gemini API 사용
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
       });
       text = response.text || '';

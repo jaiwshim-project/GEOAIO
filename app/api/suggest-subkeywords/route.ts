@@ -91,7 +91,7 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
           console.log('[API] Gemini로 분야 생성 시도');
           const ai = new GoogleGenAI({ apiKey: geminiKey });
           const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
+            model: 'gemini-2.5-flash',
             contents: prompt,
           });
           text = response.text || '';
@@ -106,7 +106,7 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
       try {
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
-          model: 'gemini-2.0-flash',
+          model: 'gemini-2.5-flash',
           contents: prompt,
         });
         text = response.text || '';

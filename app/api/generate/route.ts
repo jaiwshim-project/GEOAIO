@@ -212,7 +212,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           try {
             const ai = new GoogleGenAI({ apiKey: geminiKey });
             const response = await ai.models.generateContent({
-              model: 'gemini-2.0-flash',
+              model: 'gemini-2.5-flash',
               contents: userMessage,
               config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
@@ -237,7 +237,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         console.log('[API] Gemini로 콘텐츠 생성 시도');
         const ai = new GoogleGenAI({ apiKey: geminiKey });
         const response = await ai.models.generateContent({
-          model: 'gemini-2.0-flash',
+          model: 'gemini-2.5-flash',
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
