@@ -130,23 +130,38 @@ export default function GenerateResultPage() {
           if (parsed.content) return { ...r, ...parsed };
         } catch {}
 
-        // 2순위: 개행 포함 비정규 JSON — 정규식으로 title/content 추출
+        // 2순위: 개행 포함 / 잘린 JSON — "content" 값 직접 추출
         try {
-          const titleMatch = content.match(/"title"\s*:\s*"((?:[^"\\]|\\.)*)"/);
-          // "content" 키 이후 첫 따옴표부터 "hashtags"/"metadata" 직전까지 추출
-          const contentMatch = content.match(/"content"\s*:\s*"([\s\S]*?)(?:"\s*,\s*"(?:hashtags|metadata|toneName|toneValue)|\}\s*$)/);
-          if (contentMatch && contentMatch[1].length > 30) {
-            // JSON 이스케이프 역변환
-            const rawContent = contentMatch[1]
-              .replace(/\\n/g, '\n')
-              .replace(/\\t/g, '\t')
-              .replace(/\\"/g, '"')
-              .replace(/\\\\/g, '\\');
-            return {
-              ...r,
-              title: titleMatch ? titleMatch[1] : r.title,
-              content: rawContent,
-            };
+          const contentKeyIdx = content.indexOf('"content"');
+          if (contentKeyIdx !== -1) {
+            const afterKey = content.slice(contentKeyIdx + 9);
+            const openQuote = afterKey.indexOf('"');
+            if (openQuote !== -1) {
+              const rawSlice = afterKey.slice(openQuote + 1);
+              const endMarkers = ['","hashtags"','", "hashtags"','","metadata"','", "metadata"','","toneName"','", "toneName"'];
+              let rawContent = rawSlice;
+              for (const marker of endMarkers) {
+                const idx = rawSlice.indexOf(marker);
+                if (idx !== -1) { rawContent = rawSlice.slice(0, idx); break; }
+              }
+              const decoded = rawContent
+                .replace(/\\n/g, '\n').replace(/\\t/g, '\t')
+                .replace(/\\"/g, '"').replace(/\\\\/g, '\\')
+                .replace(/"?\s*\}?\s*$/, '').trim();
+              // title 추출
+              let title = r.title;
+              const titleKeyIdx = content.indexOf('"title"');
+              if (titleKeyIdx !== -1) {
+                const afterTitle = content.slice(titleKeyIdx + 7);
+                const tq = afterTitle.indexOf('"');
+                if (tq !== -1) {
+                  const titleRaw = afterTitle.slice(tq + 1);
+                  const endTq = titleRaw.indexOf('"');
+                  if (endTq !== -1) title = titleRaw.slice(0, endTq).replace(/\\"/g, '"');
+                }
+              }
+              if (decoded.length > 30) return { ...r, title, content: decoded };
+            }
           }
         } catch {}
 
