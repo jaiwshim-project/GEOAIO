@@ -279,10 +279,37 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
       }
     }
 
-    // JSON 추출 (코드블록 감싸진 경우 대비)
-    const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-    const jsonText = jsonMatch ? jsonMatch[1].trim() : text.trim();
-    const parsed = JSON.parse(jsonText);
+    // JSON 추출 — 코드블록 / 앞뒤 텍스트 / 순수 JSON 모두 처리
+    let parsed: unknown;
+    try {
+      // 1순위: 코드블록 안 JSON
+      const blockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (blockMatch) {
+        parsed = JSON.parse(blockMatch[1].trim());
+      } else {
+        // 2순위: 첫 { 부터 마지막 } 까지 추출
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}');
+        if (start !== -1 && end !== -1 && end > start) {
+          parsed = JSON.parse(text.slice(start, end + 1));
+        } else {
+          parsed = JSON.parse(text.trim());
+        }
+      }
+    } catch {
+      // 3순위: Claude가 JSON을 못 만든 경우 — 텍스트를 그대로 content로 감싸서 반환
+      const wordCount = text.length;
+      parsed = {
+        title: '생성된 콘텐츠',
+        content: text,
+        hashtags: [],
+        metadata: {
+          wordCount,
+          estimatedReadTime: `약 ${Math.ceil(wordCount / 500)}분`,
+          seoTips: ['콘텐츠를 검토하고 필요 시 수정하세요.'],
+        },
+      };
+    }
     return withCors(NextResponse.json(parsed));
 
   } catch (error: unknown) {
