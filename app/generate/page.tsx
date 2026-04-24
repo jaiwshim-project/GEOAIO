@@ -646,38 +646,8 @@ export default function GeneratePage() {
 
     // ==================== API 자동 선택 로직 ====================
     // 주의: API 키는 서버 환경 변수에서만 관리 (localStorage 사용 금지)
-    const getApiKey = (api: string): string => {
-      // 클라이언트에서는 API 키를 반환하지 않음
-      // 서버에서 process.env를 사용
-      return '';
-    };
-
-    const getApiHeader = (api: string, key: string): Record<string, string> => {
-      // 클라이언트에서 API 키를 헤더에 추가하지 않음
-      // 서버에서만 환경 변수 사용
-      return {};
-    };
-
-    // 사용 가능한 API 목록에서 선택 (우선순위: Claude > Gemini > Geo-AIO)
-    let apiToUse = selectedApi;
-    let apiKey = getApiKey(apiToUse);
-
-    // 선택된 API 키가 없으면 다음 우선순위로
-    if (!apiKey) {
-      if (availableApis.includes('claude')) {
-        apiToUse = 'claude';
-        apiKey = getApiKey('claude');
-      } else if (availableApis.includes('gemini')) {
-        apiToUse = 'gemini';
-        apiKey = getApiKey('gemini');
-      }
-    }
-
-    if (!apiKey) {
-      setError('API 키가 설정되지 않았습니다. Gemini 또는 Claude API 키를 등록해주세요.');
-      setShowKeyRecovery(true);
-      return;
-    }
+    // API 키는 서버 환경 변수에서 관리 — 클라이언트 검사 불필요
+    const apiToUse = selectedApi || 'claude';
 
     setIsGenerating(true);
     setError(null);
@@ -733,7 +703,6 @@ export default function GeneratePage() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                ...getApiHeader(apiToUse, apiKey),
                 'X-API-Provider': apiToUse,
               },
               body: JSON.stringify({
