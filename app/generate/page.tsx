@@ -752,15 +752,22 @@ export default function GeneratePage() {
         targetKeyword: targetKeyword.trim() || undefined,
         generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
       });
-      const { saveGenerateResult } = await import('@/lib/supabase-storage');
       const mainResult = { ...results[0], abVersions: results };
-      const resultId = await saveGenerateResult({
-        result: mainResult, category: selectedCategory,
-        topic: topic.trim(), targetKeyword: targetKeyword.trim(),
-        tone: '10가지 톤', historyId,
-        project_id: selectedProject?.id,
-        selected_ab_index: 0,
-      });
+      let resultId: string;
+      try {
+        const { saveGenerateResult } = await import('@/lib/supabase-storage');
+        resultId = await saveGenerateResult({
+          result: mainResult, category: selectedCategory,
+          topic: topic.trim(), targetKeyword: targetKeyword.trim(),
+          tone: '10가지 톤', historyId,
+          project_id: selectedProject?.id,
+          selected_ab_index: 0,
+        });
+      } catch {
+        // DB 저장 실패 시 sessionStorage 폴백으로 결과 전달
+        resultId = `session_${Date.now()}`;
+        sessionStorage.setItem(`gr_${resultId}`, JSON.stringify({ result: mainResult, category: selectedCategory, topic: topic.trim(), targetKeyword: targetKeyword.trim(), tone: '10가지 톤', historyId }));
+      }
       router.push(`/generate/result?id=${resultId}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';

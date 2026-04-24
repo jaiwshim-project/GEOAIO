@@ -197,7 +197,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           messages: [
             {
               role: 'user',
-              content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}`,
+              content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1","#태그2"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1","팁2","팁3"]}}`,
             },
           ],
         });
@@ -262,7 +262,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
               messages: [
                 {
                   role: 'user',
-                  content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}`,
+                  content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1","#태그2"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1","팁2","팁3"]}}`,
                 },
               ],
             });
@@ -278,7 +278,10 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
       }
     }
 
-    const parsed = JSON.parse(text);
+    // JSON 추출 (코드블록 감싸진 경우 대비)
+    const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const jsonText = jsonMatch ? jsonMatch[1].trim() : text.trim();
+    const parsed = JSON.parse(jsonText);
     return withCors(NextResponse.json(parsed));
 
   } catch (error: unknown) {
