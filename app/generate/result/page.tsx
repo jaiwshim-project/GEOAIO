@@ -70,6 +70,11 @@ export default function GenerateResultPage() {
   const [activeAbTab, setActiveAbTab] = useState(0);
   const [selectedVersions, setSelectedVersions] = useState<Set<number>>(new Set([0]));
 
+  // E-E-A-T 자동 변환
+  const [eeatConverting, setEeatConverting] = useState(false);
+  const [eeatProgress, setEeatProgress] = useState(0); // 0~10
+  const [eeatDone, setEeatDone] = useState(false);
+
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
@@ -189,14 +194,58 @@ export default function GenerateResultPage() {
       setTargetKeyword(data.targetKeyword);
       setTone(data.tone);
       setCurrentHistoryId(data.historyId);
-      // A/B 버전이 있으면 로드
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const versions = (data.result as any)?.abVersions || [];
-      if (versions.length > 0) {
-        setAbVersions(versions.map(normalizeResult));
+      const normalizedVersions = versions.length > 0 ? versions.map(normalizeResult) : [];
+      if (normalizedVersions.length > 0) {
+        setAbVersions(normalizedVersions);
+        // E-E-A-T 자동 변환 시작
+        startEeatConversion(normalizedVersions, data.tone);
       }
     });
-  }, [router]);
+  }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // E-E-A-T 자동 변환 함수
+  const startEeatConversion = async (
+    versions: (GenerateResponse & { toneName?: string })[],
+    currentTone: string,
+  ) => {
+    if (versions.length === 0) return;
+    setEeatConverting(true);
+    setEeatProgress(0);
+    setEeatDone(false);
+
+    const converted: (GenerateResponse & { toneName?: string })[] = [...versions];
+
+    for (let i = 0; i < versions.length; i++) {
+      const v = versions[i];
+      try {
+        const res = await fetch('/api/convert-eeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: v.content,
+            title: v.title,
+            tone: (v as { toneName?: string; toneValue?: string }).toneValue || currentTone,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          converted[i] = { ...v, title: data.title || v.title, content: data.content || v.content };
+        }
+      } catch {
+        // 실패 시 원본 유지
+      }
+      setEeatProgress(i + 1);
+      // 변환된 버전 즉시 반영
+      setAbVersions([...converted]);
+      if (i === 0) setResult(converted[0]); // 첫 번째 완료 시 바로 표시
+    }
+
+    setEeatConverting(false);
+    setEeatDone(true);
+    setResult(converted[0]);
+  };
 
   const autoTag = (category: ContentCategory | null): string => {
     const tagMap: Record<string, string> = {
@@ -732,6 +781,37 @@ export default function GenerateResultPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
+        {/* E-E-A-T 자동 변환 진행 바 */}
+        {eeatConverting && (
+          <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <svg className="w-5 h-5 text-indigo-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-indigo-700">E-E-A-T 7단계 구조 변환 중... ({eeatProgress}/{abVersions.length})</p>
+                <p className="text-xs text-indigo-400 mt-0.5">FAQ · 비교표 · H2 섹션을 자동으로 추가하고 있습니다</p>
+              </div>
+              <span className="text-sm font-bold text-indigo-600">{Math.round((eeatProgress / Math.max(abVersions.length, 1)) * 100)}%</span>
+            </div>
+            <div className="w-full bg-indigo-100 rounded-full h-2">
+              <div
+                className="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all duration-500"
+                style={{ width: `${(eeatProgress / Math.max(abVersions.length, 1)) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
+        {eeatDone && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <svg className="w-4 h-4 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <p className="text-sm font-medium text-emerald-700">E-E-A-T 7단계 변환 완료 — 10개 톤 모두 구조화됐습니다</p>
           </div>
         )}
 
