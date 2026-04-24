@@ -73,7 +73,8 @@ async function getCategoryMeta(slug: string): Promise<{ label: string; descripti
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
   const meta = await getCategoryMeta(slug);
   return {
     title: `${meta.label} — GEO-AIO 블로그`,
@@ -83,7 +84,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function BlogCategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  // URL 인코딩된 한글 슬러그 디코딩 (예: %EB%9D%BC... → 라이프스타일)
+  const slug = decodeURIComponent(rawSlug);
   const [posts, meta] = await Promise.all([getCategoryPosts(slug), getCategoryMeta(slug)]);
 
   // 동적 카테고리도 허용 — 포스트가 없으면 빈 페이지로 표시
