@@ -713,31 +713,38 @@ export default function GeneratePage() {
         const batch = toneOptions.slice(i, i + batchSize);
         const batchResults = await Promise.all(
           batch.map(async (t) => {
-            const res = await fetch('/api/generate', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-API-Provider': apiToUse,
-              },
-              body: JSON.stringify({
-                category: selectedCategory,
-                topic: topic.trim(),
-                targetKeyword: targetKeyword.trim() || undefined,
-                subKeyword: selectedSubKeyword || undefined,
-                tone: t.value,
-                additionalNotes: notes,
-                company_name: activeProjectInfo?.company_name || undefined,
-                representative_name: activeProjectInfo?.representative_name || undefined,
-                region: activeProjectInfo?.region || undefined,
-                projectFiles: projectFiles.slice(0, 3).map(f => ({
-                  file_name: f.file_name,
-                  content: f.content.slice(0, 3000),
-                })),
-              }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(`[${t.label}] ${data.error || `HTTP ${res.status}`}`);
-            return { ...data, toneName: t.label, toneValue: t.value };
+            try {
+              const res = await fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-API-Provider': apiToUse,
+                },
+                body: JSON.stringify({
+                  category: selectedCategory,
+                  topic: topic.trim(),
+                  targetKeyword: targetKeyword.trim() || undefined,
+                  subKeyword: selectedSubKeyword || undefined,
+                  tone: t.value,
+                  additionalNotes: notes,
+                  company_name: activeProjectInfo?.company_name || undefined,
+                  representative_name: activeProjectInfo?.representative_name || undefined,
+                  region: activeProjectInfo?.region || undefined,
+                  projectFiles: projectFiles.slice(0, 3).map(f => ({
+                    file_name: f.file_name,
+                    content: f.content.slice(0, 3000),
+                  })),
+                }),
+              });
+              const data = await res.json();
+              if (!res.ok || data.error) {
+                // 개별 실패 시 폴백 반환 (전체 중단 방지)
+                return { title: topic.trim(), content: `${t.label} 톤 생성 실패: ${data.error || res.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
+              }
+              return { ...data, toneName: t.label, toneValue: t.value };
+            } catch {
+              return { title: topic.trim(), content: `${t.label} 톤 생성 중 오류 발생`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
+            }
           })
         );
         results.push(...batchResults);
@@ -762,15 +769,23 @@ export default function GeneratePage() {
       const now = new Date();
       const historyId = generateId();
       const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-      await saveHistoryItem({
-        id: historyId, type: 'generation',
-        title: results[0].title || topic.trim(),
-        summary: `10가지 톤 버전 | ${topic.trim()}`,
-        date: dateStr, category: selectedCategory || undefined,
-        targetKeyword: targetKeyword.trim() || undefined,
-        generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
-      });
-      const mainResult = { ...results[0], abVersions: results };
+      // 히스토리 저장 실패해도 redirect는 진행
+      try {
+        await saveHistoryItem({
+          id: historyId, type: 'generation',
+          title: results[0]?.title || topic.trim(),
+          summary: `10가지 톤 버전 | ${topic.trim()}`,
+          date: dateStr, category: selectedCategory || undefined,
+          targetKeyword: targetKeyword.trim() || undefined,
+          generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
+        });
+      } catch { /* 히스토리 저장 실패는 무시하고 계속 진행 */ }
+      // 성공한 결과가 하나도 없으면 에러 처리
+      const validResults = results.filter(r => r.content && r.content.length > 50);
+      if (validResults.length === 0) {
+        throw new Error('콘텐츠 생성에 실패했습니다. 다시 시도해주세요.');
+      }
+      const mainResult = { ...validResults[0], abVersions: results };
       let resultId: string;
       try {
         const { saveGenerateResult } = await import('@/lib/supabase-storage');
