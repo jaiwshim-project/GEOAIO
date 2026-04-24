@@ -121,14 +121,35 @@ export default function GenerateResultPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const normalizeResult = (r: any): any => {
         if (!r) return r;
-        let content = r.content || '';
-        // content가 JSON 문자열인 경우 파싱
-        if (typeof content === 'string' && content.trim().startsWith('{')) {
-          try {
-            const parsed = JSON.parse(content);
-            if (parsed.content) return { ...r, ...parsed };
-          } catch {}
-        }
+        const content = r.content || '';
+        if (typeof content !== 'string' || !content.trim().startsWith('{')) return r;
+
+        // 1순위: 정상 JSON 파싱
+        try {
+          const parsed = JSON.parse(content);
+          if (parsed.content) return { ...r, ...parsed };
+        } catch {}
+
+        // 2순위: 개행 포함 비정규 JSON — 정규식으로 title/content 추출
+        try {
+          const titleMatch = content.match(/"title"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          // "content" 키 이후 첫 따옴표부터 "hashtags"/"metadata" 직전까지 추출
+          const contentMatch = content.match(/"content"\s*:\s*"([\s\S]*?)(?:"\s*,\s*"(?:hashtags|metadata|toneName|toneValue)|\}\s*$)/);
+          if (contentMatch && contentMatch[1].length > 30) {
+            // JSON 이스케이프 역변환
+            const rawContent = contentMatch[1]
+              .replace(/\\n/g, '\n')
+              .replace(/\\t/g, '\t')
+              .replace(/\\"/g, '"')
+              .replace(/\\\\/g, '\\');
+            return {
+              ...r,
+              title: titleMatch ? titleMatch[1] : r.title,
+              content: rawContent,
+            };
+          }
+        } catch {}
+
         return r;
       };
 
