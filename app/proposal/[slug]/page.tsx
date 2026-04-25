@@ -292,7 +292,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
         {/* 뒤로가기 */}
         <Link
           href="/proposal"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-200/70 hover:text-amber-200 mb-4 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-100 hover:text-white mb-4 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -315,7 +315,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent">{meta.label}</span>
               <span className="block text-white/95 mt-1">AI 최적화 마케팅(GEO-AIO) 제안서</span>
             </h1>
-            <p className="text-white/70 text-sm leading-relaxed mt-3">
+            <p className="text-white/95 text-sm leading-relaxed mt-3">
               {meta.label}을 위한 맞춤형 자동화 콘텐츠 솔루션 제안서
             </p>
           </div>
@@ -333,12 +333,12 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                     isActive
                       ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 shadow-[0_4px_20px_-2px_rgba(251,191,36,0.5)] ring-1 ring-amber-300'
-                      : 'bg-white/5 text-white/70 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-amber-400/30 hover:text-amber-200'
+                      : 'bg-white/5 text-white/95 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-amber-400/30 hover:text-amber-200'
                   }`}
                 >
                   <span>{cat.label}</span>
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-slate-900/20 text-slate-900' : 'bg-white/10 text-white/60'
+                    isActive ? 'bg-slate-900/20 text-slate-900' : 'bg-white/10 text-white/85'
                   }`}>{cat.count}</span>
                 </Link>
               );
@@ -441,7 +441,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       </div>
                     </div>
                     <p className="text-[10px] font-semibold text-gray-700">AI 검색 점유율</p>
-                    <p className="text-[9px] text-gray-500">전체 검색 트래픽</p>
+                    <p className="text-[9px] text-gray-700">전체 검색 트래픽</p>
                   </div>
                   <div className="text-center bg-white rounded-xl p-3 border border-rose-100">
                     <div className="relative w-16 h-16 mx-auto mb-1.5">
@@ -451,7 +451,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       </div>
                     </div>
                     <p className="text-[10px] font-semibold text-gray-700">AI 인용 가능성</p>
-                    <p className="text-[9px] text-gray-500">일반 SEO 기준</p>
+                    <p className="text-[9px] text-gray-700">일반 SEO 기준</p>
                   </div>
                   <div className="text-center bg-white rounded-xl p-3 border border-rose-100">
                     <div className="relative w-16 h-16 mx-auto mb-1.5">
@@ -461,7 +461,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       </div>
                     </div>
                     <p className="text-[10px] font-semibold text-gray-700">미인용 콘텐츠</p>
-                    <p className="text-[9px] text-gray-500">기존 SEO 방식</p>
+                    <p className="text-[9px] text-gray-700">기존 SEO 방식</p>
                   </div>
                 </div>
 
@@ -546,7 +546,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
                         <th className="px-3 py-2 text-left font-semibold text-amber-200">구분</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식 (검색 최적화)</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식 (검색 최적화)</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식 (AI 최적화)</th>
                       </tr>
                     </thead>
@@ -571,7 +571,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
                         <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -601,7 +601,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
                         <th className="px-3 py-2 text-left font-semibold text-amber-200">요소</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -627,7 +627,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
                         <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -655,7 +655,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
                         <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -681,7 +681,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
                         <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -706,7 +706,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
                         <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -765,13 +765,13 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
 
               {/* 최종 결론 */}
               <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white">
-                <p className="text-xs font-semibold text-white/70 mb-2">🔥 최종 결론</p>
+                <p className="text-xs font-semibold text-white/95 mb-2">🔥 최종 결론</p>
                 <div className="space-y-1.5 mb-4 text-sm">
                   <p>👉 <strong>SEO 방식</strong>은 &quot;트래픽을 만드는 구조&quot;</p>
                   <p>👉 <strong>E-E-A-T 방식</strong>은 &quot;신뢰와 인용을 만드는 구조&quot;</p>
                 </div>
                 <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                  <p className="text-xs font-semibold text-white/70 mb-1">전략 한 문장</p>
+                  <p className="text-xs font-semibold text-white/95 mb-1">전략 한 문장</p>
                   <p className="text-base font-bold">
                     👉 &quot;SEO로 유입을 만들고, E-E-A-T 구조로 AI가 인용하게 만든다&quot;
                   </p>
@@ -799,7 +799,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     className="group block bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-indigo-400 hover:shadow-sm transition-all"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-gray-400 font-mono shrink-0">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="text-xs text-gray-600 font-mono shrink-0">{String(i + 1).padStart(2, '0')}</span>
                       <p className="text-sm text-gray-800 flex-1 group-hover:text-indigo-600 transition-colors">{title}</p>
                       <svg className="w-4 h-4 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -848,7 +848,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                         <p className="text-xs text-gray-600">오프라인 상담 + 수기 리포트 중심. 디지털·AI 자산 부재.</p>
                       </div>
                     </div>
-                    <div className="text-center text-gray-400">↓</div>
+                    <div className="text-center text-gray-600">↓</div>
                     <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                       <span className="shrink-0 w-14 h-14 rounded-xl bg-emerald-200 text-emerald-800 flex flex-col items-center justify-center text-[10px] font-bold">
                         <span className="text-xl">2</span>전환
@@ -858,7 +858,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                         <p className="text-xs text-gray-700">AI 상담 엔진 + 자동 리포트 + GEO-AIO 콘텐츠 자산 확보.</p>
                       </div>
                     </div>
-                    <div className="text-center text-gray-400">↓</div>
+                    <div className="text-center text-gray-600">↓</div>
                     <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-200 rounded-xl p-4">
                       <span className="shrink-0 w-14 h-14 rounded-xl bg-indigo-200 text-indigo-800 flex flex-col items-center justify-center text-[10px] font-bold">
                         <span className="text-xl">3</span>확장
@@ -868,7 +868,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                         <p className="text-xs text-gray-700">설문→데이터→그래프→전략의 구조화된 기업 진단 SaaS화.</p>
                       </div>
                     </div>
-                    <div className="text-center text-gray-400">↓</div>
+                    <div className="text-center text-gray-600">↓</div>
                     <div className="flex items-center gap-3 bg-gradient-to-r from-violet-50 to-fuchsia-50 border border-violet-200 rounded-xl p-4">
                       <span className="shrink-0 w-14 h-14 rounded-xl bg-violet-200 text-violet-800 flex flex-col items-center justify-center text-[10px] font-bold">
                         <span className="text-xl">4</span>최종
@@ -891,7 +891,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <div className="bg-white border-2 border-emerald-200 rounded-xl p-4">
                       <p className="text-xs font-bold text-emerald-600 mb-1">1️⃣ 콘텐츠</p>
                       <p className="text-sm font-bold text-gray-900 mb-2">GEO + AIO 콘텐츠 전략</p>
-                      <p className="text-[11px] text-gray-500 mb-2">현재: 없음 → 반드시 필요</p>
+                      <p className="text-[11px] text-gray-700 mb-2">현재: 없음 → 반드시 필요</p>
                       <ul className="text-xs text-gray-700 space-y-0.5 list-disc list-inside">
                         <li>세무조사 대응 방법</li>
                         <li>법인 절세 전략</li>
@@ -941,19 +941,19 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
                   <p className="text-[11px] font-semibold text-emerald-300 mb-1 tracking-wide">콘텐츠 생산성</p>
                   <p className="text-2xl font-extrabold bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">5~10배</p>
-                  <p className="text-[10px] text-white/50 mt-1">월 15~30편 → 100~150편</p>
+                  <p className="text-[10px] text-white/75 mt-1">월 15~30편 → 100~150편</p>
                 </div>
                 <div className="relative bg-gradient-to-br from-slate-900 to-indigo-950 ring-1 ring-amber-400/40 rounded-xl p-4 text-center overflow-hidden shadow-[0_8px_30px_-10px_rgba(251,191,36,0.4)]">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
                   <p className="text-[11px] font-semibold text-amber-300 mb-1 tracking-wide">AI 인용률</p>
                   <p className="text-2xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent">16배 ↑</p>
-                  <p className="text-[10px] text-white/50 mt-1">5% 미만 → 80%+</p>
+                  <p className="text-[10px] text-white/75 mt-1">5% 미만 → 80%+</p>
                 </div>
                 <div className="relative bg-gradient-to-br from-slate-900 to-rose-950 ring-1 ring-rose-400/30 rounded-xl p-4 text-center overflow-hidden shadow-[0_8px_30px_-10px_rgba(244,63,94,0.3)]">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-400/50 to-transparent" />
                   <p className="text-[11px] font-semibold text-rose-300 mb-1 tracking-wide">신규 고객 유입</p>
                   <p className="text-2xl font-extrabold bg-gradient-to-r from-rose-300 to-orange-200 bg-clip-text text-transparent">3~4배</p>
-                  <p className="text-[10px] text-white/50 mt-1">평균 +220~380%</p>
+                  <p className="text-[10px] text-white/75 mt-1">평균 +220~380%</p>
                 </div>
               </div>
 
@@ -963,7 +963,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left font-semibold text-amber-200">항목</th>
-                      <th className="px-4 py-3 text-left font-semibold text-white/60">기존 방식 (도입 전)</th>
+                      <th className="px-4 py-3 text-left font-semibold text-white/85">기존 방식 (도입 전)</th>
                       <th className="px-4 py-3 text-left font-semibold text-emerald-300">GEO-AIO 도입 후 (3개월)</th>
                       <th className="px-4 py-3 text-left font-semibold text-violet-300 hidden sm:table-cell">변화</th>
                     </tr>
@@ -971,49 +971,49 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <tbody className="divide-y divide-gray-100 bg-white">
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">월간 콘텐츠 발행량</td>
-                      <td className="px-4 py-3 text-gray-500">15~30편</td>
+                      <td className="px-4 py-3 text-gray-700">15~30편</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">100~150편</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">5~10배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편당 단가</td>
-                      <td className="px-4 py-3 text-gray-500">10~15만원 (외주)</td>
+                      <td className="px-4 py-3 text-gray-700">10~15만원 (외주)</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">약 1.3~2만원</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">단가 1/8 ↓</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">AI 인용 가능성</td>
-                      <td className="px-4 py-3 text-gray-500">5% 미만</td>
+                      <td className="px-4 py-3 text-gray-700">5% 미만</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">80%+</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">16배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">AI Overview 노출률</td>
-                      <td className="px-4 py-3 text-gray-500">0~5%</td>
+                      <td className="px-4 py-3 text-gray-700">0~5%</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">80~85%</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">16배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">월간 마케팅 비용</td>
-                      <td className="px-4 py-3 text-gray-500">200~300만원</td>
+                      <td className="px-4 py-3 text-gray-700">200~300만원</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">월 200만원 (동일)</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">양 ~10배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">동시 운영 채널</td>
-                      <td className="px-4 py-3 text-gray-500">1~2개 (블로그)</td>
+                      <td className="px-4 py-3 text-gray-700">1~2개 (블로그)</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">5채널 자동 변환</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">멀티 채널화</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">신규 고객 유입</td>
-                      <td className="px-4 py-3 text-gray-500">기준 (100%)</td>
+                      <td className="px-4 py-3 text-gray-700">기준 (100%)</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">320~380%</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">3.2~3.8배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 자산 가치</td>
-                      <td className="px-4 py-3 text-gray-500">단발성·소비형</td>
+                      <td className="px-4 py-3 text-gray-700">단발성·소비형</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">영구 자산화</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">장기 누적</td>
                     </tr>
@@ -1029,7 +1029,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-amber-200 mb-1 tracking-wide">투자 회수 기간 (예상)</p>
-                    <p className="text-xs text-white/70 leading-relaxed">
+                    <p className="text-xs text-white/95 leading-relaxed">
                       평균 <strong className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent">2~4개월</strong> 내 회수.
                       AI 검색 노출 증가 → 신규 유입 → 매출 증대 → 추가 투자 여력 확보의 선순환 구조 진입.
                       도입 1년 후 누적 콘텐츠 1,800편 + AI 인용 자산 영구 보유.
@@ -1039,7 +1039,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
 
               {/* 면책 */}
-              <p className="mt-3 text-[11px] text-gray-400 leading-relaxed">
+              <p className="mt-3 text-[11px] text-gray-600 leading-relaxed">
                 ※ 위 수치는 동종 업계 평균 도입 사례를 기반으로 한 예상치입니다. 실제 결과는 업체 특성·콘텐츠 품질·시장 환경에 따라 달라질 수 있습니다.
               </p>
             </section>
@@ -1067,7 +1067,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div className="grid grid-cols-3 gap-2 items-center">
                     <div className="text-center">
                       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
-                        <p className="text-[10px] text-white/50 mb-1">카테고리</p>
+                        <p className="text-[10px] text-white/75 mb-1">카테고리</p>
                         <p className="text-sm font-bold text-white truncate">{meta.label}</p>
                       </div>
                     </div>
@@ -1098,7 +1098,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-gray-600">일반 SEO 콘텐츠</span>
-                      <span className="text-xs font-bold text-gray-500">~5%</span>
+                      <span className="text-xs font-bold text-gray-700">~5%</span>
                     </div>
                     <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-gray-400 to-gray-500 rounded-full" style={{ width: '5%' }} />
@@ -1123,7 +1123,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     </div>
                   </div>
                 </div>
-                <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
+                <p className="text-[10px] text-gray-600 mt-3 leading-relaxed">
                   ※ 일반론적 추정치. AI 검색엔진별·키워드별로 차이가 있을 수 있음. 같은 콘텐츠라도 schema.org 적용 시 AI가 출처를 정확히 인용할 가능성이 크게 향상됩니다.
                 </p>
               </div>
@@ -1170,12 +1170,12 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     프로 (Pro)
                   </div>
                   <div className="mt-1 mb-3">
-                    <p className="text-[11px] font-semibold text-gray-500 mb-0.5">1년 계약 · 월간 결제</p>
+                    <p className="text-[11px] font-semibold text-gray-700 mb-0.5">1년 계약 · 월간 결제</p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-2xl font-extrabold text-blue-600">200</span>
                       <span className="text-sm font-bold text-gray-700">만원/월</span>
                     </div>
-                    <p className="text-[11px] text-gray-500">부가세 별도 · 연 2,400만원</p>
+                    <p className="text-[11px] text-gray-700">부가세 별도 · 연 2,400만원</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span><strong className="text-blue-700">월 100건</strong> (연 1,200건)</span></li>
@@ -1189,13 +1189,13 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     프리미엄 (Premium)
                   </div>
                   <div className="mt-1 mb-3">
-                    <p className="text-[11px] font-semibold text-gray-500 mb-0.5">1년 계약 · 분기별 결제</p>
+                    <p className="text-[11px] font-semibold text-gray-700 mb-0.5">1년 계약 · 분기별 결제</p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-2xl font-extrabold text-indigo-600">540</span>
                       <span className="text-sm font-bold text-gray-700">만원/분기</span>
                     </div>
                     <p className="text-[11px] font-bold text-indigo-600">연 2,160만원 (4회 분기 결제)</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">부가세 별도</p>
+                    <p className="text-[10px] text-gray-600 mt-0.5">부가세 별도</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span><strong className="text-indigo-700">월 120건</strong> (연 1,440건)</span></li>
@@ -1212,15 +1212,15 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     20% 할인
                   </div>
                   <div className="mt-1 mb-3">
-                    <p className="text-[11px] font-semibold text-gray-500 mb-0.5">연간 결제 (추천)</p>
+                    <p className="text-[11px] font-semibold text-gray-700 mb-0.5">연간 결제 (추천)</p>
                     <div className="flex items-baseline gap-1.5 flex-wrap">
                       <span className="text-2xl font-extrabold text-violet-600">1,440</span>
                       <span className="text-sm font-bold text-gray-700">만원</span>
-                      <span className="text-[11px] text-gray-400 line-through">1,920만원</span>
+                      <span className="text-[11px] text-gray-600 line-through">1,920만원</span>
                       <span className="text-[10px] font-bold text-rose-600">(20% 할인)</span>
                     </div>
                     <p className="text-[11px] font-bold text-rose-600">월 120만원 상당 · 연 20% 절감</p>
-                    <p className="text-[9px] text-gray-400 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다.</p>
+                    <p className="text-[9px] text-gray-600 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다.</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 150건</strong> (연 1,800건)</span></li>
@@ -1240,7 +1240,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </Link>
-                <span className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-gray-500">
+                <span className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-gray-700">
                   ※ 부가세 10% 별도
                 </span>
               </div>
@@ -1294,7 +1294,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <span className="text-sm font-bold text-indigo-700">개</span>
                   </div>
                   <p className="text-xs font-bold text-gray-900">운영 카테고리</p>
-                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">실제 운영 중인 업체 카테고리</p>
+                  <p className="text-[10px] text-gray-700 mt-1 leading-snug">실제 운영 중인 업체 카테고리</p>
                 </div>
                 <div className="relative bg-gradient-to-br from-emerald-50/40 via-white to-emerald-50/40 ring-1 ring-emerald-200/70 rounded-xl p-4 text-center shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] overflow-hidden">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
@@ -1303,7 +1303,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <span className="text-sm font-bold text-emerald-700">편</span>
                   </div>
                   <p className="text-xs font-bold text-gray-900">누적 콘텐츠</p>
-                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">AI 인용 가능 자산 누적 보유</p>
+                  <p className="text-[10px] text-gray-700 mt-1 leading-snug">AI 인용 가능 자산 누적 보유</p>
                 </div>
                 <div className="relative bg-gradient-to-br from-amber-50/40 via-white to-amber-50/40 ring-1 ring-amber-200/70 rounded-xl p-4 text-center shadow-[0_4px_16px_-6px_rgba(251,191,36,0.2)] overflow-hidden">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
@@ -1312,7 +1312,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <span className="text-sm font-bold text-amber-700">배</span>
                   </div>
                   <p className="text-xs font-bold text-gray-900">AI 인용률 향상</p>
-                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">5% → 80%+ (E-E-A-T+온톨로지)</p>
+                  <p className="text-[10px] text-gray-700 mt-1 leading-snug">5% → 80%+ (E-E-A-T+온톨로지)</p>
                 </div>
                 <div className="relative bg-gradient-to-br from-rose-50/40 via-white to-rose-50/40 ring-1 ring-rose-200/70 rounded-xl p-4 text-center shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] overflow-hidden">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-400/60 to-transparent" />
@@ -1320,7 +1320,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <span className="text-3xl font-extrabold bg-gradient-to-br from-rose-600 to-rose-700 bg-clip-text text-transparent">✓</span>
                   </div>
                   <p className="text-xs font-bold text-gray-900">특허·저작권</p>
-                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">제미나이 AI 기반 등록 완료</p>
+                  <p className="text-[10px] text-gray-700 mt-1 leading-snug">제미나이 AI 기반 등록 완료</p>
                 </div>
               </div>
             </section>
@@ -1366,7 +1366,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 <h3 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
                   <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent">{meta.label}</span> 전용 데모, 30분 안에 직접 확인하세요
                 </h3>
-                <p className="text-sm text-white/70 mb-5 leading-relaxed">
+                <p className="text-sm text-white/95 mb-5 leading-relaxed">
                   {meta.label}의 PDF 1개를 업로드하면, 30분 안에 10가지 톤의 E-E-A-T 최적화 콘텐츠가 완성됩니다.
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -1389,7 +1389,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             </section>
 
             {/* Footer info */}
-            <div className="border-t border-gray-100 pt-4 text-xs text-gray-400 flex flex-wrap items-center gap-3">
+            <div className="border-t border-gray-100 pt-4 text-xs text-gray-600 flex flex-wrap items-center gap-3">
               <span>📞 010-2397-5734</span><span>·</span>
               <span>✉️ jaiwshim@gmail.com</span><span>·</span>
               <span>🌐 www.geo-aio.com</span>
