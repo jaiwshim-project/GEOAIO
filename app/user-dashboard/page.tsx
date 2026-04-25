@@ -490,7 +490,12 @@ export default function UserDashboardPage() {
         {/* ===== 프로젝트 ===== */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-white font-bold text-base">프로젝트</h3>
+            <h3 className="text-white font-bold text-base flex items-center gap-2">
+              프로젝트
+              <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-500/30 text-indigo-100 border border-indigo-300/30">
+                총 {projects.length}개
+              </span>
+            </h3>
             <button
               onClick={() => { setShowAddForm(!showAddForm); setError(''); }}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
