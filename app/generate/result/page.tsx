@@ -200,26 +200,8 @@ export default function GenerateResultPage() {
       const normalizedVersions = versions.length > 0 ? versions.map(normalizeResult) : [];
       if (normalizedVersions.length > 0) {
         setAbVersions(normalizedVersions);
-
-        // 이미 E-E-A-T 변환된 콘텐츠인지 감지
-        // 조건: H2 섹션 3개+, FAQ 또는 비교표 존재
-        const isAlreadyConverted = (v: GenerateResponse) => {
-          const c = v.content || '';
-          const h2Count = (c.match(/^## /gm) || []).length;
-          const hasFaq = /##\s*FAQ|Q:\s/i.test(c);
-          const hasTable = /\|\s*장점\s*\|/i.test(c) || (c.match(/\|/g) || []).length >= 6;
-          return h2Count >= 3 && (hasFaq || hasTable);
-        };
-        const allConverted = normalizedVersions.every(isAlreadyConverted);
-
-        if (allConverted) {
-          // 이미 변환됨 → 변환 스킵, 즉시 완료 상태
-          setEeatProgress(normalizedVersions.length);
-          setEeatDone(true);
-        } else {
-          // 미변환 → 자동 변환 시작
-          startEeatConversion(normalizedVersions, data.tone);
-        }
+        // 각 톤별로 개별 검증 → 미완성만 선택적으로 처리
+        startEeatConversion(normalizedVersions, data.tone);
       }
     });
   }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -357,51 +339,59 @@ export default function GenerateResultPage() {
       return orig + sep + cont;
     };
 
-    // ── 1개씩 순차 변환 + 자동 이어쓰기 + 검증 ──
+    // ── 개별 톤별 처리: 완성된 것은 유지, 미완성은 이어쓰기로만 보완 (재생성 절대 X) ──
     const failedSet = new Set<number>();
     for (let i = 0; i < versions.length; i++) {
       const v = versions[i];
-      let validResult: typeof v | null = null;
+      const originalContent = v.content || '';
 
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          console.log(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 시도 ${attempt}/3`);
-          const r = await tryConvert(v);
-          if (!r || !r.content) {
-            console.log(`[E-E-A-T] 톤 ${i + 1} 시도 ${attempt}: API 실패`);
-            continue;
-          }
-
-          // 1차 검증
-          let validation = validateComplete(r.content);
-          let currentContent = r.content;
-
-          // ⭐ 미완성이면 자동 이어쓰기 (최대 2회)
-          for (let contAttempt = 0; contAttempt < 2 && !validation.ok; contAttempt++) {
-            if (currentContent.length < 800) break; // 너무 짧으면 처음부터 재시도
-            console.log(`[E-E-A-T] 톤 ${i + 1} 미완성(${validation.reason}) → 이어쓰기 ${contAttempt + 1}/2`);
-            const continued = await continueContent(v, currentContent);
-            if (!continued) break;
-            currentContent = mergeContent(currentContent, continued);
-            validation = validateComplete(currentContent);
-          }
-
-          if (validation.ok) {
-            console.log(`[E-E-A-T] 톤 ${i + 1} ✅ 완성 (시도 ${attempt}, ${currentContent.length}자)`);
-            validResult = { ...r, content: currentContent };
-            break;
-          } else {
-            console.log(`[E-E-A-T] 톤 ${i + 1} ❌ 이어쓰기 후에도 미완성: ${validation.reason}`);
-          }
-        } catch (e) {
-          console.log(`[E-E-A-T] 톤 ${i + 1} 오류:`, e);
-        }
+      // ⭐ 1단계: 기존 콘텐츠가 이미 100% 완성되어 있는지 검증
+      const initialCheck = validateComplete(originalContent);
+      if (initialCheck.ok) {
+        console.log(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) ✅ 이미 완성 — 그대로 유지`);
+        setEeatProgress(i + 1);
+        setAbVersions([...converted]);
+        if (i === 0) setResult(converted[0]);
+        continue;
       }
 
-      if (validResult) {
-        converted[i] = validResult;
-      } else {
-        console.warn(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 최종 실패 — 원본 유지`);
+      // ⭐ 2단계: 미완성 — 기존 내용 그대로 두고 이어쓰기로만 완결 (재변환 절대 안 함)
+      console.log(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) ❌ 미완성: ${initialCheck.reason} → 이어쓰기 시작`);
+      let currentContent = originalContent;
+      let isComplete = false;
+
+      // 최대 5회 이어쓰기 시도 (각 시도마다 누적)
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        // 너무 짧아서 이어쓰기 불가능한 경우만 패스
+        if (currentContent.length < 200) {
+          console.log(`[E-E-A-T] 톤 ${i + 1} 콘텐츠 너무 짧음(${currentContent.length}자) — 이어쓰기 불가`);
+          break;
+        }
+
+        console.log(`[E-E-A-T] 톤 ${i + 1} 이어쓰기 ${attempt}/5 (현재 ${currentContent.length}자)`);
+        const continued = await continueContent(v, currentContent);
+        if (!continued) {
+          console.log(`[E-E-A-T] 톤 ${i + 1} 이어쓰기 ${attempt} 실패`);
+          continue;
+        }
+
+        currentContent = mergeContent(currentContent, continued);
+        const validation = validateComplete(currentContent);
+        if (validation.ok) {
+          console.log(`[E-E-A-T] 톤 ${i + 1} ✅ 이어쓰기로 완성 (${currentContent.length}자, ${attempt}회)`);
+          isComplete = true;
+          break;
+        }
+        console.log(`[E-E-A-T] 톤 ${i + 1} 이어쓰기 ${attempt}회 후 여전히: ${validation.reason}`);
+      }
+
+      // 이어쓰기로 늘어난 콘텐츠를 항상 저장 (완성/미완성 관계없이)
+      if (currentContent.length > originalContent.length) {
+        converted[i] = { ...v, content: currentContent };
+      }
+
+      if (!isComplete) {
+        console.warn(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 5회 이어쓰기 후에도 미완성 — 현재까지 누적된 내용 유지`);
         failedSet.add(i);
         setEeatFailed(new Set(failedSet));
       }
@@ -977,10 +967,10 @@ export default function GenerateResultPage() {
               </svg>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-indigo-700">
-                  E-E-A-T 변환 중: <span className="text-indigo-900">{abVersions[eeatProgress]?.toneName || '...'}</span>
+                  E-E-A-T 검증·보완 중: <span className="text-indigo-900">{abVersions[eeatProgress]?.toneName || '...'}</span>
                   <span className="text-xs text-indigo-400 ml-2">({eeatProgress}/{abVersions.length})</span>
                 </p>
-                <p className="text-xs text-indigo-400 mt-0.5">완료된 톤은 즉시 표시됩니다 · 1개씩 순차 변환</p>
+                <p className="text-xs text-indigo-400 mt-0.5">이미 완성된 톤은 그대로 유지 · 미완성만 이어쓰기로 보완</p>
               </div>
               <span className="text-sm font-bold text-indigo-600">{Math.round((eeatProgress / Math.max(abVersions.length, 1)) * 100)}%</span>
             </div>
