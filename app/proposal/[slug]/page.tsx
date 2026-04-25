@@ -821,16 +821,17 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     맥스 (Max)
                   </div>
                   <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[11px] font-bold rounded-full">
-                    40% 할인
+                    20% 할인
                   </div>
                   <div className="mt-1 mb-3">
                     <p className="text-[11px] font-semibold text-gray-500 mb-0.5">연간 결제 (추천)</p>
-                    <div className="flex items-baseline gap-1.5">
+                    <div className="flex items-baseline gap-1.5 flex-wrap">
                       <span className="text-2xl font-extrabold text-violet-600">1,440</span>
                       <span className="text-sm font-bold text-gray-700">만원</span>
-                      <span className="text-[11px] text-gray-400 line-through">2,440만원</span>
+                      <span className="text-[11px] text-gray-400 line-through">1,920만원</span>
+                      <span className="text-[10px] font-bold text-rose-600">(20% 할인)</span>
                     </div>
-                    <p className="text-[11px] font-bold text-rose-600">월 120만원 상당 · 연 40% 절감</p>
+                    <p className="text-[11px] font-bold text-rose-600">월 120만원 상당 · 연 20% 절감</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 150건</strong> (연 1,800건)</span></li>

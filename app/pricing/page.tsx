@@ -101,18 +101,19 @@ export default function PricingPage() {
               맥스 (Max)
             </div>
             <div className="absolute -top-3 right-6 px-3 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full animate-pulse">
-              40% 특별 할인
+              20% 특별 할인
             </div>
 
             <div className="mt-2 mb-4">
               <p className="text-xs font-semibold text-gray-500 mb-1">연간 결제 (추천)</p>
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-4xl font-extrabold text-violet-600">1,440</span>
                 <span className="text-lg font-bold text-gray-700">만원</span>
-                <span className="text-sm text-gray-400 line-through">2,440만원</span>
+                <span className="text-sm text-gray-400 line-through">1,920만원</span>
+                <span className="text-xs font-bold text-rose-600">(20% 할인)</span>
               </div>
               <p className="text-xs text-gray-500 mt-1">부가세 별도</p>
-              <p className="text-xs font-bold text-rose-600">월 120만원 상당 = 연 40% 절감</p>
+              <p className="text-xs font-bold text-rose-600">월 120만원 상당 = 연 20% 절감</p>
             </div>
 
             <div className="border-t border-gray-100 pt-4 mb-4">
