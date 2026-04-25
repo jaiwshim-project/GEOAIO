@@ -56,12 +56,14 @@ export async function GET(req: NextRequest) {
       .eq('id', userId)
       .maybeSingle();
 
-    // 2. email 또는 username으로 auth user 찾아서 user_plans 조회
+    // 2. username 우선, 그 다음 email로 auth user 찾아서 user_plans 조회
+    // (username이 사용자 식별자이므로 우선; email은 보조 매칭 — 다른 사용자와 충돌 방지)
     if (profileData?.email || profileData?.username) {
       const { data: { users: authUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-      const authUser = authUsers.find(u =>
-        u.email === profileData.email || u.email === profileData.username
-      );
+      const authUser =
+        (profileData.username && authUsers.find(u => u.email === profileData.username)) ||
+        (profileData.email && authUsers.find(u => u.email === profileData.email)) ||
+        null;
       if (authUser) {
         const { data: planData } = await supabase
           .from('user_plans')
