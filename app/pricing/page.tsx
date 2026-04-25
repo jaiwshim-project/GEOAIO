@@ -8,21 +8,42 @@ export default function PricingPage() {
   const [contactModal, setContactModal] = useState<'pro' | 'max' | null>(null);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
+      {/* 프리미엄 배경 텍스처 */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(251,191,36,0.08),_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(99,102,241,0.06),_transparent_60%)] pointer-events-none" />
+
       <Header />
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 히어로 */}
-        <section className="relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 text-white px-6 sm:px-10 py-10 mb-8">
+      <main className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 히어로 — 프리미엄 다크 + 골드 */}
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-6 sm:px-10 py-10 mb-6 ring-1 ring-amber-400/20 shadow-[0_20px_60px_-15px_rgba(251,191,36,0.25)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.15),_transparent_50%)]" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent" />
           <div className="relative">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-3">GEO-AIO 가격표</h1>
-            <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <p className="text-[10px] font-bold tracking-[0.2em] text-amber-300">PRICING</p>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight">
+              <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent">GEO-AIO</span>
+              <span className="block text-white/95 mt-1">가격표</span>
+            </h1>
+            <p className="text-white/80 text-sm sm:text-base leading-relaxed mt-3">
               AI 검색 시대, 콘텐츠가 AI에 의해 발견되고 인용되기 위한 전략적 도구
             </p>
-            <p className="text-white/70 text-xs sm:text-sm mt-2">
+            <p className="text-amber-200/70 text-xs sm:text-sm mt-2">
               제미나이 AI 기반 · 특허 · 저작권 등록 완료
             </p>
           </div>
         </section>
+
+        {/* 본문 컨테이너 — 라이트 카드 */}
+        <article className="bg-white rounded-2xl ring-1 ring-amber-200/40 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.5)] overflow-hidden">
+          <div className="h-1.5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          </div>
+          <div className="p-6 sm:p-10 space-y-8">
 
         {/* 비교 배너 */}
         <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-5 mb-8">
@@ -95,9 +116,10 @@ export default function PricingPage() {
             </button>
           </div>
 
-          {/* 맥스 플랜 */}
-          <div className="relative bg-white rounded-2xl border-2 border-rose-300 p-6 shadow-md hover:shadow-xl transition-all">
-            <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-xs font-bold rounded-full">
+          {/* 맥스 플랜 — 프리미엄 골드 ring */}
+          <div className="relative bg-gradient-to-br from-white via-amber-50/30 to-white rounded-2xl ring-2 ring-amber-300/60 p-6 shadow-[0_12px_40px_-10px_rgba(251,191,36,0.4)] hover:shadow-[0_20px_60px_-10px_rgba(251,191,36,0.5)] transition-all overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+            <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-white text-xs font-bold rounded-full shadow-md">
               맥스 (Max)
             </div>
             <div className="absolute -top-3 right-6 px-3 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full animate-pulse">
@@ -107,7 +129,7 @@ export default function PricingPage() {
             <div className="mt-2 mb-4">
               <p className="text-xs font-semibold text-gray-500 mb-1">연간 결제 (추천)</p>
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-4xl font-extrabold text-violet-600">1,440</span>
+                <span className="text-4xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent">1,440</span>
                 <span className="text-lg font-bold text-gray-700">만원</span>
                 <span className="text-sm text-gray-400 line-through">1,920만원</span>
                 <span className="text-xs font-bold text-rose-600">(20% 할인)</span>
@@ -149,7 +171,7 @@ export default function PricingPage() {
 
             <button
               onClick={() => setContactModal('max')}
-              className="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-md text-sm"
+              className="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white font-bold rounded-xl hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all shadow-md text-sm ring-1 ring-amber-400"
             >
               맥스 플랜 문의하기
             </button>
@@ -169,11 +191,11 @@ export default function PricingPage() {
           <h3 className="text-lg font-bold text-gray-900 mb-4">도입 3개월 후 예상 변화</h3>
           <div className="overflow-hidden rounded-xl border border-gray-100">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700">항목</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-500">기존 방식</th>
-                  <th className="px-4 py-3 text-left font-semibold text-emerald-700">GEO-AIO 도입 후</th>
+                  <th className="px-4 py-3 text-left font-semibold text-amber-200">항목</th>
+                  <th className="px-4 py-3 text-left font-semibold text-white/60">기존 방식</th>
+                  <th className="px-4 py-3 text-left font-semibold text-emerald-300">GEO-AIO 도입 후</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -186,21 +208,33 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="bg-gradient-to-br from-gray-900 to-indigo-900 rounded-2xl p-6 sm:p-8 text-white text-center">
-          <h3 className="text-xl font-bold mb-2">AI 검색 시대, 지금 시작하세요</h3>
-          <p className="text-sm text-white/80 mb-5">
-            경쟁사보다 먼저 AI 검색엔진에 최적화된 콘텐츠를 만들어 보세요.
-          </p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            <a href="tel:010-2397-5734" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-all">
-              📞 010-2397-5734
-            </a>
-            <a href="mailto:jaiwshim@gmail.com" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 text-white border border-white/20 rounded-lg font-semibold text-sm hover:bg-white/20 transition-all">
-              ✉️ jaiwshim@gmail.com
-            </a>
+        {/* CTA — 프리미엄 다크 + 골드 */}
+        <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-6 sm:p-8 text-white overflow-hidden ring-1 ring-amber-400/20 shadow-[0_20px_60px_-15px_rgba(251,191,36,0.3)] text-center">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(251,191,36,0.18),_transparent_60%)]" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <p className="text-[10px] font-bold tracking-[0.2em] text-amber-300">START NOW</p>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
+              <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent">AI 검색 시대</span>, 지금 시작하세요
+            </h3>
+            <p className="text-sm text-white/70 mb-5">
+              경쟁사보다 먼저 AI 검색엔진에 최적화된 콘텐츠를 만들어 보세요.
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              <a href="tel:010-2397-5734" className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all ring-1 ring-amber-300">
+                📞 010-2397-5734
+              </a>
+              <a href="mailto:jaiwshim@gmail.com" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-sm text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-all">
+                ✉️ jaiwshim@gmail.com
+              </a>
+            </div>
           </div>
+        </section>
         </div>
+        </article>
       </main>
       <Footer />
 
