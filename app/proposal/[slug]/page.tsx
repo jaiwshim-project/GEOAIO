@@ -254,6 +254,13 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
         priceCurrency: 'KRW',
         priceSpecification: { '@type': 'UnitPriceSpecification', price: '1440', priceCurrency: 'KRW', unitText: '연', valueAddedTaxIncluded: false },
       },
+      {
+        '@type': 'Offer',
+        name: '프리미엄 플랜',
+        price: '2160',
+        priceCurrency: 'KRW',
+        priceSpecification: { '@type': 'UnitPriceSpecification', price: '540', priceCurrency: 'KRW', unitText: '분기', valueAddedTaxIncluded: false },
+      },
     ],
   };
 
@@ -1151,7 +1158,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   </div>
                 </div>
               </div>
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* 프로 플랜 */}
                 <div className="relative bg-white rounded-xl border-2 border-blue-300 p-5">
                   <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[11px] font-bold rounded-full">
@@ -1195,6 +1202,31 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span>우선 기술 지원</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-rose-500 mt-0.5">★</span><span className="font-semibold text-rose-600">브랜드뉴스 기사 2회</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-rose-500 mt-0.5">★</span><span className="font-semibold text-rose-600">유튜브 소개영상 2회</span></li>
+                  </ul>
+                </div>
+                {/* 프리미엄 플랜 — 다크 럭셔리 */}
+                <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl ring-2 ring-violet-400/40 p-5 shadow-[0_8px_30px_-10px_rgba(139,92,246,0.5)] text-white">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-400/70 to-transparent rounded-t-xl" />
+                  <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white text-[11px] font-bold rounded-full shadow-md">
+                    프리미엄 (Premium)
+                  </div>
+                  <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white text-[10px] font-bold rounded-full tracking-wider">
+                    ENTERPRISE
+                  </div>
+                  <div className="mt-1 mb-3">
+                    <p className="text-[11px] font-semibold text-violet-200 mb-0.5">1년 계약 · 분기별 결제</p>
+                    <div className="flex items-baseline gap-1.5 flex-wrap">
+                      <span className="text-2xl font-extrabold bg-gradient-to-r from-violet-300 via-fuchsia-300 to-violet-300 bg-clip-text text-transparent">540</span>
+                      <span className="text-sm font-bold text-white/80">만원/분기</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-violet-300">연 2,160만원 (4회 분기 결제)</p>
+                    <p className="text-[10px] text-white/50 mt-0.5">부가세 별도</p>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-white/85 border-t border-white/10 pt-3">
+                    <li className="flex items-start gap-1.5"><span className="text-violet-300 mt-0.5">✓</span><span>맥스 플랜 모든 혜택</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-violet-300 mt-0.5">✓</span><span className="font-bold text-violet-200">엔터프라이즈 맞춤 컨설팅</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-violet-300 mt-0.5">✓</span><span>전담 매니저·SLA 우선 지원</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-fuchsia-300 mt-0.5">★</span><span className="font-semibold text-fuchsia-200">분기별 정기 리포트·전략 컨설팅</span></li>
                   </ul>
                 </div>
               </div>
