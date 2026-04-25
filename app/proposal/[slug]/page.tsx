@@ -28,7 +28,7 @@ const EXTRA_COLORS = [
 type IndustryClass =
   | 'LegalService' | 'AccountingService' | 'Dentist'
   | 'LodgingBusiness' | 'Store' | 'EducationalOrganization'
-  | 'ProfessionalService';
+  | 'SoftwareApplication' | 'WebSite' | 'ProfessionalService';
 
 const INDUSTRY_MAP: Record<string, IndustryClass> = {
   '선명회계법인': 'AccountingService',
@@ -43,6 +43,8 @@ const INDUSTRY_MAP: Record<string, IndustryClass> = {
   'ax온톨로지-진단': 'ProfessionalService',
   'ax덴탈그룹': 'ProfessionalService',
   'ax-biz': 'ProfessionalService',
+  'geo-aio': 'SoftwareApplication',
+  '라이프스타일': 'WebSite',
 };
 
 // 카테고리별 한계 및 문제점 (Critical Weakness) 분석 데이터
@@ -101,6 +103,18 @@ const WEAKNESS_DATA: Record<string, Array<{ title: string; bullets: string[] }>>
     { title: '❷ 고객 유입 구조 약함', bullets: ['후보·캠프 직접 contact 의존', '온라인 데모 유도 약함', 'CTA 분산'] },
     { title: '❸ 브랜드 차별성 약함', bullets: ['전통 컨설팅과의 차별화 부족', 'AI 솔루션 가치 강조 부족'] },
     { title: '❹ 데이터 기반 서비스 없음', bullets: ['유권자 데이터 통합 부족', '여론·이슈 자동 리포트 부재'] },
+  ],
+  'geo-aio': [
+    { title: '❶ 시장 인지도 확대 필요', bullets: ['B2B 의사결정자 도달 한정', '국내 GEO 시장 초기 단계', '경쟁 우위 인식 미흡'] },
+    { title: '❷ 도입 채널 다변화 필요', bullets: ['직접 영업 비중 큼', '파트너 채널 미구축', '셀프 가입 동선 강화 필요'] },
+    { title: '❸ 사례·증거 자산 누적', bullets: ['도입 케이스 스터디 부족', '효과 정량 데이터 누적 단계', '업종별 벤치마크 미흡'] },
+    { title: '❹ 통합 분석 대시보드 강화', bullets: ['ROI 자동 계산 미흡', 'AI 인용률 모니터링 부재', '경쟁 키워드 추적 자동화 강화'] },
+  ],
+  '라이프스타일': [
+    { title: '❶ 디지털 전략 부재', bullets: ['통합 SEO 전략 부재', '플랫폼별 톤 일관성 부족', 'AI 검색 대응 없음'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['콘텐츠→상담·구매 동선 약함', '랜딩 페이지 미흡', 'CTA 분산'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['일반 라이프스타일 메시지', '독자적 컨셉·스토리 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['독자 행동 데이터 분석 없음', '트렌드 자동 추적 부재'] },
   ],
 };
 
