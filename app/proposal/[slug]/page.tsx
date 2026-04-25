@@ -381,18 +381,19 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </p>
               <Link
                 href={`/blog/category/${encodeURIComponent(slug)}`}
-                className="group inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border border-amber-200/70 rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(251,191,36,0.4)] hover:border-amber-400 transition-all"
+                style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}
+                className="group flex items-center gap-3 px-5 py-3 border rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(251,191,36,0.4)] hover:border-amber-400 transition-all"
               >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shrink-0 shadow-md">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div style={{ background: '#d97706' }} className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                  <svg className="w-5 h-5" style={{ color: '#ffffff' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-amber-700 font-semibold mb-0.5">📌 실제 운영 중인 블로그 보기</p>
-                  <p className="text-sm font-bold text-slate-900">{meta.label} 카테고리에 게시된 {posts.length}편의 AI 최적화 콘텐츠</p>
+                  <p style={{ color: '#b45309' }} className="text-xs font-semibold mb-0.5">📌 실제 운영 중인 블로그 보기</p>
+                  <p style={{ color: '#0f172a' }} className="text-sm font-bold">{meta.label} 카테고리에 게시된 {posts.length}편의 AI 최적화 콘텐츠</p>
                 </div>
-                <svg className="w-5 h-5 text-amber-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" style={{ color: '#d97706' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </Link>
@@ -403,18 +404,19 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   href={TISTORY_MAP[slug]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 px-5 py-3 mt-5 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border border-pink-300 rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(236,72,153,0.4)] hover:border-pink-400 transition-all"
+                  style={{ backgroundColor: '#fdf2f8', borderColor: '#f9a8d4' }}
+                  className="group flex items-center gap-3 px-5 py-3 mt-5 border rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(236,72,153,0.4)] hover:border-pink-400 transition-all"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shrink-0 shadow-md">
-                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <div style={{ background: '#db2777' }} className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md">
+                    <svg className="w-5 h-5" style={{ color: '#ffffff' }} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 17.5c-4.142 0-7.5-3.358-7.5-7.5S7.858 4.5 12 4.5s7.5 3.358 7.5 7.5-3.358 7.5-7.5 7.5zm0-12.5a5 5 0 100 10 5 5 0 000-10zm0 7.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/>
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-pink-700 font-semibold mb-0.5">📌 실제 운영 중인 티스토리 보기</p>
-                    <p className="text-sm font-bold text-slate-900 break-all">{TISTORY_MAP[slug]}</p>
+                    <p style={{ color: '#be185d' }} className="text-xs font-semibold mb-0.5">📌 실제 운영 중인 티스토리 보기</p>
+                    <p style={{ color: '#0f172a' }} className="text-sm font-bold break-all">{TISTORY_MAP[slug]}</p>
                   </div>
-                  <svg className="w-5 h-5 text-pink-600 group-hover:translate-x-1 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform shrink-0" style={{ color: '#db2777' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </a>
