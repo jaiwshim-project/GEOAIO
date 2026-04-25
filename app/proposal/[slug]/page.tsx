@@ -257,7 +257,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {hasWeakness && (
               <section>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">1</span>
+                  <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-sm font-bold shadow-md">1</span>
                   <h3 className="text-xl font-bold text-gray-900">한계 및 문제점 (Critical Weakness)</h3>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
@@ -265,9 +265,12 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </p>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {weaknessData.map((w, i) => (
-                    <div key={i} className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                      <p className="text-sm font-bold text-rose-800 mb-2">{w.title}</p>
-                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                    <div key={i} className="relative bg-gradient-to-br from-rose-50 via-white to-rose-50 ring-1 ring-rose-200/70 rounded-xl p-4 overflow-hidden shadow-[0_4px_16px_-4px_rgba(244,63,94,0.15)]">
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-400/50 to-transparent" />
+                      <p className="text-sm font-bold text-rose-700 mb-2 flex items-center gap-1.5">
+                        {w.title}
+                      </p>
+                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside marker:text-rose-400">
                         {w.bullets.map((b, j) => <li key={j}>{b}</li>)}
                       </ul>
                     </div>
@@ -279,7 +282,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 1. 현황 진단 (선명회계법인은 2번) */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">{sectionNum(1)}</span>
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(1)}</span>
                 <h3 className="text-xl font-bold text-gray-900">현황 진단: {meta.label}이 직면한 콘텐츠 마케팅의 한계</h3>
               </div>
               <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-3">
@@ -298,7 +301,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 2. 솔루션 (선명회계법인은 3번) */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">{sectionNum(2)}</span>
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(2)}</span>
                 <h3 className="text-xl font-bold text-gray-900">GEO-AIO 솔루션: 클릭 한 번으로 10가지 톤 콘텐츠 자동 생성</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -324,7 +327,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 3. SEO vs E-E-A-T 심층 비교 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">{sectionNum(3)}</span>
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 text-purple-700 ring-2 ring-purple-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(3)}</span>
                 <h3 className="text-xl font-bold text-gray-900">SEO 방식 vs E-E-A-T 방식 심층 비교</h3>
               </div>
               <p className="text-sm text-gray-600 mb-4">
@@ -339,10 +342,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </h4>
                 <div className="overflow-hidden rounded-xl border border-gray-200">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">구분</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식 (검색 최적화)</th>
+                        <th className="px-3 py-2 text-left font-semibold text-amber-200">구분</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식 (검색 최적화)</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식 (AI 최적화)</th>
                       </tr>
                     </thead>
@@ -364,10 +367,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </h4>
                 <div className="overflow-hidden rounded-xl border border-gray-200">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -394,10 +397,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </h4>
                 <div className="overflow-hidden rounded-xl border border-gray-200">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">요소</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-amber-200">요소</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -420,10 +423,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </h4>
                 <div className="overflow-hidden rounded-xl border border-gray-200">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -448,10 +451,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </h4>
                 <div className="overflow-hidden rounded-xl border border-gray-200">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -474,10 +477,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </h4>
                 <div className="overflow-hidden rounded-xl border border-gray-200">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -499,10 +502,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </h4>
                 <div className="overflow-hidden rounded-xl border border-gray-200">
                   <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-white/60">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -578,7 +581,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 4. 적용 사례 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">{sectionNum(4)}</span>
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-sky-100 to-sky-200 text-sky-700 ring-2 ring-sky-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(4)}</span>
                 <h3 className="text-xl font-bold text-gray-900">{meta.label} 실제 운영 콘텐츠 보기</h3>
               </div>
               <div className="bg-sky-50 border border-sky-200 rounded-xl p-4 mb-3">
@@ -629,7 +632,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 {/* AX/AI 관점 분석 — Level Map */}
                 <section>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">AX</span>
+                    <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700 ring-2 ring-indigo-300/50 flex items-center justify-center text-sm font-bold shadow-md">AX</span>
                     <h3 className="text-xl font-bold text-gray-900">AX / AI 관점 분석</h3>
                   </div>
                   <p className="text-sm text-gray-600 mb-4">대표님 관점에서 핵심입니다. 현 위치와 도달 가능한 미래 단계를 4단계로 표현했습니다.</p>
@@ -680,7 +683,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 {/* 7. 대표님 기준 개선 전략 */}
                 <section>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">★</span>
+                    <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">★</span>
                     <h3 className="text-xl font-bold text-gray-900">대표님 기준 개선 전략 (핵심)</h3>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
@@ -724,29 +727,32 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 5. ROI */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">{sectionNum(5)}</span>
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-100 to-violet-200 text-violet-700 ring-2 ring-violet-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(5)}</span>
                 <h3 className="text-xl font-bold text-gray-900">예상 ROI: 3개월 후 변화</h3>
               </div>
               <p className="text-sm text-gray-600 mb-4">
                 기존 방식 대비 콘텐츠 생산성·AI 인용률·마케팅 비용·고객 유입까지 모든 지표가 향상됩니다.
               </p>
 
-              {/* 핵심 지표 카드 (3개) */}
+              {/* 핵심 지표 카드 (3개) — 프리미엄 다크 + 골드 액센트 */}
               <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 text-center">
-                  <p className="text-[11px] font-semibold text-emerald-600 mb-1">콘텐츠 생산성</p>
-                  <p className="text-2xl font-extrabold text-emerald-700">5~10배</p>
-                  <p className="text-[10px] text-gray-500 mt-1">월 15~30편 → 100~150편</p>
+                <div className="relative bg-gradient-to-br from-slate-900 to-emerald-950 ring-1 ring-emerald-400/30 rounded-xl p-4 text-center overflow-hidden shadow-[0_8px_30px_-10px_rgba(16,185,129,0.3)]">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
+                  <p className="text-[11px] font-semibold text-emerald-300 mb-1 tracking-wide">콘텐츠 생산성</p>
+                  <p className="text-2xl font-extrabold bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">5~10배</p>
+                  <p className="text-[10px] text-white/50 mt-1">월 15~30편 → 100~150편</p>
                 </div>
-                <div className="bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-200 rounded-xl p-4 text-center">
-                  <p className="text-[11px] font-semibold text-indigo-600 mb-1">AI 인용률</p>
-                  <p className="text-2xl font-extrabold text-indigo-700">16배 ↑</p>
-                  <p className="text-[10px] text-gray-500 mt-1">5% 미만 → 80%+</p>
+                <div className="relative bg-gradient-to-br from-slate-900 to-indigo-950 ring-1 ring-amber-400/40 rounded-xl p-4 text-center overflow-hidden shadow-[0_8px_30px_-10px_rgba(251,191,36,0.4)]">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+                  <p className="text-[11px] font-semibold text-amber-300 mb-1 tracking-wide">AI 인용률</p>
+                  <p className="text-2xl font-extrabold bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent">16배 ↑</p>
+                  <p className="text-[10px] text-white/50 mt-1">5% 미만 → 80%+</p>
                 </div>
-                <div className="bg-gradient-to-br from-rose-50 to-orange-50 border border-rose-200 rounded-xl p-4 text-center">
-                  <p className="text-[11px] font-semibold text-rose-600 mb-1">신규 고객 유입</p>
-                  <p className="text-2xl font-extrabold text-rose-700">3~4배</p>
-                  <p className="text-[10px] text-gray-500 mt-1">평균 +220~380%</p>
+                <div className="relative bg-gradient-to-br from-slate-900 to-rose-950 ring-1 ring-rose-400/30 rounded-xl p-4 text-center overflow-hidden shadow-[0_8px_30px_-10px_rgba(244,63,94,0.3)]">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-400/50 to-transparent" />
+                  <p className="text-[11px] font-semibold text-rose-300 mb-1 tracking-wide">신규 고객 유입</p>
+                  <p className="text-2xl font-extrabold bg-gradient-to-r from-rose-300 to-orange-200 bg-clip-text text-transparent">3~4배</p>
+                  <p className="text-[10px] text-white/50 mt-1">평균 +220~380%</p>
                 </div>
               </div>
 
@@ -755,10 +761,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">항목</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-500">기존 방식 (도입 전)</th>
-                      <th className="px-4 py-3 text-left font-semibold text-emerald-700">GEO-AIO 도입 후 (3개월)</th>
-                      <th className="px-4 py-3 text-left font-semibold text-violet-700 hidden sm:table-cell">변화</th>
+                      <th className="px-4 py-3 text-left font-semibold text-amber-200">항목</th>
+                      <th className="px-4 py-3 text-left font-semibold text-white/60">기존 방식 (도입 전)</th>
+                      <th className="px-4 py-3 text-left font-semibold text-emerald-300">GEO-AIO 도입 후 (3개월)</th>
+                      <th className="px-4 py-3 text-left font-semibold text-violet-300 hidden sm:table-cell">변화</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 bg-white">
@@ -815,13 +821,15 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
 
               {/* 회수 기간 */}
-              <div className="mt-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200 rounded-xl p-4">
-                <div className="flex items-start gap-3">
+              <div className="relative mt-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 ring-1 ring-amber-400/40 rounded-xl p-4 overflow-hidden shadow-[0_8px_30px_-10px_rgba(251,191,36,0.4)]">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.12),_transparent_60%)]" />
+                <div className="relative flex items-start gap-3">
                   <span className="text-2xl">⚡</span>
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-emerald-800 mb-1">투자 회수 기간 (예상)</p>
-                    <p className="text-xs text-gray-700 leading-relaxed">
-                      평균 <strong className="text-emerald-700">2~4개월</strong> 내 회수.
+                    <p className="text-sm font-bold text-amber-200 mb-1 tracking-wide">투자 회수 기간 (예상)</p>
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      평균 <strong className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent">2~4개월</strong> 내 회수.
                       AI 검색 노출 증가 → 신규 유입 → 매출 증대 → 추가 투자 여력 확보의 선순환 구조 진입.
                       도입 1년 후 누적 콘텐츠 1,800편 + AI 인용 자산 영구 보유.
                     </p>
@@ -838,7 +846,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 6. 가격표 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">{sectionNum(6)}</span>
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(6)}</span>
                 <h3 className="text-xl font-bold text-gray-900">가격표</h3>
               </div>
               <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 mb-4">
