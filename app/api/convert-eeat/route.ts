@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
 import Anthropic from '@anthropic-ai/sdk';
+import { injectProjectLinks } from '@/lib/inject-project-links';
 
 export const maxDuration = 60;
 export const runtime = 'nodejs';
@@ -86,7 +87,7 @@ const EEAT_INSTRUCTION = `당신은 E-E-A-T 콘텐츠 구조화 전문가입니�
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { content, title, tone, topic, continuation, previousContent } = body;
+    const { content, title, tone, topic, continuation, previousContent, homepage_url, blog_url, company_name } = body;
 
     if (!content && !continuation) {
       return withCors(NextResponse.json({ error: 'content 필요' }, { status: 400 }));
@@ -191,7 +192,16 @@ ${content}
     const titleMatch = convertedContent.match(/^#\s+(.+)$/m);
     const newTitle = titleMatch ? titleMatch[1].trim() : title;
     // 제목 라인 제거 (content에서 분리)
-    const cleanContent = convertedContent.replace(/^#\s+.+\n?/, '').trim();
+    let cleanContent = convertedContent.replace(/^#\s+.+\n?/, '').trim();
+
+    // 후처리: 마지막 해시태그 직전에 프로젝트 홈페이지·블로그 링크 자동 삽입
+    if (homepage_url || blog_url) {
+      cleanContent = injectProjectLinks(cleanContent, {
+        homepage_url,
+        blog_url,
+        company_name,
+      });
+    }
 
     return withCors(NextResponse.json({
       title: newTitle,

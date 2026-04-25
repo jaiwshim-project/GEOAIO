@@ -726,6 +726,8 @@ export default function GeneratePage() {
               company_name: activeProjectInfo?.company_name || undefined,
               representative_name: activeProjectInfo?.representative_name || undefined,
               region: activeProjectInfo?.region || undefined,
+              homepage_url: activeProjectInfo?.homepage_url || undefined,
+              blog_url: activeProjectInfo?.blog_url || undefined,
               projectFiles: projectFiles.slice(0, 3).map(f => ({
                 file_name: f.file_name,
                 content: f.content.slice(0, 3000),

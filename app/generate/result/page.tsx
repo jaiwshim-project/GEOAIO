@@ -8,6 +8,7 @@ import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory, GenerateResponse } from '@/lib/types';
 import { addRevision, generateId } from '@/lib/history';
 import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, saveBlogPostsBatch, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
+import { useUser } from '@/lib/user-context';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -30,6 +31,7 @@ interface StoredResult {
 }
 
 export default function GenerateResultPage() {
+  const { selectedProject } = useUser();
   const router = useRouter();
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const [result, setResult] = useState<GenerateResponse | null>(null);
@@ -254,6 +256,9 @@ export default function GenerateResultPage() {
           previousContent,
           continuation: true,
           tone: v.toneValue || tone,
+          homepage_url: selectedProject?.homepage_url || undefined,
+          blog_url: selectedProject?.blog_url || undefined,
+          company_name: selectedProject?.company_name || undefined,
         }),
       });
       if (!res.ok && res.status !== 422) return null;
@@ -451,6 +456,9 @@ export default function GenerateResultPage() {
           content: v.content,
           title: v.title,
           tone: (v as { toneValue?: string }).toneValue || currentTone,
+          homepage_url: selectedProject?.homepage_url || undefined,
+          blog_url: selectedProject?.blog_url || undefined,
+          company_name: selectedProject?.company_name || undefined,
         }),
       });
       // 422 = 잘림 감지 → 부분 콘텐츠 반환 (이어쓰기에 활용)
@@ -484,6 +492,9 @@ export default function GenerateResultPage() {
             previousContent,
             continuation: true,
             tone: (v as { toneValue?: string }).toneValue || currentTone,
+            homepage_url: selectedProject?.homepage_url || undefined,
+            blog_url: selectedProject?.blog_url || undefined,
+            company_name: selectedProject?.company_name || undefined,
           }),
         });
         if (!res.ok && res.status !== 422) return null;
@@ -882,6 +893,9 @@ export default function GenerateResultPage() {
           targetKeyword: targetKeyword.trim() || undefined,
           tone,
           additionalNotes: `기존 생성된 콘텐츠를 아래 수정 요청에 따라 다시 작성해주세요.\n\n[수정/추가 요청]\n${editNotes.trim()}\n\n[기존 콘텐츠]\n${result.content}`,
+          homepage_url: selectedProject?.homepage_url || undefined,
+          blog_url: selectedProject?.blog_url || undefined,
+          company_name: selectedProject?.company_name || undefined,
         }),
       });
 

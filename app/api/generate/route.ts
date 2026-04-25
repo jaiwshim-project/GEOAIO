@@ -3,6 +3,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import Anthropic from '@anthropic-ai/sdk';
 import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
 import type { GenerateRequest } from '@/lib/types';
+import { injectProjectLinks } from '@/lib/inject-project-links';
 
 export const maxDuration = 60;
 export const runtime = 'nodejs';
@@ -426,6 +427,18 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           seoTips: ['콘텐츠를 검토하고 필요 시 수정하세요.'],
         },
       };
+    }
+    // 후처리: 마지막 해시태그 직전에 프로젝트 홈페이지·블로그 링크 자동 삽입
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const linkInfo = body as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const p = parsed as any;
+    if (p?.content && (linkInfo?.homepage_url || linkInfo?.blog_url)) {
+      p.content = injectProjectLinks(p.content, {
+        homepage_url: linkInfo.homepage_url,
+        blog_url: linkInfo.blog_url,
+        company_name: body.company_name,
+      });
     }
     return withCors(NextResponse.json(parsed));
 
