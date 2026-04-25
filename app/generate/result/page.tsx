@@ -235,19 +235,39 @@ export default function GenerateResultPage() {
 
     const converted: (GenerateResponse & { toneName?: string })[] = [...versions];
 
-    // 변환 결과 완성도 검증 함수
-    // 완성 조건: 분량 1500자+ AND H2 3개+ AND (FAQ OR 비교표) AND 끝맺음
-    const isComplete = (content: string): boolean => {
-      if (!content || content.length < 1500) return false;
-      const h2Count = (content.match(/^## /gm) || []).length;
-      if (h2Count < 3) return false;
-      const hasFaq = /##\s*FAQ|\bQ:\s|질문/i.test(content);
-      const hasTable = /\|\s*장점\s*\|/i.test(content) || (content.match(/\|/g) || []).length >= 6;
-      if (!hasFaq && !hasTable) return false;
-      // 끝맺음 검증: 마지막 100자에 마침표(.) 또는 닫는 따옴표 등 존재
-      const tail = content.slice(-100).trim();
-      const hasEnding = /[.다요!?"】\]]\s*$/.test(tail) || tail.length > 50;
-      return hasEnding;
+    // ── 엄격한 완성도 검증 (7가지 모두 통과해야 함) ──
+    const validateComplete = (content: string): { ok: boolean; reason?: string } => {
+      if (!content) return { ok: false, reason: '콘텐츠 비어있음' };
+
+      // 1. 분량 (최소 2,000자)
+      if (content.length < 2000) return { ok: false, reason: `분량 부족 (${content.length}자 < 2000)` };
+
+      // 2. H2 섹션 5개 이상
+      const h2Matches = content.match(/^## /gm) || [];
+      if (h2Matches.length < 5) return { ok: false, reason: `H2 섹션 부족 (${h2Matches.length}개 < 5)` };
+
+      // 3. FAQ 섹션 명시적 존재
+      const hasFaqSection = /##\s*FAQ|##\s*자주\s*묻는|##\s*질문/i.test(content);
+      if (!hasFaqSection) return { ok: false, reason: 'FAQ 섹션 없음' };
+
+      // 4. 마크다운 비교표 존재 (헤더 + 구분선)
+      const hasTable = /\|.+\|.+\|\s*\n\s*\|[\s\-:|]+\|/.test(content);
+      if (!hasTable) return { ok: false, reason: '비교표 없음' };
+
+      // 5. 결론 섹션 존재
+      const hasConclusion = /##\s*결론|##\s*마치며|##\s*마무리|##\s*요약/i.test(content);
+      if (!hasConclusion) return { ok: false, reason: '결론 섹션 없음' };
+
+      // 6. 해시태그 끝맺음 (#태그 형태가 마지막 부분에 존재)
+      const tail = content.slice(-500);
+      const hasHashtags = (tail.match(/#[\w가-힣]+/g) || []).length >= 3;
+      if (!hasHashtags) return { ok: false, reason: '해시태그 미완성 (3개 미만)' };
+
+      // 7. 마지막이 한글 음절 중간에 잘리지 않았는지
+      const lastChar = content.trim().slice(-1);
+      if (/^[ㄱ-ㅎㅏ-ㅣ]$/.test(lastChar)) return { ok: false, reason: '한글 자음으로 잘림' };
+
+      return { ok: true };
     };
 
     // 변환 1회 시도
@@ -270,28 +290,41 @@ export default function GenerateResultPage() {
       };
     };
 
-    // ── 1개씩 순차 변환 + 완성 검증 + 재시도 ──
+    // ── 1개씩 순차 변환 + 엄격 검증 + 최대 3회 재시도 ──
     for (let i = 0; i < versions.length; i++) {
       const v = versions[i];
-      let result: typeof v | null = null;
+      let bestResult: typeof v | null = null;
+      let bestLen = 0;
 
-      // 최대 2회 시도 (1차 + 재시도 1회)
-      for (let attempt = 0; attempt < 2; attempt++) {
+      // 최대 3회 시도, 매번 완성도 검증
+      for (let attempt = 1; attempt <= 3; attempt++) {
         try {
+          console.log(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 시도 ${attempt}/3`);
           const r = await tryConvert(v);
-          if (r && isComplete(r.content)) {
-            result = r;
-            break; // 완성됨 → 다음 톤
+          if (!r) continue;
+
+          const validation = validateComplete(r.content);
+          if (validation.ok) {
+            // ✅ 완성 — 이것을 사용하고 다음 톤으로
+            console.log(`[E-E-A-T] 톤 ${i + 1} 완성 (시도 ${attempt})`);
+            bestResult = r;
+            break;
+          } else {
+            console.log(`[E-E-A-T] 톤 ${i + 1} 미완성 (${validation.reason}) — 재시도`);
+            // 더 긴 결과를 보존 (최후 폴백용)
+            if (r.content.length > bestLen) {
+              bestResult = r;
+              bestLen = r.content.length;
+            }
           }
-          // 1차 실패 시 재시도 시도 (마지막 결과 보관)
-          if (r) result = r;
-        } catch {}
+        } catch (e) {
+          console.log(`[E-E-A-T] 톤 ${i + 1} 오류:`, e);
+        }
       }
 
-      // 결과가 있으면 사용, 없으면 원본 유지
-      if (result) converted[i] = result;
+      // 검증 통과했거나 최선의 결과를 사용
+      if (bestResult) converted[i] = bestResult;
 
-      // 검증 통과한 경우만 진행률 +1, 실패 시에도 +1로 진행 (멈추지 않도록)
       setEeatProgress(i + 1);
       setAbVersions([...converted]);
       if (i === 0) setResult(converted[0]);
