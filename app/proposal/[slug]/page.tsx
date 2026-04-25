@@ -21,6 +21,65 @@ const EXTRA_COLORS = [
   'from-orange-500 to-red-600',
 ];
 
+// 카테고리별 한계 및 문제점 (Critical Weakness) 분석 데이터
+// 일반적 디지털 마케팅·DX 분석 프레임 기반 — 회사 고유 사실은 미포함
+const WEAKNESS_DATA: Record<string, Array<{ title: string; bullets: string[] }>> = {
+  '선명회계법인': [
+    { title: '❶ 디지털 전략 부재', bullets: ['SEO 거의 없음', '콘텐츠 없음', 'AI 검색 대응 없음'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['랜딩 페이지 없음', '상담 유도 구조 없음', 'CTA 없음'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['메시지가 추상적', '"왜 이 회사인가?" 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['분석 플랫폼 없음', '리포트 자동화 없음'] },
+  ],
+  '로엘-법무법인': [
+    { title: '❶ 디지털 전략 부재', bullets: ['법률 콘텐츠 SEO 약함', 'AI 검색 대응 없음', '전문 분야 키워드 전략 부재'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['상담 예약 시스템 없음', '전화·이메일 의존', '사건별 CTA 없음'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['일반 법무법인 메시지', '핵심 전문 분야 강조 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['사례 자동 분석 없음', '판례·법률 리포트 자동화 없음'] },
+  ],
+  '디지털스마일치과': [
+    { title: '❶ 디지털 전략 부재', bullets: ['치과 SEO 일반 수준', 'AI 검색 노출 거의 없음', '환자 검색어 분석 없음'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['온라인 예약 시스템 약함', '후기 수집 자동화 없음', '재방문 유도 구조 없음'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['일반 치과 메시지', '디지털 스마일 디자인 강조 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['환자 데이터 분석 없음', '진료 결과 시각화 없음'] },
+  ],
+  '백제호텔': [
+    { title: '❶ 디지털 전략 부재', bullets: ['OTA 채널 의존', '자체 SEO 약함', 'AI 검색 노출 없음'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['직접 예약 유도 부족', 'OTA 수수료 부담', '회원 가입 채널 약함'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['지역 호텔 메시지 추상적', '차별화된 경험 강조 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['고객 분석 없음', '시즌별 가격 최적화 자동화 없음'] },
+  ],
+  '덕산-백제호텔': [
+    { title: '❶ 디지털 전략 부재', bullets: ['OTA 채널 의존', '자체 SEO 약함', 'AI 검색 노출 없음'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['직접 예약 유도 부족', 'OTA 수수료 부담', '회원 가입 채널 약함'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['지역 호텔 메시지 추상적', '차별화된 경험 강조 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['고객 분석 없음', '시즌별 가격 최적화 자동화 없음'] },
+  ],
+  '에블린영풍': [
+    { title: '❶ 디지털 전략 부재', bullets: ['브랜드 콘텐츠 SEO 약함', 'AI 검색 대응 없음', '키워드 전략 부재'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['직접 유입 채널 한정', '구매 유도 CTA 약함', '재구매 동선 없음'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['일반 브랜드 메시지', '독자적 가치 제안 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['판매·고객 데이터 분석 없음', '리포트 자동화 없음'] },
+  ],
+  '틴트라이프tintlife': [
+    { title: '❶ 디지털 전략 부재', bullets: ['뷰티 SEO 약함', '인스타·블로그 일관성 부족', 'AI 검색 대응 없음'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['직접 구매 유도 부족', '인플루언서 의존', '재구매 락인 약함'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['일반 뷰티 메시지', '컨셉·스토리 차별화 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['고객 취향 분석 없음', '트렌드 자동 추적 없음'] },
+  ],
+  '바이브코딩-클로드코드': [
+    { title: '❶ 디지털 전략 부재', bullets: ['코딩 교육 SEO 약함', '커뮤니티 유입 한정', 'AI 검색 노출 부족'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['수강 모집 채널 한정', '무료→유료 전환 구조 약함', 'CTA 분산'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['타 부트캠프와 메시지 유사', '클로드코드 특화 강조 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['학습 진도 분석 없음', '학습 성과 리포트 자동화 없음'] },
+  ],
+  'ai선거솔루션-워룸': [
+    { title: '❶ 디지털 전략 부재', bullets: ['정책·이슈 콘텐츠 SEO 약함', 'AI 검색 대응 없음', '키워드 추적 자동화 없음'] },
+    { title: '❷ 고객 유입 구조 약함', bullets: ['후보·캠프 직접 contact 의존', '온라인 데모 유도 약함', 'CTA 분산'] },
+    { title: '❸ 브랜드 차별성 약함', bullets: ['전통 컨설팅과의 차별화 부족', 'AI 솔루션 가치 강조 부족'] },
+    { title: '❹ 데이터 기반 서비스 없음', bullets: ['유권자 데이터 통합 부족', '여론·이슈 자동 리포트 부재'] },
+  ],
+};
+
 function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -79,9 +138,11 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
 
   const sampleTitles = posts.slice(0, 3).map(p => p.title);
 
-  // 선명회계법인 전용 한계 섹션 추가 시 후속 섹션 번호 +1 시프트
-  const isSeonmyeong = slug === '선명회계법인';
-  const sectionNum = (base: number) => base + (isSeonmyeong ? 1 : 0);
+  // 카테고리별 한계 섹션 데이터 (있으면 1번에 추가, 후속 섹션 번호 +1 시프트)
+  const weaknessData = WEAKNESS_DATA[slug];
+  const hasWeakness = !!weaknessData;
+  const isSeonmyeong = slug === '선명회계법인'; // AX 분석·개선 전략 전용
+  const sectionNum = (base: number) => base + (hasWeakness ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
@@ -192,8 +253,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </Link>
             </header>
 
-            {/* [선명회계법인 전용] 1. 한계 및 문제점 (Critical Weakness) */}
-            {isSeonmyeong && (
+            {/* 1. 한계 및 문제점 (Critical Weakness) — 카테고리별 데이터 기반 */}
+            {hasWeakness && (
               <section>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">1</span>
@@ -203,36 +264,14 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   현재 구조에서 가장 시급하게 해결해야 할 부분입니다. 디지털·콘텐츠·데이터 영역에서 구조적 공백이 명확합니다.
                 </p>
                 <div className="grid sm:grid-cols-2 gap-3">
-                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                    <p className="text-sm font-bold text-rose-800 mb-2">❶ 디지털 전략 부재</p>
-                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                      <li>SEO 거의 없음</li>
-                      <li>콘텐츠 없음</li>
-                      <li>AI 검색 대응 없음</li>
-                    </ul>
-                  </div>
-                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                    <p className="text-sm font-bold text-rose-800 mb-2">❷ 고객 유입 구조 약함</p>
-                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                      <li>랜딩 페이지 없음</li>
-                      <li>상담 유도 구조 없음</li>
-                      <li>CTA 없음</li>
-                    </ul>
-                  </div>
-                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                    <p className="text-sm font-bold text-rose-800 mb-2">❸ 브랜드 차별성 약함</p>
-                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                      <li>메시지가 추상적</li>
-                      <li>&ldquo;왜 이 회사인가?&rdquo; 부족</li>
-                    </ul>
-                  </div>
-                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                    <p className="text-sm font-bold text-rose-800 mb-2">❹ 데이터 기반 서비스 없음</p>
-                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                      <li>분석 플랫폼 없음</li>
-                      <li>리포트 자동화 없음</li>
-                    </ul>
-                  </div>
+                  {weaknessData.map((w, i) => (
+                    <div key={i} className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <p className="text-sm font-bold text-rose-800 mb-2">{w.title}</p>
+                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                        {w.bullets.map((b, j) => <li key={j}>{b}</li>)}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               </section>
             )}
