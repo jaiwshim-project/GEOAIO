@@ -79,6 +79,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
 
   const sampleTitles = posts.slice(0, 3).map(p => p.title);
 
+  // 선명회계법인 전용 한계 섹션 추가 시 후속 섹션 번호 +1 시프트
+  const isSeonmyeong = slug === '선명회계법인';
+  const sectionNum = (base: number) => base + (isSeonmyeong ? 1 : 0);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
       {/* 프리미엄 배경 텍스처 */}
@@ -188,30 +192,11 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </Link>
             </header>
 
-            {/* 1. 현황 진단 */}
-            <section>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">1</span>
-                <h3 className="text-xl font-bold text-gray-900">현황 진단: {meta.label}이 직면한 콘텐츠 마케팅의 한계</h3>
-              </div>
-              <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-3">
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  ChatGPT, Google AI Overview, Perplexity 등 <strong>AI 검색엔진이 전체 검색 트래픽의 40% 이상을 점유</strong>하고 있습니다.
-                  하지만 기존 SEO 방식으로 작성된 콘텐츠 중 <strong className="text-rose-600">90%는 AI에 인용되지 못합니다.</strong>
-                </p>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>콘텐츠 1편당 작성 시간:</strong> 평균 4~8시간 (외주 시 건당 10~15만원)</span></li>
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>AI 인용 가능성:</strong> 일반 SEO 콘텐츠 비율 70% / AI 인용 가능성 5% 미만</span></li>
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>월간 발행량 한계:</strong> 인력 1명 기준 월 15~30편 (시즌별 마케팅 대응 불가)</span></li>
-                </ul>
-              </div>
-            </section>
-
-            {/* [선명회계법인 전용] 2. 한계 및 문제점 (Critical Weakness) */}
-            {slug === '선명회계법인' && (
+            {/* [선명회계법인 전용] 1. 한계 및 문제점 (Critical Weakness) */}
+            {isSeonmyeong && (
               <section>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">2</span>
+                  <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">1</span>
                   <h3 className="text-xl font-bold text-gray-900">한계 및 문제점 (Critical Weakness)</h3>
                 </div>
                 <p className="text-sm text-gray-600 mb-4">
@@ -252,10 +237,29 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </section>
             )}
 
-            {/* 2. 솔루션 */}
+            {/* 1. 현황 진단 (선명회계법인은 2번) */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">2</span>
+                <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">{sectionNum(1)}</span>
+                <h3 className="text-xl font-bold text-gray-900">현황 진단: {meta.label}이 직면한 콘텐츠 마케팅의 한계</h3>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-3">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  ChatGPT, Google AI Overview, Perplexity 등 <strong>AI 검색엔진이 전체 검색 트래픽의 40% 이상을 점유</strong>하고 있습니다.
+                  하지만 기존 SEO 방식으로 작성된 콘텐츠 중 <strong className="text-rose-600">90%는 AI에 인용되지 못합니다.</strong>
+                </p>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>콘텐츠 1편당 작성 시간:</strong> 평균 4~8시간 (외주 시 건당 10~15만원)</span></li>
+                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>AI 인용 가능성:</strong> 일반 SEO 콘텐츠 비율 70% / AI 인용 가능성 5% 미만</span></li>
+                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>월간 발행량 한계:</strong> 인력 1명 기준 월 15~30편 (시즌별 마케팅 대응 불가)</span></li>
+                </ul>
+              </div>
+            </section>
+
+            {/* 2. 솔루션 (선명회계법인은 3번) */}
+            <section>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">{sectionNum(2)}</span>
                 <h3 className="text-xl font-bold text-gray-900">GEO-AIO 솔루션: 클릭 한 번으로 10가지 톤 콘텐츠 자동 생성</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -281,7 +285,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 3. SEO vs E-E-A-T 심층 비교 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">3</span>
+                <span className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">{sectionNum(3)}</span>
                 <h3 className="text-xl font-bold text-gray-900">SEO 방식 vs E-E-A-T 방식 심층 비교</h3>
               </div>
               <p className="text-sm text-gray-600 mb-4">
@@ -535,7 +539,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 4. 적용 사례 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">4</span>
+                <span className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">{sectionNum(4)}</span>
                 <h3 className="text-xl font-bold text-gray-900">{meta.label} 실제 운영 콘텐츠 보기</h3>
               </div>
               <div className="bg-sky-50 border border-sky-200 rounded-xl p-4 mb-3">
@@ -681,7 +685,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 5. ROI */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">5</span>
+                <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">{sectionNum(5)}</span>
                 <h3 className="text-xl font-bold text-gray-900">예상 ROI: 3개월 후 변화</h3>
               </div>
               <p className="text-sm text-gray-600 mb-4">
@@ -697,13 +701,13 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </div>
                 <div className="bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-200 rounded-xl p-4 text-center">
                   <p className="text-[11px] font-semibold text-indigo-600 mb-1">AI 인용률</p>
-                  <p className="text-2xl font-extrabold text-indigo-700">12배 ↑</p>
-                  <p className="text-[10px] text-gray-500 mt-1">5% 미만 → 60%+</p>
+                  <p className="text-2xl font-extrabold text-indigo-700">16배 ↑</p>
+                  <p className="text-[10px] text-gray-500 mt-1">5% 미만 → 80%+</p>
                 </div>
                 <div className="bg-gradient-to-br from-rose-50 to-orange-50 border border-rose-200 rounded-xl p-4 text-center">
                   <p className="text-[11px] font-semibold text-rose-600 mb-1">신규 고객 유입</p>
-                  <p className="text-2xl font-extrabold text-rose-700">2~3배</p>
-                  <p className="text-[10px] text-gray-500 mt-1">평균 +150~280%</p>
+                  <p className="text-2xl font-extrabold text-rose-700">3~4배</p>
+                  <p className="text-[10px] text-gray-500 mt-1">평균 +220~380%</p>
                 </div>
               </div>
 
@@ -726,12 +730,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">5~10배 ↑</td>
                     </tr>
                     <tr>
-                      <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편 작성 시간</td>
-                      <td className="px-4 py-3 text-gray-500">4~8시간</td>
-                      <td className="px-4 py-3 text-emerald-700 font-bold">1~2분</td>
-                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">240배 ↓</td>
-                    </tr>
-                    <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편당 단가</td>
                       <td className="px-4 py-3 text-gray-500">10~15만원 (외주)</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">약 1.3~2만원</td>
@@ -740,14 +738,14 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">AI 인용 가능성</td>
                       <td className="px-4 py-3 text-gray-500">5% 미만</td>
-                      <td className="px-4 py-3 text-emerald-700 font-bold">60%+</td>
-                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">12배 ↑</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">80%+</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">16배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">AI Overview 노출률</td>
                       <td className="px-4 py-3 text-gray-500">0~5%</td>
-                      <td className="px-4 py-3 text-emerald-700 font-bold">40~55%</td>
-                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">10배 ↑</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">80~85%</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">16배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">월간 마케팅 비용</td>
@@ -764,8 +762,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">신규 고객 유입</td>
                       <td className="px-4 py-3 text-gray-500">기준 (100%)</td>
-                      <td className="px-4 py-3 text-emerald-700 font-bold">220~280%</td>
-                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">2.2~2.8배 ↑</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">320~380%</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">3.2~3.8배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 자산 가치</td>
@@ -801,7 +799,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             {/* 6. 가격표 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">6</span>
+                <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">{sectionNum(6)}</span>
                 <h3 className="text-xl font-bold text-gray-900">가격표</h3>
               </div>
               <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 mb-4">
