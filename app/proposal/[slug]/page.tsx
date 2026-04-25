@@ -1183,9 +1183,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[11px] font-bold rounded-full">
                     프리미엄 (Premium)
                   </div>
-                  <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[11px] font-bold rounded-full">
-                    10% 할인
-                  </div>
                   <div className="mt-1 mb-3">
                     <p className="text-[11px] font-semibold text-gray-500 mb-0.5">1년 계약 · 분기별 결제</p>
                     <div className="flex items-baseline gap-1">
