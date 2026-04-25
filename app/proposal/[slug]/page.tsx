@@ -99,7 +99,9 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
         <section className="relative overflow-hidden rounded-xl bg-gradient-to-br from-rose-600 via-orange-600 to-amber-600 text-white px-6 sm:px-10 py-8 mb-6">
           <div className="relative">
             <p className="text-xs font-semibold text-white/70 mb-2">PROPOSAL TO</p>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{meta.label}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+              {meta.label} <span className="text-white/95">AI 최적화 마케팅(GEO-AIO) 제안서</span>
+            </h1>
             <p className="text-white/90 text-sm leading-relaxed">
               {meta.label}을 위한 맞춤형 자동화 콘텐츠 솔루션 제안서
             </p>
@@ -138,8 +140,14 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
 
             {/* 표지 */}
             <header className="border-b border-gray-100 pb-6">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">{meta.label}</h2>
-              <p className="text-lg text-gray-600 mb-4">
+              <p className="text-xs font-semibold text-gray-400 mb-2">PROPOSAL TO</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+                {meta.label}
+                <span className="block text-lg sm:text-xl text-indigo-600 font-bold mt-1">
+                  AI 최적화 마케팅(GEO-AIO) 제안서
+                </span>
+              </h2>
+              <p className="text-base text-gray-600 mb-4">
                 AI 검색 시대, <strong className="text-gray-900">자동화 콘텐츠 생성 플랫폼</strong>으로 마케팅 비용을 80% 절감하고
                 AI 검색 노출 점유율을 3배 높이는 방법
               </p>
