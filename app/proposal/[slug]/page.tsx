@@ -182,6 +182,30 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const isSeonmyeong = slug === '선명회계법인'; // AX 분석·개선 전략 전용
   const sectionNum = (base: number) => base + (hasWeakness ? 1 : 0);
 
+  // FAQ 데이터 (모든 제안서 공통, 카테고리 라벨 동적 치환)
+  const FAQS = [
+    {
+      q: 'AI 인용률은 정말 16배 향상되나요?',
+      a: '일반 SEO 콘텐츠의 AI 인용 가능성은 5% 미만이지만, E-E-A-T 7단계 구조 + schema.org 온톨로지를 함께 적용하면 ChatGPT·Perplexity·Gemini 등 AI 검색엔진이 80% 이상 정확히 인용할 수 있습니다. 본 제안서 자체에도 동일 방법론이 적용되어 있습니다.',
+    },
+    {
+      q: '도입 후 효과는 언제부터 나타나나요?',
+      a: '계약 체결 즉시 운영을 시작하며, AI 검색엔진 인덱싱과 인용 효과는 평균 2~4주 내 가시화됩니다. 누적 효과로 3개월차에 AI 노출 점유율이 큰 폭으로 증가하며, 평균 2~4개월 내 투자 회수가 예상됩니다.',
+    },
+    {
+      q: '콘텐츠는 누가 작성하나요? 품질은 어떻게 보장하나요?',
+      a: 'GEO-AIO 플랫폼이 제미나이 AI 엔진으로 자동 생성합니다. 회사 RAG 파일(자료)을 기반으로 하므로 회사명·대표자명·주소·전화번호 등 사실 정보는 자료에 있는 그대로만 인용되며, 임의 생성·외부 통계 사용은 차단됩니다. 10가지 톤으로 생성 후 E-E-A-T 7단계 구조로 자동 변환됩니다.',
+    },
+    {
+      q: '특정 업종(법무·의료·금융 등) 전문 용어도 정확히 처리되나요?',
+      a: '예. 회사가 업로드한 RAG 자료(소개서·매뉴얼·내부 가이드 등)를 기반으로 콘텐츠가 생성되므로, 해당 업종의 전문 용어와 회사 고유의 표현이 그대로 반영됩니다. 본 제안서의 한계 분석 4가지(디지털 전략·유입·차별성·데이터)도 카테고리별로 분리되어 있습니다.',
+    },
+    {
+      q: '계약 해지·환불 정책은 어떻게 되나요?',
+      a: '월간 결제(프로 플랜)는 다음 결제일 전 해지 시 즉시 적용됩니다. 연간 결제(맥스 플랜)는 사용 잔여 기간을 일할 계산하여 환불 가능합니다. 자세한 사항은 010-2397-5734 또는 jaiwshim@gmail.com으로 문의해주세요.',
+    },
+  ];
+
   // ─── 온톨로지 → JSON-LD 자동 생성 (AI 인용률↑) ───
   const industryType: IndustryClass = INDUSTRY_MAP[slug] || 'ProfessionalService';
   const proposalUrl = `https://www.geo-aio.com/proposal/${encodeURIComponent(slug)}`;
@@ -233,10 +257,22 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
     ],
   };
 
+  // FAQ 별도 JSON-LD (Google FAQ rich result 호환)
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQS.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
-      {/* AI 인용률↑ schema.org JSON-LD */}
+      {/* AI 인용률↑ schema.org JSON-LD (Article + FAQPage) */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* 프리미엄 배경 텍스처 */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(251,191,36,0.08),_transparent_50%)] pointer-events-none" />
@@ -1175,6 +1211,114 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 <span className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-gray-500">
                   ※ 부가세 10% 별도
                 </span>
+              </div>
+            </section>
+
+            {/* 8. 도입 절차 (4단계 타임라인) */}
+            <section>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(8)}</span>
+                <h3 className="text-xl font-bold text-gray-900">도입 절차 — 평균 3~4일 내 운영 시작</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">상담부터 운영 시작까지 단순한 4단계입니다. 복잡한 시스템 통합 없이 즉시 도입 가능합니다.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 relative">
+                {[
+                  { num: 1, icon: '📞', title: '상담 문의', desc: '전화·이메일로 요구사항 확인', time: '1일' },
+                  { num: 2, icon: '📋', title: '견적 협의', desc: '플랜·기간·맞춤 옵션 결정', time: '1~2일' },
+                  { num: 3, icon: '✍️', title: '계약 체결', desc: '서면 계약·결제 진행', time: '1일' },
+                  { num: 4, icon: '🚀', title: '운영 시작', desc: 'RAG 자료 업로드·즉시 콘텐츠 생성', time: '즉시' },
+                ].map((s, i) => (
+                  <div key={i} className="relative">
+                    {/* 화살표 (모바일 미노출) */}
+                    {i < 3 && (
+                      <div className="hidden sm:block absolute top-1/2 -right-2 -translate-y-1/2 z-10 text-emerald-400 text-xl font-bold">→</div>
+                    )}
+                    <div className="relative bg-gradient-to-br from-emerald-50/60 via-white to-emerald-50/60 ring-1 ring-emerald-200/70 rounded-xl p-4 h-full shadow-[0_4px_16px_-6px_rgba(16,185,129,0.2)] overflow-hidden">
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xs font-bold flex items-center justify-center shadow-md ring-2 ring-emerald-300/40">{s.num}</span>
+                        <span className="text-xl">{s.icon}</span>
+                        <span className="ml-auto text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">{s.time}</span>
+                      </div>
+                      <p className="text-sm font-bold text-gray-900 mb-1">{s.title}</p>
+                      <p className="text-xs text-gray-600 leading-snug">{s.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 9. 신뢰 시그널 */}
+            <section>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700 ring-2 ring-indigo-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(9)}</span>
+                <h3 className="text-xl font-bold text-gray-900">신뢰 시그널 — 검증된 실적·자산</h3>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="relative bg-gradient-to-br from-indigo-50/40 via-white to-indigo-50/40 ring-1 ring-indigo-200/70 rounded-xl p-4 text-center shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent" />
+                  <div className="flex items-baseline justify-center gap-0.5 mb-1">
+                    <span className="text-3xl font-extrabold bg-gradient-to-br from-indigo-600 to-indigo-700 bg-clip-text text-transparent">14</span>
+                    <span className="text-sm font-bold text-indigo-700">개</span>
+                  </div>
+                  <p className="text-xs font-bold text-gray-900">운영 카테고리</p>
+                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">실제 운영 중인 업체 카테고리</p>
+                </div>
+                <div className="relative bg-gradient-to-br from-emerald-50/40 via-white to-emerald-50/40 ring-1 ring-emerald-200/70 rounded-xl p-4 text-center shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+                  <div className="flex items-baseline justify-center gap-0.5 mb-1">
+                    <span className="text-3xl font-extrabold bg-gradient-to-br from-emerald-600 to-emerald-700 bg-clip-text text-transparent">357</span>
+                    <span className="text-sm font-bold text-emerald-700">편</span>
+                  </div>
+                  <p className="text-xs font-bold text-gray-900">누적 콘텐츠</p>
+                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">AI 인용 가능 자산 누적 보유</p>
+                </div>
+                <div className="relative bg-gradient-to-br from-amber-50/40 via-white to-amber-50/40 ring-1 ring-amber-200/70 rounded-xl p-4 text-center shadow-[0_4px_16px_-6px_rgba(251,191,36,0.2)] overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+                  <div className="flex items-baseline justify-center gap-0.5 mb-1">
+                    <span className="text-3xl font-extrabold bg-gradient-to-br from-amber-600 to-yellow-700 bg-clip-text text-transparent">16</span>
+                    <span className="text-sm font-bold text-amber-700">배</span>
+                  </div>
+                  <p className="text-xs font-bold text-gray-900">AI 인용률 향상</p>
+                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">5% → 80%+ (E-E-A-T+온톨로지)</p>
+                </div>
+                <div className="relative bg-gradient-to-br from-rose-50/40 via-white to-rose-50/40 ring-1 ring-rose-200/70 rounded-xl p-4 text-center shadow-[0_4px_16px_-6px_rgba(0,0,0,0.08)] overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-400/60 to-transparent" />
+                  <div className="flex items-baseline justify-center gap-0.5 mb-1">
+                    <span className="text-3xl font-extrabold bg-gradient-to-br from-rose-600 to-rose-700 bg-clip-text text-transparent">✓</span>
+                  </div>
+                  <p className="text-xs font-bold text-gray-900">특허·저작권</p>
+                  <p className="text-[10px] text-gray-500 mt-1 leading-snug">제미나이 AI 기반 등록 완료</p>
+                </div>
+              </div>
+            </section>
+
+            {/* 10. FAQ */}
+            <section>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 text-purple-700 ring-2 ring-purple-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(10)}</span>
+                <h3 className="text-xl font-bold text-gray-900">자주 묻는 질문 (FAQ)</h3>
+                <span className="ml-auto text-[10px] font-bold tracking-[0.2em] bg-gradient-to-r from-purple-600 to-violet-700 bg-clip-text text-transparent">SCHEMA.ORG</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                도입 검토 시 자주 받는 질문에 대한 답변입니다. schema.org/FAQPage 구조로 자동 출력되어 AI 검색엔진과 구글 rich result에서도 노출됩니다.
+              </p>
+              <div className="space-y-2.5">
+                {FAQS.map((f, i) => (
+                  <details key={i} className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-purple-300 transition-all">
+                    <summary className="cursor-pointer list-none px-4 py-3 flex items-center gap-3 hover:bg-purple-50/40 transition-colors">
+                      <span className="w-6 h-6 shrink-0 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 text-purple-700 ring-1 ring-purple-300/50 flex items-center justify-center text-[11px] font-bold">Q</span>
+                      <span className="text-sm font-semibold text-gray-900 flex-1">{f.q}</span>
+                      <svg className="w-4 h-4 text-purple-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </summary>
+                    <div className="px-4 pb-4 pt-1 flex items-start gap-3 border-t border-purple-100/60">
+                      <span className="w-6 h-6 shrink-0 mt-0.5 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-1 ring-emerald-300/50 flex items-center justify-center text-[11px] font-bold">A</span>
+                      <p className="text-xs text-gray-700 leading-relaxed">{f.a}</p>
+                    </div>
+                  </details>
+                ))}
               </div>
             </section>
 
