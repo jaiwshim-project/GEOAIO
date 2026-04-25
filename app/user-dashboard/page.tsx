@@ -31,6 +31,8 @@ export default function UserDashboardPage() {
   const [newCompanyName, setNewCompanyName] = useState('');
   const [newRepName, setNewRepName] = useState('');
   const [newRegion, setNewRegion] = useState('');
+  const [newHomepageUrl, setNewHomepageUrl] = useState('');
+  const [newBlogUrl, setNewBlogUrl] = useState('');
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -47,6 +49,8 @@ export default function UserDashboardPage() {
   const [editCompanyName, setEditCompanyName] = useState('');
   const [editRepName, setEditRepName] = useState('');
   const [editRegion, setEditRegion] = useState('');
+  const [editHomepageUrl, setEditHomepageUrl] = useState('');
+  const [editBlogUrl, setEditBlogUrl] = useState('');
   const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
   const [editIsDragging, setEditIsDragging] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
@@ -165,7 +169,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null, region: newRegion.trim() || null }),
+        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null, region: newRegion.trim() || null, homepage_url: newHomepageUrl.trim() || null, blog_url: newBlogUrl.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '추가 실패'); return; }
@@ -212,6 +216,8 @@ export default function UserDashboardPage() {
       setNewCompanyName('');
       setNewRepName('');
       setNewRegion('');
+      setNewHomepageUrl('');
+      setNewBlogUrl('');
       setNewFiles([]);
       setShowAddForm(false);
     } catch {
@@ -229,6 +235,8 @@ export default function UserDashboardPage() {
     setEditCompanyName(project.company_name || '');
     setEditRepName(project.representative_name || '');
     setEditRegion(project.region || '');
+    setEditHomepageUrl(project.homepage_url || '');
+    setEditBlogUrl(project.blog_url || '');
     setEditNewFiles([]);
     setEditError('');
     setEditProgress('');
@@ -283,7 +291,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null, region: editRegion.trim() || null }),
+        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null, region: editRegion.trim() || null, homepage_url: editHomepageUrl.trim() || null, blog_url: editBlogUrl.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setEditError(data.error || '수정 실패'); return; }
@@ -317,11 +325,11 @@ export default function UserDashboardPage() {
 
       setProjects(prev => prev.map(p =>
         p.id === projectId
-          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, files: [...(p.files || []), ...uploadedFiles] }
+          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url, files: [...(p.files || []), ...uploadedFiles] }
           : p
       ));
       if (selectedProject?.id === projectId) {
-        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region });
+        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url });
       }
       setEditingId(null);
       setEditNewFiles([]);
@@ -540,6 +548,22 @@ export default function UserDashboardPage() {
                 placeholder="지역 (선택, 예: 서울 강남구, 부산 해운대구)"
                 className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
               />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input
+                  type="url"
+                  value={newHomepageUrl}
+                  onChange={(e) => setNewHomepageUrl(e.target.value)}
+                  placeholder="🌐 홈페이지 URL (선택, 예: https://...)"
+                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
+                />
+                <input
+                  type="url"
+                  value={newBlogUrl}
+                  onChange={(e) => setNewBlogUrl(e.target.value)}
+                  placeholder="📝 블로그 URL (선택, 예: https://...)"
+                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
+                />
+              </div>
               <input
                 type="text"
                 value={newDesc}
@@ -673,6 +697,22 @@ export default function UserDashboardPage() {
                         placeholder="지역 (선택, 예: 서울 강남구, 부산 해운대구)"
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
                       />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input
+                          type="url"
+                          value={editHomepageUrl}
+                          onChange={(e) => setEditHomepageUrl(e.target.value)}
+                          placeholder="🌐 홈페이지 URL"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                        />
+                        <input
+                          type="url"
+                          value={editBlogUrl}
+                          onChange={(e) => setEditBlogUrl(e.target.value)}
+                          placeholder="📝 블로그 URL"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                        />
+                      </div>
                       <input
                         type="text"
                         value={editDesc}

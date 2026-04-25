@@ -27,6 +27,8 @@ export interface UserProject {
   company_name?: string;
   representative_name?: string;
   region?: string;
+  homepage_url?: string;
+  blog_url?: string;
   created_at?: string;
   files?: ProjectFile[];
 }
