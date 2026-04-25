@@ -517,6 +517,147 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
+            {/* [선명회계법인 전용] 한계·AX 분석·개선 전략 */}
+            {slug === '선명회계법인' && (
+              <>
+                {/* 5. 한계 및 문제점 */}
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">!</span>
+                    <h3 className="text-xl font-bold text-gray-900">한계 및 문제점 (Critical Weakness)</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    현재 구조에서 가장 시급하게 해결해야 할 부분입니다. 디지털·콘텐츠·데이터 영역에서 구조적 공백이 명확합니다.
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <p className="text-sm font-bold text-rose-800 mb-2">❶ 디지털 전략 부재</p>
+                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                        <li>SEO 거의 없음</li>
+                        <li>콘텐츠 없음</li>
+                        <li>AI 검색 대응 없음</li>
+                      </ul>
+                    </div>
+                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <p className="text-sm font-bold text-rose-800 mb-2">❷ 고객 유입 구조 약함</p>
+                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                        <li>랜딩 페이지 없음</li>
+                        <li>상담 유도 구조 없음</li>
+                        <li>CTA 없음</li>
+                      </ul>
+                    </div>
+                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <p className="text-sm font-bold text-rose-800 mb-2">❸ 브랜드 차별성 약함</p>
+                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                        <li>메시지가 추상적</li>
+                        <li>&ldquo;왜 이 회사인가?&rdquo; 부족</li>
+                      </ul>
+                    </div>
+                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <p className="text-sm font-bold text-rose-800 mb-2">❹ 데이터 기반 서비스 없음</p>
+                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                        <li>분석 플랫폼 없음</li>
+                        <li>리포트 자동화 없음</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 6. AX/AI 관점 분석 — Level Map */}
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">AX</span>
+                    <h3 className="text-xl font-bold text-gray-900">AX / AI 관점 분석</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-4">대표님 관점에서 핵심입니다. 현 위치와 도달 가능한 미래 단계를 4단계로 표현했습니다.</p>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 bg-gray-100 border border-gray-300 rounded-xl p-4">
+                      <span className="shrink-0 w-14 h-14 rounded-xl bg-gray-300 text-gray-800 flex flex-col items-center justify-center text-[10px] font-bold">
+                        <span className="text-xl">1</span>현재
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-gray-900">전통 회계법인</p>
+                        <p className="text-xs text-gray-600">오프라인 상담 + 수기 리포트 중심. 디지털·AI 자산 부재.</p>
+                      </div>
+                    </div>
+                    <div className="text-center text-gray-400">↓</div>
+                    <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                      <span className="shrink-0 w-14 h-14 rounded-xl bg-emerald-200 text-emerald-800 flex flex-col items-center justify-center text-[10px] font-bold">
+                        <span className="text-xl">2</span>전환
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-emerald-800">AI 회계 컨설팅 플랫폼</p>
+                        <p className="text-xs text-gray-700">AI 상담 엔진 + 자동 리포트 + GEO-AIO 콘텐츠 자산 확보.</p>
+                      </div>
+                    </div>
+                    <div className="text-center text-gray-400">↓</div>
+                    <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                      <span className="shrink-0 w-14 h-14 rounded-xl bg-indigo-200 text-indigo-800 flex flex-col items-center justify-center text-[10px] font-bold">
+                        <span className="text-xl">3</span>확장
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-indigo-800">AX Ontology 기반 기업 분석 SaaS</p>
+                        <p className="text-xs text-gray-700">설문→데이터→그래프→전략의 구조화된 기업 진단 SaaS화.</p>
+                      </div>
+                    </div>
+                    <div className="text-center text-gray-400">↓</div>
+                    <div className="flex items-center gap-3 bg-gradient-to-r from-violet-50 to-fuchsia-50 border border-violet-200 rounded-xl p-4">
+                      <span className="shrink-0 w-14 h-14 rounded-xl bg-violet-200 text-violet-800 flex flex-col items-center justify-center text-[10px] font-bold">
+                        <span className="text-xl">4</span>최종
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-violet-800">Palantir형 기업 데이터 플랫폼</p>
+                        <p className="text-xs text-gray-700">기업·산업·시장 데이터 통합 분석 + 의사결정 지원 플랫폼.</p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 7. 대표님 기준 개선 전략 */}
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">★</span>
+                    <h3 className="text-xl font-bold text-gray-900">대표님 기준 개선 전략 (핵심)</h3>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="bg-white border-2 border-emerald-200 rounded-xl p-4">
+                      <p className="text-xs font-bold text-emerald-600 mb-1">1️⃣ 콘텐츠</p>
+                      <p className="text-sm font-bold text-gray-900 mb-2">GEO + AIO 콘텐츠 전략</p>
+                      <p className="text-[11px] text-gray-500 mb-2">현재: 없음 → 반드시 필요</p>
+                      <ul className="text-xs text-gray-700 space-y-0.5 list-disc list-inside">
+                        <li>세무조사 대응 방법</li>
+                        <li>법인 절세 전략</li>
+                        <li>부동산 세금 구조</li>
+                      </ul>
+                      <p className="text-[11px] text-emerald-700 mt-2 font-medium">👉 AI가 인용하는 콘텐츠 제작</p>
+                    </div>
+                    <div className="bg-white border-2 border-indigo-200 rounded-xl p-4">
+                      <p className="text-xs font-bold text-indigo-600 mb-1">2️⃣ 상담</p>
+                      <p className="text-sm font-bold text-gray-900 mb-2">AI 상담 엔진</p>
+                      <p className="text-xs text-gray-700 mb-2">방문 → 질문 → 분석 → 솔루션 제시</p>
+                      <p className="text-[11px] text-indigo-700 font-medium">👉 대표님 AI톡허브 적용 가능</p>
+                    </div>
+                    <div className="bg-white border-2 border-violet-200 rounded-xl p-4">
+                      <p className="text-xs font-bold text-violet-600 mb-1">3️⃣ 플랫폼</p>
+                      <p className="text-sm font-bold text-gray-900 mb-2">AX Ontology 플랫폼</p>
+                      <p className="text-xs text-gray-700 mb-2">기업 입력 → 설문 → 데이터 → 그래프 → 전략</p>
+                      <p className="text-[11px] text-violet-700 font-medium">👉 완전 고부가가치 전환</p>
+                    </div>
+                    <div className="bg-white border-2 border-rose-200 rounded-xl p-4">
+                      <p className="text-xs font-bold text-rose-600 mb-1">4️⃣ 대시보드</p>
+                      <p className="text-sm font-bold text-gray-900 mb-2">KPI 기반 대시보드</p>
+                      <ul className="text-xs text-gray-700 space-y-0.5 list-disc list-inside">
+                        <li>세무 리스크 점수</li>
+                        <li>재무 건강도</li>
+                        <li>성장 예측</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+
             {/* 5. ROI */}
             <section>
               <div className="flex items-center gap-2 mb-3">
