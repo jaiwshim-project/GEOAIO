@@ -31,6 +31,11 @@ type IndustryClass =
   | 'LodgingBusiness' | 'Store' | 'EducationalOrganization'
   | 'SoftwareApplication' | 'WebSite' | 'ProfessionalService';
 
+// 카테고리별 외부 티스토리 블로그 URL (있으면 표지에 핑크 버튼으로 노출)
+const TISTORY_MAP: Record<string, string> = {
+  '디지털스마일치과': 'https://digitalsmile.tistory.com/',
+};
+
 const INDUSTRY_MAP: Record<string, IndustryClass> = {
   '선명회계법인': 'AccountingService',
   '로엘-법무법인': 'LegalService',
@@ -391,6 +396,29 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </Link>
+
+              {/* 외부 티스토리 블로그 (카테고리별) */}
+              {TISTORY_MAP[slug] && (
+                <a
+                  href={TISTORY_MAP[slug]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-3 px-5 py-3 mt-3 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border border-pink-300 rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(236,72,153,0.4)] hover:border-pink-400 transition-all"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shrink-0 shadow-md">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 17.5c-4.142 0-7.5-3.358-7.5-7.5S7.858 4.5 12 4.5s7.5 3.358 7.5 7.5-3.358 7.5-7.5 7.5zm0-12.5a5 5 0 100 10 5 5 0 000-10zm0 7.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-pink-700 font-semibold mb-0.5">📌 실제 운영 중인 티스토리 보기</p>
+                    <p className="text-sm font-bold text-slate-900 break-all">{TISTORY_MAP[slug]}</p>
+                  </div>
+                  <svg className="w-5 h-5 text-pink-600 group-hover:translate-x-1 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+              )}
             </header>
 
             {/* 1. 한계 및 문제점 (Critical Weakness) — 카테고리별 데이터 기반 */}
