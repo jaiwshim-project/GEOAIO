@@ -638,7 +638,19 @@ export default function AdminPage() {
                               ) : <span className="text-gray-300 text-xs">-</span>}
                             </td>
                             <td className="text-center px-4 py-3">
-                              <span className={`inline-block px-2.5 py-1 text-xs font-bold rounded-full border ${badge.color}`}>{badge.label}</span>
+                              <select
+                                value={user.plan}
+                                onChange={(e) => handlePlanChange(user.id, e.target.value)}
+                                disabled={updatingUser === user.id}
+                                className={`px-2.5 py-1 text-xs font-bold rounded-full border ${badge.color} focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all ${
+                                  updatingUser === user.id ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:ring-1 hover:ring-indigo-300'
+                                }`}
+                                title="등급 변경"
+                              >
+                                {PLAN_OPTIONS.map(opt => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </select>
                             </td>
                             <td className="text-center px-4 py-3 text-xs text-gray-600">
                               {user.plan_expires_at ? formatDate(user.plan_expires_at).split(' ')[0] : '-'}
