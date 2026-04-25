@@ -36,6 +36,7 @@ const subNav = [
   { href: '/community', label: '질문/후기' },
   { href: '/make-integration', label: 'Make 연동' },
   { href: '/blog', label: '블로그' },
+  { href: '/proposal', label: '제안서' },
 ];
 
 export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKeyOpen }: HeaderProps) {
