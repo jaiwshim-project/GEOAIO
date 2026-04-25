@@ -53,7 +53,8 @@ export default function PdfDownloadButton({
       });
 
       await Promise.all([
-        loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'),
+        // html2canvas-pro: oklch/oklab 색공간 지원 fork (Tailwind v4 호환)
+        loadScript('https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.10/dist/html2canvas-pro.min.js'),
         loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'),
       ]);
 
