@@ -272,6 +272,13 @@ export default function GenerateResultPage() {
     return o + sep + c;
   };
 
+  // 현재 보고 있는 톤이 완성됐는지 체크 (버튼 활성/비활성 결정용)
+  const isCurrentToneComplete = (): boolean => {
+    const v = abVersions[activeAbTab];
+    if (!v) return false;
+    return validateEeatComplete(v.content || '').ok;
+  };
+
   // ⭐ 현재 보고 있는 톤만 E-E-A-T 완성 (단일 톤)
   const handleCompleteEeatSingle = async () => {
     if (!result || eeatCompletingSingle) return;
@@ -279,21 +286,19 @@ export default function GenerateResultPage() {
     const v = abVersions[idx];
     if (!v) return;
 
+    // 이미 완성된 경우 — 버튼이 비활성화 상태이지만 안전장치
+    const initialCheck = validateEeatComplete(v.content || '');
+    if (initialCheck.ok) {
+      setEeatCompleteSingleStatus('이미 완성된 콘텐츠입니다 ✓');
+      setTimeout(() => setEeatCompleteSingleStatus(''), 2000);
+      return;
+    }
+
     setEeatCompletingSingle(true);
     setEeatCompleteSingleStatus('검증 중...');
 
     try {
       let currentContent = v.content || '';
-      const initialCheck = validateEeatComplete(currentContent);
-
-      if (initialCheck.ok) {
-        setEeatCompleteSingleStatus('이미 완성된 콘텐츠입니다 ✓');
-        setTimeout(() => {
-          setEeatCompleteSingleStatus('');
-          setEeatCompletingSingle(false);
-        }, 2500);
-        return;
-      }
 
       if (currentContent.length < 200) {
         setEeatCompleteSingleStatus(`콘텐츠가 너무 짧아 이어쓰기 불가 (${currentContent.length}자)`);
@@ -306,6 +311,7 @@ export default function GenerateResultPage() {
 
       // 최대 5회 이어쓰기로 완결 시도
       let completed = false;
+      let finalAbVersions = abVersions;
       for (let attempt = 1; attempt <= 5; attempt++) {
         setEeatCompleteSingleStatus(`이어쓰기 ${attempt}/5 (현재 ${currentContent.length}자)`);
         const continued = await requestContinue(v, currentContent);
@@ -318,21 +324,22 @@ export default function GenerateResultPage() {
         const updatedV = { ...v, content: currentContent };
         const newAbVersions = [...abVersions];
         newAbVersions[idx] = updatedV;
+        finalAbVersions = newAbVersions;
         setAbVersions(newAbVersions);
         setResult(updatedV);
 
         if (check.ok) {
-          setEeatCompleteSingleStatus(`✅ 완성 (${currentContent.length}자, ${attempt}회)`);
+          setEeatCompleteSingleStatus(`✅ 완성 (${currentContent.length}자, ${attempt}회) — 새로고침 중...`);
           completed = true;
 
-          // 실패 마크 제거 (이어쓰기로 완성됐으므로)
+          // 실패 마크 제거
           setEeatFailed(prev => {
             const next = new Set(prev);
             next.delete(idx);
             return next;
           });
 
-          // sessionStorage 갱신
+          // sessionStorage에 저장
           try {
             const params = new URLSearchParams(window.location.search);
             const sid = params.get('id');
@@ -349,7 +356,12 @@ export default function GenerateResultPage() {
         }
       }
 
-      if (!completed) {
+      if (completed) {
+        // ⭐ 완성 성공 시 1.5초 후 자동 새로고침
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        window.location.reload();
+        return;
+      } else {
         setEeatCompleteSingleStatus(`5회 이어쓰기 후에도 미완성 — 현재 누적 분량 유지 (${currentContent.length}자)`);
       }
     } catch (e) {
@@ -1306,29 +1318,45 @@ export default function GenerateResultPage() {
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
               수정
             </button>
-            {/* ⭐ E-E-A-T 완성 버튼 — 현재 톤만 독립적으로 검증·이어쓰기 */}
-            <button
-              onClick={handleCompleteEeatSingle}
-              disabled={eeatCompletingSingle}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all disabled:opacity-60 ${
-                eeatCompletingSingle
-                  ? 'bg-indigo-500 text-white border-indigo-300'
-                  : 'bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-700 border-indigo-300 hover:from-indigo-100 hover:to-violet-100'
-              }`}
-              title="현재 톤의 미완성 부분을 이어쓰기로 완결합니다"
-            >
-              {eeatCompletingSingle ? (
-                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              ) : (
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              )}
-              {eeatCompletingSingle ? '완성 중...' : 'E-E-A-T 완성'}
-            </button>
+            {/* ⭐ E-E-A-T 완성 버튼 — 현재 톤이 완성됐으면 비활성화, 미완성이면 활성화 */}
+            {(() => {
+              const isComplete = isCurrentToneComplete();
+              const isDisabled = eeatCompletingSingle || isComplete;
+              return (
+                <button
+                  onClick={handleCompleteEeatSingle}
+                  disabled={isDisabled}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
+                    eeatCompletingSingle
+                      ? 'bg-indigo-500 text-white border-indigo-300 cursor-wait'
+                      : isComplete
+                      ? 'bg-emerald-50 text-emerald-600 border-emerald-200 cursor-not-allowed opacity-70'
+                      : 'bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-700 border-indigo-300 hover:from-indigo-100 hover:to-violet-100 hover:shadow-sm'
+                  }`}
+                  title={
+                    isComplete
+                      ? '이 톤은 이미 100% 완성되었습니다'
+                      : '현재 톤의 미완성 부분을 이어쓰기로 완결합니다'
+                  }
+                >
+                  {eeatCompletingSingle ? (
+                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : isComplete ? (
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  )}
+                  {eeatCompletingSingle ? '완성 중...' : isComplete ? 'E-E-A-T 완성됨' : 'E-E-A-T 완성'}
+                </button>
+              );
+            })()}
             <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-all ml-auto">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
               새로 만들기
