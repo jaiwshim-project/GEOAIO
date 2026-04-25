@@ -207,6 +207,51 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
+            {/* [선명회계법인 전용] 2. 한계 및 문제점 (Critical Weakness) */}
+            {slug === '선명회계법인' && (
+              <section>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">2</span>
+                  <h3 className="text-xl font-bold text-gray-900">한계 및 문제점 (Critical Weakness)</h3>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  현재 구조에서 가장 시급하게 해결해야 할 부분입니다. 디지털·콘텐츠·데이터 영역에서 구조적 공백이 명확합니다.
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                    <p className="text-sm font-bold text-rose-800 mb-2">❶ 디지털 전략 부재</p>
+                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                      <li>SEO 거의 없음</li>
+                      <li>콘텐츠 없음</li>
+                      <li>AI 검색 대응 없음</li>
+                    </ul>
+                  </div>
+                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                    <p className="text-sm font-bold text-rose-800 mb-2">❷ 고객 유입 구조 약함</p>
+                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                      <li>랜딩 페이지 없음</li>
+                      <li>상담 유도 구조 없음</li>
+                      <li>CTA 없음</li>
+                    </ul>
+                  </div>
+                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                    <p className="text-sm font-bold text-rose-800 mb-2">❸ 브랜드 차별성 약함</p>
+                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                      <li>메시지가 추상적</li>
+                      <li>&ldquo;왜 이 회사인가?&rdquo; 부족</li>
+                    </ul>
+                  </div>
+                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                    <p className="text-sm font-bold text-rose-800 mb-2">❹ 데이터 기반 서비스 없음</p>
+                    <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+                      <li>분석 플랫폼 없음</li>
+                      <li>리포트 자동화 없음</li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* 2. 솔루션 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
@@ -535,53 +580,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
-            {/* [선명회계법인 전용] 한계·AX 분석·개선 전략 */}
+            {/* [선명회계법인 전용] AX 분석·개선 전략 */}
             {slug === '선명회계법인' && (
               <>
-                {/* 5. 한계 및 문제점 */}
-                <section>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">!</span>
-                    <h3 className="text-xl font-bold text-gray-900">한계 및 문제점 (Critical Weakness)</h3>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-4">
-                    현재 구조에서 가장 시급하게 해결해야 할 부분입니다. 디지털·콘텐츠·데이터 영역에서 구조적 공백이 명확합니다.
-                  </p>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                      <p className="text-sm font-bold text-rose-800 mb-2">❶ 디지털 전략 부재</p>
-                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                        <li>SEO 거의 없음</li>
-                        <li>콘텐츠 없음</li>
-                        <li>AI 검색 대응 없음</li>
-                      </ul>
-                    </div>
-                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                      <p className="text-sm font-bold text-rose-800 mb-2">❷ 고객 유입 구조 약함</p>
-                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                        <li>랜딩 페이지 없음</li>
-                        <li>상담 유도 구조 없음</li>
-                        <li>CTA 없음</li>
-                      </ul>
-                    </div>
-                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                      <p className="text-sm font-bold text-rose-800 mb-2">❸ 브랜드 차별성 약함</p>
-                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                        <li>메시지가 추상적</li>
-                        <li>&ldquo;왜 이 회사인가?&rdquo; 부족</li>
-                      </ul>
-                    </div>
-                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                      <p className="text-sm font-bold text-rose-800 mb-2">❹ 데이터 기반 서비스 없음</p>
-                      <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-                        <li>분석 플랫폼 없음</li>
-                        <li>리포트 자동화 없음</li>
-                      </ul>
-                    </div>
-                  </div>
-                </section>
-
-                {/* 6. AX/AI 관점 분석 — Level Map */}
+                {/* AX/AI 관점 분석 — Level Map */}
                 <section>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">AX</span>
