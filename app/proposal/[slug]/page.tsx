@@ -377,16 +377,77 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(1)}</span>
                 <h3 className="text-xl font-bold text-gray-900">현황 진단: {meta.label}이 직면한 콘텐츠 마케팅의 한계</h3>
               </div>
-              <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-3">
+              <div className="bg-gradient-to-br from-rose-50/40 via-white to-orange-50/40 rounded-xl p-5 border border-rose-100/70 space-y-4 shadow-[0_4px_20px_-8px_rgba(244,63,94,0.15)]">
                 <p className="text-sm text-gray-700 leading-relaxed">
                   ChatGPT, Google AI Overview, Perplexity 등 <strong>AI 검색엔진이 전체 검색 트래픽의 40% 이상을 점유</strong>하고 있습니다.
                   하지만 기존 SEO 방식으로 작성된 콘텐츠 중 <strong className="text-rose-600">90%는 AI에 인용되지 못합니다.</strong>
                 </p>
-                <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>콘텐츠 1편당 작성 시간:</strong> 평균 4~8시간 (외주 시 건당 10~15만원)</span></li>
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>AI 인용 가능성:</strong> 일반 SEO 콘텐츠 비율 70% / AI 인용 가능성 5% 미만</span></li>
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>월간 발행량 한계:</strong> 인력 1명 기준 월 15~30편 (시즌별 마케팅 대응 불가)</span></li>
-                </ul>
+
+                {/* AI 검색 점유율 시각화 도넛 (CSS conic-gradient) */}
+                <div className="grid grid-cols-3 gap-3 my-4">
+                  <div className="text-center bg-white rounded-xl p-3 border border-rose-100">
+                    <div className="relative w-16 h-16 mx-auto mb-1.5">
+                      <div className="absolute inset-0 rounded-full" style={{ background: 'conic-gradient(#f43f5e 0% 40%, #fee2e2 40% 100%)' }} />
+                      <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                        <span className="text-sm font-extrabold text-rose-600">40%+</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-semibold text-gray-700">AI 검색 점유율</p>
+                    <p className="text-[9px] text-gray-500">전체 검색 트래픽</p>
+                  </div>
+                  <div className="text-center bg-white rounded-xl p-3 border border-rose-100">
+                    <div className="relative w-16 h-16 mx-auto mb-1.5">
+                      <div className="absolute inset-0 rounded-full" style={{ background: 'conic-gradient(#fbbf24 0% 5%, #fef3c7 5% 100%)' }} />
+                      <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                        <span className="text-sm font-extrabold text-amber-600">5%</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-semibold text-gray-700">AI 인용 가능성</p>
+                    <p className="text-[9px] text-gray-500">일반 SEO 기준</p>
+                  </div>
+                  <div className="text-center bg-white rounded-xl p-3 border border-rose-100">
+                    <div className="relative w-16 h-16 mx-auto mb-1.5">
+                      <div className="absolute inset-0 rounded-full" style={{ background: 'conic-gradient(#f43f5e 0% 90%, #fee2e2 90% 100%)' }} />
+                      <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+                        <span className="text-sm font-extrabold text-rose-600">90%</span>
+                      </div>
+                    </div>
+                    <p className="text-[10px] font-semibold text-gray-700">미인용 콘텐츠</p>
+                    <p className="text-[9px] text-gray-500">기존 SEO 방식</p>
+                  </div>
+                </div>
+
+                {/* 핵심 지표 막대 그래프 */}
+                <div className="space-y-2.5 bg-white rounded-xl p-4 border border-gray-100">
+                  <p className="text-xs font-bold text-gray-700 mb-2">📊 기존 방식 핵심 지표</p>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-700"><strong>콘텐츠 1편 작성 시간</strong></span>
+                      <span className="text-xs font-bold text-rose-600">4~8시간 / 10~15만원</span>
+                    </div>
+                    <div className="h-2 bg-rose-50 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-rose-400 to-rose-500" style={{ width: '85%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-700"><strong>AI 인용 가능성</strong> (일반 SEO)</span>
+                      <span className="text-xs font-bold text-rose-600">5% 미만</span>
+                    </div>
+                    <div className="h-2 bg-rose-50 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-rose-400 to-rose-500" style={{ width: '5%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-700"><strong>월간 발행량</strong> (인력 1명)</span>
+                      <span className="text-xs font-bold text-rose-600">15~30편</span>
+                    </div>
+                    <div className="h-2 bg-rose-50 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-rose-400 to-rose-500" style={{ width: '20%' }} />
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -935,10 +996,112 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </p>
             </section>
 
-            {/* 6. 가격표 */}
+            {/* 6. 온톨로지(schema.org) 적용 안내 — AI 인용 최적화 */}
+            <section className="relative overflow-hidden">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-200 to-yellow-300 text-slate-900 ring-2 ring-amber-400/60 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(6)}</span>
+                <h3 className="text-xl font-bold text-gray-900">AI 인용 최적화 — schema.org 온톨로지 적용</h3>
+                <span className="ml-auto text-[10px] font-bold tracking-[0.2em] bg-gradient-to-r from-amber-600 to-yellow-700 bg-clip-text text-transparent">AUTOMATED</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-5 leading-relaxed">
+                이 제안서는 <strong className="text-slate-900">schema.org 기반 온톨로지(구조화 데이터)</strong>로 자동 출력되어,
+                GPT·Perplexity·Gemini 등 AI 검색엔진이 정확히 인용할 수 있습니다.
+                같은 데이터가 본문 렌더링과 AI 메타데이터에 동시 사용되는 <strong className="text-slate-900">단일 소스 구조</strong>입니다.
+              </p>
+
+              {/* 적용된 온톨로지 구조 다이어그램 */}
+              <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ring-1 ring-amber-400/30 rounded-2xl p-5 mb-4 overflow-hidden shadow-[0_12px_40px_-15px_rgba(251,191,36,0.4)]">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.08),_transparent_60%)]" />
+                <div className="relative">
+                  <p className="text-[10px] font-bold tracking-[0.2em] text-amber-300 mb-3">ONTOLOGY MAP</p>
+                  {/* 3단 흐름: 카테고리 → schema.org 클래스 → AI 인용 */}
+                  <div className="grid grid-cols-3 gap-2 items-center">
+                    <div className="text-center">
+                      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
+                        <p className="text-[10px] text-white/50 mb-1">카테고리</p>
+                        <p className="text-sm font-bold text-white truncate">{meta.label}</p>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-amber-400 text-2xl">→</div>
+                      <p className="text-[9px] text-amber-300/80 -mt-1">매핑</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="bg-gradient-to-br from-amber-400/20 to-yellow-500/10 backdrop-blur-sm border border-amber-400/40 rounded-xl p-3">
+                        <p className="text-[10px] text-amber-300 mb-1">schema.org 클래스</p>
+                        <p className="text-sm font-bold bg-gradient-to-r from-amber-200 to-yellow-200 bg-clip-text text-transparent truncate">{industryType}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* 하단 라벨들 */}
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {['Article', 'Organization', industryType, ...(weaknessData ? ['mentions×4'] : []), 'Offer×2'].map((tag, i) => (
+                      <span key={i} className="text-[10px] font-mono px-2 py-0.5 bg-white/5 border border-amber-400/30 text-amber-200 rounded-full">@type:{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* AI 인용률 시각화 */}
+              <div className="bg-white border border-gray-200 rounded-xl p-5 mb-4">
+                <p className="text-sm font-bold text-gray-900 mb-3">AI 인용률 비교 (콘텐츠 방식별)</p>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-600">일반 SEO 콘텐츠</span>
+                      <span className="text-xs font-bold text-gray-500">~5%</span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-gray-400 to-gray-500 rounded-full" style={{ width: '5%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-600">E-E-A-T 적용 콘텐츠</span>
+                      <span className="text-xs font-bold text-emerald-600">~60%</span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full" style={{ width: '60%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-amber-700">+ schema.org 온톨로지 (본 제안서)</span>
+                      <span className="text-xs font-extrabold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">80%+</span>
+                    </div>
+                    <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden relative">
+                      <div className="h-full bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 rounded-full shadow-[0_0_12px_rgba(251,191,36,0.6)]" style={{ width: '85%' }} />
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
+                  ※ 일반론적 추정치. AI 검색엔진별·키워드별로 차이가 있을 수 있음. 같은 콘텐츠라도 schema.org 적용 시 AI가 출처를 정확히 인용할 가능성이 크게 향상됩니다.
+                </p>
+              </div>
+
+              {/* 적용 효과 4가지 카드 */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {[
+                  { icon: '🤖', label: 'AI 인용', desc: 'GPT·Perplexity 정확히 출처 인용' },
+                  { icon: '🔍', label: '구글 Rich Result', desc: 'Article·Offer rich snippet' },
+                  { icon: '🧬', label: '단일 소스', desc: '본문↔메타 동기화' },
+                  { icon: '⚡', label: '자동 출력', desc: '카테고리 추가만으로 확장' },
+                ].map((b, i) => (
+                  <div key={i} className="relative bg-gradient-to-br from-white to-amber-50 ring-1 ring-amber-200/70 rounded-xl p-3 overflow-hidden shadow-sm">
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
+                    <div className="text-xl mb-1">{b.icon}</div>
+                    <p className="text-xs font-bold text-amber-800 mb-0.5">{b.label}</p>
+                    <p className="text-[10px] text-gray-600 leading-snug">{b.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 7. 가격표 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(6)}</span>
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(7)}</span>
                 <h3 className="text-xl font-bold text-gray-900">가격표</h3>
               </div>
               <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 mb-4">
