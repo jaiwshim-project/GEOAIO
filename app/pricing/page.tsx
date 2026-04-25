@@ -116,6 +116,56 @@ export default function PricingPage() {
             </button>
           </div>
 
+          {/* 프리미엄 플랜 — 라이트 indigo */}
+          <div className="relative bg-white rounded-2xl border-2 border-indigo-300 p-6 shadow-md hover:shadow-xl transition-all">
+            <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-xs font-bold rounded-full">
+              프리미엄 (Premium)
+            </div>
+            <div className="absolute -top-3 right-6 px-3 py-0.5 bg-gradient-to-r from-indigo-600 to-purple-700 text-white text-[10px] font-bold rounded-full tracking-wider">
+              ENTERPRISE
+            </div>
+
+            <div className="mt-2 mb-4">
+              <p className="text-xs font-semibold text-gray-500 mb-1">1년 계약 · 분기별 결제</p>
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-extrabold text-indigo-600">540</span>
+                <span className="text-lg font-bold text-gray-700">만원</span>
+                <span className="text-sm text-gray-500 ml-1">/분기</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">부가세 별도</p>
+              <p className="text-xs font-bold text-indigo-600">연 2,160만원 (4회 분기 결제)</p>
+            </div>
+
+            <div className="border-t border-gray-100 pt-4 mb-4">
+              <p className="text-xs font-bold text-gray-700 mb-3">✓ 포함 사항</p>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-500 mt-0.5">●</span>
+                  <span>GEO-AIO 플랫폼 엔진으로 AI 최적화된 홍보글 생성 및 포스팅 대행</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-500 mt-0.5">●</span>
+                  <span>E-E-A-T 포맷 적용으로 AI 인용 최적화</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-500 mt-0.5">●</span>
+                  <span className="font-bold text-indigo-700">월 최대 120건 (연 1,440건) 콘텐츠 생성</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-indigo-500 mt-0.5">●</span>
+                  <span>기술 지원 · 상담</span>
+                </li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => setContactModal('premium')}
+              className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm text-sm"
+            >
+              프리미엄 플랜 문의하기
+            </button>
+          </div>
+
           {/* 맥스 플랜 — 프리미엄 골드 ring */}
           <div className="relative bg-gradient-to-br from-white via-amber-50/30 to-white rounded-2xl ring-2 ring-amber-300/60 p-6 shadow-[0_12px_40px_-10px_rgba(251,191,36,0.4)] hover:shadow-[0_20px_60px_-10px_rgba(251,191,36,0.5)] transition-all">
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent rounded-t-2xl" />
@@ -177,64 +227,6 @@ export default function PricingPage() {
             </button>
           </div>
 
-          {/* 프리미엄 플랜 — 다크 럭셔리 */}
-          <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl ring-2 ring-violet-400/40 p-6 shadow-[0_12px_40px_-10px_rgba(139,92,246,0.5)] hover:shadow-[0_20px_60px_-10px_rgba(139,92,246,0.6)] transition-all text-white">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-400/70 to-transparent rounded-t-2xl" />
-            <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white text-xs font-bold rounded-full shadow-md">
-              프리미엄 (Premium)
-            </div>
-            <div className="absolute -top-3 right-6 px-3 py-0.5 bg-gradient-to-r from-violet-600 to-purple-700 text-white text-[10px] font-bold rounded-full tracking-wider">
-              ENTERPRISE
-            </div>
-
-            <div className="mt-2 mb-4">
-              <p className="text-xs font-semibold text-violet-200 mb-1">1년 계약 · 분기별 결제</p>
-              <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-4xl font-extrabold bg-gradient-to-r from-violet-300 via-fuchsia-300 to-violet-300 bg-clip-text text-transparent">540</span>
-                <span className="text-lg font-bold text-white/80">만원</span>
-                <span className="text-sm text-white/60">/분기</span>
-              </div>
-              <p className="text-xs text-white/60 mt-1">부가세 별도</p>
-              <p className="text-xs font-bold text-violet-300">연 2,160만원 (4회 분기 결제)</p>
-            </div>
-
-            <div className="border-t border-white/10 pt-4 mb-4">
-              <p className="text-xs font-bold text-violet-200 mb-3">✓ 포함 사항</p>
-              <ul className="space-y-2 text-sm text-white/85">
-                <li className="flex items-start gap-2">
-                  <span className="text-violet-300 mt-0.5">●</span>
-                  <span>맥스 플랜 모든 혜택 포함</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-violet-300 mt-0.5">●</span>
-                  <span className="font-bold text-violet-200">엔터프라이즈 맞춤 컨설팅</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-violet-300 mt-0.5">●</span>
-                  <span>전담 매니저 배정</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-violet-300 mt-0.5">●</span>
-                  <span>SLA 우선 지원</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-fuchsia-300 mt-0.5">★</span>
-                  <span className="font-bold text-fuchsia-200">분기별 정기 리포트·전략 컨설팅</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-fuchsia-300 mt-0.5">★</span>
-                  <span className="font-bold text-fuchsia-200">맞춤 콘텐츠 옵션 협의</span>
-                </li>
-              </ul>
-            </div>
-
-            <button
-              onClick={() => setContactModal('premium')}
-              className="w-full py-3 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-600 text-white font-bold rounded-xl hover:shadow-[0_8px_24px_-4px_rgba(139,92,246,0.7)] hover:scale-[1.02] transition-all shadow-md text-sm ring-1 ring-violet-400"
-            >
-              프리미엄 플랜 문의하기
-            </button>
-          </div>
         </div>
 
         {/* 결제 안내 */}
@@ -308,7 +300,7 @@ export default function PricingPage() {
             <div className={`rounded-t-2xl px-6 py-5 text-center ${
               contactModal === 'pro' ? 'bg-gradient-to-r from-blue-500 to-indigo-600'
               : contactModal === 'max' ? 'bg-gradient-to-r from-amber-500 to-yellow-600'
-              : 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-violet-700'
+              : 'bg-gradient-to-r from-indigo-500 to-violet-600'
             }`}>
               <button
                 onClick={() => setContactModal(null)}
@@ -324,7 +316,7 @@ export default function PricingPage() {
               <p className="text-sm text-white/80 mt-1">
                 {contactModal === 'pro' ? '월 200만원 · 월 100건'
                   : contactModal === 'max' ? '연 1,440만원 · 월 150건 + 브랜드뉴스/영상'
-                  : '540만원/분기 · 연 2,160만원 · 1년 계약 · 엔터프라이즈 맞춤'}
+                  : '540만원/분기 · 연 2,160만원 · 월 120건'}
               </p>
             </div>
 
@@ -356,7 +348,7 @@ export default function PricingPage() {
                   className={`flex-1 text-center py-2.5 text-white font-semibold rounded-xl text-sm ${
                     contactModal === 'pro' ? 'bg-blue-500 hover:bg-blue-600'
                     : contactModal === 'max' ? 'bg-amber-500 hover:bg-amber-600'
-                    : 'bg-violet-600 hover:bg-violet-700'
+                    : 'bg-indigo-500 hover:bg-indigo-600'
                   } transition-all`}
                 >
                   📞 전화 걸기
