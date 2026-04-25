@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import PdfDownloadButton from '@/components/PdfDownloadButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -288,16 +289,19 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
       <Header />
 
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 뒤로가기 */}
-        <Link
-          href="/proposal"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-200/70 hover:text-amber-200 mb-4 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          전체 제안서 목록으로
-        </Link>
+        {/* 상단 액션바: 뒤로가기 + PDF 저장 */}
+        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <Link
+            href="/proposal"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-200/70 hover:text-amber-200 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            전체 제안서 목록으로
+          </Link>
+          <PdfDownloadButton targetSelector="article" filename={`${meta.label}-제안서`} />
+        </div>
 
         {/* 히어로 — 프리미엄 다크 + 골드 */}
         <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-6 sm:px-10 py-10 mb-6 ring-1 ring-amber-400/20 shadow-[0_20px_60px_-15px_rgba(251,191,36,0.25)]">
