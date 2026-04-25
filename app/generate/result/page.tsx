@@ -1330,12 +1330,12 @@ export default function GenerateResultPage() {
                     eeatCompletingSingle
                       ? 'bg-indigo-500 text-white border-indigo-300 cursor-wait'
                       : isComplete
-                      ? 'bg-emerald-50 text-emerald-600 border-emerald-200 cursor-not-allowed opacity-70'
+                      ? 'bg-rose-50 text-rose-600 border-rose-300 cursor-not-allowed'
                       : 'bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-700 border-indigo-300 hover:from-indigo-100 hover:to-violet-100 hover:shadow-sm'
                   }`}
                   title={
                     isComplete
-                      ? '이 톤은 이미 100% 완성되었습니다'
+                      ? '이 톤은 이미 100% 완성되어 추가 작업 불필요'
                       : '현재 톤의 미완성 부분을 이어쓰기로 완결합니다'
                   }
                 >
@@ -1345,8 +1345,8 @@ export default function GenerateResultPage() {
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
                   ) : isComplete ? (
-                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   ) : (
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
