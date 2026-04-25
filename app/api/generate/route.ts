@@ -181,13 +181,26 @@ export async function POST(request: NextRequest) {
 ${ragContent}
 
 ────────────────────────────────────────
+${companyInfo ? `🚨🚨🚨 [절대 준수 — 업체 정보 정확 표기] 🚨🚨🚨
+아래 업체 정보는 RAG 자료와 함께 사실 기반 정보입니다.
+본문에 반드시 정확히 표기하세요. 변경·추측·생략 절대 금지.
+
+${companyInfo}
+
+${body.company_name ? `✓ 회사명 "${body.company_name}"는 본문에 반드시 정확히 등장 (오타·축약·변형 금지)` : ''}
+${body.representative_name ? `✓ 대표자명 "${body.representative_name}"는 본문에 반드시 정확히 등장` : ''}
+${body.region ? `✓ 주소/지역 "${body.region}"는 본문에 반드시 정확히 등장` : ''}
+
+⚠️ RAG 자료에 회사 정보가 더 있으면 그 내용을 우선 활용하세요.
+⚠️ 위 정보가 없는 정보(전화번호·이메일 등)는 RAG 자료에서 찾아서만 사용. 절대 임의 생성 금지.
+────────────────────────────────────────
+` : ''}
 [콘텐츠 생성 조건]
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
 ${body.subKeyword ? `분야/카테고리: ${body.subKeyword}` : ''}
 톤/스타일: ${toneDesc}
-${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}
-${companyInfo ? `\n[업체 정보 - 본문에 반드시 포함]\n${companyInfo}\n` : ''}${toneGuide}
+${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}${toneGuide}
 ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : ''}
 [RAG 기반 E-E-A-T 필수 구조]
 1. 도입부 (RAG 자료의 핵심 가치·문제 제기 + 업계 통계, 2~3문단)
@@ -203,7 +216,7 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 - 제목: "${toneDesc}" 톤 + 수치 포함 (예: "95% 달성", "3배 향상")
 - RAG 자료의 사실·수치·표현을 반드시 본문에 녹여 작성
 - ${toneDesc} 톤을 제목부터 마지막까지 일관 유지
-${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문에 자연스럽게 포함` : ''}`;
+${companyInfo ? `- ⚠️ 회사명·대표자명·주소는 RAG 자료에 있는 그대로 정확히 본문에 표기 (변경·축약·임의 생성 절대 금지)` : ''}`;
     } else {
       // ── 일반 생성 (RAG 없음) ──
       userMessage = `다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.

@@ -74,6 +74,7 @@ export default function GenerateResultPage() {
   const [eeatConverting, setEeatConverting] = useState(false);
   const [eeatProgress, setEeatProgress] = useState(0); // 0~10
   const [eeatDone, setEeatDone] = useState(false);
+  const [eeatFailed, setEeatFailed] = useState<Set<number>>(new Set()); // 검증 실패한 톤 인덱스
 
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
@@ -235,20 +236,20 @@ export default function GenerateResultPage() {
 
     const converted: (GenerateResponse & { toneName?: string })[] = [...versions];
 
-    // ── 엄격한 완성도 검증 (7가지 모두 통과해야 함) ──
+    // ── 엄격한 완성도 검증 (모두 통과해야 함) ──
     const validateComplete = (content: string): { ok: boolean; reason?: string } => {
       if (!content) return { ok: false, reason: '콘텐츠 비어있음' };
 
       // 1. 분량 (최소 2,000자)
-      if (content.length < 2000) return { ok: false, reason: `분량 부족 (${content.length}자 < 2000)` };
+      if (content.length < 2000) return { ok: false, reason: `분량 부족 (${content.length}자)` };
 
       // 2. H2 섹션 5개 이상
       const h2Matches = content.match(/^## /gm) || [];
-      if (h2Matches.length < 5) return { ok: false, reason: `H2 섹션 부족 (${h2Matches.length}개 < 5)` };
+      if (h2Matches.length < 5) return { ok: false, reason: `H2 부족 (${h2Matches.length}개)` };
 
       // 3. FAQ 섹션 명시적 존재
       const hasFaqSection = /##\s*FAQ|##\s*자주\s*묻는|##\s*질문/i.test(content);
-      if (!hasFaqSection) return { ok: false, reason: 'FAQ 섹션 없음' };
+      if (!hasFaqSection) return { ok: false, reason: 'FAQ 없음' };
 
       // 4. 마크다운 비교표 존재 (헤더 + 구분선)
       const hasTable = /\|.+\|.+\|\s*\n\s*\|[\s\-:|]+\|/.test(content);
@@ -256,21 +257,41 @@ export default function GenerateResultPage() {
 
       // 5. 결론 섹션 존재
       const hasConclusion = /##\s*결론|##\s*마치며|##\s*마무리|##\s*요약/i.test(content);
-      if (!hasConclusion) return { ok: false, reason: '결론 섹션 없음' };
+      if (!hasConclusion) return { ok: false, reason: '결론 없음' };
 
-      // 6. 해시태그 끝맺음 (#태그 형태가 마지막 부분에 존재)
-      const tail = content.slice(-500);
-      const hasHashtags = (tail.match(/#[\w가-힣]+/g) || []).length >= 3;
-      if (!hasHashtags) return { ok: false, reason: '해시태그 미완성 (3개 미만)' };
+      // 6. ⭐ 해시태그 엄격 검증 — 마지막 200자 + 줄 단위 체크
+      const lastBlock = content.slice(-300);
+      // 줄 단위로 #태그가 연속 등장하는 패턴 찾기 (해시태그 라인)
+      const hashtagLineMatches = lastBlock.match(/(?:^|\n)\s*(#[\w가-힣]+(?:\s+#[\w가-힣]+){2,})/);
+      // 또는 마지막 줄 자체가 # 으로 시작하면서 5개 이상
+      const lines = content.trim().split('\n');
+      const lastNonEmptyLines = lines.filter(l => l.trim().length > 0).slice(-5);
+      const hashtagLineExists = lastNonEmptyLines.some(line => {
+        const tags = line.match(/#[\w가-힣]+/g) || [];
+        return tags.length >= 5; // 한 줄에 5개 이상의 해시태그
+      });
+      if (!hashtagLineMatches && !hashtagLineExists) {
+        return { ok: false, reason: '해시태그 라인 없음 (최소 5개)' };
+      }
 
-      // 7. 마지막이 한글 음절 중간에 잘리지 않았는지
+      // 7. 한글 음절 잘림 검증
       const lastChar = content.trim().slice(-1);
-      if (/^[ㄱ-ㅎㅏ-ㅣ]$/.test(lastChar)) return { ok: false, reason: '한글 자음으로 잘림' };
+      if (/^[ㄱ-ㅎㅏ-ㅣ]$/.test(lastChar)) return { ok: false, reason: '한글 자음 잘림' };
+
+      // 8. ⭐ 마지막 줄이 미완성 문장이 아닌지 검증
+      // 콘텐츠가 '#' 또는 '.' '다' '요' 등 정상 종결로 끝나야 함
+      const lastLine = lastNonEmptyLines[lastNonEmptyLines.length - 1] || '';
+      const endsWithHashtag = /#[\w가-힣]+\s*$/.test(lastLine);
+      const endsWithSentence = /[.!?다요죠"】\]\)]\s*$/.test(lastLine);
+      const endsWithPipe = lastLine.trim().endsWith('|'); // 표 끝
+      if (!endsWithHashtag && !endsWithSentence && !endsWithPipe) {
+        return { ok: false, reason: `마지막 줄 미완성 (${lastLine.slice(-30)})` };
+      }
 
       return { ok: true };
     };
 
-    // 변환 1회 시도
+    // 변환 1회 시도 — 잘림 감지 포함
     const tryConvert = async (v: GenerateResponse & { toneName?: string }) => {
       const res = await fetch('/api/convert-eeat', {
         method: 'POST',
@@ -281,6 +302,11 @@ export default function GenerateResultPage() {
           tone: (v as { toneValue?: string }).toneValue || currentTone,
         }),
       });
+      // 422 = 서버가 응답 잘림을 감지한 경우
+      if (res.status === 422) {
+        console.log('[E-E-A-T] 서버에서 잘림 감지 (422)');
+        return null;
+      }
       if (!res.ok) return null;
       const data = await res.json();
       return {
@@ -291,39 +317,41 @@ export default function GenerateResultPage() {
     };
 
     // ── 1개씩 순차 변환 + 엄격 검증 + 최대 3회 재시도 ──
+    const failedSet = new Set<number>();
     for (let i = 0; i < versions.length; i++) {
       const v = versions[i];
-      let bestResult: typeof v | null = null;
-      let bestLen = 0;
+      let validResult: typeof v | null = null; // 검증 통과한 것만
 
-      // 최대 3회 시도, 매번 완성도 검증
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           console.log(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 시도 ${attempt}/3`);
           const r = await tryConvert(v);
-          if (!r) continue;
-
+          if (!r) {
+            console.log(`[E-E-A-T] 톤 ${i + 1} 시도 ${attempt}: API 실패`);
+            continue;
+          }
           const validation = validateComplete(r.content);
           if (validation.ok) {
-            // ✅ 완성 — 이것을 사용하고 다음 톤으로
-            console.log(`[E-E-A-T] 톤 ${i + 1} 완성 (시도 ${attempt})`);
-            bestResult = r;
+            console.log(`[E-E-A-T] 톤 ${i + 1} ✅ 완성 (시도 ${attempt})`);
+            validResult = r;
             break;
           } else {
-            console.log(`[E-E-A-T] 톤 ${i + 1} 미완성 (${validation.reason}) — 재시도`);
-            // 더 긴 결과를 보존 (최후 폴백용)
-            if (r.content.length > bestLen) {
-              bestResult = r;
-              bestLen = r.content.length;
-            }
+            console.log(`[E-E-A-T] 톤 ${i + 1} ❌ 미완성: ${validation.reason}`);
           }
         } catch (e) {
           console.log(`[E-E-A-T] 톤 ${i + 1} 오류:`, e);
         }
       }
 
-      // 검증 통과했거나 최선의 결과를 사용
-      if (bestResult) converted[i] = bestResult;
+      if (validResult) {
+        // ✅ 검증 통과 — 새 결과 사용
+        converted[i] = validResult;
+      } else {
+        // ❌ 3회 모두 실패 — 원본 유지, 실패 마크
+        console.warn(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 3회 모두 실패 — 원본 유지`);
+        failedSet.add(i);
+        setEeatFailed(new Set(failedSet));
+      }
 
       setEeatProgress(i + 1);
       setAbVersions([...converted]);
@@ -914,18 +942,21 @@ export default function GenerateResultPage() {
               {abVersions.map((v, i) => {
                 const isDone = i < eeatProgress;
                 const isActive = i === eeatProgress;
+                const isFailed = eeatFailed.has(i);
                 return (
                   <span
                     key={i}
                     className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                      isDone
+                      isFailed
+                        ? 'bg-rose-50 text-rose-700 border-rose-200'
+                        : isDone
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         : isActive
                         ? 'bg-indigo-50 text-indigo-700 border-indigo-300 animate-pulse'
                         : 'bg-gray-50 text-gray-400 border-gray-200'
                     }`}
                   >
-                    {isDone ? '✓ ' : isActive ? '◌ ' : ''}{v.toneName || `톤 ${i + 1}`}
+                    {isFailed ? '⚠ ' : isDone ? '✓ ' : isActive ? '◌ ' : ''}{v.toneName || `톤 ${i + 1}`}
                   </span>
                 );
               })}

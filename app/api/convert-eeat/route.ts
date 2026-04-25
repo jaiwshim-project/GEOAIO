@@ -82,6 +82,8 @@ ${content}
 제목은 수치가 포함된 강력한 문장으로 개선하세요.`;
 
     let convertedContent = '';
+    let finishReason: string = ''; // 'STOP' = 정상 종료, 'MAX_TOKENS' = 잘림
+    let truncated = false;
 
     // Gemini 우선
     if (geminiKey) {
@@ -90,9 +92,15 @@ ${content}
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: prompt,
-          config: { maxOutputTokens: 6000 },
+          config: { maxOutputTokens: 8000 }, // 잘림 방지: 6000 → 8000
         });
         convertedContent = response.text || '';
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        finishReason = (response as any).candidates?.[0]?.finishReason || '';
+        if (finishReason && finishReason !== 'STOP') {
+          truncated = true;
+          console.log('[convert-eeat] Gemini 응답 잘림:', finishReason);
+        }
       } catch (e) {
         console.log('[convert-eeat] Gemini 실패, Claude 폴백:', e);
       }
@@ -103,14 +111,28 @@ ${content}
       const client = new Anthropic({ apiKey: claudeKey });
       const message = await client.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 6000,
+        max_tokens: 8000,
         messages: [{ role: 'user', content: prompt }],
       });
       convertedContent = message.content[0].type === 'text' ? message.content[0].text : '';
+      finishReason = message.stop_reason || '';
+      if (finishReason && finishReason !== 'end_turn' && finishReason !== 'stop_sequence') {
+        truncated = true;
+        console.log('[convert-eeat] Claude 응답 잘림:', finishReason);
+      }
     }
 
     if (!convertedContent) {
       return withCors(NextResponse.json({ error: '변환 실패' }, { status: 500 }));
+    }
+
+    // 응답이 잘린 경우 명시적으로 실패 처리
+    if (truncated) {
+      return withCors(NextResponse.json({
+        error: `응답이 토큰 한도에서 잘렸습니다 (${finishReason})`,
+        truncated: true,
+        partialContent: convertedContent.slice(0, 200) + '...',
+      }, { status: 422 })); // 422 Unprocessable Entity
     }
 
     // 제목 추출 (첫 번째 # 라인 또는 원본 제목 유지)
