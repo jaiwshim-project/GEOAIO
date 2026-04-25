@@ -216,9 +216,11 @@ export default function GenerateResultPage() {
     setEeatDone(false);
 
     const converted: (GenerateResponse & { toneName?: string })[] = [...versions];
-    const CONVERT_BATCH = 3; // E-E-A-T 변환 동시 에이전트 수
 
-    const convertOne = async (v: GenerateResponse & { toneName?: string }, idx: number) => {
+    // ── 1개씩 순차 변환 (전문적 → 감성형 순서) ──
+    // 한 톤 완료 즉시 화면 표시 → 다음 톤 변환
+    for (let i = 0; i < versions.length; i++) {
+      const v = versions[i];
       try {
         const res = await fetch('/api/convert-eeat', {
           method: 'POST',
@@ -231,18 +233,15 @@ export default function GenerateResultPage() {
         });
         if (res.ok) {
           const data = await res.json();
-          converted[idx] = { ...v, title: data.title || v.title, content: data.content || v.content };
+          converted[i] = { ...v, title: data.title || v.title, content: data.content || v.content };
         }
       } catch { /* 실패 시 원본 유지 */ }
-    };
 
-    // CONVERT_BATCH 개씩 병렬 변환 (멀티 에이전트)
-    for (let i = 0; i < versions.length; i += CONVERT_BATCH) {
-      const group = versions.slice(i, i + CONVERT_BATCH);
-      await Promise.all(group.map((v, j) => convertOne(v, i + j)));
-      setEeatProgress(Math.min(i + CONVERT_BATCH, versions.length));
+      // 변환 완료 즉시 화면 반영
+      setEeatProgress(i + 1);
       setAbVersions([...converted]);
-      if (i === 0) setResult(converted[0]); // 첫 배치 완료 시 즉시 표시
+      // 현재 보고 있는 탭이 방금 변환된 톤이면 즉시 업데이트
+      if (i === 0) setResult(converted[0]);
     }
 
     setEeatConverting(false);
@@ -787,7 +786,7 @@ export default function GenerateResultPage() {
           </div>
         )}
 
-        {/* E-E-A-T 자동 변환 진행 바 */}
+        {/* E-E-A-T 자동 변환 진행 바 (1개씩 순차) */}
         {eeatConverting && (
           <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4">
             <div className="flex items-center gap-3 mb-3">
@@ -796,16 +795,40 @@ export default function GenerateResultPage() {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-indigo-700">E-E-A-T 7단계 구조 변환 중... ({eeatProgress}/{abVersions.length})</p>
-                <p className="text-xs text-indigo-400 mt-0.5">FAQ · 비교표 · H2 섹션을 자동으로 추가하고 있습니다</p>
+                <p className="text-sm font-semibold text-indigo-700">
+                  E-E-A-T 변환 중: <span className="text-indigo-900">{abVersions[eeatProgress]?.toneName || '...'}</span>
+                  <span className="text-xs text-indigo-400 ml-2">({eeatProgress}/{abVersions.length})</span>
+                </p>
+                <p className="text-xs text-indigo-400 mt-0.5">완료된 톤은 즉시 표시됩니다 · 1개씩 순차 변환</p>
               </div>
               <span className="text-sm font-bold text-indigo-600">{Math.round((eeatProgress / Math.max(abVersions.length, 1)) * 100)}%</span>
             </div>
-            <div className="w-full bg-indigo-100 rounded-full h-2">
+            <div className="w-full bg-indigo-100 rounded-full h-2 mb-3">
               <div
                 className="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all duration-500"
                 style={{ width: `${(eeatProgress / Math.max(abVersions.length, 1)) * 100}%` }}
               />
+            </div>
+            {/* 톤별 상태 표시 */}
+            <div className="flex flex-wrap gap-1.5">
+              {abVersions.map((v, i) => {
+                const isDone = i < eeatProgress;
+                const isActive = i === eeatProgress;
+                return (
+                  <span
+                    key={i}
+                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                      isDone
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : isActive
+                        ? 'bg-indigo-50 text-indigo-700 border-indigo-300 animate-pulse'
+                        : 'bg-gray-50 text-gray-400 border-gray-200'
+                    }`}
+                  >
+                    {isDone ? '✓ ' : isActive ? '◌ ' : ''}{v.toneName || `톤 ${i + 1}`}
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
