@@ -80,14 +80,18 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const sampleTitles = posts.slice(0, 3).map(p => p.title);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
+      {/* 프리미엄 배경 텍스처 */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(251,191,36,0.08),_transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(99,102,241,0.06),_transparent_60%)] pointer-events-none" />
+
       <Header />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 뒤로가기 */}
         <Link
           href="/proposal"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 mb-4 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-200/70 hover:text-amber-200 mb-4 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -95,22 +99,30 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
           전체 제안서 목록으로
         </Link>
 
-        {/* 히어로 */}
-        <section className="relative overflow-hidden rounded-xl bg-gradient-to-br from-rose-600 via-orange-600 to-amber-600 text-white px-6 sm:px-10 py-8 mb-6">
+        {/* 히어로 — 프리미엄 다크 + 골드 */}
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-6 sm:px-10 py-10 mb-6 ring-1 ring-amber-400/20 shadow-[0_20px_60px_-15px_rgba(251,191,36,0.25)]">
+          {/* 골드 메탈릭 액센트 */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.15),_transparent_50%)]" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent" />
           <div className="relative">
-            <p className="text-xs font-semibold text-white/70 mb-2">PROPOSAL TO</p>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-              {meta.label} <span className="text-white/95">AI 최적화 마케팅(GEO-AIO) 제안서</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <p className="text-[10px] font-bold tracking-[0.2em] text-amber-300">PROPOSAL TO</p>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight">
+              <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent">{meta.label}</span>
+              <span className="block text-white/95 mt-1">AI 최적화 마케팅(GEO-AIO) 제안서</span>
             </h1>
-            <p className="text-white/90 text-sm leading-relaxed">
+            <p className="text-white/70 text-sm leading-relaxed mt-3">
               {meta.label}을 위한 맞춤형 자동화 콘텐츠 솔루션 제안서
             </p>
           </div>
         </section>
 
-        {/* 다른 카테고리 탭 (네비게이션) */}
+        {/* 다른 카테고리 탭 — 글래스모피즘 + 골드 액센트 */}
         {allCategories.length > 1 && (
-          <div className="flex flex-wrap gap-2 mb-6 sticky top-16 z-20 bg-gray-50/95 backdrop-blur-sm py-2 -mx-2 px-2">
+          <div className="flex flex-wrap gap-2 mb-6 sticky top-16 z-20 bg-slate-950/80 backdrop-blur-md py-2 -mx-2 px-2 rounded-xl">
             {allCategories.map((cat) => {
               const isActive = cat.slug === slug;
               return (
@@ -119,13 +131,13 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   href={`/proposal/${encodeURIComponent(cat.slug)}`}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                     isActive
-                      ? `bg-gradient-to-r ${cat.color} text-white shadow-md`
-                      : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                      ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 shadow-[0_4px_20px_-2px_rgba(251,191,36,0.5)] ring-1 ring-amber-300'
+                      : 'bg-white/5 text-white/70 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-amber-400/30 hover:text-amber-200'
                   }`}
                 >
                   <span>{cat.label}</span>
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-white/25 text-white' : 'bg-gray-100 text-gray-500'
+                    isActive ? 'bg-slate-900/20 text-slate-900' : 'bg-white/10 text-white/60'
                   }`}>{cat.count}</span>
                 </Link>
               );
@@ -133,38 +145,44 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
           </div>
         )}
 
-        {/* 제안서 본문 */}
-        <article className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className={`h-2 bg-gradient-to-r ${meta.color}`} />
+        {/* 제안서 본문 — 프리미엄 카드 (라이트 본문 + 골드 ring) */}
+        <article className="bg-white rounded-2xl ring-1 ring-amber-200/40 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.5)] overflow-hidden">
+          {/* 골드 메탈릭 상단 바 */}
+          <div className="h-1.5 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+          </div>
           <div className="p-6 sm:p-10 space-y-8">
 
             {/* 표지 */}
             <header className="border-b border-gray-100 pb-6">
-              <p className="text-xs font-semibold text-gray-400 mb-2">PROPOSAL TO</p>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 leading-tight">
+              <div className="inline-flex items-center gap-2 mb-3">
+                <span className="w-8 h-px bg-gradient-to-r from-amber-400 to-transparent" />
+                <p className="text-[10px] font-bold tracking-[0.25em] text-amber-600">PROPOSAL TO</p>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3 leading-tight">
                 {meta.label}
-                <span className="block text-lg sm:text-xl text-indigo-600 font-bold mt-1">
+                <span className="block text-lg sm:text-xl mt-1 bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-600 bg-clip-text text-transparent font-bold">
                   AI 최적화 마케팅(GEO-AIO) 제안서
                 </span>
               </h2>
               <p className="text-base text-gray-600 mb-4">
-                AI 검색 시대, <strong className="text-gray-900">자동화 콘텐츠 생성 플랫폼</strong>으로 마케팅 비용을 80% 절감하고
+                AI 검색 시대, <strong className="text-slate-900">자동화 콘텐츠 생성 플랫폼</strong>으로 마케팅 비용을 80% 절감하고
                 AI 검색 노출 점유율을 3배 높이는 방법
               </p>
               <Link
                 href={`/blog/category/${encodeURIComponent(slug)}`}
-                className="group inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-200 rounded-xl hover:shadow-md hover:border-indigo-300 transition-all"
+                className="group inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border border-amber-200/70 rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(251,191,36,0.4)] hover:border-amber-400 transition-all"
               >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shrink-0 shadow-md">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs text-indigo-500 font-medium mb-0.5">📌 실제 운영 중인 블로그 보기</p>
-                  <p className="text-sm font-bold text-gray-900">{meta.label} 카테고리에 게시된 {posts.length}편의 AI 최적화 콘텐츠</p>
+                  <p className="text-xs text-amber-700 font-semibold mb-0.5">📌 실제 운영 중인 블로그 보기</p>
+                  <p className="text-sm font-bold text-slate-900">{meta.label} 카테고리에 게시된 {posts.length}편의 AI 최적화 콘텐츠</p>
                 </div>
-                <svg className="w-5 h-5 text-indigo-500 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-amber-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </Link>
@@ -857,15 +875,25 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
-            {/* 7. CTA */}
-            <section className="bg-gradient-to-br from-gray-900 to-indigo-900 rounded-2xl p-6 sm:p-8 text-white">
-              <h3 className="text-xl font-bold mb-2">{meta.label} 전용 데모, 30분 안에 직접 확인하세요</h3>
-              <p className="text-sm text-white/80 mb-5 leading-relaxed">
-                {meta.label}의 PDF 1개를 업로드하면, 30분 안에 10가지 톤의 E-E-A-T 최적화 콘텐츠가 완성됩니다.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/pricing" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-900 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-all">요금제 보기</Link>
-                <Link href="/community" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 text-white border border-white/20 rounded-lg font-semibold text-sm hover:bg-white/20 transition-all">도입 문의</Link>
+            {/* 7. CTA — 프리미엄 다크 + 골드 */}
+            <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-6 sm:p-8 text-white overflow-hidden ring-1 ring-amber-400/20 shadow-[0_20px_60px_-15px_rgba(251,191,36,0.3)]">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(251,191,36,0.18),_transparent_60%)]" />
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+              <div className="relative">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 mb-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <p className="text-[10px] font-bold tracking-[0.2em] text-amber-300">EXCLUSIVE DEMO</p>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">
+                  <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent">{meta.label}</span> 전용 데모, 30분 안에 직접 확인하세요
+                </h3>
+                <p className="text-sm text-white/70 mb-5 leading-relaxed">
+                  {meta.label}의 PDF 1개를 업로드하면, 30분 안에 10가지 톤의 E-E-A-T 최적화 콘텐츠가 완성됩니다.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Link href="/pricing" className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all ring-1 ring-amber-300">요금제 보기</Link>
+                  <Link href="/community" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-sm text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-all">도입 문의</Link>
+                </div>
               </div>
             </section>
 
