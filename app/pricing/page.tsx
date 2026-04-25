@@ -117,8 +117,8 @@ export default function PricingPage() {
           </div>
 
           {/* 맥스 플랜 — 프리미엄 골드 ring */}
-          <div className="relative bg-gradient-to-br from-white via-amber-50/30 to-white rounded-2xl ring-2 ring-amber-300/60 p-6 shadow-[0_12px_40px_-10px_rgba(251,191,36,0.4)] hover:shadow-[0_20px_60px_-10px_rgba(251,191,36,0.5)] transition-all overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+          <div className="relative bg-gradient-to-br from-white via-amber-50/30 to-white rounded-2xl ring-2 ring-amber-300/60 p-6 shadow-[0_12px_40px_-10px_rgba(251,191,36,0.4)] hover:shadow-[0_20px_60px_-10px_rgba(251,191,36,0.5)] transition-all">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent rounded-t-2xl" />
             <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-white text-xs font-bold rounded-full shadow-md">
               맥스 (Max)
             </div>
