@@ -403,7 +403,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   href={TISTORY_MAP[slug]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 px-5 py-3 mt-3 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border border-pink-300 rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(236,72,153,0.4)] hover:border-pink-400 transition-all"
+                  className="group inline-flex items-center gap-3 px-5 py-3 mt-5 bg-gradient-to-r from-pink-50 via-rose-50 to-pink-50 border border-pink-300 rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(236,72,153,0.4)] hover:border-pink-400 transition-all"
                 >
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shrink-0 shadow-md">
                     <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
