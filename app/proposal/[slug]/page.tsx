@@ -523,23 +523,118 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">5</span>
                 <h3 className="text-xl font-bold text-gray-900">예상 ROI: 3개월 후 변화</h3>
               </div>
+              <p className="text-sm text-gray-600 mb-4">
+                기존 방식 대비 콘텐츠 생산성·AI 인용률·마케팅 비용·고객 유입까지 모든 지표가 향상됩니다.
+              </p>
+
+              {/* 핵심 지표 카드 (3개) */}
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 text-center">
+                  <p className="text-[11px] font-semibold text-emerald-600 mb-1">콘텐츠 생산성</p>
+                  <p className="text-2xl font-extrabold text-emerald-700">5~10배</p>
+                  <p className="text-[10px] text-gray-500 mt-1">월 15~30편 → 100~150편</p>
+                </div>
+                <div className="bg-gradient-to-br from-indigo-50 to-violet-50 border border-indigo-200 rounded-xl p-4 text-center">
+                  <p className="text-[11px] font-semibold text-indigo-600 mb-1">AI 인용률</p>
+                  <p className="text-2xl font-extrabold text-indigo-700">12배 ↑</p>
+                  <p className="text-[10px] text-gray-500 mt-1">5% 미만 → 60%+</p>
+                </div>
+                <div className="bg-gradient-to-br from-rose-50 to-orange-50 border border-rose-200 rounded-xl p-4 text-center">
+                  <p className="text-[11px] font-semibold text-rose-600 mb-1">신규 고객 유입</p>
+                  <p className="text-2xl font-extrabold text-rose-700">2~3배</p>
+                  <p className="text-[10px] text-gray-500 mt-1">평균 +150~280%</p>
+                </div>
+              </div>
+
+              {/* 상세 비교 표 (9개 지표) */}
               <div className="overflow-hidden rounded-xl border border-gray-200">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left font-semibold text-gray-700">항목</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-500">기존 방식</th>
-                      <th className="px-4 py-3 text-left font-semibold text-emerald-700">GEO-AIO 도입 후</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-500">기존 방식 (도입 전)</th>
+                      <th className="px-4 py-3 text-left font-semibold text-emerald-700">GEO-AIO 도입 후 (3개월)</th>
+                      <th className="px-4 py-3 text-left font-semibold text-violet-700 hidden sm:table-cell">변화</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 bg-white">
-                    <tr><td className="px-4 py-3 font-medium text-gray-900">월간 콘텐츠 발행량</td><td className="px-4 py-3 text-gray-500">4~8편</td><td className="px-4 py-3 text-emerald-700 font-bold">40~80편 (10배)</td></tr>
-                    <tr><td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편당 시간</td><td className="px-4 py-3 text-gray-500">4~8시간</td><td className="px-4 py-3 text-emerald-700 font-bold">2분 (240배)</td></tr>
-                    <tr><td className="px-4 py-3 font-medium text-gray-900">AI 검색 노출 점유율</td><td className="px-4 py-3 text-gray-500">10~15%</td><td className="px-4 py-3 text-emerald-700 font-bold">60%+ (4배)</td></tr>
-                    <tr><td className="px-4 py-3 font-medium text-gray-900">월간 마케팅 비용</td><td className="px-4 py-3 text-gray-500">300~600만원</td><td className="px-4 py-3 text-emerald-700 font-bold">월 9.9만원 (80% 절감)</td></tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">월간 콘텐츠 발행량</td>
+                      <td className="px-4 py-3 text-gray-500">15~30편</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">100~150편</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">5~10배 ↑</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편 작성 시간</td>
+                      <td className="px-4 py-3 text-gray-500">4~8시간</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">1~2분</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">240배 ↓</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편당 단가</td>
+                      <td className="px-4 py-3 text-gray-500">10~15만원 (외주)</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">약 1.3~2만원</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">단가 1/8 ↓</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">AI 인용 가능성</td>
+                      <td className="px-4 py-3 text-gray-500">5% 미만</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">60%+</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">12배 ↑</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">AI Overview 노출률</td>
+                      <td className="px-4 py-3 text-gray-500">0~5%</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">40~55%</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">10배 ↑</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">월간 마케팅 비용</td>
+                      <td className="px-4 py-3 text-gray-500">200~300만원</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">월 200만원 (동일)</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">양 ~10배 ↑</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">동시 운영 채널</td>
+                      <td className="px-4 py-3 text-gray-500">1~2개 (블로그)</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">5채널 자동 변환</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">멀티 채널화</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">신규 고객 유입</td>
+                      <td className="px-4 py-3 text-gray-500">기준 (100%)</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">220~280%</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">2.2~2.8배 ↑</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 자산 가치</td>
+                      <td className="px-4 py-3 text-gray-500">단발성·소비형</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">영구 자산화</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">장기 누적</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
+
+              {/* 회수 기간 */}
+              <div className="mt-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">⚡</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-emerald-800 mb-1">투자 회수 기간 (예상)</p>
+                    <p className="text-xs text-gray-700 leading-relaxed">
+                      평균 <strong className="text-emerald-700">2~4개월</strong> 내 회수.
+                      AI 검색 노출 증가 → 신규 유입 → 매출 증대 → 추가 투자 여력 확보의 선순환 구조 진입.
+                      도입 1년 후 누적 콘텐츠 1,800편 + AI 인용 자산 영구 보유.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 면책 */}
+              <p className="mt-3 text-[11px] text-gray-400 leading-relaxed">
+                ※ 위 수치는 동종 업계 평균 도입 사례를 기반으로 한 예상치입니다. 실제 결과는 업체 특성·콘텐츠 품질·시장 환경에 따라 달라질 수 있습니다.
+              </p>
             </section>
 
             {/* 6. 가격표 */}
