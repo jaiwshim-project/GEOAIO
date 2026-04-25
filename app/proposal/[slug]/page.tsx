@@ -21,6 +21,30 @@ const EXTRA_COLORS = [
   'from-orange-500 to-red-600',
 ];
 
+// ─────────────────────────────────────────
+// 제안서 온톨로지 (Proposal Ontology) — 가벼운 시작
+// schema.org 타입 매핑 (JSON-LD 자동 출력용)
+// ─────────────────────────────────────────
+type IndustryClass =
+  | 'LegalService' | 'AccountingService' | 'Dentist'
+  | 'LodgingBusiness' | 'Store' | 'EducationalOrganization'
+  | 'ProfessionalService';
+
+const INDUSTRY_MAP: Record<string, IndustryClass> = {
+  '선명회계법인': 'AccountingService',
+  '로엘-법무법인': 'LegalService',
+  '디지털스마일치과': 'Dentist',
+  '백제호텔': 'LodgingBusiness',
+  '덕산-백제호텔': 'LodgingBusiness',
+  '에블린영풍': 'Store',
+  '틴트라이프tintlife': 'Store',
+  '바이브코딩-클로드코드': 'EducationalOrganization',
+  'ai선거솔루션-워룸': 'ProfessionalService',
+  'ax온톨로지-진단': 'ProfessionalService',
+  'ax덴탈그룹': 'ProfessionalService',
+  'ax-biz': 'ProfessionalService',
+};
+
 // 카테고리별 한계 및 문제점 (Critical Weakness) 분석 데이터
 // 일반적 디지털 마케팅·DX 분석 프레임 기반 — 회사 고유 사실은 미포함
 const WEAKNESS_DATA: Record<string, Array<{ title: string; bullets: string[] }>> = {
@@ -144,8 +168,62 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const isSeonmyeong = slug === '선명회계법인'; // AX 분석·개선 전략 전용
   const sectionNum = (base: number) => base + (hasWeakness ? 1 : 0);
 
+  // ─── 온톨로지 → JSON-LD 자동 생성 (AI 인용률↑) ───
+  const industryType: IndustryClass = INDUSTRY_MAP[slug] || 'ProfessionalService';
+  const proposalUrl = `https://www.geo-aio.com/proposal/${encodeURIComponent(slug)}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `${meta.label} AI 최적화 마케팅(GEO-AIO) 제안서`,
+    description: `${meta.label}을 위한 AI 검색 최적화(GEO-AIO) 자동화 콘텐츠 솔루션 제안서. 마케팅 비용 절감, AI 인용률 16배, 신규 고객 유입 3~4배 증대.`,
+    url: proposalUrl,
+    datePublished: new Date().toISOString().slice(0, 10),
+    author: {
+      '@type': 'Organization',
+      name: 'GEO-AIO',
+      url: 'https://www.geo-aio.com',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'GEO-AIO',
+      url: 'https://www.geo-aio.com',
+      logo: { '@type': 'ImageObject', url: 'https://www.geo-aio.com/icon.png' },
+    },
+    about: {
+      '@type': industryType,
+      name: meta.label,
+      description: `${meta.label}은(는) AI 최적화 콘텐츠 마케팅(GEO-AIO) 솔루션의 도입 대상 업체입니다.`,
+    },
+    mentions: weaknessData
+      ? weaknessData.map(w => ({
+          '@type': 'Thing',
+          name: w.title.replace(/^[❶❷❸❹]\s*/, ''),
+          description: w.bullets.join(' / '),
+        }))
+      : undefined,
+    offers: [
+      {
+        '@type': 'Offer',
+        name: '프로 플랜',
+        price: '200',
+        priceCurrency: 'KRW',
+        priceSpecification: { '@type': 'UnitPriceSpecification', price: '200', priceCurrency: 'KRW', unitText: '월', valueAddedTaxIncluded: false },
+      },
+      {
+        '@type': 'Offer',
+        name: '맥스 플랜',
+        price: '1440',
+        priceCurrency: 'KRW',
+        priceSpecification: { '@type': 'UnitPriceSpecification', price: '1440', priceCurrency: 'KRW', unitText: '연', valueAddedTaxIncluded: false },
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
+      {/* AI 인용률↑ schema.org JSON-LD */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
       {/* 프리미엄 배경 텍스처 */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(251,191,36,0.08),_transparent_50%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(99,102,241,0.06),_transparent_60%)] pointer-events-none" />
