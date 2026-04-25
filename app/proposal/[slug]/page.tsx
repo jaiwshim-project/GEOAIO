@@ -1152,6 +1152,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <span className="text-[10px] font-bold text-rose-600">(20% 할인)</span>
                     </div>
                     <p className="text-[11px] font-bold text-rose-600">월 120만원 상당 · 연 20% 절감</p>
+                    <p className="text-[9px] text-gray-400 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다.</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 150건</strong> (연 1,800건)</span></li>

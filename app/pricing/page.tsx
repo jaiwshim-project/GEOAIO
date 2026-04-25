@@ -114,6 +114,7 @@ export default function PricingPage() {
               </div>
               <p className="text-xs text-gray-500 mt-1">부가세 별도</p>
               <p className="text-xs font-bold text-rose-600">월 120만원 상당 = 연 20% 절감</p>
+              <p className="text-[10px] text-gray-400 mt-1.5 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다.</p>
             </div>
 
             <div className="border-t border-gray-100 pt-4 mb-4">
