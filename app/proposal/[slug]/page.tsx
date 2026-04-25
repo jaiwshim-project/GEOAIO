@@ -1165,7 +1165,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     프로 (Pro)
                   </div>
                   <div className="mt-1 mb-3">
-                    <p className="text-[11px] font-semibold text-gray-500 mb-0.5">월간 결제</p>
+                    <p className="text-[11px] font-semibold text-gray-500 mb-0.5">1년 계약 · 월간 결제</p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-2xl font-extrabold text-blue-600">200</span>
                       <span className="text-sm font-bold text-gray-700">만원/월</span>

@@ -76,7 +76,7 @@ export default function PricingPage() {
             </div>
 
             <div className="mt-2 mb-4">
-              <p className="text-xs font-semibold text-gray-500 mb-1">월간 결제</p>
+              <p className="text-xs font-semibold text-gray-500 mb-1">1년 계약 · 월간 결제</p>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold text-blue-600">200</span>
                 <span className="text-lg font-bold text-gray-700">만원</span>
