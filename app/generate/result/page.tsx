@@ -199,8 +199,26 @@ export default function GenerateResultPage() {
       const normalizedVersions = versions.length > 0 ? versions.map(normalizeResult) : [];
       if (normalizedVersions.length > 0) {
         setAbVersions(normalizedVersions);
-        // E-E-A-T 자동 변환 시작
-        startEeatConversion(normalizedVersions, data.tone);
+
+        // 이미 E-E-A-T 변환된 콘텐츠인지 감지
+        // 조건: H2 섹션 3개+, FAQ 또는 비교표 존재
+        const isAlreadyConverted = (v: GenerateResponse) => {
+          const c = v.content || '';
+          const h2Count = (c.match(/^## /gm) || []).length;
+          const hasFaq = /##\s*FAQ|Q:\s/i.test(c);
+          const hasTable = /\|\s*장점\s*\|/i.test(c) || (c.match(/\|/g) || []).length >= 6;
+          return h2Count >= 3 && (hasFaq || hasTable);
+        };
+        const allConverted = normalizedVersions.every(isAlreadyConverted);
+
+        if (allConverted) {
+          // 이미 변환됨 → 변환 스킵, 즉시 완료 상태
+          setEeatProgress(normalizedVersions.length);
+          setEeatDone(true);
+        } else {
+          // 미변환 → 자동 변환 시작
+          startEeatConversion(normalizedVersions, data.tone);
+        }
       }
     });
   }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -247,6 +265,20 @@ export default function GenerateResultPage() {
     setEeatConverting(false);
     setEeatDone(true);
     setResult(converted[0]);
+
+    // 변환 완료된 결과를 sessionStorage에 저장 (재변환 방지)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id && id.startsWith('session_')) {
+        const raw = sessionStorage.getItem(`gr_${id}`);
+        if (raw) {
+          const data = JSON.parse(raw);
+          data.result = { ...converted[0], abVersions: converted };
+          sessionStorage.setItem(`gr_${id}`, JSON.stringify(data));
+        }
+      }
+    } catch {}
   };
 
   const autoTag = (category: ContentCategory | null): string => {
