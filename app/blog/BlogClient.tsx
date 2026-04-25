@@ -130,10 +130,14 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
             <p className="text-white/70 text-xs sm:text-sm mt-2 leading-relaxed">
               AI 검색 최적화(GEO) 전략부터 의료기기 컨설팅, 수제맥주, 치과병원까지 — 각 업종별로 AI 검색엔진에 최적화된 콘텐츠가 어떻게 작성되고 활용되는지 실제 사례를 통해 확인할 수 있습니다.
             </p>
-            <div className="flex items-center gap-3 mt-4">
+            <div className="flex items-center flex-wrap gap-3 mt-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 총 {posts.length}개 포스트
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium">
+                <span className="w-2 h-2 rounded-full bg-amber-300 animate-pulse" />
+                {categories.length}개 카테고리
               </span>
               <button
                 onClick={() => router.push('/generate')}
