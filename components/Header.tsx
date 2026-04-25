@@ -23,9 +23,22 @@ interface HeaderProps {
   apiKeyOpen?: boolean;
 }
 
-const mainNav = [
+interface NavItem {
+  href: string;
+  label: string;
+  children?: { href: string; label: string }[];
+}
+
+const mainNav: NavItem[] = [
   { href: '/analyze', label: '분석' },
-  { href: '/generate', label: '생성' },
+  {
+    href: '/generate',
+    label: '생성',
+    children: [
+      { href: '/generate', label: '콘텐츠 생성' },
+      { href: '/generate/results', label: '생성 결과' },
+    ],
+  },
   { href: '/keyword-analysis', label: '키워드' },
   { href: '/series', label: '시리즈' },
 ];
@@ -99,6 +112,43 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
             <div className="flex items-center bg-white/15 rounded-lg p-0.5">
               {mainNav.map((item) => {
                 const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+                if (item.children) {
+                  return (
+                    <div key={item.href} className="relative group">
+                      <Link
+                        href={item.href}
+                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                          isActive
+                            ? 'bg-white text-indigo-700 shadow-sm'
+                            : 'text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {item.label}
+                        <svg className="w-3 h-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </Link>
+                      <div className="absolute top-full left-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                        {item.children.map((child) => {
+                          const childActive = pathname === child.href;
+                          return (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              className={`block px-4 py-2 text-xs font-medium transition-colors ${
+                                childActive
+                                  ? 'bg-indigo-50 text-indigo-700'
+                                  : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
+                              }`}
+                            >
+                              {child.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                }
                 return (
                   <Link
                     key={item.href}
