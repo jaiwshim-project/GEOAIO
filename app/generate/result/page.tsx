@@ -235,30 +235,65 @@ export default function GenerateResultPage() {
 
     const converted: (GenerateResponse & { toneName?: string })[] = [...versions];
 
-    // ── 1개씩 순차 변환 (전문적 → 감성형 순서) ──
-    // 한 톤 완료 즉시 화면 표시 → 다음 톤 변환
+    // 변환 결과 완성도 검증 함수
+    // 완성 조건: 분량 1500자+ AND H2 3개+ AND (FAQ OR 비교표) AND 끝맺음
+    const isComplete = (content: string): boolean => {
+      if (!content || content.length < 1500) return false;
+      const h2Count = (content.match(/^## /gm) || []).length;
+      if (h2Count < 3) return false;
+      const hasFaq = /##\s*FAQ|\bQ:\s|질문/i.test(content);
+      const hasTable = /\|\s*장점\s*\|/i.test(content) || (content.match(/\|/g) || []).length >= 6;
+      if (!hasFaq && !hasTable) return false;
+      // 끝맺음 검증: 마지막 100자에 마침표(.) 또는 닫는 따옴표 등 존재
+      const tail = content.slice(-100).trim();
+      const hasEnding = /[.다요!?"】\]]\s*$/.test(tail) || tail.length > 50;
+      return hasEnding;
+    };
+
+    // 변환 1회 시도
+    const tryConvert = async (v: GenerateResponse & { toneName?: string }) => {
+      const res = await fetch('/api/convert-eeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: v.content,
+          title: v.title,
+          tone: (v as { toneValue?: string }).toneValue || currentTone,
+        }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return {
+        ...v,
+        title: data.title || v.title,
+        content: data.content || v.content,
+      };
+    };
+
+    // ── 1개씩 순차 변환 + 완성 검증 + 재시도 ──
     for (let i = 0; i < versions.length; i++) {
       const v = versions[i];
-      try {
-        const res = await fetch('/api/convert-eeat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            content: v.content,
-            title: v.title,
-            tone: (v as { toneValue?: string }).toneValue || currentTone,
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          converted[i] = { ...v, title: data.title || v.title, content: data.content || v.content };
-        }
-      } catch { /* 실패 시 원본 유지 */ }
+      let result: typeof v | null = null;
 
-      // 변환 완료 즉시 화면 반영
+      // 최대 2회 시도 (1차 + 재시도 1회)
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const r = await tryConvert(v);
+          if (r && isComplete(r.content)) {
+            result = r;
+            break; // 완성됨 → 다음 톤
+          }
+          // 1차 실패 시 재시도 시도 (마지막 결과 보관)
+          if (r) result = r;
+        } catch {}
+      }
+
+      // 결과가 있으면 사용, 없으면 원본 유지
+      if (result) converted[i] = result;
+
+      // 검증 통과한 경우만 진행률 +1, 실패 시에도 +1로 진행 (멈추지 않도록)
       setEeatProgress(i + 1);
       setAbVersions([...converted]);
-      // 현재 보고 있는 탭이 방금 변환된 톤이면 즉시 업데이트
       if (i === 0) setResult(converted[0]);
     }
 
