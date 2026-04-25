@@ -545,8 +545,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <table className="w-full text-xs">
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-amber-200">구분</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식 (검색 최적화)</th>
+                        <th className="px-3 py-2 text-left font-bold text-amber-100">구분</th>
+                        <th className="px-3 py-2 text-left font-bold text-white">SEO 방식 (검색 최적화)</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식 (AI 최적화)</th>
                       </tr>
                     </thead>
@@ -570,8 +570,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <table className="w-full text-xs">
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
+                        <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -600,8 +600,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <table className="w-full text-xs">
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-amber-200">요소</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-amber-100">요소</th>
+                        <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -626,8 +626,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <table className="w-full text-xs">
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
+                        <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -654,8 +654,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <table className="w-full text-xs">
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
+                        <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -680,8 +680,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <table className="w-full text-xs">
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
+                        <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -705,8 +705,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <table className="w-full text-xs">
                     <thead className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
                       <tr>
-                        <th className="px-3 py-2 text-left font-semibold text-amber-200">항목</th>
-                        <th className="px-3 py-2 text-left font-semibold text-white/85">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
+                        <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
                         <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
                       </tr>
                     </thead>
@@ -939,7 +939,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div className="relative bg-gradient-to-br from-slate-900 to-emerald-950 ring-1 ring-emerald-400/30 rounded-xl p-4 text-center overflow-hidden shadow-[0_8px_30px_-10px_rgba(16,185,129,0.3)]">
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent" />
-                  <p className="text-[11px] font-semibold text-emerald-300 mb-1 tracking-wide">콘텐츠 생산성</p>
+                  <p className="text-[11px] font-bold text-emerald-200 mb-1 tracking-wide">콘텐츠 생산성</p>
                   <p className="text-2xl font-extrabold bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">5~10배</p>
                   <p className="text-[10px] text-white/75 mt-1">월 15~30편 → 100~150편</p>
                 </div>
@@ -962,10 +962,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left font-semibold text-amber-200">항목</th>
-                      <th className="px-4 py-3 text-left font-semibold text-white/85">기존 방식 (도입 전)</th>
-                      <th className="px-4 py-3 text-left font-semibold text-emerald-300">GEO-AIO 도입 후 (3개월)</th>
-                      <th className="px-4 py-3 text-left font-semibold text-violet-300 hidden sm:table-cell">변화</th>
+                      <th className="px-4 py-3 text-left font-bold text-amber-100">항목</th>
+                      <th className="px-4 py-3 text-left font-bold text-white">기존 방식 (도입 전)</th>
+                      <th className="px-4 py-3 text-left font-bold text-emerald-200">GEO-AIO 도입 후 (3개월)</th>
+                      <th className="px-4 py-3 text-left font-bold text-violet-200 hidden sm:table-cell">변화</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 bg-white">
