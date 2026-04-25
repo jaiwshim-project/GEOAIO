@@ -1236,6 +1236,114 @@ export default function ManualPage() {
           </div>
         </section>
 
+        {/* 최근 업데이트 (2026-04) */}
+        <section className="bg-white rounded-xl shadow-sm border border-amber-200 p-6">
+          <h2 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 text-[10px] font-bold tracking-wider">NEW</span>
+            최근 업데이트 (2026년 4월)
+          </h2>
+          <p className="text-[11px] text-gray-600 mb-4">최근 추가된 기능과 변경 사항을 빠르게 확인하세요.</p>
+
+          <div className="space-y-4">
+            {/* 1. 프로젝트 URL 필드 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                <span className="text-base">🌐</span> 프로젝트 URL 입력
+              </h3>
+              <p className="text-[11px] text-gray-700 mb-2">
+                <strong>위치:</strong> /user-dashboard → 프로젝트 추가/수정 폼
+              </p>
+              <ul className="text-[11px] text-gray-700 space-y-1 list-disc list-inside ml-2">
+                <li><strong>홈페이지 URL</strong> · <strong>블로그 URL</strong> 두 필드 신규 추가 (선택 입력)</li>
+                <li>입력하면 콘텐츠 생성 시 본문 마지막 해시태그 직전에 <strong>자동 링크 블록</strong>이 삽입됩니다.</li>
+                <li>비워두면 자동 삽입 안 됨 (기존 동작 그대로).</li>
+              </ul>
+            </div>
+
+            {/* 2. 콘텐츠 자동 URL 삽입 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                <span className="text-base">🔗</span> 콘텐츠에 회사 링크 자동 삽입
+              </h3>
+              <p className="text-[11px] text-gray-700 mb-2">
+                10가지 톤 일괄 생성·재생성·E-E-A-T 변환·이어쓰기 모두 적용. 출력 형식:
+              </p>
+              <pre className="text-[10px] bg-gray-50 border border-gray-200 rounded p-2 overflow-x-auto leading-relaxed">{`---
+📍 {회사명} 더 알아보기
+- 🌐 홈페이지: [URL](URL)
+- 📝 블로그: [URL](URL)
+---
+#해시태그1 #해시태그2 ...`}</pre>
+              <p className="text-[10px] text-gray-500 mt-2">기존 DB에 저장된 콘텐츠는 영향 없음 — 재생성 시 적용됩니다.</p>
+            </div>
+
+            {/* 3. 제안서 페이지 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                <span className="text-base">📄</span> 제안서 메뉴
+              </h3>
+              <p className="text-[11px] text-gray-700 mb-2">
+                <strong>위치:</strong> 헤더 → 제안서 / URL: /proposal/[카테고리]
+              </p>
+              <ul className="text-[11px] text-gray-700 space-y-1 list-disc list-inside ml-2">
+                <li>14개 카테고리별 자동 생성 (블로그 카테고리와 연동)</li>
+                <li>섹션 구성: 한계 및 문제점 → 현황 진단 → GEO-AIO 솔루션 → SEO vs E-E-A-T 9-table 비교 → 실제 운영 콘텐츠 → ROI → 온톨로지 적용 안내 → 가격표 → 도입 절차 → 신뢰 시그널 → FAQ → CTA</li>
+                <li>schema.org JSON-LD 자동 출력 (AI 검색엔진 인용 최적화)</li>
+                <li>프리미엄 다크+골드 테마 + 비주얼 차트 (도넛·진행 바·그래프)</li>
+              </ul>
+            </div>
+
+            {/* 4. PDF 저장 버튼 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                <span className="text-base">💾</span> PDF로 저장
+              </h3>
+              <p className="text-[11px] text-gray-700 mb-2">
+                각 제안서 페이지의 표지(PROPOSAL TO {`{카테고리명}`}) 우측 상단의 <strong className="text-amber-700">PDF로 저장</strong> 버튼.
+              </p>
+              <ul className="text-[11px] text-gray-700 space-y-1 list-disc list-inside ml-2">
+                <li>본문 article 영역만 캡쳐 → A4 멀티페이지 PDF 다운로드</li>
+                <li>파일명: <code className="text-[10px] bg-gray-100 px-1 rounded">{`{카테고리명}-제안서-YYYY-MM-DD.pdf`}</code></li>
+                <li>html2canvas-pro + jsPDF 동적 로드 (Tailwind v4 oklch 색공간 호환)</li>
+              </ul>
+            </div>
+
+            {/* 5. 가격표 3 플랜 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                <span className="text-base">💰</span> 요금제 — 3가지 플랜
+              </h3>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                  <p className="text-[11px] font-bold text-blue-800">프로 (Pro)</p>
+                  <p className="text-[10px] text-gray-700 mt-0.5">200만원/월 · 월 100건 · 1년 계약</p>
+                </div>
+                <div className="bg-indigo-50 border border-indigo-200 rounded p-2">
+                  <p className="text-[11px] font-bold text-indigo-800">프리미엄</p>
+                  <p className="text-[10px] text-gray-700 mt-0.5">540/분기 · 연 2,160 · 월 120건</p>
+                </div>
+                <div className="bg-amber-50 border border-amber-300 rounded p-2">
+                  <p className="text-[11px] font-bold text-amber-800">맥스 (Max) ⭐</p>
+                  <p className="text-[10px] text-gray-700 mt-0.5">1,440만원/연 (20% 할인) · 월 150건 + 브랜드뉴스/유튜브</p>
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-500 mt-2">맥스가 가장 좋은 혜택 + 가장 저렴 (연간 일시불 20% 할인). 프리미엄은 가운데 위치.</p>
+            </div>
+
+            {/* 6. 사용자 메뉴 변경 */}
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="text-[13pt] font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                <span className="text-base">👤</span> 사용자 대시보드 / 로그인
+              </h3>
+              <ul className="text-[11px] text-gray-700 space-y-1 list-disc list-inside ml-2">
+                <li>플랜 표시: 무료 / Pro / 맥스 / 관리자 배지 자동 노출</li>
+                <li>이번 달 사용 현황 — 콘텐츠 생성·분석·키워드·시리즈 4종 사용량/한도</li>
+                <li>프로젝트 카드: 회사명·대표자·지역·홈페이지·블로그 + RAG 파일 첨부</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
         {/* 팁 */}
         <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-sm border border-indigo-300 p-6">
           <h2 className="text-sm font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent mb-3">최적화 팁</h2>
