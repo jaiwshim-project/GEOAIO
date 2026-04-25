@@ -62,6 +62,27 @@ export default function PdfDownloadButton({
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
       await new Promise(r => setTimeout(r, 400));
 
+      // 캡쳐 전: target 안의 모든 <a href> 위치·URL 수집 (PDF 클릭 가능 영역용)
+      const targetRect = target.getBoundingClientRect();
+      const anchors = Array.from(target.querySelectorAll<HTMLAnchorElement>('a[href]'))
+        .map(a => {
+          const r = a.getBoundingClientRect();
+          let href = a.href;
+          // 내부 링크는 절대 URL로 변환
+          if (a.getAttribute('href')?.startsWith('/')) {
+            href = window.location.origin + a.getAttribute('href');
+          }
+          return {
+            href,
+            // target 기준 상대 좌표 (px)
+            x: r.left - targetRect.left,
+            y: r.top - targetRect.top,
+            w: r.width,
+            h: r.height,
+          };
+        })
+        .filter(a => a.href && a.w > 0 && a.h > 0);
+
       const canvas = await window.html2canvas!(target, {
         scale: 2,
         useCORS: true,
@@ -74,22 +95,35 @@ export default function PdfDownloadButton({
       const imgData = canvas.toDataURL('image/png');
       const imgWidth = 210; // A4 width in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // 화면 px → PDF mm 변환비율
+      const pxToMm = imgWidth / target.offsetWidth;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const JsPDF = (window.jspdf as any).jsPDF;
-      const pdf = new JsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pdf: any = new JsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
       const pageHeight = pdf.internal.pageSize.getHeight();
 
-      let height = imgHeight;
-      let position = 0;
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      height -= pageHeight;
+      // 페이지 단위로 이미지 분할 + 각 페이지에 해당 영역의 anchor만 link 영역 추가
+      const totalPages = Math.max(1, Math.ceil(imgHeight / pageHeight));
+      for (let pageIdx = 0; pageIdx < totalPages; pageIdx++) {
+        if (pageIdx > 0) pdf.addPage();
+        const yOffset = -pageIdx * pageHeight; // 이미지 전체를 위로 밀어 그 페이지 부분만 보이게
+        pdf.addImage(imgData, 'PNG', 0, yOffset, imgWidth, imgHeight);
 
-      while (height > 0) {
-        position = height - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        height -= pageHeight;
+        // 해당 페이지에 위치한 anchor에 대해 link 추가
+        const pageStartMm = pageIdx * pageHeight;
+        const pageEndMm = pageStartMm + pageHeight;
+        anchors.forEach(a => {
+          const linkY = a.y * pxToMm;
+          const linkH = a.h * pxToMm;
+          // 링크가 이 페이지와 겹치는지 확인
+          if (linkY + linkH < pageStartMm || linkY > pageEndMm) return;
+          // 페이지 내부 좌표로 변환
+          const pageY = Math.max(0, linkY - pageStartMm);
+          const visibleH = Math.min(linkY + linkH, pageEndMm) - Math.max(linkY, pageStartMm);
+          pdf.link(a.x * pxToMm, pageY, a.w * pxToMm, visibleH, { url: a.href });
+        });
       }
 
       const safeName = filename.replace(/[^a-zA-Z0-9가-힣\-_ ]/g, '');
