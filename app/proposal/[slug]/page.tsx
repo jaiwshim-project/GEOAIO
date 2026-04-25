@@ -207,10 +207,264 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
-            {/* 3. 적용 사례 */}
+            {/* 3. SEO vs E-E-A-T 심층 비교 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">3</span>
+                <span className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold">3</span>
+                <h3 className="text-xl font-bold text-gray-900">SEO 방식 vs E-E-A-T 방식 심층 비교</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                기존 SEO 기반 마케팅과 GEO-AIO의 E-E-A-T 기반 AI 최적화는 본질적으로 다른 접근법입니다.
+                9가지 관점에서 비교한 결과를 보세요.
+              </p>
+
+              {/* 1. 전체 비교 요약 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 1. 전체 비교 요약
+                </h4>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">구분</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식 (검색 최적화)</th>
+                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식 (AI 최적화)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      <tr><td className="px-3 py-2 font-medium">목적</td><td className="px-3 py-2 text-gray-600">검색 노출</td><td className="px-3 py-2 text-purple-700 font-medium">AI 인용 + 신뢰 확보</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">핵심 전략</td><td className="px-3 py-2 text-gray-600">키워드 반복</td><td className="px-3 py-2 text-purple-700 font-medium">지식 구조화</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">콘텐츠 유형</td><td className="px-3 py-2 text-gray-600">스토리 중심</td><td className="px-3 py-2 text-purple-700 font-medium">정보 + 구조 중심</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">생산 방식</td><td className="px-3 py-2 text-gray-600">템플릿 반복</td><td className="px-3 py-2 text-purple-700 font-medium">구조 기반 생성</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">타겟</td><td className="px-3 py-2 text-gray-600">검색 사용자</td><td className="px-3 py-2 text-purple-700 font-medium">AI + 사용자</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 2. 구조 차이 비교 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 2. 구조 차이 비교 (핵심)
+                </h4>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      <tr><td className="px-3 py-2 font-medium">도입부</td><td className="px-3 py-2 text-gray-600">일반론·공통 문장 반복</td><td className="px-3 py-2 text-purple-700 font-medium">문제 정의</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">본문 구조</td><td className="px-3 py-2 text-gray-600">사건·스토리 중심</td><td className="px-3 py-2 text-purple-700 font-medium">정의 → 기준 → 구조</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">정보성</td><td className="px-3 py-2 text-gray-600">낮음</td><td className="px-3 py-2 text-purple-700 font-medium">매우 높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">논리 구조</td><td className="px-3 py-2 text-gray-600">약함</td><td className="px-3 py-2 text-purple-700 font-medium">명확</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">요약</td><td className="px-3 py-2 text-gray-600">없음</td><td className="px-3 py-2 text-purple-700 font-medium">핵심 요약 존재</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">리스트</td><td className="px-3 py-2 text-gray-600">거의 없음</td><td className="px-3 py-2 text-purple-700 font-medium">필수 요소</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">단계 설명</td><td className="px-3 py-2 text-gray-600">없음</td><td className="px-3 py-2 text-purple-700 font-medium">단계별 전략</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-800">
+                  <strong>👉 핵심 차이:</strong> SEO는 &quot;읽히는 글&quot; / E-E-A-T는 &quot;설명되고 인용되는 글&quot;
+                </div>
+              </div>
+
+              {/* 3. E-E-A-T 품질 요소 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 3. 콘텐츠 품질 요소 비교
+                </h4>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">요소</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      <tr><td className="px-3 py-2 font-medium">Experience (경험)</td><td className="px-3 py-2 text-gray-600">있음 (사례 중심)</td><td className="px-3 py-2 text-purple-700 font-medium">있음 + 구조화</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">Expertise (전문성)</td><td className="px-3 py-2 text-gray-600">약함</td><td className="px-3 py-2 text-purple-700 font-medium">강함</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">Authority (권위)</td><td className="px-3 py-2 text-gray-600">낮음</td><td className="px-3 py-2 text-purple-700 font-medium">높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">Trust (신뢰)</td><td className="px-3 py-2 text-gray-600">중간 이하</td><td className="px-3 py-2 text-purple-700 font-medium">매우 높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">데이터/근거</td><td className="px-3 py-2 text-gray-600">부족</td><td className="px-3 py-2 text-purple-700 font-medium">포함 가능</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">재사용성</td><td className="px-3 py-2 text-gray-600">낮음</td><td className="px-3 py-2 text-purple-700 font-medium">매우 높음</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 4. AI 관점 비교 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 4. AI 관점 비교
+                </h4>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      <tr><td className="px-3 py-2 font-medium">AI 이해도</td><td className="px-3 py-2 text-gray-600">낮음</td><td className="px-3 py-2 text-purple-700 font-medium">높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">인용 가능성</td><td className="px-3 py-2 text-gray-600">매우 낮음</td><td className="px-3 py-2 text-purple-700 font-medium">매우 높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">요약 가능성</td><td className="px-3 py-2 text-gray-600">낮음</td><td className="px-3 py-2 text-purple-700 font-medium">매우 높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">구조 인식</td><td className="px-3 py-2 text-gray-600">어려움</td><td className="px-3 py-2 text-purple-700 font-medium">쉬움</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">지식 추출</td><td className="px-3 py-2 text-gray-600">어려움</td><td className="px-3 py-2 text-purple-700 font-medium">용이</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-800">
+                  <strong>👉 핵심:</strong> SEO 콘텐츠는 AI가 &quot;읽지만 쓰지 않는 콘텐츠&quot; / E-E-A-T 콘텐츠는 AI가 &quot;그대로 활용하는 콘텐츠&quot;
+                </div>
+              </div>
+
+              {/* 5. SEO vs AIO 성능 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 5. SEO vs AIO 성능 비교
+                </h4>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      <tr><td className="px-3 py-2 font-medium">검색 노출</td><td className="px-3 py-2 text-gray-600">매우 높음</td><td className="px-3 py-2 text-purple-700 font-medium">높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">클릭률</td><td className="px-3 py-2 text-gray-600">높음</td><td className="px-3 py-2 text-purple-700 font-medium">중~높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">체류시간</td><td className="px-3 py-2 text-gray-600">높음</td><td className="px-3 py-2 text-purple-700 font-medium">높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">AI 인용률</td><td className="px-3 py-2 text-gray-600">매우 낮음</td><td className="px-3 py-2 text-purple-700 font-medium">매우 높음</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">AI Overview 노출</td><td className="px-3 py-2 text-gray-600">거의 없음</td><td className="px-3 py-2 text-purple-700 font-medium">가능</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">GEO/AIO 효과</td><td className="px-3 py-2 text-gray-600">없음</td><td className="px-3 py-2 text-purple-700 font-medium">강함</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 6. 생산 구조 차이 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 6. 생산 구조 차이
+                </h4>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      <tr><td className="px-3 py-2 font-medium">글 생성 방식</td><td className="px-3 py-2 text-gray-600">템플릿 반복</td><td className="px-3 py-2 text-purple-700 font-medium">구조 기반 생성</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">자동화 수준</td><td className="px-3 py-2 text-gray-600">단순</td><td className="px-3 py-2 text-purple-700 font-medium">고급 (VCOS 적용 가능)</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">확장 방식</td><td className="px-3 py-2 text-gray-600">키워드 확장</td><td className="px-3 py-2 text-purple-700 font-medium">산업·지식 확장</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">데이터화</td><td className="px-3 py-2 text-gray-600">어려움</td><td className="px-3 py-2 text-purple-700 font-medium">가능</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">RAG 활용</td><td className="px-3 py-2 text-gray-600">불가능</td><td className="px-3 py-2 text-purple-700 font-medium">가능</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 7. 비즈니스 전환력 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 7. 비즈니스 전환력 비교
+                </h4>
+                <div className="overflow-hidden rounded-xl border border-gray-200">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700">항목</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-500">SEO 방식</th>
+                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 bg-white">
+                      <tr><td className="px-3 py-2 font-medium">상담 유도</td><td className="px-3 py-2 text-gray-600">강함</td><td className="px-3 py-2 text-purple-700 font-medium">강함</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">신뢰 형성</td><td className="px-3 py-2 text-gray-600">중간</td><td className="px-3 py-2 text-purple-700 font-medium">매우 강함</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">전문가 브랜딩</td><td className="px-3 py-2 text-gray-600">약함</td><td className="px-3 py-2 text-purple-700 font-medium">매우 강함</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">플랫폼 연결</td><td className="px-3 py-2 text-gray-600">제한적</td><td className="px-3 py-2 text-purple-700 font-medium">매우 강함</td></tr>
+                      <tr><td className="px-3 py-2 font-medium">장기 자산화</td><td className="px-3 py-2 text-gray-600">낮음</td><td className="px-3 py-2 text-purple-700 font-medium">매우 높음</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* 8. 핵심 구조 한눈에 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 8. 핵심 구조 한눈에 비교
+                </h4>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                    <p className="text-xs font-bold text-rose-700 mb-2">🔴 SEO 방식</p>
+                    <p className="text-xs text-gray-700 leading-relaxed">
+                      키워드 → 스토리 → 감정 → 위기 → 상담 유도
+                    </p>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <p className="text-xs font-bold text-blue-700 mb-2">🔵 E-E-A-T 방식</p>
+                    <p className="text-xs text-gray-700 leading-relaxed">
+                      정의 → 기준 → 구조 → 사례 → 분석 → 전략 → 요약 → 상담
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 9. 가장 중요한 차이 3가지 */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                  <span className="text-base">📊</span> 9. 가장 중요한 차이 3가지
+                </h4>
+                <div className="space-y-2">
+                  <div className="bg-white border border-gray-200 rounded-xl p-3">
+                    <p className="text-xs font-bold text-gray-800 mb-1">① 콘텐츠의 본질</p>
+                    <p className="text-xs text-gray-600">SEO: 마케팅 중심 콘텐츠 ↔ <strong className="text-purple-700">E-E-A-T: 지식 중심 콘텐츠</strong></p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-3">
+                    <p className="text-xs font-bold text-gray-800 mb-1">② AI 활용 가능성</p>
+                    <p className="text-xs text-gray-600">SEO: 소비형 콘텐츠 ↔ <strong className="text-purple-700">E-E-A-T: 학습·인용 가능한 콘텐츠</strong></p>
+                  </div>
+                  <div className="bg-white border border-gray-200 rounded-xl p-3">
+                    <p className="text-xs font-bold text-gray-800 mb-1">③ 확장성</p>
+                    <p className="text-xs text-gray-600">SEO: 블로그 단위 ↔ <strong className="text-purple-700">E-E-A-T: 플랫폼/데이터 단위</strong></p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 최종 결론 */}
+              <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white">
+                <p className="text-xs font-semibold text-white/70 mb-2">🔥 최종 결론</p>
+                <div className="space-y-1.5 mb-4 text-sm">
+                  <p>👉 <strong>SEO 방식</strong>은 &quot;트래픽을 만드는 구조&quot;</p>
+                  <p>👉 <strong>E-E-A-T 방식</strong>은 &quot;신뢰와 인용을 만드는 구조&quot;</p>
+                </div>
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <p className="text-xs font-semibold text-white/70 mb-1">전략 한 문장</p>
+                  <p className="text-base font-bold">
+                    👉 &quot;SEO로 유입을 만들고, E-E-A-T 구조로 AI가 인용하게 만든다&quot;
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* 4. 적용 사례 */}
+            <section>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">4</span>
                 <h3 className="text-xl font-bold text-gray-900">{meta.label} 실제 운영 콘텐츠 보기</h3>
               </div>
               <div className="bg-sky-50 border border-sky-200 rounded-xl p-4 mb-3">
@@ -255,10 +509,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
-            {/* 4. ROI */}
+            {/* 5. ROI */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">4</span>
+                <span className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm font-bold">5</span>
                 <h3 className="text-xl font-bold text-gray-900">예상 ROI: 3개월 후 변화</h3>
               </div>
               <div className="overflow-hidden rounded-xl border border-gray-200">
@@ -280,10 +534,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
-            {/* 5. 가격표 */}
+            {/* 6. 가격표 */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">5</span>
+                <span className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-sm font-bold">6</span>
                 <h3 className="text-xl font-bold text-gray-900">가격표</h3>
               </div>
               <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 mb-4">
@@ -358,7 +612,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
-            {/* 6. CTA */}
+            {/* 7. CTA */}
             <section className="bg-gradient-to-br from-gray-900 to-indigo-900 rounded-2xl p-6 sm:p-8 text-white">
               <h3 className="text-xl font-bold mb-2">{meta.label} 전용 데모, 30분 안에 직접 확인하세요</h3>
               <p className="text-sm text-white/80 mb-5 leading-relaxed">
