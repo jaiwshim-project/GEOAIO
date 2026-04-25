@@ -240,8 +240,8 @@ export default function GenerateResultPage() {
     const validateComplete = (content: string): { ok: boolean; reason?: string } => {
       if (!content) return { ok: false, reason: '콘텐츠 비어있음' };
 
-      // 1. 분량 (최소 2,000자)
-      if (content.length < 2000) return { ok: false, reason: `분량 부족 (${content.length}자)` };
+      // 1. 분량 (최소 1,600자 — 80%로 축소)
+      if (content.length < 1600) return { ok: false, reason: `분량 부족 (${content.length}자)` };
 
       // 2. H2 섹션 5개 이상
       const h2Matches = content.match(/^## /gm) || [];
@@ -291,7 +291,7 @@ export default function GenerateResultPage() {
       return { ok: true };
     };
 
-    // 변환 1회 시도 — 잘림 감지 포함
+    // 변환 1회 시도 — 잘림 감지 + 부분 콘텐츠 반환
     const tryConvert = async (v: GenerateResponse & { toneName?: string }) => {
       const res = await fetch('/api/convert-eeat', {
         method: 'POST',
@@ -302,10 +302,11 @@ export default function GenerateResultPage() {
           tone: (v as { toneValue?: string }).toneValue || currentTone,
         }),
       });
-      // 422 = 서버가 응답 잘림을 감지한 경우
+      // 422 = 잘림 감지 → 부분 콘텐츠 반환 (이어쓰기에 활용)
       if (res.status === 422) {
-        console.log('[E-E-A-T] 서버에서 잘림 감지 (422)');
-        return null;
+        const data = await res.json();
+        console.log('[E-E-A-T] 서버에서 잘림 감지 (422), 이어쓰기 모드로 전환');
+        return { ...v, content: data.partialContent || '', title: v.title, _truncated: true };
       }
       if (!res.ok) return null;
       const data = await res.json();
@@ -313,30 +314,84 @@ export default function GenerateResultPage() {
         ...v,
         title: data.title || v.title,
         content: data.content || v.content,
+        _truncated: false,
       };
     };
 
-    // ── 1개씩 순차 변환 + 엄격 검증 + 최대 3회 재시도 ──
+    // ⭐ 이어쓰기: 잘린 콘텐츠를 자동으로 마무리
+    const continueContent = async (
+      v: GenerateResponse & { toneName?: string },
+      previousContent: string,
+    ): Promise<string | null> => {
+      try {
+        console.log(`[E-E-A-T] 이어쓰기 요청 (${v.toneName})`);
+        const res = await fetch('/api/convert-eeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: previousContent, // 이어쓰기 모드에선 content가 의미 없지만 필수
+            previousContent,
+            continuation: true,
+            tone: (v as { toneValue?: string }).toneValue || currentTone,
+          }),
+        });
+        if (!res.ok && res.status !== 422) return null;
+        const data = await res.json();
+        const continued = data.content || data.partialContent || '';
+        if (!continued) return null;
+        console.log(`[E-E-A-T] 이어쓰기 완료 (${continued.length}자 추가)`);
+        return continued;
+      } catch (e) {
+        console.log(`[E-E-A-T] 이어쓰기 실패:`, e);
+        return null;
+      }
+    };
+
+    // 두 콘텐츠를 자연스럽게 결합
+    const mergeContent = (original: string, continued: string): string => {
+      const orig = original.trim();
+      const cont = continued.trim();
+      // 이어쓰기 결과가 #로 시작하면 새 섹션 → 그대로 결합
+      // 그렇지 않으면 줄바꿈 후 결합
+      const sep = cont.startsWith('#') || cont.startsWith('|') ? '\n\n' : '\n';
+      return orig + sep + cont;
+    };
+
+    // ── 1개씩 순차 변환 + 자동 이어쓰기 + 검증 ──
     const failedSet = new Set<number>();
     for (let i = 0; i < versions.length; i++) {
       const v = versions[i];
-      let validResult: typeof v | null = null; // 검증 통과한 것만
+      let validResult: typeof v | null = null;
 
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           console.log(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 시도 ${attempt}/3`);
           const r = await tryConvert(v);
-          if (!r) {
+          if (!r || !r.content) {
             console.log(`[E-E-A-T] 톤 ${i + 1} 시도 ${attempt}: API 실패`);
             continue;
           }
-          const validation = validateComplete(r.content);
+
+          // 1차 검증
+          let validation = validateComplete(r.content);
+          let currentContent = r.content;
+
+          // ⭐ 미완성이면 자동 이어쓰기 (최대 2회)
+          for (let contAttempt = 0; contAttempt < 2 && !validation.ok; contAttempt++) {
+            if (currentContent.length < 800) break; // 너무 짧으면 처음부터 재시도
+            console.log(`[E-E-A-T] 톤 ${i + 1} 미완성(${validation.reason}) → 이어쓰기 ${contAttempt + 1}/2`);
+            const continued = await continueContent(v, currentContent);
+            if (!continued) break;
+            currentContent = mergeContent(currentContent, continued);
+            validation = validateComplete(currentContent);
+          }
+
           if (validation.ok) {
-            console.log(`[E-E-A-T] 톤 ${i + 1} ✅ 완성 (시도 ${attempt})`);
-            validResult = r;
+            console.log(`[E-E-A-T] 톤 ${i + 1} ✅ 완성 (시도 ${attempt}, ${currentContent.length}자)`);
+            validResult = { ...r, content: currentContent };
             break;
           } else {
-            console.log(`[E-E-A-T] 톤 ${i + 1} ❌ 미완성: ${validation.reason}`);
+            console.log(`[E-E-A-T] 톤 ${i + 1} ❌ 이어쓰기 후에도 미완성: ${validation.reason}`);
           }
         } catch (e) {
           console.log(`[E-E-A-T] 톤 ${i + 1} 오류:`, e);
@@ -344,11 +399,9 @@ export default function GenerateResultPage() {
       }
 
       if (validResult) {
-        // ✅ 검증 통과 — 새 결과 사용
         converted[i] = validResult;
       } else {
-        // ❌ 3회 모두 실패 — 원본 유지, 실패 마크
-        console.warn(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 3회 모두 실패 — 원본 유지`);
+        console.warn(`[E-E-A-T] 톤 ${i + 1}(${v.toneName}) 최종 실패 — 원본 유지`);
         failedSet.add(i);
         setEeatFailed(new Set(failedSet));
       }
