@@ -23,9 +23,11 @@ function loadScript(src: string): Promise<void> {
 export default function PdfDownloadButton({
   targetSelector = 'article',
   filename = 'proposal',
+  className,
 }: {
   targetSelector?: string;
   filename?: string;
+  className?: string;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -36,6 +38,14 @@ export default function PdfDownloadButton({
       return;
     }
     setLoading(true);
+    // 캡쳐 직전: PDF 버튼 자기 자신 숨김 (article 안에 위치할 수 있음)
+    const hideEls = Array.from(document.querySelectorAll<HTMLElement>('[data-pdf-hide]'));
+    const restore: Array<() => void> = [];
+    hideEls.forEach(el => {
+      const prev = el.style.visibility;
+      el.style.visibility = 'hidden';
+      restore.push(() => { el.style.visibility = prev; });
+    });
     try {
       // 외부 이미지 CORS 사전 처리
       document.querySelectorAll('img').forEach(img => {
@@ -87,6 +97,7 @@ export default function PdfDownloadButton({
       console.error('[PdfDownloadButton]', err);
       alert('PDF 생성에 실패했습니다: ' + (err as Error).message);
     } finally {
+      restore.forEach(fn => fn());
       setLoading(false);
     }
   };
@@ -95,7 +106,8 @@ export default function PdfDownloadButton({
     <button
       onClick={handleClick}
       disabled={loading}
-      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all ring-1 ring-amber-300 disabled:opacity-60 disabled:cursor-wait"
+      data-pdf-hide
+      className={className ?? 'inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all ring-1 ring-amber-300 disabled:opacity-60 disabled:cursor-wait'}
       aria-label="PDF로 저장"
     >
       {loading ? (
