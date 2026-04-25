@@ -174,9 +174,9 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   하지만 기존 SEO 방식으로 작성된 콘텐츠 중 <strong className="text-rose-600">90%는 AI에 인용되지 못합니다.</strong>
                 </p>
                 <ul className="space-y-2 text-sm text-gray-700">
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>콘텐츠 1편당 작성 시간:</strong> 평균 4~8시간 (외주 시 건당 30~80만원)</span></li>
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>AI 인용 가능성:</strong> 일반 SEO 콘텐츠 10~15% / E-E-A-T 최적화 콘텐츠 60%+</span></li>
-                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>월간 발행량 한계:</strong> 인력 1명 기준 월 4~8편 (시즌별 마케팅 대응 불가)</span></li>
+                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>콘텐츠 1편당 작성 시간:</strong> 평균 4~8시간 (외주 시 건당 10~15만원)</span></li>
+                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>AI 인용 가능성:</strong> 일반 SEO 콘텐츠 비율 70% / AI 인용 가능성 5% 미만</span></li>
+                  <li className="flex items-start gap-2"><span className="text-rose-500 mt-0.5">●</span><span><strong>월간 발행량 한계:</strong> 인력 1명 기준 월 15~30편 (시즌별 마케팅 대응 불가)</span></li>
                 </ul>
               </div>
             </section>
