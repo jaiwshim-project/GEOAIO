@@ -547,7 +547,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <tr>
                         <th className="px-3 py-2 text-left font-bold text-amber-100">구분</th>
                         <th className="px-3 py-2 text-left font-bold text-white">SEO 방식 (검색 최적화)</th>
-                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식 (AI 최적화)</th>
+                        <th className="px-3 py-2 text-left font-bold text-fuchsia-200">E-E-A-T 방식 (AI 최적화)</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -572,7 +572,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <tr>
                         <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
                         <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
-                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-fuchsia-200">E-E-A-T 방식</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -602,7 +602,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <tr>
                         <th className="px-3 py-2 text-left font-bold text-amber-100">요소</th>
                         <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
-                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-fuchsia-200">E-E-A-T 방식</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -628,7 +628,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <tr>
                         <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
                         <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
-                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-fuchsia-200">E-E-A-T 방식</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -656,7 +656,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <tr>
                         <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
                         <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
-                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-fuchsia-200">E-E-A-T 방식</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -682,7 +682,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <tr>
                         <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
                         <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
-                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-fuchsia-200">E-E-A-T 방식</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
@@ -707,7 +707,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <tr>
                         <th className="px-3 py-2 text-left font-bold text-amber-100">항목</th>
                         <th className="px-3 py-2 text-left font-bold text-white">SEO 방식</th>
-                        <th className="px-3 py-2 text-left font-semibold text-purple-700">E-E-A-T 방식</th>
+                        <th className="px-3 py-2 text-left font-bold text-fuchsia-200">E-E-A-T 방식</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
