@@ -76,6 +76,10 @@ export default function GenerateResultPage() {
   const [eeatDone, setEeatDone] = useState(false);
   const [eeatFailed, setEeatFailed] = useState<Set<number>>(new Set()); // 검증 실패한 톤 인덱스
 
+  // E-E-A-T 단일 톤 완성 (현재 보고 있는 톤만)
+  const [eeatCompletingSingle, setEeatCompletingSingle] = useState(false);
+  const [eeatCompleteSingleStatus, setEeatCompleteSingleStatus] = useState<string>('');
+
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
@@ -205,6 +209,159 @@ export default function GenerateResultPage() {
       }
     });
   }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── E-E-A-T 검증 (컴포넌트 스코프에서 재사용) ──
+  const validateEeatComplete = (content: string): { ok: boolean; reason?: string } => {
+    if (!content) return { ok: false, reason: '콘텐츠 비어있음' };
+    if (content.length < 1600) return { ok: false, reason: `분량 부족 (${content.length}자)` };
+    const h2Matches = content.match(/^## /gm) || [];
+    if (h2Matches.length < 5) return { ok: false, reason: `H2 부족 (${h2Matches.length}개)` };
+    if (!/##\s*FAQ|##\s*자주\s*묻는|##\s*질문/i.test(content)) return { ok: false, reason: 'FAQ 없음' };
+    if (!/\|.+\|.+\|\s*\n\s*\|[\s\-:|]+\|/.test(content)) return { ok: false, reason: '비교표 없음' };
+    if (!/##\s*결론|##\s*마치며|##\s*마무리|##\s*요약/i.test(content)) return { ok: false, reason: '결론 없음' };
+    const lastBlock = content.slice(-300);
+    const hashtagLineMatches = lastBlock.match(/(?:^|\n)\s*(#[\w가-힣]+(?:\s+#[\w가-힣]+){2,})/);
+    const lines = content.trim().split('\n');
+    const lastNonEmptyLines = lines.filter(l => l.trim().length > 0).slice(-5);
+    const hashtagLineExists = lastNonEmptyLines.some(line => {
+      const tags = line.match(/#[\w가-힣]+/g) || [];
+      return tags.length >= 5;
+    });
+    if (!hashtagLineMatches && !hashtagLineExists) return { ok: false, reason: '해시태그 라인 없음 (5개+)' };
+    const lastChar = content.trim().slice(-1);
+    if (/^[ㄱ-ㅎㅏ-ㅣ]$/.test(lastChar)) return { ok: false, reason: '한글 자음 잘림' };
+    const lastLine = lastNonEmptyLines[lastNonEmptyLines.length - 1] || '';
+    const endsWithHashtag = /#[\w가-힣]+\s*$/.test(lastLine);
+    const endsWithSentence = /[.!?다요죠"】\]\)]\s*$/.test(lastLine);
+    const endsWithPipe = lastLine.trim().endsWith('|');
+    if (!endsWithHashtag && !endsWithSentence && !endsWithPipe) {
+      return { ok: false, reason: `마지막 줄 미완성` };
+    }
+    return { ok: true };
+  };
+
+  // 이어쓰기 API 호출
+  const requestContinue = async (
+    v: GenerateResponse & { toneName?: string; toneValue?: string },
+    previousContent: string,
+  ): Promise<string | null> => {
+    try {
+      const res = await fetch('/api/convert-eeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: previousContent,
+          previousContent,
+          continuation: true,
+          tone: v.toneValue || tone,
+        }),
+      });
+      if (!res.ok && res.status !== 422) return null;
+      const data = await res.json();
+      return data.content || data.partialContent || null;
+    } catch {
+      return null;
+    }
+  };
+
+  // 두 콘텐츠 자연스럽게 결합
+  const mergeMd = (orig: string, cont: string): string => {
+    const o = orig.trim();
+    const c = cont.trim();
+    const sep = c.startsWith('#') || c.startsWith('|') ? '\n\n' : '\n';
+    return o + sep + c;
+  };
+
+  // ⭐ 현재 보고 있는 톤만 E-E-A-T 완성 (단일 톤)
+  const handleCompleteEeatSingle = async () => {
+    if (!result || eeatCompletingSingle) return;
+    const idx = activeAbTab;
+    const v = abVersions[idx];
+    if (!v) return;
+
+    setEeatCompletingSingle(true);
+    setEeatCompleteSingleStatus('검증 중...');
+
+    try {
+      let currentContent = v.content || '';
+      const initialCheck = validateEeatComplete(currentContent);
+
+      if (initialCheck.ok) {
+        setEeatCompleteSingleStatus('이미 완성된 콘텐츠입니다 ✓');
+        setTimeout(() => {
+          setEeatCompleteSingleStatus('');
+          setEeatCompletingSingle(false);
+        }, 2500);
+        return;
+      }
+
+      if (currentContent.length < 200) {
+        setEeatCompleteSingleStatus(`콘텐츠가 너무 짧아 이어쓰기 불가 (${currentContent.length}자)`);
+        setTimeout(() => {
+          setEeatCompleteSingleStatus('');
+          setEeatCompletingSingle(false);
+        }, 3000);
+        return;
+      }
+
+      // 최대 5회 이어쓰기로 완결 시도
+      let completed = false;
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        setEeatCompleteSingleStatus(`이어쓰기 ${attempt}/5 (현재 ${currentContent.length}자)`);
+        const continued = await requestContinue(v, currentContent);
+        if (!continued) continue;
+
+        currentContent = mergeMd(currentContent, continued);
+        const check = validateEeatComplete(currentContent);
+
+        // 즉시 화면에 반영 (누적된 콘텐츠 표시)
+        const updatedV = { ...v, content: currentContent };
+        const newAbVersions = [...abVersions];
+        newAbVersions[idx] = updatedV;
+        setAbVersions(newAbVersions);
+        setResult(updatedV);
+
+        if (check.ok) {
+          setEeatCompleteSingleStatus(`✅ 완성 (${currentContent.length}자, ${attempt}회)`);
+          completed = true;
+
+          // 실패 마크 제거 (이어쓰기로 완성됐으므로)
+          setEeatFailed(prev => {
+            const next = new Set(prev);
+            next.delete(idx);
+            return next;
+          });
+
+          // sessionStorage 갱신
+          try {
+            const params = new URLSearchParams(window.location.search);
+            const sid = params.get('id');
+            if (sid && sid.startsWith('session_')) {
+              const raw = sessionStorage.getItem(`gr_${sid}`);
+              if (raw) {
+                const stored = JSON.parse(raw);
+                stored.result = { ...stored.result, abVersions: newAbVersions };
+                sessionStorage.setItem(`gr_${sid}`, JSON.stringify(stored));
+              }
+            }
+          } catch {}
+          break;
+        }
+      }
+
+      if (!completed) {
+        setEeatCompleteSingleStatus(`5회 이어쓰기 후에도 미완성 — 현재 누적 분량 유지 (${currentContent.length}자)`);
+      }
+    } catch (e) {
+      console.error('[E-E-A-T 단일 완성] 오류:', e);
+      setEeatCompleteSingleStatus('오류 발생');
+    }
+
+    setTimeout(() => {
+      setEeatCompleteSingleStatus('');
+      setEeatCompletingSingle(false);
+    }, 4000);
+  };
 
   // E-E-A-T 자동 변환 함수
   const startEeatConversion = async (
@@ -1149,11 +1306,47 @@ export default function GenerateResultPage() {
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
               수정
             </button>
+            {/* ⭐ E-E-A-T 완성 버튼 — 현재 톤만 독립적으로 검증·이어쓰기 */}
+            <button
+              onClick={handleCompleteEeatSingle}
+              disabled={eeatCompletingSingle}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all disabled:opacity-60 ${
+                eeatCompletingSingle
+                  ? 'bg-indigo-500 text-white border-indigo-300'
+                  : 'bg-gradient-to-r from-indigo-50 to-violet-50 text-indigo-700 border-indigo-300 hover:from-indigo-100 hover:to-violet-100'
+              }`}
+              title="현재 톤의 미완성 부분을 이어쓰기로 완결합니다"
+            >
+              {eeatCompletingSingle ? (
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              )}
+              {eeatCompletingSingle ? '완성 중...' : 'E-E-A-T 완성'}
+            </button>
             <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-all ml-auto">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
               새로 만들기
             </button>
           </div>
+
+          {/* E-E-A-T 단일 톤 완성 진행 상태 */}
+          {eeatCompleteSingleStatus && (
+            <div className="mx-6 my-2 px-4 py-2.5 rounded-lg border text-xs font-medium flex items-center gap-2 bg-indigo-50 text-indigo-700 border-indigo-200">
+              {eeatCompletingSingle && (
+                <svg className="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              )}
+              <span>{eeatCompleteSingleStatus}</span>
+            </div>
+          )}
 
           {/* 수정 입력창 */}
           {showEditInput && (
