@@ -126,8 +126,50 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
-  // JSON-LD 구조화 데이터
-  const jsonLd = {
+  // ⭐ AI 검색 인용률을 높이기 위한 풍부한 JSON-LD 구조화 데이터
+
+  // FAQ 자동 추출 (Q: ~ / A: ~ 패턴)
+  const extractFaq = (content: string) => {
+    const faqs: { '@type': 'Question'; name: string; acceptedAnswer: { '@type': 'Answer'; text: string } }[] = [];
+    const faqPattern = /(?:^|\n)\s*\*?\*?Q[\s:]?\s*([^\n*]+?)\*?\*?\s*\n\s*\*?\*?A[\s:]?\s*([^\n*][\s\S]*?)(?=\n\s*\*?\*?Q[\s:]|\n##|\n#|$)/gi;
+    let match;
+    while ((match = faqPattern.exec(content)) !== null) {
+      const q = match[1].trim().replace(/[?:]$/, '').trim();
+      const a = match[2].trim().replace(/^[*]+|[*]+$/g, '').trim();
+      if (q && a && q.length < 200 && a.length < 1000) {
+        faqs.push({
+          '@type': 'Question',
+          name: q,
+          acceptedAnswer: { '@type': 'Answer', text: a },
+        });
+      }
+    }
+    return faqs;
+  };
+
+  // HowTo 단계 추출 (번호 리스트)
+  const extractSteps = (content: string) => {
+    const steps: { '@type': 'HowToStep'; position: number; name: string }[] = [];
+    const stepPattern = /^(\d+)\.\s+([^\n]+)/gm;
+    let match;
+    while ((match = stepPattern.exec(content)) !== null && steps.length < 12) {
+      const text = match[2].trim().replace(/\*\*/g, '');
+      if (text.length > 5 && text.length < 200) {
+        steps.push({
+          '@type': 'HowToStep',
+          position: parseInt(match[1]),
+          name: text,
+        });
+      }
+    }
+    return steps;
+  };
+
+  const faqEntities = extractFaq(post.content);
+  const stepEntities = extractSteps(post.content);
+
+  // Article (메인)
+  const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
@@ -143,6 +185,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
       '@type': 'Organization',
       name: 'GEO-AIO',
       url: siteUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/images/logo-geoaio.png`,
+      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
@@ -150,7 +196,39 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
     },
     keywords: hashtags.map((t: string) => t.replace('#', '')).join(', '),
     articleSection: post.category,
+    inLanguage: 'ko-KR',
+    wordCount: post.content.length,
   };
+
+  // FAQPage (AI Overview·Perplexity가 우선 인용)
+  const faqSchema = faqEntities.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqEntities,
+  } : null;
+
+  // HowTo (How-to 카테고리이거나 번호 단계 3개 이상)
+  const howtoSchema = stepEntities.length >= 3 ? {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: post.title,
+    description: summary,
+    step: stepEntities,
+  } : null;
+
+  // BreadcrumbList (탐색 컨텍스트)
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '블로그', item: `${siteUrl}/blog` },
+      { '@type': 'ListItem', position: 2, name: post.category || '전체', item: `${siteUrl}/blog/category/${encodeURIComponent(post.category)}` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: `${siteUrl}/blog/${post.id}` },
+    ],
+  };
+
+  // 모든 스키마를 배열로 묶음 (구글이 권장하는 방식)
+  const jsonLd = [articleSchema, breadcrumbSchema, faqSchema, howtoSchema].filter(Boolean);
 
   const contentHtml = markdownToHtml(post.content);
 
