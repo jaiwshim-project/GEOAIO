@@ -887,12 +887,16 @@ export default function GenerateResultPage() {
                   const color = TONE_COLORS[i % TONE_COLORS.length];
                   const isViewing = activeAbTab === i;
                   const isChecked = selectedVersions.has(i);
+                  // 변환 완료 여부 (변환 중이면 i < eeatProgress, 변환 끝났으면 모두 가능)
+                  const isReady = eeatDone || !eeatConverting || i < eeatProgress;
+                  const isConverting = eeatConverting && i === eeatProgress;
                   return (
                     <button
                       key={i}
+                      disabled={!isReady}
                       onClick={(e) => {
+                        if (!isReady) return;
                         if (e.shiftKey || e.ctrlKey || e.metaKey) {
-                          // Shift/Ctrl 클릭: 체크 토글만
                           setSelectedVersions(prev => {
                             const next = new Set(prev);
                             if (next.has(i)) { if (next.size > 1) next.delete(i); }
@@ -900,7 +904,6 @@ export default function GenerateResultPage() {
                             return next;
                           });
                         } else {
-                          // 일반 클릭: 미리보기 전환 + 체크 토글
                           setActiveAbTab(i);
                           setResult(v);
                           setSelectedVersions(prev => {
@@ -911,19 +914,32 @@ export default function GenerateResultPage() {
                           });
                         }
                       }}
-                      className={`relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all duration-200 whitespace-nowrap shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
-                        isViewing ? `${color.active} shadow-lg` : isChecked ? `${color.idle} ring-2 ring-emerald-400 ring-offset-1` : `${color.idle} opacity-60`
+                      className={`relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all duration-200 whitespace-nowrap shadow-sm ${
+                        !isReady
+                          ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
+                          : isViewing
+                          ? `${color.active} shadow-lg hover:shadow-md hover:-translate-y-0.5`
+                          : isChecked
+                          ? `${color.idle} ring-2 ring-emerald-400 ring-offset-1 hover:shadow-md hover:-translate-y-0.5`
+                          : `${color.idle} opacity-60 hover:shadow-md hover:-translate-y-0.5`
                       }`}
+                      title={!isReady ? (isConverting ? '변환 중...' : '변환 대기 중') : undefined}
                     >
-                      {/* 체크 표시 */}
+                      {/* 상태 배지 */}
                       <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center shadow text-[10px] ${
-                        isChecked ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-400'
+                        isConverting
+                          ? 'bg-indigo-500 text-white animate-pulse'
+                          : !isReady
+                          ? 'bg-gray-300 text-gray-500'
+                          : isChecked
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-gray-200 text-gray-400'
                       }`}>
-                        {isChecked ? '✓' : ''}
+                        {isConverting ? '◌' : !isReady ? '⌛' : isChecked ? '✓' : ''}
                       </span>
                       {/* 번호 뱃지 */}
                       <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                        isViewing ? 'bg-white/25 text-white' : `${color.dot} text-white`
+                        !isReady ? 'bg-gray-300 text-gray-500' : isViewing ? 'bg-white/25 text-white' : `${color.dot} text-white`
                       }`}>
                         {i + 1}
                       </span>
