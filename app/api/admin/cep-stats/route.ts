@@ -20,11 +20,66 @@ type GenerateResultMetadataCep = {
 type HistoryRow = {
   id: string;
   generate_result: {
-    metadata?: { cep?: GenerateResultMetadataCep | null } | null;
+    metadata?: {
+      cep?: GenerateResultMetadataCep | null;
+      companyName?: string;
+      region?: string;
+      category?: string;
+      [k: string]: unknown;
+    } | null;
+    content?: string;
     [k: string]: unknown;
   } | null;
   created_at: string;
 };
+
+// ============================================================
+// 신규: AI 인용 공식 신호 3종 검출 함수
+// ============================================================
+
+function detectRepetition(
+  content: string,
+  companyName?: string,
+  region?: string
+): boolean {
+  if (!companyName) return false;
+  const c = content.includes(companyName);
+  const r = !region || content.includes(region);
+  return c && r;
+}
+
+function countQuestionH2(content: string): { question: number; total: number } {
+  const h2s = content.match(/^## .+/gm) || [];
+  const questions = h2s.filter((h) => /[?？]\s*$/.test(h)).length;
+  return { question: questions, total: h2s.length };
+}
+
+function detectExternalSignal(content: string): boolean {
+  return /네이버\s*카페|더쿠|커뮤니티\s*후기|블로그\s*후기|구글\s*리뷰|인스타\s*리뷰/i.test(
+    content
+  );
+}
+
+function extractContent(row: HistoryRow): string {
+  const direct = row.generate_result?.content;
+  if (typeof direct === 'string') return direct;
+  return '';
+}
+
+function extractMeta(row: HistoryRow): {
+  companyName?: string;
+  region?: string;
+  category?: string;
+} {
+  const meta = row.generate_result?.metadata;
+  if (!meta || typeof meta !== 'object') return {};
+  return {
+    companyName:
+      typeof meta.companyName === 'string' ? meta.companyName : undefined,
+    region: typeof meta.region === 'string' ? meta.region : undefined,
+    category: typeof meta.category === 'string' ? meta.category : undefined,
+  };
+}
 
 function authorize(request: NextRequest): NextResponse | null {
   // 환경 변수: ADMIN_PASSWORD 우선, ADMIN_DASH_PASS 폴백 (호환)
@@ -377,6 +432,12 @@ async function handle(request: NextRequest) {
     const keywordCounts = new Map<string, number>();
     const dailyMap = new Map<string, { date: string; cep: number; total: number }>();
 
+    // === 신규: AI 인용 공식 신호 3종 카운터 ===
+    let repetitionCount = 0;
+    let externalSignalCount = 0;
+    let questionH2Articles = 0; // 질문형 H2가 1개 이상인 글 수
+    let totalH2Count = 0;
+
     // 일별 슬롯 미리 생성 (오래된 → 최신, days+1개)
     for (let i = days; i >= 0; i--) {
       const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
@@ -401,6 +462,23 @@ async function handle(request: NextRequest) {
         }
       }
       dailyMap.set(dateKey, slot);
+
+      // === 신규: signals 검출 ===
+      const content = extractContent(row);
+      if (content) {
+        const meta = extractMeta(row);
+        if (detectRepetition(content, meta.companyName, meta.region)) {
+          repetitionCount += 1;
+        }
+        if (detectExternalSignal(content)) {
+          externalSignalCount += 1;
+        }
+        const h2 = countQuestionH2(content);
+        totalH2Count += h2.total;
+        if (h2.question > 0) {
+          questionH2Articles += 1;
+        }
+      }
     }
 
     const skipped = total - applied;
@@ -470,6 +548,24 @@ async function handle(request: NextRequest) {
     const anomalies: Array<Record<string, unknown>> = [];
     if (citationAnomaly) anomalies.push(citationAnomaly);
 
+    // === 신규: AI 인용 공식 신호 3종 응답 객체 ===
+    const signals = {
+      repetition: {
+        brand_keyword_pattern: '[지역] [카테고리]는 [회사명]',
+        pattern_count: repetitionCount,
+        pattern_rate: ratio4(repetitionCount, total),
+      },
+      questionMatch: {
+        question_h2_count: questionH2Articles,
+        total_h2_count: totalH2Count,
+        question_rate: ratio4(questionH2Articles, total),
+      },
+      externalSignal: {
+        mentioned_in_external: externalSignalCount,
+        external_rate: ratio4(externalSignalCount, total),
+      },
+    };
+
     return withCors(
       NextResponse.json({
         period_days: days,
@@ -482,6 +578,7 @@ async function handle(request: NextRequest) {
         blog: blogAggregate,
         citation: citationAggregate,
         anomalies,
+        signals,
       }),
       request
     );

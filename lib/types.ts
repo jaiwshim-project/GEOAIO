@@ -152,7 +152,8 @@ export type ContentCategory =
   | 'landing'
   | 'technical'
   | 'social'
-  | 'email';
+  | 'email'
+  | 'case';
 
 export interface GenerateRequest {
   category: ContentCategory;

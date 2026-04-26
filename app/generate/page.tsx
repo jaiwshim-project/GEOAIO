@@ -88,6 +88,14 @@ const categories: { id: ContentCategory; label: string; description: string; ico
     color: 'from-indigo-500 via-blue-600 to-indigo-600 border-indigo-300 shadow-indigo-200',
     bgIdle: 'bg-indigo-50 border-indigo-200 hover:border-indigo-400 hover:shadow-indigo-100',
   },
+  {
+    id: 'case',
+    label: '환자 케이스',
+    description: '환자/고객 사례 기반 콘텐츠',
+    icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+    color: 'from-rose-500 via-pink-500 to-rose-600 border-rose-300 shadow-rose-200',
+    bgIdle: 'bg-rose-50 border-rose-200 hover:border-rose-400 hover:shadow-rose-100',
+  },
 ];
 
 // ==================== 카테고리별 서브키워드 ====================
@@ -100,6 +108,7 @@ const subKeywordsByCategory: Record<ContentCategory, string[]> = {
   technical: ['API 문서', '시스템 설계', '개발 가이드', '운영 매뉴얼', '보안 가이드'],
   social: ['인스타그램', '페이스북', '유튜브', '틱톡', '링크드인', '트위터'],
   email: ['뉴스레터', '프로모션', '고객 유지', '이벤트 안내', '제품 소개'],
+  case: ['치과 임플란트', '피부 시술', '교정 치료', '성형 수술', '한의원 진료', '병원 일반', '학원 합격 사례', '서비스 이용 사례'],
 };
 
 // ⚠️ TEMP: 동시성 한계 검증을 위해 5개 톤 임시 비활성화 (2026-04-26).
@@ -128,6 +137,11 @@ export default function GeneratePage() {
   const [selectedSubKeyword, setSelectedSubKeyword] = useState<string>('');
   const [topic, setTopic] = useState('');
   const [targetKeyword, setTargetKeyword] = useState('');
+  // 환자/고객 케이스 (selectedCategory === 'case'일 때 사용)
+  const [caseProfile, setCaseProfile] = useState('');
+  const [caseSymptom, setCaseSymptom] = useState('');
+  const [caseTreatment, setCaseTreatment] = useState('');
+  const [caseResult, setCaseResult] = useState('');
   const [tone, setTone] = useState('전문적이고 신뢰감 있는');
   const [additionalNotes, setAdditionalNotes] = useState('');
   const [referenceFiles, setReferenceFiles] = useState<{ name: string; content: string }[]>([]);
@@ -244,6 +258,11 @@ export default function GeneratePage() {
   // CEP 자동 도출(분대 Oscar): topic 입력 시 백그라운드 자동 진행
   const [cepAutoMode, setCepAutoMode] = useState(true);
   const [cepAutoStatus, setCepAutoStatus] = useState<'idle' | 'searching' | 'translating' | 'done' | 'failed'>('idle');
+
+  // 📚 질문 50개 일괄 생성 (대량 콘텐츠 모드 — 분대 Victor)
+  const [questionBatchSeed, setQuestionBatchSeed] = useState('');
+  const [questionBatchLoading, setQuestionBatchLoading] = useState(false);
+  const [questionBatchTitles, setQuestionBatchTitles] = useState<string[]>([]);
 
   // 프로필 목록 로드
   useEffect(() => {
@@ -950,6 +969,29 @@ export default function GeneratePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic, targetKeyword, selectedSubKeyword, selectedCategory, cepAutoMode, sceneSentence, geminiApiKey]);
 
+  // ==================== 질문 50개 일괄 생성 핸들러 (분대 Victor) ====================
+  const handleQuestionBatch = async () => {
+    if (!questionBatchSeed.trim()) return;
+    setQuestionBatchLoading(true);
+    try {
+      const res = await fetch('/api/suggest-question-titles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+        body: JSON.stringify({
+          seedKeyword: questionBatchSeed,
+          category: selectedCategory,
+          region: businessInfo.location || selectedProject?.region,
+          companyName: businessInfo.companyName,
+          industry: businessInfo.industry || businessInfo.customIndustry,
+        }),
+      });
+      const data = await res.json();
+      setQuestionBatchTitles(data.titles || []);
+    } catch {} finally {
+      setQuestionBatchLoading(false);
+    }
+  };
+
   // ==================== CEP(Category Entry Point) 핸들러 ====================
   const handleCepClusterSearch = async () => {
     if (!cepSeed.trim()) { setCepError('시드 키워드를 입력하세요'); return; }
@@ -1139,6 +1181,13 @@ export default function GeneratePage() {
                 searchPath: cepClusters[cepSelectedCluster ?? -1]?.searchPath,
                 cepCluster: cepClusters[cepSelectedCluster ?? -1]?.keywords,
                 lifeLanguages: cepLifeLanguages.length ? cepLifeLanguages : undefined,
+                // 환자/고객 케이스 정보 (selectedCategory === 'case'일 때만)
+                caseStudy: selectedCategory === 'case' ? {
+                  profile: caseProfile,
+                  symptom: caseSymptom,
+                  treatment: caseTreatment,
+                  result: caseResult,
+                } : undefined,
               }),
             });
             const data = await res.json();
@@ -2195,6 +2244,53 @@ export default function GeneratePage() {
               </div>
             )}
 
+            {/* 📚 질문 50개 일괄 생성 (대량 콘텐츠 모드) — 분대 Victor */}
+            {selectedCategory && (
+              <section className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-200 rounded-xl p-4 shadow-sm">
+                <details>
+                  <summary className="cursor-pointer text-sm font-bold text-amber-900 flex items-center gap-2">
+                    <span>📚</span> 질문 50개 일괄 생성 (대량 콘텐츠 모드)
+                    <span className="ml-auto text-[11px] text-amber-700">클릭하면 펼쳐짐</span>
+                  </summary>
+                  <div className="mt-3 space-y-2">
+                    <p className="text-[11px] text-amber-800">
+                      시드 키워드를 입력하면 AI가 50개 질문형 제목을 자동 생성합니다. 그 중 원하는 것을 선택해 일괄 생성하세요.
+                    </p>
+                    <input
+                      type="text"
+                      value={questionBatchSeed}
+                      onChange={(e) => setQuestionBatchSeed(e.target.value)}
+                      placeholder="예: 임플란트, 선크림, 인테리어"
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-amber-300 focus:border-amber-500 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleQuestionBatch}
+                      disabled={!questionBatchSeed.trim() || questionBatchLoading}
+                      className="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white disabled:opacity-50"
+                    >
+                      {questionBatchLoading ? '⏳ 50개 제목 생성 중...' : '🚀 50개 질문 제목 생성'}
+                    </button>
+                    {questionBatchTitles.length > 0 && (
+                      <div className="max-h-64 overflow-y-auto space-y-1 mt-2">
+                        <p className="text-[11px] font-bold text-amber-800">{questionBatchTitles.length}개 제목 생성됨 — 클릭해서 주제로 입력</p>
+                        {questionBatchTitles.map((t, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => { setTopic(t); fetchKeywordSuggestions(t); }}
+                            className="w-full text-left px-2 py-1.5 text-xs bg-white border border-amber-200 rounded hover:bg-amber-100"
+                          >
+                            {i + 1}. {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </details>
+              </section>
+            )}
+
             {/* 📚 저장된 추천 주제 — topicSuggestions 또는 savedTopicsCache 둘 중 하나라도 있으면 표시 */}
             {((topicSuggestions.length > 0) || (savedTopicsCache?.topics?.length || 0) > 0) && (() => {
               const displayTopics = topicSuggestions.length > 0 ? topicSuggestions : (savedTopicsCache?.topics || []);
@@ -2281,6 +2377,44 @@ export default function GeneratePage() {
                 <p className="text-sm text-gray-500 mb-3">
                   {categories.find(c => c.id === selectedCategory)?.label} 생성을 위한 정보를 입력하세요
                 </p>
+
+                {/* 환자/고객 케이스 입력 (selectedCategory === 'case'일 때만) */}
+                {selectedCategory === 'case' && (
+                  <section className="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-3">
+                    <h3 className="text-sm font-bold text-rose-900 mb-2">💊 환자/고객 케이스 정보</h3>
+                    <p className="text-xs text-rose-700 mb-3">실제 사례를 입력하면 AI 인용 신뢰도가 크게 올라갑니다 (RAG에 자동 첨부)</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={caseProfile}
+                        onChange={(e) => setCaseProfile(e.target.value)}
+                        placeholder="환자/고객 프로필 (예: 40대 남성, 5년 흡연력)"
+                        className="px-3 py-2 text-sm rounded-lg border border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent placeholder-rose-400"
+                      />
+                      <input
+                        type="text"
+                        value={caseSymptom}
+                        onChange={(e) => setCaseSymptom(e.target.value)}
+                        placeholder="증상/문제 (예: 어금니 빠짐, 잇몸 염증)"
+                        className="px-3 py-2 text-sm rounded-lg border border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent placeholder-rose-400"
+                      />
+                      <input
+                        type="text"
+                        value={caseTreatment}
+                        onChange={(e) => setCaseTreatment(e.target.value)}
+                        placeholder="치료/해결 (예: 임플란트 식립, 뼈이식)"
+                        className="px-3 py-2 text-sm rounded-lg border border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent placeholder-rose-400"
+                      />
+                      <input
+                        type="text"
+                        value={caseResult}
+                        onChange={(e) => setCaseResult(e.target.value)}
+                        placeholder="결과 (예: 6개월 후 안정, 자연 외관)"
+                        className="px-3 py-2 text-sm rounded-lg border border-rose-300 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent placeholder-rose-400"
+                      />
+                    </div>
+                  </section>
+                )}
 
                 <div className="space-y-3">
                   {/* 주제 */}

@@ -21,6 +21,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   technical: '기술 문서',
   social: '소셜 미디어',
   email: '이메일 마케팅',
+  case: '환자 케이스',
 };
 
 const SYSTEM_INSTRUCTION = `당신은 AIO(AI Overview)와 GEO(Generative Engine Optimization) 전문 콘텐츠 작가입니다.
@@ -93,6 +94,34 @@ AI 검색엔진(ChatGPT/Gemini/Perplexity)이 인용·발췌하기 좋은 형태
 - FAQ는 "Q: ~?\\nA: ~" 형태 정확히
 - 시간·비용·성과는 명시적 수치
 → AI가 자동으로 의미 단위로 추출 가능
+
+### ⭐⭐ 원칙 4. AI 인용 공식 (질문형 + 반복성 + 케이스 + 외부신호)
+AI 인용 = EEAT × 데이터량 × 질문형 × 반복성 × 외부신호
+
+**4-1. 질문형 H2 강제 (가장 중요)**
+- H2 5~7개 중 **최소 5개는 질문형**으로 작성
+- ❌ 설명형: "임플란트의 종류", "DSD 시스템 소개", "치료 과정"
+- ✅ 질문형: "임플란트는 어떤 종류가 있나요?", "DSD가 일반 시술과 다른 점은?", "치료는 며칠 걸리나요?"
+- 질문 패턴: "~는 어떻게/왜/무엇이/어디서/얼마나/몇 가지/언제 ~?"
+→ AI 검색은 사용자 질문을 직접 매칭하므로 질문형 H2가 인용 후보가 됨
+
+**4-2. 반복 브랜드 결론 (모든 콘텐츠 의무)**
+- 결론 마지막에 **"[지역] [카테고리]는 [회사명]"** 형태 반복
+  - 예: "대전 임플란트는 디지털스마일치과", "강남 화장품은 OO뷰티"
+- 본문 중간에도 자연스럽게 1~2회 반복 ("...라는 점에서 [회사명]은 차별화됩니다")
+- RAG 자료에 region·company_name 있으면 이 패턴 반드시 적용
+→ AI는 같은 브랜드+키워드 결합이 N번 반복될 때 그 결합을 "공식 답"으로 학습
+
+**4-3. 케이스 인용 우선**
+- RAG 자료에 환자 케이스·실제 사례·수치 데이터가 있으면 **반드시 1개 이상 본문에 인용**
+- 형태: "실제 환자 중 40대 남성 사례에서...", "5년간 1,200건 시술 경험에서...", "한 고객은 ~한 어려움을..."
+- 케이스 본문에 ✓ 환자 정보 → ✓ 증상 → ✓ 치료 → ✓ 결과 4단 구조로
+→ AI는 추상 설명보다 구체적 케이스를 더 신뢰하고 인용
+
+**4-4. 외부 신호 활용**
+- RAG 자료에 후기·커뮤니티 언급·SNS 인용이 있으면 반드시 본문에 녹임
+- 예: "네이버 카페 후기에서 자주 언급되는 ~", "더쿠 댓글에서도 확인되는 ~"
+- 외부 인용은 AI에게 "이 정보가 외부에서 검증됨" 신호 제공
 
 [중요] 톤/스타일에 따라 제목 형식·도입부 문체·어조를 다르게 작성하세요.`;
 
@@ -239,12 +268,26 @@ ${body.lifeLanguages?.length ? `삶의 언어 (카테고리 진입 직전): ${bo
 인구통계 표현(30대, 직장인, 육아맘 등) 사용 금지. 사람이 아닌 순간을 다뤄라.
 ` : '';
 
+    // 환자/고객 케이스 컨텍스트 블록 (selectedCategory === 'case' 또는 body.caseStudy 있을 때)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const caseStudy = (body as any).caseStudy as { profile?: string; symptom?: string; treatment?: string; result?: string } | undefined;
+    const caseBlock = (caseStudy && (caseStudy.profile || caseStudy.symptom || caseStudy.treatment || caseStudy.result)) ? `
+[💊 케이스 정보 — 본문에 반드시 인용]
+- 환자/고객: ${caseStudy.profile || '(미입력)'}
+- 증상/문제: ${caseStudy.symptom || '(미입력)'}
+- 치료/해결: ${caseStudy.treatment || '(미입력)'}
+- 결과: ${caseStudy.result || '(미입력)'}
+
+⚠️ 위 케이스를 본문에 반드시 4단 구조(프로필 → 증상 → 치료 → 결과)로 인용하세요.
+원칙 4-3(케이스 인용 우선)에 따라 추상 설명보다 이 구체 사례를 우선합니다.
+` : '';
+
     let userMessage: string;
 
     if (hasRag) {
       // ── RAG 기반 생성: RAG 지식 → E-E-A-T 구조화 콘텐츠 ──
       const ragContent = pFiles!.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n');
-      userMessage = `${cepBlock}[프로젝트 RAG 지식 기반]
+      userMessage = `${cepBlock}${caseBlock}[프로젝트 RAG 지식 기반]
 아래 문서는 이 프로젝트의 핵심 자료입니다. 이 내용을 1차 지식 기반으로 삼아 E-E-A-T 구조화 콘텐츠를 작성하세요.
 
 ${ragContent}
@@ -306,7 +349,7 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 ${companyInfo ? `- ⚠️ 회사명·대표자명·주소는 RAG 자료에 있는 그대로 정확히 본문에 표기 (변경·축약·임의 생성 절대 금지)` : ''}`;
     } else {
       // ── 일반 생성 (RAG 없음) ──
-      userMessage = `${cepBlock}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
+      userMessage = `${cepBlock}${caseBlock}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}

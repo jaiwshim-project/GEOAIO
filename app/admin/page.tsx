@@ -105,6 +105,11 @@ export default function AdminPage() {
     adoption_rate: number;
     top_cep_keywords: { keyword: string; count: number }[];
     daily_trend: { date: string; cep: number; total: number }[];
+    signals?: {
+      repetition: { brand_keyword_pattern: string; pattern_count: number; pattern_rate: number };
+      questionMatch: { question_h2_count: number; total_h2_count: number; question_rate: number };
+      externalSignal: { mentioned_in_external: number; external_rate: number };
+    };
   };
   const [cepStats, setCepStats] = useState<CepStats | null>(null);
   const [cepStatsLoading, setCepStatsLoading] = useState(false);
@@ -679,6 +684,50 @@ export default function AdminPage() {
             </>
           )}
         </div>
+
+        {/* AI 인용 공식 신호 (반복·질문·외부) — 분대 X-ray */}
+        {cepStats?.signals && (
+          <div className="bg-white rounded-xl shadow border border-amber-200 p-5 mb-4">
+            <h3 className="text-sm font-bold text-amber-900 mb-3 flex items-center gap-2">
+              <span>🔁</span> AI 인용 공식 신호 (반복·질문·외부)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* 1. 반복성 */}
+              <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
+                <p className="text-[11px] font-bold text-amber-700">🔁 브랜드 반복</p>
+                <p className="text-2xl font-bold text-amber-900">
+                  {((cepStats.signals.repetition.pattern_rate || 0) * 100).toFixed(1)}%
+                </p>
+                <p className="text-[10px] text-amber-600">
+                  {cepStats.signals.repetition.pattern_count}/{cepStats.total_generations} 글에서 브랜드+지역 동시 등장
+                </p>
+              </div>
+              {/* 2. 질문형 H2 */}
+              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                <p className="text-[11px] font-bold text-blue-700">❓ 질문형 H2 비율</p>
+                <p className="text-2xl font-bold text-blue-900">
+                  {((cepStats.signals.questionMatch.question_rate || 0) * 100).toFixed(1)}%
+                </p>
+                <p className="text-[10px] text-blue-600">
+                  {cepStats.signals.questionMatch.question_h2_count}/{cepStats.signals.questionMatch.total_h2_count} H2가 질문형
+                </p>
+              </div>
+              {/* 3. 외부 신호 */}
+              <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                <p className="text-[11px] font-bold text-emerald-700">🌐 외부 신호 인용</p>
+                <p className="text-2xl font-bold text-emerald-900">
+                  {((cepStats.signals.externalSignal.external_rate || 0) * 100).toFixed(1)}%
+                </p>
+                <p className="text-[10px] text-emerald-600">
+                  {cepStats.signals.externalSignal.mentioned_in_external}/{cepStats.total_generations} 글에 후기·커뮤니티 인용
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 text-[10px] text-amber-700">
+              💡 이 3개 신호가 AI 인용에 직접 영향을 줍니다. 50% 이상이 권장 기준.
+            </p>
+          </div>
+        )}
 
         {/* 폴더 탭 */}
         <div className="flex items-end gap-0 mb-0">
