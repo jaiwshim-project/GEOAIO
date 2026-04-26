@@ -107,7 +107,7 @@ const subKeywordsByCategory: Record<ContentCategory, string[]> = {
 //   안정적 5개만 사용. 검증 결과에 따라 복원 또는 옵션 B(토글)로 전환.
 const toneOptions = [
   { value: '전문적이고 신뢰감 있는', label: '전문적' },
-  // { value: '친근하고 대화체의', label: '친근한' },         // TEMP DISABLED
+  { value: '친근하고 대화체의', label: '친근한' },             // 활성 (자동 재시도로 안정화)
   // { value: '설득력 있고 강렬한', label: '설득적' },        // TEMP DISABLED
   { value: '간결하고 명확한', label: '간결한' },
   { value: '스토리텔링 중심의', label: '스토리텔링' },
@@ -984,43 +984,59 @@ export default function GeneratePage() {
       const results: any[] = new Array(toneOptions.length).fill(null);
 
       const generateTone = async (t: typeof toneOptions[0], idx: number) => {
-        try {
-          const res = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
-            body: JSON.stringify({
-              category: selectedCategory,
-              topic: topic.trim(),
-              targetKeyword: targetKeyword.trim() || undefined,
-              subKeyword: selectedSubKeyword || undefined,
-              tone: t.value,
-              additionalNotes: notes,
-              company_name: activeProjectInfo?.company_name || undefined,
-              representative_name: activeProjectInfo?.representative_name || undefined,
-              region: activeProjectInfo?.region || undefined,
-              homepage_url: activeProjectInfo?.homepage_url || undefined,
-              blog_url: activeProjectInfo?.blog_url || undefined,
-              projectFiles: projectFiles.slice(0, 3).map(f => ({
-                file_name: f.file_name,
-                content: f.content.slice(0, 3000),
-              })),
-              // CEP(Category Entry Point) 발굴 데이터
-              sceneSentence: sceneSentence || undefined,
-              cepTask: cepTask || undefined,
-              cepKeyword: cepClusters[cepSelectedCluster ?? -1]?.clusterName,
-              searchPath: cepClusters[cepSelectedCluster ?? -1]?.searchPath,
-              cepCluster: cepClusters[cepSelectedCluster ?? -1]?.keywords,
-              lifeLanguages: cepLifeLanguages.length ? cepLifeLanguages : undefined,
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok || data.error) {
-            return { title: topic.trim(), content: `${t.label} 생성 실패: ${data.error || res.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
+        // 단일 fetch 호출 — 재시도용 inner 함수
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fetchOnce = async (): Promise<{ ok: boolean; data: any; status: number }> => {
+          try {
+            const res = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
+              body: JSON.stringify({
+                category: selectedCategory,
+                topic: topic.trim(),
+                targetKeyword: targetKeyword.trim() || undefined,
+                subKeyword: selectedSubKeyword || undefined,
+                tone: t.value,
+                additionalNotes: notes,
+                company_name: activeProjectInfo?.company_name || undefined,
+                representative_name: activeProjectInfo?.representative_name || undefined,
+                region: activeProjectInfo?.region || undefined,
+                homepage_url: activeProjectInfo?.homepage_url || undefined,
+                blog_url: activeProjectInfo?.blog_url || undefined,
+                projectFiles: projectFiles.slice(0, 3).map(f => ({
+                  file_name: f.file_name,
+                  content: f.content.slice(0, 3000),
+                })),
+                // CEP(Category Entry Point) 발굴 데이터
+                sceneSentence: sceneSentence || undefined,
+                cepTask: cepTask || undefined,
+                cepKeyword: cepClusters[cepSelectedCluster ?? -1]?.clusterName,
+                searchPath: cepClusters[cepSelectedCluster ?? -1]?.searchPath,
+                cepCluster: cepClusters[cepSelectedCluster ?? -1]?.keywords,
+                lifeLanguages: cepLifeLanguages.length ? cepLifeLanguages : undefined,
+              }),
+            });
+            const data = await res.json();
+            return { ok: res.ok && !data.error, data, status: res.status };
+          } catch {
+            return { ok: false, data: null, status: 0 };
           }
-          return { ...data, toneName: t.label, toneValue: t.value };
-        } catch {
-          return { title: topic.trim(), content: `${t.label} 생성 오류`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
+        };
+
+        // 1차 시도
+        let result = await fetchOnce();
+        // 자동 재시도 조건: HTTP 실패 또는 content 부실(빈/짧음)
+        const isPoorContent = result.ok && (!result.data?.content || (typeof result.data.content === 'string' && result.data.content.length < 1000));
+        if (!result.ok || isPoorContent) {
+          console.log(`[generate] 톤 "${t.label}" 자동 재시도: ${result.ok ? `content ${result.data?.content?.length || 0}자 부실` : `HTTP ${result.status}`}`);
+          await new Promise(r => setTimeout(r, 1000)); // 1초 대기 (rate limit 회피)
+          result = await fetchOnce();
         }
+
+        if (!result.ok) {
+          return { title: topic.trim(), content: `${t.label} 생성 실패: ${result.data?.error || result.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
+        }
+        return { ...result.data, toneName: t.label, toneValue: t.value };
       };
 
       // AGENT_BATCH 개씩 병렬 실행 (멀티 에이전트)
