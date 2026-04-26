@@ -979,7 +979,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 5; // 동시 실행 에이전트 수 (5+5 두 배치 — Gemini 동시성 한계 회피, 약 16초)
+      const AGENT_BATCH = 3; // 동시 실행 에이전트 수 (Gemini 동시성 안전 한계, 약 24초·완전 안정)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
