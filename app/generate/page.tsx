@@ -264,6 +264,12 @@ export default function GeneratePage() {
   const [questionBatchLoading, setQuestionBatchLoading] = useState(false);
   const [questionBatchTitles, setQuestionBatchTitles] = useState<string[]>([]);
 
+  // 📑 마스터 글 → 30개 파생 콘텐츠 (분대 Yankee)
+  const [masterContent, setMasterContent] = useState('');
+  const [masterTitle, setMasterTitle] = useState('');
+  const [masterDeriveLoading, setMasterDeriveLoading] = useState(false);
+  const [masterDerivatives, setMasterDerivatives] = useState<Array<{ title: string; hook?: string; sourceParagraph?: string }>>([]);
+
   // 프로필 목록 로드
   useEffect(() => {
     getProfiles().then(profiles => setSavedProfiles(profiles));
@@ -989,6 +995,30 @@ export default function GeneratePage() {
       setQuestionBatchTitles(data.titles || []);
     } catch {} finally {
       setQuestionBatchLoading(false);
+    }
+  };
+
+  // ==================== 마스터 글 → 30개 파생 콘텐츠 핸들러 (분대 Yankee) ====================
+  const handleMasterDerive = async () => {
+    if (!masterContent.trim()) return;
+    setMasterDeriveLoading(true);
+    try {
+      const res = await fetch('/api/derive-from-master', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+        body: JSON.stringify({
+          masterContent,
+          masterTitle: masterTitle || undefined,
+          companyName: businessInfo.companyName,
+          region: businessInfo.location || selectedProject?.region,
+          industry: businessInfo.industry || businessInfo.customIndustry,
+          count: 30,
+        }),
+      });
+      const data = await res.json();
+      setMasterDerivatives(data.derivatives || []);
+    } catch {} finally {
+      setMasterDeriveLoading(false);
     }
   };
 
@@ -2282,6 +2312,62 @@ export default function GeneratePage() {
                             className="w-full text-left px-2 py-1.5 text-xs bg-white border border-amber-200 rounded hover:bg-amber-100"
                           >
                             {i + 1}. {t}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </details>
+              </section>
+            )}
+
+            {/* 📑 마스터 글 → 30개 파생 콘텐츠 — 분대 Yankee */}
+            {selectedCategory && (
+              <section className="bg-gradient-to-br from-fuchsia-50 via-pink-50 to-fuchsia-50 border-2 border-fuchsia-200 rounded-xl p-4 shadow-sm">
+                <details>
+                  <summary className="cursor-pointer text-sm font-bold text-fuchsia-900 flex items-center gap-2">
+                    <span>📑</span> 마스터 글 → 30개 파생 콘텐츠 자동 분해
+                    <span className="ml-auto text-[11px] text-fuchsia-700">클릭하면 펼쳐짐</span>
+                  </summary>
+                  <div className="mt-3 space-y-2">
+                    <p className="text-[11px] text-fuchsia-800">
+                      긴 마스터 글(예: 회사 소개·제품 백서)을 붙여넣으면 AI가 30개 질문형 파생 메타로 분해합니다.
+                      각 파생을 클릭하면 주제로 입력되어 즉시 콘텐츠 생성 가능.
+                    </p>
+                    <textarea
+                      value={masterContent}
+                      onChange={(e) => setMasterContent(e.target.value)}
+                      placeholder="마스터 글 전체 내용을 여기에 붙여넣으세요 (최대 8000자)"
+                      rows={6}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-fuchsia-300 focus:border-fuchsia-500 outline-none font-mono"
+                    />
+                    <input
+                      type="text"
+                      value={masterTitle}
+                      onChange={(e) => setMasterTitle(e.target.value)}
+                      placeholder="마스터 제목 (선택)"
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-fuchsia-300"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleMasterDerive}
+                      disabled={!masterContent.trim() || masterDeriveLoading}
+                      className="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white disabled:opacity-50"
+                    >
+                      {masterDeriveLoading ? '⏳ 30개 파생 분해 중...' : '🔀 30개 파생 콘텐츠 메타 생성'}
+                    </button>
+                    {masterDerivatives.length > 0 && (
+                      <div className="max-h-80 overflow-y-auto space-y-1 mt-2">
+                        <p className="text-[11px] font-bold text-fuchsia-800">{masterDerivatives.length}개 파생 — 클릭해서 주제로 입력</p>
+                        {masterDerivatives.map((d, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => { setTopic(d.title); fetchKeywordSuggestions(d.title); }}
+                            className="w-full text-left px-2 py-2 text-xs bg-white border border-fuchsia-200 rounded hover:bg-fuchsia-100"
+                          >
+                            <p className="font-semibold text-fuchsia-900">{i + 1}. {d.title}</p>
+                            {d.hook && <p className="text-fuchsia-700 mt-1">→ {d.hook}</p>}
                           </button>
                         ))}
                       </div>

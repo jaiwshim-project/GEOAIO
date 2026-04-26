@@ -439,6 +439,7 @@ export async function saveBlogPost(post: {
   metadata?: Record<string, unknown>;
   targetKeyword?: string;
   historyId?: string;
+  masterId?: string;
 }): Promise<string> {
   try {
     const meta = JSON.stringify({
@@ -455,6 +456,7 @@ export async function saveBlogPost(post: {
       tags: post.hashtags || [],
       author: meta,
       metadata: post.metadata || {},
+      master_id: post.masterId || null,
     };
     console.log('saveBlogPost inserting:', insertData);
     const { data, error } = await getSupabase()
@@ -490,6 +492,7 @@ export async function saveBlogPostsBatch(posts: {
   metadata?: Record<string, unknown>;
   targetKeyword?: string;
   historyId?: string;
+  masterId?: string;
 }[]): Promise<string[]> {
   const rows = posts.map(post => ({
     title: post.title,
@@ -504,6 +507,7 @@ export async function saveBlogPostsBatch(posts: {
       metadata: post.metadata || {},
     }),
     metadata: post.metadata || {},
+    master_id: post.masterId || null,
   }));
   const { data, error } = await getSupabase()
     .from('blog_articles')

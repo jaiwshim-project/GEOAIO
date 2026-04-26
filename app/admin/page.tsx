@@ -109,6 +109,7 @@ export default function AdminPage() {
       repetition: { brand_keyword_pattern: string; pattern_count: number; pattern_rate: number };
       questionMatch: { question_h2_count: number; total_h2_count: number; question_rate: number };
       externalSignal: { mentioned_in_external: number; external_rate: number };
+      ctaSignal?: { cta_count: number; cta_rate: number };
     };
   };
   const [cepStats, setCepStats] = useState<CepStats | null>(null);
@@ -689,9 +690,9 @@ export default function AdminPage() {
         {cepStats?.signals && (
           <div className="bg-white rounded-xl shadow border border-amber-200 p-5 mb-4">
             <h3 className="text-sm font-bold text-amber-900 mb-3 flex items-center gap-2">
-              <span>🔁</span> AI 인용 공식 신호 (반복·질문·외부)
+              <span>🔁</span> AI 인용 공식 신호 (반복·질문·외부·CTA)
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* 1. 반복성 */}
               <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
                 <p className="text-[11px] font-bold text-amber-700">🔁 브랜드 반복</p>
@@ -722,9 +723,19 @@ export default function AdminPage() {
                   {cepStats.signals.externalSignal.mentioned_in_external}/{cepStats.total_generations} 글에 후기·커뮤니티 인용
                 </p>
               </div>
+              {/* 4. CTA 도달률 */}
+              <div className="bg-violet-50 rounded-lg p-3 border border-violet-200">
+                <p className="text-[11px] font-bold text-violet-700">🎯 CTA 도달률</p>
+                <p className="text-2xl font-bold text-violet-900">
+                  {((cepStats.signals.ctaSignal?.cta_rate || 0) * 100).toFixed(1)}%
+                </p>
+                <p className="text-[10px] text-violet-600">
+                  {cepStats.signals.ctaSignal?.cta_count || 0}/{cepStats.total_generations} 글에 CTA(브랜드+해결) 패턴
+                </p>
+              </div>
             </div>
             <p className="mt-3 text-[10px] text-amber-700">
-              💡 이 3개 신호가 AI 인용에 직접 영향을 줍니다. 50% 이상이 권장 기준.
+              💡 이 4개 신호가 AI 인용에 직접 영향을 줍니다. 50% 이상이 권장 기준.
             </p>
           </div>
         )}

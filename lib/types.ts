@@ -172,6 +172,7 @@ export interface GenerateRequest {
   lifeLanguages?: string[];     // Step 1 — 카테고리 진입 직전의 삶의 언어
   cepKeyword?: string;          // Step 4 — 선택된 대표 CEP 키워드
   cepTask?: string;             // Step 3 — 소비자 과업 (예: "화장 망치지 않고 자외선 차단")
+  masterId?: string;            // 마스터 글 ID (파생 콘텐츠일 때)
 }
 
 export interface GenerateResponse {
@@ -203,6 +204,7 @@ export interface HistoryItem {
   topic?: string;
   tone?: string;
   revisions?: RevisionItem[];
+  masterId?: string;
 }
 
 export interface RevisionItem {

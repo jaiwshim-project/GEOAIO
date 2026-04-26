@@ -60,6 +60,17 @@ function detectExternalSignal(content: string): boolean {
   );
 }
 
+// CTA 신호 검출 — '[X 문제]은 [회사명]의 [기능]으로 해결' 패턴
+function detectCtaSignal(content: string, companyName?: string): boolean {
+  if (!companyName) return false;
+  // 패턴: "회사명"이 있고, "해결" 또는 "도와" 또는 "제공" 같은 행동 동사가 회사명 근처에 등장
+  const idx = content.indexOf(companyName);
+  if (idx === -1) return false;
+  // 회사명 ±200자 범위에 CTA 키워드 검사
+  const snippet = content.slice(Math.max(0, idx - 200), Math.min(content.length, idx + 200));
+  return /해결|도와|제공|지원|안내|차단|예방|개선|최적화|보장/.test(snippet);
+}
+
 function extractContent(row: HistoryRow): string {
   const direct = row.generate_result?.content;
   if (typeof direct === 'string') return direct;
@@ -437,6 +448,8 @@ async function handle(request: NextRequest) {
     let externalSignalCount = 0;
     let questionH2Articles = 0; // 질문형 H2가 1개 이상인 글 수
     let totalH2Count = 0;
+    // === 신규: CTA 신호 카운터 ===
+    let ctaSignalCount = 0;
 
     // 일별 슬롯 미리 생성 (오래된 → 최신, days+1개)
     for (let i = days; i >= 0; i--) {
@@ -477,6 +490,9 @@ async function handle(request: NextRequest) {
         totalH2Count += h2.total;
         if (h2.question > 0) {
           questionH2Articles += 1;
+        }
+        if (detectCtaSignal(content, meta.companyName)) {
+          ctaSignalCount += 1;
         }
       }
     }
@@ -563,6 +579,11 @@ async function handle(request: NextRequest) {
       externalSignal: {
         mentioned_in_external: externalSignalCount,
         external_rate: ratio4(externalSignalCount, total),
+      },
+      // === 신규: CTA 신호 ===
+      ctaSignal: {
+        cta_count: ctaSignalCount,
+        cta_rate: ratio4(ctaSignalCount, total),
       },
     };
 
