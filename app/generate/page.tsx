@@ -887,7 +887,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 10; // 동시 실행 에이전트 수 (10개 톤 모두 병렬 → 약 4배 속도 향상)
+      const AGENT_BATCH = 5; // 동시 실행 에이전트 수 (5+5 두 배치 — Gemini 동시성 한계 회피, 약 16초)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
