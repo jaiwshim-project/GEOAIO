@@ -336,7 +336,7 @@ export default function GeneratePage() {
   // ============ 추천 주제 sessionStorage 캐시 (분대 Sierra) ============
   // 결과 페이지에서 다시 generate로 돌아왔을 때 같은 추천 주제를 보존하기 위함
   const SUGGEST_CACHE_KEY = 'cep:suggestedTopics';
-  const SUGGEST_CACHE_TTL = 30 * 60 * 1000; // 30분
+  const SUGGEST_CACHE_TTL = 24 * 60 * 60 * 1000; // 24시간 (사용자가 결과 페이지에서 오래 머물 수 있도록)
   const buildSuggestContextHash = (cat?: string | null) => {
     try {
       const parts = [
@@ -395,13 +395,24 @@ export default function GeneratePage() {
   // 결과 페이지에서 '다른 주제로 또 생성'으로 돌아왔을 때 이전 추천 주제·카테고리·subKeyword 자동 복원
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (topicSuggestions.length > 0) return;
+    if (topicSuggestions.length > 0) {
+      console.log('[suggestCache] 이미 추천 있음, 캐시 복원 스킵');
+      return;
+    }
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const cached = readSuggestCache() as any;
-      if (!cached || !Array.isArray(cached.topics) || cached.topics.length === 0) return;
-      const fresh = Date.now() - (cached.savedAt || 0) < SUGGEST_CACHE_TTL;
-      if (!fresh) return;
+      console.log('[suggestCache] 마운트 시 cache 확인:', cached ? `topics=${cached.topics?.length || 0}, savedAt=${new Date(cached.savedAt || 0).toLocaleTimeString()}` : 'none');
+      if (!cached || !Array.isArray(cached.topics) || cached.topics.length === 0) {
+        console.log('[suggestCache] cache 없음 또는 빈 topics — 복원 스킵');
+        return;
+      }
+      const age = Date.now() - (cached.savedAt || 0);
+      const fresh = age < SUGGEST_CACHE_TTL;
+      if (!fresh) {
+        console.log(`[suggestCache] cache 만료 (${Math.round(age / 60000)}분 경과) — 복원 스킵`);
+        return;
+      }
 
       // 1. 카테고리 복원 (state가 비어있을 때만)
       if (cached.category && !selectedCategory) {
@@ -415,7 +426,10 @@ export default function GeneratePage() {
       setTopicSuggestions(cached.topics);
       setUsedTopics(cached.usedTopics || []);
       setShowTopicDropdown(true);
-    } catch {}
+      console.log(`[suggestCache] ✅ 복원 완료: ${cached.topics.length}개 topic, ${cached.usedTopics?.length || 0}개 사용됨`);
+    } catch (e) {
+      console.warn('[suggestCache] 복원 실패:', e);
+    }
     // 마운트 시 1회만 — 의도적
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -991,7 +1005,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 3; // 동시 실행 에이전트 수 (Gemini 동시성 안전 한계, 약 24초·완전 안정)
+      const AGENT_BATCH = 1; // 순차 처리 (Gemini 동시성 한계 완전 회피, 약 40~50초·100% 안정)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
