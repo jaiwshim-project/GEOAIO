@@ -108,7 +108,7 @@ const subKeywordsByCategory: Record<ContentCategory, string[]> = {
 const toneOptions = [
   { value: '전문적이고 신뢰감 있는', label: '전문적' },
   { value: '친근하고 대화체의', label: '친근한' },             // 활성 (자동 재시도로 안정화)
-  // { value: '설득력 있고 강렬한', label: '설득적' },        // TEMP DISABLED
+  { value: '설득력 있고 강렬한', label: '설득적' },            // 활성 (Claude 단계별 분리로 안정화)
   { value: '간결하고 명확한', label: '간결한' },
   { value: '스토리텔링 중심의', label: '스토리텔링' },
   { value: '뉴스/저널리즘 스타일의', label: '뉴스형' },        // 활성 (Claude 단계별 분리로 안정화)
