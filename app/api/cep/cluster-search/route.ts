@@ -11,13 +11,23 @@ export async function OPTIONS() {
   return corsOptionsResponse();
 }
 
-const SYSTEM_INSTRUCTION = `당신은 검색 데이터 분석가다. 키워드 풀을 보고 같은 의도로 묶이는 클러스터로 분류하고, 카테고리 진입 직전에 사용자가 쓰는 "삶의 언어"를 추출한다.
+const SYSTEM_INSTRUCTION = `당신은 검색 데이터 분석가다. 사용자가 카테고리에 진입할 때 쓰는 검색어를 의미 클러스터로 분류하고, "삶의 언어"를 추출한다.
 
-원칙:
-- 클러스터는 3~5개 (너무 많이 쪼개지 마)
-- 각 클러스터는 (이름, 키워드 3~7개, 검색 경로 2~4단계, 의도 한 줄)
-- searchPath는 검색 흐름 — 표면 → 구체화 → 선택 단계로 자연스럽게
-- lifeLanguages는 "비 오는 주말 아이와 갈 곳" 같은 카테고리명 이전의 일상 표현 5개. 시드 키워드를 단순 변형하지 말고 카테고리 진입 직전 언어로 재구성.`;
+⚠️ 절대 원칙 (빈 응답 금지)
+- **반드시** 3~5개 클러스터를 생성한다. 빈 배열로 응답하지 마라.
+- **반드시** lifeLanguages 5개를 생성한다.
+- 키워드 풀이 비어 있거나 부실해도 너의 사전 지식과 한국어 검색 패턴 이해를 활용해 시드 키워드 주변의 검색 흐름을 합리적으로 추론하라.
+
+각 클러스터 구조:
+- clusterName: 의미 그룹의 짧은 이름 (예: "선크림 밀림 고민")
+- keywords: 그 그룹에 속하는 검색어 3~7개
+- searchPath: 검색 흐름 2~4단계 (표면 → 구체화 → 선택)
+  예: "선크림" → "선크림 밀림" → "화장 잘먹는 선크림"
+- intent: 검색 의도 한 줄 요약
+
+lifeLanguages: "비 오는 주말 아이와 갈 곳", "7인 이상 가족이 쓸 냉장고" 같이
+카테고리명 이전의 일상 표현 5개. 시드 키워드를 단순 변형(예: "임플란트 가격")하지 말고
+사용자가 카테고리에 들어오기 직전에 쓰는 표현(예: "어금니 빠진 곳 어떻게 해야 하나")으로 재구성.`;
 
 const RESPONSE_SCHEMA = {
   type: Type.OBJECT,
@@ -84,15 +94,45 @@ async function fetchNaverAutoComplete(keyword: string): Promise<string[]> {
 }
 
 /**
- * 시드로 1차 호출 + 상위 3개를 다시 시드로 한 번 더 호출해 키워드 풀 확장.
+ * Google Suggest 자동완성 폴백 (네이버가 빈 결과/차단된 경우).
+ * 응답 형태: ["query", ["suggestion1", "suggestion2", ...]]
+ */
+async function fetchGoogleSuggest(keyword: string): Promise<string[]> {
+  try {
+    const url = `https://suggestqueries.google.com/complete/search?client=firefox&q=${encodeURIComponent(keyword)}&hl=ko`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': NAVER_UA, Accept: 'application/json' },
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as unknown;
+    if (Array.isArray(data) && Array.isArray(data[1])) {
+      return (data[1] as unknown[]).filter((s): s is string => typeof s === 'string');
+    }
+    return [];
+  } catch (err) {
+    console.warn('[cep/cluster-search] google suggest failed:', err);
+    return [];
+  }
+}
+
+/**
+ * 시드로 1차 호출 (네이버) + Google Suggest 폴백 + 상위 3개로 확장.
  * 중복 제거 후 최대 50개로 자른다.
  */
 async function collectKeywordPool(seedKeyword: string): Promise<string[]> {
-  const primary = await fetchNaverAutoComplete(seedKeyword);
   const seen = new Set<string>();
-  for (const k of primary) seen.add(k);
 
-  const expansionSeeds = primary.slice(0, 3);
+  // 1차: 네이버 + Google 병렬
+  const [naver, google] = await Promise.all([
+    fetchNaverAutoComplete(seedKeyword),
+    fetchGoogleSuggest(seedKeyword),
+  ]);
+  for (const k of naver) seen.add(k);
+  for (const k of google) seen.add(k);
+
+  // 2차 확장: 상위 3개로 재귀 호출 (네이버만 — Google은 무료 한도 보호)
+  const expansionSeeds = Array.from(seen).slice(0, 3);
   if (expansionSeeds.length > 0) {
     const expansions = await Promise.allSettled(
       expansionSeeds.map((s) => fetchNaverAutoComplete(s))
@@ -108,15 +148,22 @@ async function collectKeywordPool(seedKeyword: string): Promise<string[]> {
 }
 
 function buildUserMessage(seedKeyword: string, industry: string | undefined, pool: string[]): string {
+  const hasPool = pool.length > 0;
   return `시드 키워드: "${seedKeyword}"
 ${industry ? `산업/분야: ${industry}` : ''}
 
-[키워드 풀 — 네이버 자동완성 수집 결과]
-${pool.length > 0 ? pool.map((k) => `- ${k}`).join('\n') : '(자동완성 수집 실패 — 시드 키워드만으로 추론하라)'}
+[키워드 풀 — 자동완성 수집 결과 ${pool.length}개]
+${hasPool
+  ? pool.map((k) => `- ${k}`).join('\n')
+  : `(수집 실패 — 너의 사전 지식만으로 작업한다.
+한국어 사용자가 "${seedKeyword}" 카테고리에 진입할 때 자주 검색하는 패턴을
+네가 아는 모든 한국어 검색 데이터·트렌드·커뮤니티 언어를 동원해 추론하라.)`}
 
-위 풀을 분석해 다음을 산출하라:
-1. lifeLanguages: 카테고리 진입 직전 사용자가 일상에서 쓰는 표현 5개 (시드 키워드 직접 변형 금지)
-2. clusters: 의미 클러스터 3~5개. 각 클러스터마다 clusterName · keywords(3~7개) · searchPath(2~4단계) · intent(한 줄).
+산출물:
+1. lifeLanguages: 카테고리 진입 직전 일상 표현 5개 (시드 직접 변형 금지)
+2. clusters: 의미 클러스터 3~5개 (clusterName · keywords 3~7개 · searchPath 2~4단계 · intent)
+
+⚠️ clusters와 lifeLanguages 중 어느 것도 빈 배열로 응답하지 말 것. 풀이 비어도 사전 지식으로 무조건 채워라.
 
 반드시 JSON으로만 응답.`;
 }
