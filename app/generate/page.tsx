@@ -887,7 +887,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 3; // 동시 실행 에이전트 수
+      const AGENT_BATCH = 10; // 동시 실행 에이전트 수 (10개 톤 모두 병렬 → 약 4배 속도 향상)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
