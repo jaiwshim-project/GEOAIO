@@ -1082,12 +1082,14 @@ export default function GeneratePage() {
           generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
         });
       } catch { /* 히스토리 저장 실패는 무시하고 계속 진행 */ }
-      // 성공한 결과가 하나도 없으면 에러 처리
-      const validResults = results.filter(r => r.content && r.content.length > 50);
+      // 부분 실패도 결과 페이지로 redirect — 사용자가 ⚠️ 표시로 직접 확인
+      // 정상 = content 200자+ (실패 메시지 '전문적 생성 실패' 등 거름)
+      const validResults = results.filter(r => r.content && r.content.length > 200);
       if (validResults.length === 0) {
-        throw new Error('콘텐츠 생성에 실패했습니다. 다시 시도해주세요.');
+        console.warn('[generate] 모든 톤 부실 응답 — 결과 페이지에서 ⚠️ 처리 위해 redirect 강행');
+        // throw 제거. results[0]을 mainResult로 사용 (사용자가 결과 페이지에서 상태 확인)
       }
-      const mainResult = { ...validResults[0], abVersions: results };
+      const mainResult = { ...(validResults[0] || results[0] || { title: topic.trim(), content: '', hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] } }), abVersions: results };
       // 생성 즉시 sessionStorage로 전달 → 블로그 게시 시 DB 저장 (generate_results 불필요)
       const resultId = `session_${Date.now()}`;
       sessionStorage.setItem(`gr_${resultId}`, JSON.stringify({
