@@ -102,16 +102,19 @@ const subKeywordsByCategory: Record<ContentCategory, string[]> = {
   email: ['뉴스레터', '프로모션', '고객 유지', '이벤트 안내', '제품 소개'],
 };
 
+// ⚠️ TEMP: 동시성 한계 검증을 위해 5개 톤 임시 비활성화 (2026-04-26).
+//   실패 빈도 높은 5개(친근한·설득적·뉴스형·비교분석형·사례연구형)를 빼고
+//   안정적 5개만 사용. 검증 결과에 따라 복원 또는 옵션 B(토글)로 전환.
 const toneOptions = [
   { value: '전문적이고 신뢰감 있는', label: '전문적' },
-  { value: '친근하고 대화체의', label: '친근한' },
-  { value: '설득력 있고 강렬한', label: '설득적' },
+  // { value: '친근하고 대화체의', label: '친근한' },         // TEMP DISABLED
+  // { value: '설득력 있고 강렬한', label: '설득적' },        // TEMP DISABLED
   { value: '간결하고 명확한', label: '간결한' },
   { value: '스토리텔링 중심의', label: '스토리텔링' },
-  { value: '뉴스/저널리즘 스타일의', label: '뉴스형' },
+  // { value: '뉴스/저널리즘 스타일의', label: '뉴스형' },     // TEMP DISABLED
   { value: '교육적이고 강의형의', label: '교육형' },
-  { value: '비교분석 중심의', label: '비교분석형' },
-  { value: '사례연구 중심의', label: '사례연구형' },
+  // { value: '비교분석 중심의', label: '비교분석형' },        // TEMP DISABLED
+  // { value: '사례연구 중심의', label: '사례연구형' },        // TEMP DISABLED
   { value: '감성적이고 공감하는', label: '감성형' },
 ];
 
