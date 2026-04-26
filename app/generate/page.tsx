@@ -215,6 +215,8 @@ export default function GeneratePage() {
   const [loadingTopics, setLoadingTopics] = useState(false);
   const [topicFetchError, setTopicFetchError] = useState('');
   const [showTopicDropdown, setShowTopicDropdown] = useState(false);
+  // 사용된 추천 주제 마킹 (결과 페이지 → 다른 주제로 또 생성 흐름 지원)
+  const [usedTopics, setUsedTopics] = useState<string[]>([]);
   // 키워드 추천
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
@@ -331,6 +333,81 @@ export default function GeneratePage() {
     return {};
   };
 
+  // ============ 추천 주제 sessionStorage 캐시 (분대 Sierra) ============
+  // 결과 페이지에서 다시 generate로 돌아왔을 때 같은 추천 주제를 보존하기 위함
+  const SUGGEST_CACHE_KEY = 'cep:suggestedTopics';
+  const SUGGEST_CACHE_TTL = 30 * 60 * 1000; // 30분
+  const buildSuggestContextHash = (cat?: string | null) => {
+    try {
+      const parts = [
+        cat || selectedCategory || '',
+        selectedSubKeyword || '',
+        businessInfo?.companyName || '',
+        businessInfo?.industry || businessInfo?.customIndustry || '',
+        selectedProject?.id || selectedProject?.name || '',
+      ];
+      return parts.join('|').slice(0, 120);
+    } catch {
+      return '';
+    }
+  };
+  const readSuggestCache = (): { topics: string[]; usedTopics: string[]; savedAt: number; contextHash: string } | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = sessionStorage.getItem(SUGGEST_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.topics)) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  };
+  const writeSuggestCache = (topics: string[], usedTopicsArg: string[], cat?: string | null) => {
+    if (typeof window === 'undefined') return;
+    try {
+      sessionStorage.setItem(SUGGEST_CACHE_KEY, JSON.stringify({
+        topics,
+        usedTopics: usedTopicsArg,
+        savedAt: Date.now(),
+        contextHash: buildSuggestContextHash(cat),
+      }));
+    } catch {}
+  };
+  const updateUsedTopicInCache = (newTopic: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const cached = readSuggestCache();
+      if (!cached) return;
+      const newUsed = Array.from(new Set([...(cached.usedTopics || []), newTopic]));
+      sessionStorage.setItem(SUGGEST_CACHE_KEY, JSON.stringify({
+        ...cached,
+        usedTopics: newUsed,
+      }));
+      setUsedTopics(newUsed);
+    } catch {}
+  };
+
+  // 페이지 진입 시 sessionStorage 캐시 복원 (같은 컨텍스트, 30분 이내)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!selectedCategory) return;
+    if (topicSuggestions.length > 0) return;
+    try {
+      const cached = readSuggestCache();
+      if (!cached) return;
+      const expectedHash = buildSuggestContextHash(selectedCategory);
+      const fresh = Date.now() - (cached.savedAt || 0) < SUGGEST_CACHE_TTL;
+      if (cached.contextHash === expectedHash && fresh && cached.topics.length > 0) {
+        setTopicSuggestions(cached.topics);
+        setUsedTopics(cached.usedTopics || []);
+        setShowTopicDropdown(true);
+      }
+    } catch {}
+    // selectedCategory, selectedSubKeyword 변경 시 한번씩 시도
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, selectedSubKeyword, selectedProject?.id]);
+
   // 주제 추천 fetch (버튼 클릭 시 호출)
   const fetchTopicSuggestions = async (cat: string, inputTopic?: string) => {
     if (loadingTopics) return;
@@ -387,8 +464,12 @@ export default function GeneratePage() {
       if (!res.ok || data.error) {
         setTopicFetchError(data.error || `오류 (${res.status})`);
       } else {
-        setTopicSuggestions(data.topics || []);
-        if (!data.topics?.length) setTopicFetchError('추천 주제를 가져오지 못했습니다.');
+        const newTopics = data.topics || [];
+        setTopicSuggestions(newTopics);
+        // 새로 fetch했으므로 usedTopics 초기화 + sessionStorage 저장
+        setUsedTopics([]);
+        writeSuggestCache(newTopics, [], cat);
+        if (!newTopics.length) setTopicFetchError('추천 주제를 가져오지 못했습니다.');
       }
     } catch (e) {
       setTopicFetchError(e instanceof Error ? e.message : '네트워크 오류');
@@ -819,6 +900,14 @@ export default function GeneratePage() {
 
   const handleGenerate = async () => {
     if (!selectedCategory || !topic.trim()) return;
+
+    // 추천 주제 중 하나로 생성하면 사용 이력에 추가 (sessionStorage 동기화)
+    try {
+      const t = topic.trim();
+      if (t && topicSuggestions.includes(t)) {
+        updateUsedTopicInCache(t);
+      }
+    } catch {}
 
     // ==================== API 자동 선택 로직 ====================
     // 주의: API 키는 서버 환경 변수에서만 관리 (localStorage 사용 금지)
@@ -1979,7 +2068,15 @@ export default function GeneratePage() {
                                 ? 'text-slate-600 bg-slate-50 border-slate-100'
                                 : 'text-blue-500 bg-blue-50 border-blue-100'
                             }`}>
-                              <span>✨ {selectedApi === 'claude' ? '🧠 Claude' : '🌐 Gemini'} 추천 주제 (클릭하면 입력됩니다)</span>
+                              <span>
+                                ✨ {selectedApi === 'claude' ? '🧠 Claude' : '🌐 Gemini'} 추천 주제
+                                {topicSuggestions.length > 0 && (
+                                  <span className="ml-1 font-normal text-[11px] text-emerald-600">
+                                    ({usedTopics.length}/{topicSuggestions.length} 사용)
+                                  </span>
+                                )}
+                                <span className="ml-1 font-normal text-gray-400">— 클릭하면 입력됩니다</span>
+                              </span>
                               <button type="button" onClick={() => selectedCategory && fetchTopicSuggestions(selectedCategory, topic.trim() || undefined)}
                                 className={`transition-colors text-base ${
                                   selectedApi === 'claude'
@@ -1987,17 +2084,26 @@ export default function GeneratePage() {
                                     : 'text-blue-400 hover:text-blue-600'
                                 }`} title="새로 추천">↺</button>
                             </li>
-                            {topicSuggestions.map((s, i) => (
-                              <li key={i}>
-                                <button
-                                  type="button"
-                                  onClick={() => handleTopicSuggestionClick(s)}
-                                  className="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50 last:border-0"
-                                >
-                                  {s}
-                                </button>
-                              </li>
-                            ))}
+                            {topicSuggestions.map((s, i) => {
+                              const isUsed = usedTopics.includes(s);
+                              return (
+                                <li key={i}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleTopicSuggestionClick(s)}
+                                    className={`w-full text-left px-3 py-2.5 text-sm transition-colors border-b border-gray-50 last:border-0 ${
+                                      isUsed
+                                        ? 'bg-emerald-50/40 text-gray-500 hover:bg-emerald-50 hover:text-emerald-700'
+                                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
+                                    }`}
+                                    title={isUsed ? '이미 이 주제로 콘텐츠를 생성한 적이 있어요. 다시 사용해도 됩니다.' : undefined}
+                                  >
+                                    {isUsed && <span className="text-emerald-600 mr-1.5">✅</span>}
+                                    <span className={isUsed ? 'line-through decoration-emerald-300/60' : ''}>{s}</span>
+                                  </button>
+                                </li>
+                              );
+                            })}
                           </ul>
                         )}
                       </div>

@@ -1504,7 +1504,15 @@ export default function GenerateResultPage() {
                 )}
               </span>
             )}
-            <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-all ml-auto">
+            <button
+              onClick={() => router.push('/generate')}
+              title="추천 주제 목록을 그대로 두고 다른 주제로 콘텐츠를 또 생성합니다"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200 transition-all ml-auto"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              📝 다른 주제로 또 생성
+            </button>
+            <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-all">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
               새로 만들기
             </button>
