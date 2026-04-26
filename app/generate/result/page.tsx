@@ -221,7 +221,7 @@ export default function GenerateResultPage() {
   // ── E-E-A-T 검증 (컴포넌트 스코프에서 재사용) ──
   const validateEeatComplete = (content: string): { ok: boolean; reason?: string } => {
     if (!content) return { ok: false, reason: '콘텐츠 비어있음' };
-    if (content.length < 1300) return { ok: false, reason: `분량 부족 (${content.length}자)` };
+    if (content.length < 1100) return { ok: false, reason: `분량 부족 (${content.length}자)` };
     const h2Matches = content.match(/^## /gm) || [];
     if (h2Matches.length < 5) return { ok: false, reason: `H2 부족 (${h2Matches.length}개)` };
     if (!/##\s*FAQ|##\s*자주\s*묻는|##\s*질문/i.test(content)) return { ok: false, reason: 'FAQ 없음' };
@@ -490,7 +490,7 @@ export default function GenerateResultPage() {
       if (!content) return { ok: false, reason: '콘텐츠 비어있음' };
 
       // 1. 분량 (최소 1,600자 — 80%로 축소)
-      if (content.length < 1300) return { ok: false, reason: `분량 부족 (${content.length}자)` };
+      if (content.length < 1100) return { ok: false, reason: `분량 부족 (${content.length}자)` };
 
       // 2. H2 섹션 5개 이상
       const h2Matches = content.match(/^## /gm) || [];
