@@ -376,7 +376,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         contents: userMessage,
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
-          maxOutputTokens: 6144,
+          maxOutputTokens: 8192,
           responseMimeType: 'application/json',
           responseSchema: RESPONSE_SCHEMA,
         },
