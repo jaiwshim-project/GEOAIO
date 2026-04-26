@@ -391,45 +391,72 @@ export default function GeneratePage() {
     } catch {}
   };
 
-  // 페이지 마운트 시 sessionStorage 캐시 복원 (selectedCategory도 함께 복원)
-  // 결과 페이지에서 '다른 주제로 또 생성'으로 돌아왔을 때 이전 추천 주제·카테고리·subKeyword 자동 복원
+  // 페이지 마운트 시 추천 주제 복원 (3중 안전망)
+  // 1순위: URL query (?cep_topics_b64=...) — 결과 페이지에서 명시적으로 보낸 것 (가장 신뢰)
+  // 2순위: localStorage (cep:suggestedTopics) — 같은 PC, 24시간 TTL
+  // 3순위: 새로 fetch (사용자가 카테고리 클릭 시)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (topicSuggestions.length > 0) {
-      console.log('[suggestCache] 이미 추천 있음, 캐시 복원 스킵');
+      console.log('[suggestCache] 이미 추천 있음, 복원 스킵');
       return;
     }
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cached = readSuggestCache() as any;
-      console.log('[suggestCache] 마운트 시 cache 확인:', cached ? `topics=${cached.topics?.length || 0}, savedAt=${new Date(cached.savedAt || 0).toLocaleTimeString()}` : 'none');
-      if (!cached || !Array.isArray(cached.topics) || cached.topics.length === 0) {
-        console.log('[suggestCache] cache 없음 또는 빈 topics — 복원 스킵');
-        return;
-      }
-      const age = Date.now() - (cached.savedAt || 0);
-      const fresh = age < SUGGEST_CACHE_TTL;
-      if (!fresh) {
-        console.log(`[suggestCache] cache 만료 (${Math.round(age / 60000)}분 경과) — 복원 스킵`);
-        return;
-      }
 
-      // 1. 카테고리 복원 (state가 비어있을 때만)
-      if (cached.category && !selectedCategory) {
-        setSelectedCategory(cached.category);
-      }
-      // 2. subKeyword 복원 (state가 비어있을 때만)
-      if (cached.subKeyword && !selectedSubKeyword) {
-        setSelectedSubKeyword(cached.subKeyword);
-      }
-      // 3. 추천 주제 + 사용 이력 복원
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const restoreFromCache = (cached: any, source: string) => {
+      if (!cached || !Array.isArray(cached.topics) || cached.topics.length === 0) return false;
+      if (cached.category && !selectedCategory) setSelectedCategory(cached.category);
+      if (cached.subKeyword && !selectedSubKeyword) setSelectedSubKeyword(cached.subKeyword);
       setTopicSuggestions(cached.topics);
       setUsedTopics(cached.usedTopics || []);
       setShowTopicDropdown(true);
-      console.log(`[suggestCache] ✅ 복원 완료: ${cached.topics.length}개 topic, ${cached.usedTopics?.length || 0}개 사용됨`);
+      console.log(`[suggestCache] ✅ ${source}에서 복원: ${cached.topics.length}개 topic, ${cached.usedTopics?.length || 0}개 사용됨`);
+      // localStorage에도 저장 (다음에 URL 없어도 복원 가능)
+      try {
+        localStorage.setItem(SUGGEST_CACHE_KEY, JSON.stringify({
+          ...cached,
+          savedAt: cached.savedAt || Date.now(),
+        }));
+      } catch {}
+      return true;
+    };
+
+    // 1순위: URL query
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const b64 = params.get('cep_topics_b64');
+      if (b64) {
+        const decoded = decodeURIComponent(escape(atob(b64)));
+        const cached = JSON.parse(decoded);
+        if (restoreFromCache(cached, 'URL query')) {
+          // URL 정리 (다음 새로고침 시 깨끗하게)
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, '', cleanUrl);
+          return;
+        }
+      }
     } catch (e) {
-      console.warn('[suggestCache] 복원 실패:', e);
+      console.warn('[suggestCache] URL query 복원 실패:', e);
     }
+
+    // 2순위: localStorage
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cached = readSuggestCache() as any;
+      console.log('[suggestCache] localStorage 확인:', cached ? `topics=${cached.topics?.length || 0}, savedAt=${new Date(cached.savedAt || 0).toLocaleTimeString()}` : 'none');
+      if (cached && Array.isArray(cached.topics) && cached.topics.length > 0) {
+        const age = Date.now() - (cached.savedAt || 0);
+        if (age < SUGGEST_CACHE_TTL) {
+          restoreFromCache(cached, 'localStorage');
+          return;
+        }
+        console.log(`[suggestCache] localStorage 만료 (${Math.round(age / 60000)}분 경과)`);
+      }
+    } catch (e) {
+      console.warn('[suggestCache] localStorage 복원 실패:', e);
+    }
+
+    console.log('[suggestCache] 복원 가능한 cache 없음 — 사용자가 카테고리 선택 시 새 fetch');
     // 마운트 시 1회만 — 의도적
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

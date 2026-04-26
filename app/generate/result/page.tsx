@@ -1786,7 +1786,19 @@ export default function GenerateResultPage() {
                 블로그에 게시하기
               </button>
               <button
-                onClick={() => router.push('/generate')}
+                onClick={() => {
+                  // localStorage가 어떤 이유로 사라져도 URL로 추천 주제 복원 보장 (붙박이)
+                  let url = '/generate';
+                  try {
+                    const cached = localStorage.getItem('cep:suggestedTopics');
+                    if (cached) {
+                      // base64 인코딩해서 URL query에 첨부
+                      const b64 = btoa(unescape(encodeURIComponent(cached)));
+                      url = `/generate?cep_topics_b64=${b64}`;
+                    }
+                  } catch {}
+                  router.push(url);
+                }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-300 hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg hover:scale-105 shadow-sm"
                 title="추천 주제 페이지로 돌아가서 다른 주제 선택"
               >
