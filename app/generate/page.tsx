@@ -1308,20 +1308,23 @@ export default function GeneratePage() {
       <ApiKeyPanel visible={showApiKeyInput} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
-        {/* 📚 저장된 추천 주제 (localStorage) — 항상 표시되는 고정 섹션 */}
-        {savedTopicsCache && Array.isArray(savedTopicsCache.topics) && savedTopicsCache.topics.length > 0 && (
+        {/* 📚 저장된 추천 주제 — topicSuggestions 또는 savedTopicsCache 둘 중 하나라도 있으면 표시 */}
+        {((topicSuggestions.length > 0) || (savedTopicsCache?.topics?.length || 0) > 0) && (() => {
+          const displayTopics = topicSuggestions.length > 0 ? topicSuggestions : (savedTopicsCache?.topics || []);
+          const displayUsed = topicSuggestions.length > 0 ? usedTopics : (savedTopicsCache?.usedTopics || []);
+          const savedAt = savedTopicsCache?.savedAt;
+          return (
           <section className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-50 border-2 border-purple-200 rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-lg">📚</span>
                 <h3 className="text-sm font-bold text-purple-900">저장된 추천 주제</h3>
                 <span className="text-xs text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-semibold">
-                  {savedTopicsCache.topics.length}개 ·{' '}
-                  {(savedTopicsCache.usedTopics?.length || 0)}/{savedTopicsCache.topics.length} 사용
+                  {displayTopics.length}개 · {displayUsed.length}/{displayTopics.length} 사용
                 </span>
-                {savedTopicsCache.savedAt && (
+                {savedAt && (
                   <span className="text-[10px] text-purple-600">
-                    (저장: {new Date(savedTopicsCache.savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
+                    (저장: {new Date(savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
                   </span>
                 )}
               </div>
@@ -1342,24 +1345,24 @@ export default function GeneratePage() {
               </button>
             </div>
             <ul className="space-y-1.5">
-              {savedTopicsCache.topics.map((t, i) => {
-                const isUsed = (savedTopicsCache.usedTopics || []).includes(t);
+              {displayTopics.map((t, i) => {
+                const isUsed = displayUsed.includes(t);
                 return (
                   <li key={i}>
                     <button
                       type="button"
                       onClick={() => {
                         setTopic(t);
-                        // 카테고리·subKeyword도 함께 복원 (저장돼 있으면)
-                        if (savedTopicsCache.category && !selectedCategory) {
+                        if (savedTopicsCache?.category && !selectedCategory) {
                           setSelectedCategory(savedTopicsCache.category as ContentCategory);
                         }
-                        if (savedTopicsCache.subKeyword && !selectedSubKeyword) {
+                        if (savedTopicsCache?.subKeyword && !selectedSubKeyword) {
                           setSelectedSubKeyword(savedTopicsCache.subKeyword);
                         }
-                        // 추천 주제 dropdown 데이터도 동기화
-                        setTopicSuggestions(savedTopicsCache.topics);
-                        setUsedTopics(savedTopicsCache.usedTopics || []);
+                        if (topicSuggestions.length === 0) {
+                          setTopicSuggestions(displayTopics);
+                          setUsedTopics(displayUsed);
+                        }
                       }}
                       className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors border ${
                         isUsed
@@ -1379,7 +1382,8 @@ export default function GeneratePage() {
               💡 클릭하면 주제 입력란에 자동 입력 + 카테고리도 자동 선택됩니다. 빨간 줄 주제는 이미 사용한 주제예요.
             </p>
           </section>
-        )}
+          );
+        })()}
 
         {/* 🎯 저장된 CEP 장면 발굴 (lifeLanguages + 장면 문장) — 항상 표시되는 고정 섹션 */}
         {savedCepCache && ((savedCepCache.lifeLanguages?.length || 0) > 0 || savedCepCache.sceneSentence) && (
