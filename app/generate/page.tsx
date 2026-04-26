@@ -371,6 +371,9 @@ export default function GeneratePage() {
         usedTopics: usedTopicsArg,
         savedAt: Date.now(),
         contextHash: buildSuggestContextHash(cat),
+        // 페이지 재진입 시 자동 복원용 — selectedCategory 등 state도 함께 보존
+        category: cat || selectedCategory || '',
+        subKeyword: selectedSubKeyword || '',
       }));
     } catch {}
   };
@@ -388,25 +391,34 @@ export default function GeneratePage() {
     } catch {}
   };
 
-  // 페이지 진입 시 sessionStorage 캐시 복원 (같은 컨텍스트, 30분 이내)
+  // 페이지 마운트 시 sessionStorage 캐시 복원 (selectedCategory도 함께 복원)
+  // 결과 페이지에서 '다른 주제로 또 생성'으로 돌아왔을 때 이전 추천 주제·카테고리·subKeyword 자동 복원
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!selectedCategory) return;
     if (topicSuggestions.length > 0) return;
     try {
-      const cached = readSuggestCache();
-      if (!cached) return;
-      const expectedHash = buildSuggestContextHash(selectedCategory);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cached = readSuggestCache() as any;
+      if (!cached || !Array.isArray(cached.topics) || cached.topics.length === 0) return;
       const fresh = Date.now() - (cached.savedAt || 0) < SUGGEST_CACHE_TTL;
-      if (cached.contextHash === expectedHash && fresh && cached.topics.length > 0) {
-        setTopicSuggestions(cached.topics);
-        setUsedTopics(cached.usedTopics || []);
-        setShowTopicDropdown(true);
+      if (!fresh) return;
+
+      // 1. 카테고리 복원 (state가 비어있을 때만)
+      if (cached.category && !selectedCategory) {
+        setSelectedCategory(cached.category);
       }
+      // 2. subKeyword 복원 (state가 비어있을 때만)
+      if (cached.subKeyword && !selectedSubKeyword) {
+        setSelectedSubKeyword(cached.subKeyword);
+      }
+      // 3. 추천 주제 + 사용 이력 복원
+      setTopicSuggestions(cached.topics);
+      setUsedTopics(cached.usedTopics || []);
+      setShowTopicDropdown(true);
     } catch {}
-    // selectedCategory, selectedSubKeyword 변경 시 한번씩 시도
+    // 마운트 시 1회만 — 의도적
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory, selectedSubKeyword, selectedProject?.id]);
+  }, []);
 
   // 주제 추천 fetch (버튼 클릭 시 호출)
   const fetchTopicSuggestions = async (cat: string, inputTopic?: string) => {
