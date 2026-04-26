@@ -111,10 +111,10 @@ const toneOptions = [
   // { value: '설득력 있고 강렬한', label: '설득적' },        // TEMP DISABLED
   { value: '간결하고 명확한', label: '간결한' },
   { value: '스토리텔링 중심의', label: '스토리텔링' },
-  // { value: '뉴스/저널리즘 스타일의', label: '뉴스형' },     // TEMP DISABLED
+  { value: '뉴스/저널리즘 스타일의', label: '뉴스형' },        // 활성 (Claude 단계별 분리로 안정화)
   { value: '교육적이고 강의형의', label: '교육형' },
-  // { value: '비교분석 중심의', label: '비교분석형' },        // TEMP DISABLED
-  // { value: '사례연구 중심의', label: '사례연구형' },        // TEMP DISABLED
+  { value: '비교분석 중심의', label: '비교분석형' },           // 활성 (Claude 단계별 분리로 안정화)
+  { value: '사례연구 중심의', label: '사례연구형' },           // 활성 (Claude 단계별 분리로 안정화)
   { value: '감성적이고 공감하는', label: '감성형' },
 ];
 
@@ -354,7 +354,7 @@ export default function GeneratePage() {
   const readSuggestCache = (): { topics: string[]; usedTopics: string[]; savedAt: number; contextHash: string } | null => {
     if (typeof window === 'undefined') return null;
     try {
-      const raw = sessionStorage.getItem(SUGGEST_CACHE_KEY);
+      const raw = localStorage.getItem(SUGGEST_CACHE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       if (!parsed || !Array.isArray(parsed.topics)) return null;
@@ -366,7 +366,7 @@ export default function GeneratePage() {
   const writeSuggestCache = (topics: string[], usedTopicsArg: string[], cat?: string | null) => {
     if (typeof window === 'undefined') return;
     try {
-      sessionStorage.setItem(SUGGEST_CACHE_KEY, JSON.stringify({
+      localStorage.setItem(SUGGEST_CACHE_KEY, JSON.stringify({
         topics,
         usedTopics: usedTopicsArg,
         savedAt: Date.now(),
@@ -383,7 +383,7 @@ export default function GeneratePage() {
       const cached = readSuggestCache();
       if (!cached) return;
       const newUsed = Array.from(new Set([...(cached.usedTopics || []), newTopic]));
-      sessionStorage.setItem(SUGGEST_CACHE_KEY, JSON.stringify({
+      localStorage.setItem(SUGGEST_CACHE_KEY, JSON.stringify({
         ...cached,
         usedTopics: newUsed,
       }));
