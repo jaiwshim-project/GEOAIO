@@ -1344,12 +1344,15 @@ export default function GenerateResultPage() {
                   // 변환 완료 여부 (변환 중이면 i < eeatProgress, 변환 끝났으면 모두 가능)
                   const isReady = eeatDone || !eeatConverting || i < eeatProgress;
                   const isConverting = eeatConverting && i === eeatProgress;
+                  // 1차 생성 실패 판정 — content가 너무 짧거나 fallback 메시지(생성 실패/오류)면 비활성화
+                  const isFailed = !v?.content || (typeof v.content === 'string' && (v.content.length < 200 || /생성\s*(실패|오류)/.test(v.content)));
+                  const isDisabled = !isReady || isFailed;
                   return (
                     <button
                       key={i}
-                      disabled={!isReady}
+                      disabled={isDisabled}
                       onClick={(e) => {
-                        if (!isReady) return;
+                        if (isDisabled) return;
                         if (e.shiftKey || e.ctrlKey || e.metaKey) {
                           setSelectedVersions(prev => {
                             const next = new Set(prev);
@@ -1369,7 +1372,9 @@ export default function GenerateResultPage() {
                         }
                       }}
                       className={`relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all duration-200 whitespace-nowrap shadow-sm ${
-                        !isReady
+                        isFailed
+                          ? 'bg-rose-50 text-rose-400 border-rose-200 cursor-not-allowed opacity-50 line-through'
+                          : !isReady
                           ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
                           : isViewing
                           ? `${color.active} shadow-lg hover:shadow-md hover:-translate-y-0.5`
@@ -1377,7 +1382,7 @@ export default function GenerateResultPage() {
                           ? `${color.idle} ring-2 ring-emerald-400 ring-offset-1 hover:shadow-md hover:-translate-y-0.5`
                           : `${color.idle} opacity-60 hover:shadow-md hover:-translate-y-0.5`
                       }`}
-                      title={!isReady ? (isConverting ? '변환 중...' : '변환 대기 중') : undefined}
+                      title={isFailed ? '생성 실패 — 선택 불가' : !isReady ? (isConverting ? '변환 중...' : '변환 대기 중') : undefined}
                     >
                       {/* ⭐ 자동 EEAT 진행 배지 (좌상단) */}
                       {eeatAutoStatus[i] === 'processing' && (
