@@ -1308,159 +1308,6 @@ export default function GeneratePage() {
       <ApiKeyPanel visible={showApiKeyInput} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
-        {/* 📚 저장된 추천 주제 — topicSuggestions 또는 savedTopicsCache 둘 중 하나라도 있으면 표시 */}
-        {((topicSuggestions.length > 0) || (savedTopicsCache?.topics?.length || 0) > 0) && (() => {
-          const displayTopics = topicSuggestions.length > 0 ? topicSuggestions : (savedTopicsCache?.topics || []);
-          const displayUsed = topicSuggestions.length > 0 ? usedTopics : (savedTopicsCache?.usedTopics || []);
-          const savedAt = savedTopicsCache?.savedAt;
-          return (
-          <section className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-50 border-2 border-purple-200 rounded-xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📚</span>
-                <h3 className="text-sm font-bold text-purple-900">저장된 추천 주제</h3>
-                <span className="text-xs text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-semibold">
-                  {displayTopics.length}개 · {displayUsed.length}/{displayTopics.length} 사용
-                </span>
-                {savedAt && (
-                  <span className="text-[10px] text-purple-600">
-                    (저장: {new Date(savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
-                  </span>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm('저장된 추천 주제를 모두 삭제하시겠습니까?')) {
-                    try { localStorage.removeItem(SUGGEST_CACHE_KEY); } catch {}
-                    setSavedTopicsCache(null);
-                    setTopicSuggestions([]);
-                    setUsedTopics([]);
-                  }
-                }}
-                className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
-                title="저장된 추천 주제 모두 삭제"
-              >
-                🗑️ 비우기
-              </button>
-            </div>
-            <ul className="space-y-1.5">
-              {displayTopics.map((t, i) => {
-                const isUsed = displayUsed.includes(t);
-                return (
-                  <li key={i}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTopic(t);
-                        if (savedTopicsCache?.category && !selectedCategory) {
-                          setSelectedCategory(savedTopicsCache.category as ContentCategory);
-                        }
-                        if (savedTopicsCache?.subKeyword && !selectedSubKeyword) {
-                          setSelectedSubKeyword(savedTopicsCache.subKeyword);
-                        }
-                        if (topicSuggestions.length === 0) {
-                          setTopicSuggestions(displayTopics);
-                          setUsedTopics(displayUsed);
-                        }
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors border ${
-                        isUsed
-                          ? 'bg-rose-50/50 text-rose-400 border-rose-200 cursor-pointer hover:bg-rose-100'
-                          : 'bg-white text-gray-800 border-purple-200 hover:bg-purple-100 hover:border-purple-400'
-                      }`}
-                      title={isUsed ? '이미 사용한 주제 (다시 사용 가능)' : '클릭하면 주제 입력란에 자동 입력'}
-                    >
-                      {isUsed && <span className="text-rose-600 mr-1.5 font-bold">✓</span>}
-                      <span className={isUsed ? 'line-through decoration-rose-500 decoration-2' : ''}>{t}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-3 text-[11px] text-purple-600">
-              💡 클릭하면 주제 입력란에 자동 입력 + 카테고리도 자동 선택됩니다. 빨간 줄 주제는 이미 사용한 주제예요.
-            </p>
-          </section>
-          );
-        })()}
-
-        {/* 🎯 저장된 CEP 장면 발굴 (lifeLanguages + 장면 문장) — 항상 표시되는 고정 섹션 */}
-        {savedCepCache && ((savedCepCache.lifeLanguages?.length || 0) > 0 || savedCepCache.sceneSentence) && (
-          <section className="bg-gradient-to-br from-pink-50 via-rose-50 to-pink-50 border-2 border-rose-200 rounded-xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🎯</span>
-                <h3 className="text-sm font-bold text-rose-900">저장된 CEP 장면 발굴</h3>
-                <span className="text-xs text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full font-semibold">
-                  {(savedCepCache.lifeLanguages?.length || 0)}개 삶의 언어
-                  {(savedCepCache.clusters?.length || 0) > 0 && ` · ${savedCepCache.clusters!.length}개 클러스터`}
-                </span>
-                {savedCepCache.savedAt && (
-                  <span className="text-[10px] text-rose-600">
-                    (저장: {new Date(savedCepCache.savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
-                  </span>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm('저장된 CEP 결과를 모두 삭제하시겠습니까?')) {
-                    try { localStorage.removeItem(CEP_CACHE_KEY); } catch {}
-                    setSavedCepCache(null);
-                  }
-                }}
-                className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
-                title="저장된 CEP 결과 삭제"
-              >
-                🗑️ 비우기
-              </button>
-            </div>
-
-            {savedCepCache.sceneSentence && (
-              <div className="mb-3 p-3 bg-white border border-rose-200 rounded-lg">
-                <p className="text-[11px] font-bold text-rose-700 mb-1">🎬 점유 장면 문장</p>
-                <p className="text-sm text-gray-800 leading-relaxed">{savedCepCache.sceneSentence}</p>
-              </div>
-            )}
-
-            {(savedCepCache.lifeLanguages?.length || 0) > 0 && (
-              <div className="mb-2">
-                <p className="text-[11px] font-bold text-rose-700 mb-1.5">📝 삶의 언어 5개 (카테고리 진입 직전 일상 표현)</p>
-                <ul className="space-y-1.5">
-                  {savedCepCache.lifeLanguages!.map((s, i) => (
-                    <li key={i}>
-                      <button
-                        type="button"
-                        onClick={() => setTopic(s)}
-                        className="w-full text-left px-3 py-2 text-sm rounded-lg border bg-white text-gray-800 border-rose-200 hover:bg-rose-100 hover:border-rose-400 transition-colors"
-                        title="클릭하면 주제 입력란에 자동 입력"
-                      >
-                        <span className="text-rose-500 mr-1.5">▸</span>
-                        {s}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {(savedCepCache.clusters?.length || 0) > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {savedCepCache.clusters!.map((c, i) => (
-                  <span key={i} className="text-[11px] bg-rose-100 text-rose-800 px-2 py-1 rounded-full border border-rose-200">
-                    🧩 {c.clusterName}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <p className="mt-3 text-[11px] text-rose-600">
-              💡 삶의 언어를 클릭하면 주제 입력란에 자동 입력됩니다. 장면 문장은 콘텐츠 생성 시 자동 적용됩니다.
-            </p>
-          </section>
-        )}
-
         {/* 히어로 */}
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 text-white px-6 sm:px-10 py-8 flex items-center gap-6">
           <div className="absolute inset-0 opacity-10">
@@ -1985,6 +1832,82 @@ export default function GeneratePage() {
               </p>
             </div>
 
+            {/* 🎯 저장된 CEP 장면 발굴 (lifeLanguages + 장면 문장) — 항상 표시되는 고정 섹션 */}
+            {savedCepCache && ((savedCepCache.lifeLanguages?.length || 0) > 0 || savedCepCache.sceneSentence) && (
+              <section className="bg-gradient-to-br from-pink-50 via-rose-50 to-pink-50 border-2 border-rose-200 rounded-xl p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🎯</span>
+                    <h3 className="text-sm font-bold text-rose-900">저장된 CEP 장면 발굴</h3>
+                    <span className="text-xs text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full font-semibold">
+                      {(savedCepCache.lifeLanguages?.length || 0)}개 삶의 언어
+                      {(savedCepCache.clusters?.length || 0) > 0 && ` · ${savedCepCache.clusters!.length}개 클러스터`}
+                    </span>
+                    {savedCepCache.savedAt && (
+                      <span className="text-[10px] text-rose-600">
+                        (저장: {new Date(savedCepCache.savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('저장된 CEP 결과를 모두 삭제하시겠습니까?')) {
+                        try { localStorage.removeItem(CEP_CACHE_KEY); } catch {}
+                        setSavedCepCache(null);
+                      }
+                    }}
+                    className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
+                    title="저장된 CEP 결과 삭제"
+                  >
+                    🗑️ 비우기
+                  </button>
+                </div>
+
+                {savedCepCache.sceneSentence && (
+                  <div className="mb-3 p-3 bg-white border border-rose-200 rounded-lg">
+                    <p className="text-[11px] font-bold text-rose-700 mb-1">🎬 점유 장면 문장</p>
+                    <p className="text-sm text-gray-800 leading-relaxed">{savedCepCache.sceneSentence}</p>
+                  </div>
+                )}
+
+                {(savedCepCache.lifeLanguages?.length || 0) > 0 && (
+                  <div className="mb-2">
+                    <p className="text-[11px] font-bold text-rose-700 mb-1.5">📝 삶의 언어 5개 (카테고리 진입 직전 일상 표현)</p>
+                    <ul className="space-y-1.5">
+                      {savedCepCache.lifeLanguages!.map((s, i) => (
+                        <li key={i}>
+                          <button
+                            type="button"
+                            onClick={() => setTopic(s)}
+                            className="w-full text-left px-3 py-2 text-sm rounded-lg border bg-white text-gray-800 border-rose-200 hover:bg-rose-100 hover:border-rose-400 transition-colors"
+                            title="클릭하면 주제 입력란에 자동 입력"
+                          >
+                            <span className="text-rose-500 mr-1.5">▸</span>
+                            {s}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {(savedCepCache.clusters?.length || 0) > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {savedCepCache.clusters!.map((c, i) => (
+                      <span key={i} className="text-[11px] bg-rose-100 text-rose-800 px-2 py-1 rounded-full border border-rose-200">
+                        🧩 {c.clusterName}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <p className="mt-3 text-[11px] text-rose-600">
+                  💡 삶의 언어를 클릭하면 주제 입력란에 자동 입력됩니다. 장면 문장은 콘텐츠 생성 시 자동 적용됩니다.
+                </p>
+              </section>
+            )}
+
             {/* CEP(Category Entry Point) 발굴 위저드 */}
             {selectedCategory && (
               <div
@@ -2268,6 +2191,83 @@ export default function GeneratePage() {
                 )}
               </div>
             )}
+
+            {/* 📚 저장된 추천 주제 — topicSuggestions 또는 savedTopicsCache 둘 중 하나라도 있으면 표시 */}
+            {((topicSuggestions.length > 0) || (savedTopicsCache?.topics?.length || 0) > 0) && (() => {
+              const displayTopics = topicSuggestions.length > 0 ? topicSuggestions : (savedTopicsCache?.topics || []);
+              const displayUsed = topicSuggestions.length > 0 ? usedTopics : (savedTopicsCache?.usedTopics || []);
+              const savedAt = savedTopicsCache?.savedAt;
+              return (
+              <section className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-50 border-2 border-purple-200 rounded-xl p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📚</span>
+                    <h3 className="text-sm font-bold text-purple-900">저장된 추천 주제</h3>
+                    <span className="text-xs text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-semibold">
+                      {displayTopics.length}개 · {displayUsed.length}/{displayTopics.length} 사용
+                    </span>
+                    {savedAt && (
+                      <span className="text-[10px] text-purple-600">
+                        (저장: {new Date(savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('저장된 추천 주제를 모두 삭제하시겠습니까?')) {
+                        try { localStorage.removeItem(SUGGEST_CACHE_KEY); } catch {}
+                        setSavedTopicsCache(null);
+                        setTopicSuggestions([]);
+                        setUsedTopics([]);
+                      }
+                    }}
+                    className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
+                    title="저장된 추천 주제 모두 삭제"
+                  >
+                    🗑️ 비우기
+                  </button>
+                </div>
+                <ul className="space-y-1.5">
+                  {displayTopics.map((t, i) => {
+                    const isUsed = displayUsed.includes(t);
+                    return (
+                      <li key={i}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTopic(t);
+                            if (savedTopicsCache?.category && !selectedCategory) {
+                              setSelectedCategory(savedTopicsCache.category as ContentCategory);
+                            }
+                            if (savedTopicsCache?.subKeyword && !selectedSubKeyword) {
+                              setSelectedSubKeyword(savedTopicsCache.subKeyword);
+                            }
+                            if (topicSuggestions.length === 0) {
+                              setTopicSuggestions(displayTopics);
+                              setUsedTopics(displayUsed);
+                            }
+                          }}
+                          className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors border ${
+                            isUsed
+                              ? 'bg-rose-50/50 text-rose-400 border-rose-200 cursor-pointer hover:bg-rose-100'
+                              : 'bg-white text-gray-800 border-purple-200 hover:bg-purple-100 hover:border-purple-400'
+                          }`}
+                          title={isUsed ? '이미 사용한 주제 (다시 사용 가능)' : '클릭하면 주제 입력란에 자동 입력'}
+                        >
+                          {isUsed && <span className="text-rose-600 mr-1.5 font-bold">✓</span>}
+                          <span className={isUsed ? 'line-through decoration-rose-500 decoration-2' : ''}>{t}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className="mt-3 text-[11px] text-purple-600">
+                  💡 클릭하면 주제 입력란에 자동 입력 + 카테고리도 자동 선택됩니다. 빨간 줄 주제는 이미 사용한 주제예요.
+                </p>
+              </section>
+              );
+            })()}
 
             {/* 입력 폼 */}
             {selectedCategory && (
