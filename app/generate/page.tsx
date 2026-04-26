@@ -667,15 +667,23 @@ export default function GeneratePage() {
     return parts.length > 0 ? parts.join('\n\n') : undefined;
   };
 
+  // ==================== CEP 패널 자동 펼침 (분대 Quebec) ====================
+  // 카테고리 선택 시 자동 모드라면 패널 펼쳐서 자동 도출이 진행되는 것을 사용자에게 노출
+  useEffect(() => {
+    if (selectedCategory && cepAutoMode && !sceneSentence) {
+      setCepOpen(true);
+    }
+  }, [selectedCategory, cepAutoMode, sceneSentence]);
+
   // ==================== CEP 자동 도출 (분대 Oscar) ====================
-  // topic 또는 targetKeyword 입력 시 1.5초 debounce 후 cluster-search → translate-scene 자동 실행
+  // topic 또는 targetKeyword 입력 시 1.0초 debounce 후 cluster-search → translate-scene 자동 실행
   useEffect(() => {
     if (!cepAutoMode) return;
     if (!selectedCategory) return;
     // 이미 sceneSentence가 있으면 (사용자 직접 입력 또는 이전 자동 결과) 재실행 방지
     if (sceneSentence) return;
-    // 시드 후보: topic 우선, 없으면 targetKeyword
-    const seedSource = (topic.trim() || targetKeyword.trim()).slice(0, 50);
+    // 시드 후보: topic > targetKeyword > selectedSubKeyword (분대 Quebec — 폴백 강화)
+    const seedSource = (topic.trim() || targetKeyword.trim() || selectedSubKeyword || '').slice(0, 50);
     if (seedSource.length < 3) return;
 
     const timer = setTimeout(async () => {
@@ -728,10 +736,10 @@ export default function GeneratePage() {
         setCepAutoStatus('failed');
         setCepError(e instanceof Error ? e.message : 'CEP 자동 도출 실패');
       }
-    }, 1500);
+    }, 1000);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic, targetKeyword, selectedCategory, cepAutoMode, sceneSentence, geminiApiKey]);
+  }, [topic, targetKeyword, selectedSubKeyword, selectedCategory, cepAutoMode, sceneSentence, geminiApiKey]);
 
   // ==================== CEP(Category Entry Point) 핸들러 ====================
   const handleCepClusterSearch = async () => {
@@ -1570,7 +1578,15 @@ export default function GeneratePage() {
 
             {/* CEP(Category Entry Point) 발굴 위저드 */}
             {selectedCategory && (
-              <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 rounded-xl shadow-sm border border-purple-200 p-5">
+              <div
+                className={`bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 rounded-xl shadow-sm border border-purple-200 p-5 transition-all duration-300 ${
+                  cepAutoStatus === 'searching' || cepAutoStatus === 'translating'
+                    ? 'ring-2 ring-purple-400 ring-offset-2 shadow-lg'
+                    : cepAutoStatus === 'done'
+                    ? 'ring-2 ring-emerald-300 ring-offset-2'
+                    : ''
+                }`}
+              >
                 <div className="flex items-center justify-between gap-3">
                   <button
                     type="button"
@@ -1600,18 +1616,18 @@ export default function GeneratePage() {
                   {/* 자동 도출 배지 + 토글 (분대 Oscar) */}
                   <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                     {sceneSentence && cepAutoStatus === 'done' && (
-                      <span className="text-xs px-2 py-0.5 bg-purple-200 text-purple-800 rounded-full font-bold">
+                      <span className="text-sm px-2.5 py-1 bg-purple-200 text-purple-800 rounded-full font-bold shadow-sm">
                         ✨ 자동 도출 완료
                       </span>
                     )}
                     {cepAutoStatus === 'searching' && (
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">🔍 클러스터 분석 중...</span>
+                      <span className="text-sm px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold animate-pulse">🔍 클러스터 분석 중...</span>
                     )}
                     {cepAutoStatus === 'translating' && (
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">🎬 장면 번역 중...</span>
+                      <span className="text-sm px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold animate-pulse">🎬 장면 번역 중...</span>
                     )}
                     {cepAutoStatus === 'failed' && (
-                      <span className="text-xs px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full">⚠️ 자동 도출 실패 — 수동 사용</span>
+                      <span className="text-sm px-2.5 py-1 bg-rose-100 text-rose-700 rounded-full font-semibold">⚠️ 자동 도출 실패 — 수동 사용</span>
                     )}
                     <label className="flex items-center gap-1 text-xs text-purple-700 cursor-pointer select-none">
                       <input
@@ -1627,6 +1643,12 @@ export default function GeneratePage() {
 
                 {cepOpen && (
                   <div className="mt-4 space-y-4">
+                    {/* 자동 모드 안내 박스 (분대 Quebec) */}
+                    {cepAutoMode && !sceneSentence && cepAutoStatus === 'idle' && (
+                      <div className="px-3 py-2 bg-purple-100 border border-purple-200 rounded-lg text-xs text-purple-800">
+                        ✨ <strong>자동 모드</strong> — 아래 주제 입력란에 글자를 쓰면 1초 후 자동으로 장면을 도출합니다. 시드 키워드를 직접 입력할 필요 없습니다.
+                      </div>
+                    )}
                     {/* 1) 시드 키워드 입력 + 클러스터 발견 */}
                     <div>
                       <label className="block text-sm font-medium text-purple-900 mb-1.5">시드 키워드</label>

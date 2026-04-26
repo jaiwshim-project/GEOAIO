@@ -48,6 +48,19 @@ AI 검색엔진(ChatGPT/Gemini/Perplexity)이 인용·발췌하기 좋은 형태
 5. **searchPath가 주어지면**: FAQ 섹션에서 그 검색어 흐름의 다음 질문에 답하는 구조로 Q를 구성
 6. **cepTask가 주어지면**: 결론 CTA가 "그 과업의 해결책"으로 자연스럽게 이어지도록
 
+### ⛔ 7단계 구조 강제 (분량·구조 누락 절대 금지)
+다음 7단계는 **모든 콘텐츠**에 누락 없이 포함되어야 한다. 토큰을 아끼지 말고 끝까지 작성:
+
+1. 도입부 (2~3문단)
+2. H2 섹션 **반드시 5개 이상 7개 이하** — 4개 이하·8개 이상 모두 금지
+3. 단계별 프로세스 — 본문 어딘가에 **번호 리스트 (1. 2. 3. ...) 최소 1회 사용** 의무
+4. RAG 기반 사례·수치
+5. FAQ — **반드시 Q1·Q2·Q3 이상 3개 이상**. Q1·Q2만 작성 절대 금지
+6. 결론 + 명시적 CTA
+7. 비교 표 — **반드시 3열 마크다운 표** (장점·단점·고려사항 또는 항목·내용·비고 등 3열 형식)
+
+⚠️ 만약 토큰이 부족할 것 같으면 H2 본문을 줄이되 7단계 골격은 절대 빼지 마라. 골격이 빠지면 GEO/AIO 인용 가능성이 0이 된다.
+
 ### ⭐ AI 인용률 향상 3대 원칙 (필수 적용)
 
 **원칙 1. 작성자 권위 신호 자동 삽입**
@@ -55,6 +68,11 @@ AI 검색엔진(ChatGPT/Gemini/Perplexity)이 인용·발췌하기 좋은 형태
 - 결론 마지막: "[회사명]은 [지역]에서 [전문 분야]를 [기간]째 운영하며 [성과] 달성"
 - RAG 자료에서 자격증·경력·실적이 있으면 반드시 인용
 → AI가 "신뢰할 수 있는 출처"로 분류
+
+⚠️ 결론 마지막 권위 신호는 **누락 절대 금지**. 결론 본문이 끝난 직후, 별도 단락으로:
+"[회사명]은 [지역]에서 [전문 분야]를 [기간]째 운영하며 [구체적 성과] 달성"
+형태로 반드시 작성. RAG 자료에 지역·기간·성과가 없으면 회사명만이라도 명시.
+이 신호가 빠지면 AI는 작성자 신뢰도를 평가할 수 없다.
 
 **원칙 2. AI 인용 가능 정의문 의무화 (단, 숫자는 RAG 자료에 있는 것만)**
 각 H2 섹션 시작에 1개씩, 다음 형태로 명제형 정의문을 작성:
@@ -313,7 +331,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: userMessage,
-          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 4096, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
+          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 8192, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
         });
         text = response.text || '';
         console.log('[API] Gemini 성공');
@@ -323,7 +341,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         if (claudeKey) {
           const client = new Anthropic({ apiKey: claudeKey });
           const message = await client.messages.create({
-            model: 'claude-sonnet-4-20250514', max_tokens: 3000,
+            model: 'claude-sonnet-4-20250514', max_tokens: 8192,
             messages: [{ role: 'user', content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1"]}}` }],
           });
           text = message.content[0].type === 'text' ? message.content[0].text : '';
@@ -338,7 +356,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: 4096,
+          max_tokens: 8192,
           messages: [
             {
               role: 'user',
@@ -361,7 +379,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
               contents: userMessage,
               config: {
                 systemInstruction: SYSTEM_INSTRUCTION,
-                maxOutputTokens: 4096,
+                maxOutputTokens: 8192,
                 responseMimeType: 'application/json',
                 responseSchema: RESPONSE_SCHEMA,
               },
@@ -386,7 +404,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 4096,
+            maxOutputTokens: 8192,
             responseMimeType: 'application/json',
             responseSchema: RESPONSE_SCHEMA,
           },
@@ -403,7 +421,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
             const client = new Anthropic({ apiKey: claudeKey });
             const message = await client.messages.create({
               model: 'claude-sonnet-4-20250514',
-              max_tokens: 4096,
+              max_tokens: 8192,
               messages: [
                 {
                   role: 'user',
