@@ -99,27 +99,29 @@ export async function POST(request: NextRequest) {
     // ── 이어쓰기 모드: 잘린 콘텐츠를 마저 작성 ──
     const prompt = continuation && previousContent
       ? `당신은 E-E-A-T 콘텐츠 마무리 전문가입니다.
-아래 콘텐츠가 중간에 잘려서 미완성 상태입니다.
-**이어서 작성**하여 다음 요소들을 마무리하세요:
-- 누락된 FAQ 섹션 (없으면 추가, 있으면 유지)
-- 누락된 비교표 (장점·단점·고려사항)
-- 결론 섹션 (## 결론)
-- 해시태그 10개 (마지막 줄에 # 형태)
+아래 콘텐츠가 중간에 잘려서 미완성 상태입니다. **이어서 작성**하여 누락된 섹션들을 마무리하세요.
 
-⚠️ **중요 규칙:**
-1. 원본 마지막 문장을 자연스럽게 이어가세요
-2. 이미 작성된 섹션은 다시 쓰지 마세요 (FAQ/표/결론/해시태그 중 누락된 것만)
-3. 톤: ${tone || '전문적'} 유지
-4. 분량: 누락된 부분만 작성 (300~800자)
-5. 출력은 **이어쓸 부분만**, 원본을 다시 쓰지 마세요
+📋 누락 섹션 식별 가이드 (반드시 출력 전 점검):
+- 원본에 "## FAQ" 또는 "**Q:" 가 있는가? 없으면 → FAQ 3개 이상 추가
+- 원본에 마크다운 표(| ~ | 형태)가 있는가? 없으면 → 장점·단점·고려사항 3열 비교표 추가
+- 원본에 "## 결론" 또는 "## 마치며" 가 있는가? 없으면 → 결론 섹션 + CTA 추가
+- 원본 끝에 #으로 시작하는 해시태그 10개 라인이 있는가? 없으면 → 해시태그 10개 마지막 줄에 추가
+- 마지막 문장이 종결 부호로 안 끝나면 → 자연스럽게 이어 마무리
 
-원본 (마지막 부분):
+⚠️ **절대 규칙:**
+1. **원본 마지막 문장을 자연스럽게 이어가세요** (광고 블록·해시태그가 본문 중간에 나와도 본문 흐름 우선)
+2. **이미 작성된 섹션은 절대 다시 쓰지 마세요** — 위 가이드의 "없으면" 케이스만 추가
+3. **빈 응답 절대 금지** — 누락이 진짜로 0개여도 최소한 결론 단락 1개라도 작성
+4. 톤: ${tone || '전문적'} 유지 (교육형이면 단계 설명·비유, 친근형이면 대화체 등)
+5. 분량: 누락된 만큼 충분히 (보통 600~1500자, 모든 섹션 누락 시 더)
+6. 출력은 **이어쓸 부분만**, 원본을 다시 쓰지 마세요. 인사말·설명·"네, 이어쓰겠습니다" 같은 메타텍스트 금지.
+
+원본 (충분한 컨텍스트 — 마지막 3000자):
 ---
-${previousContent.slice(-1500)}
+${previousContent.slice(-3000)}
 ---
 
-위 끝부분에 자연스럽게 이어서, 누락된 섹션들을 완성하세요.
-출력 형식: 바로 이어 쓸 마크다운 텍스트만 (인사말·설명 없이)`
+위 끝부분에서 시작해서, 누락된 섹션을 모두 완성하세요. 마크다운 텍스트만 출력.`
       : `${EEAT_INSTRUCTION}
 
 ---
@@ -145,7 +147,7 @@ ${content}
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: prompt,
-          config: { maxOutputTokens: 8000 }, // 잘림 방지: 6000 → 8000
+          config: { maxOutputTokens: 12000 }, // 잘림 방지: 6000 → 8000
         });
         convertedContent = response.text || '';
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -164,7 +166,7 @@ ${content}
       const client = new Anthropic({ apiKey: claudeKey });
       const message = await client.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
+        max_tokens: 12000,
         messages: [{ role: 'user', content: prompt }],
       });
       convertedContent = message.content[0].type === 'text' ? message.content[0].text : '';
