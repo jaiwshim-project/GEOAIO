@@ -219,6 +219,9 @@ export default function GeneratePage() {
   const [usedTopics, setUsedTopics] = useState<string[]>([]);
   // 📚 localStorage에 저장된 추천 주제 — 별도 고정 섹션용 (어떤 경우에도 표시)
   const [savedTopicsCache, setSavedTopicsCache] = useState<{ topics: string[]; usedTopics?: string[]; category?: string; subKeyword?: string; savedAt?: number } | null>(null);
+  // 🎯 localStorage에 저장된 CEP 장면 발굴 결과 — 별도 고정 섹션용
+  const [savedCepCache, setSavedCepCache] = useState<{ lifeLanguages?: string[]; clusters?: { clusterName: string; intent?: string }[]; sceneSentence?: string; savedAt?: number } | null>(null);
+  const CEP_CACHE_KEY = 'cep:wizardResult';
   // 키워드 추천
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
@@ -427,6 +430,38 @@ export default function GeneratePage() {
       };
     });
   }, [topicSuggestions, usedTopics, selectedCategory, selectedSubKeyword]);
+
+  // 🎯 마운트 시 localStorage에서 CEP 결과 읽기 (고정 섹션용)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(CEP_CACHE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && (Array.isArray(parsed.lifeLanguages) || Array.isArray(parsed.clusters))) {
+        setSavedCepCache(parsed);
+        console.log(`[savedCep] localStorage에서 CEP 결과 로드: lifeLang ${parsed.lifeLanguages?.length || 0}개, clusters ${parsed.clusters?.length || 0}개`);
+      }
+    } catch (e) {
+      console.warn('[savedCep] localStorage 읽기 실패:', e);
+    }
+  }, []);
+
+  // CEP 결과 변경 시 localStorage + savedCepCache 동기화
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ((cepLifeLanguages?.length || 0) === 0 && (cepClusters?.length || 0) === 0 && !sceneSentence) return;
+    const next = {
+      lifeLanguages: cepLifeLanguages || [],
+      clusters: (cepClusters || []).map(c => ({ clusterName: c.clusterName, intent: c.intent })),
+      sceneSentence: sceneSentence || undefined,
+      savedAt: Date.now(),
+    };
+    try {
+      localStorage.setItem(CEP_CACHE_KEY, JSON.stringify(next));
+      setSavedCepCache(next);
+    } catch {}
+  }, [cepLifeLanguages, cepClusters, sceneSentence]);
 
   // 페이지 마운트 시 추천 주제 복원 (3중 안전망)
   // 1순위: URL query (?cep_topics_b64=...) — 결과 페이지에서 명시적으로 보낸 것 (가장 신뢰)
@@ -1342,6 +1377,82 @@ export default function GeneratePage() {
             </ul>
             <p className="mt-3 text-[11px] text-purple-600">
               💡 클릭하면 주제 입력란에 자동 입력 + 카테고리도 자동 선택됩니다. 빨간 줄 주제는 이미 사용한 주제예요.
+            </p>
+          </section>
+        )}
+
+        {/* 🎯 저장된 CEP 장면 발굴 (lifeLanguages + 장면 문장) — 항상 표시되는 고정 섹션 */}
+        {savedCepCache && ((savedCepCache.lifeLanguages?.length || 0) > 0 || savedCepCache.sceneSentence) && (
+          <section className="bg-gradient-to-br from-pink-50 via-rose-50 to-pink-50 border-2 border-rose-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🎯</span>
+                <h3 className="text-sm font-bold text-rose-900">저장된 CEP 장면 발굴</h3>
+                <span className="text-xs text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full font-semibold">
+                  {(savedCepCache.lifeLanguages?.length || 0)}개 삶의 언어
+                  {(savedCepCache.clusters?.length || 0) > 0 && ` · ${savedCepCache.clusters!.length}개 클러스터`}
+                </span>
+                {savedCepCache.savedAt && (
+                  <span className="text-[10px] text-rose-600">
+                    (저장: {new Date(savedCepCache.savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('저장된 CEP 결과를 모두 삭제하시겠습니까?')) {
+                    try { localStorage.removeItem(CEP_CACHE_KEY); } catch {}
+                    setSavedCepCache(null);
+                  }
+                }}
+                className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
+                title="저장된 CEP 결과 삭제"
+              >
+                🗑️ 비우기
+              </button>
+            </div>
+
+            {savedCepCache.sceneSentence && (
+              <div className="mb-3 p-3 bg-white border border-rose-200 rounded-lg">
+                <p className="text-[11px] font-bold text-rose-700 mb-1">🎬 점유 장면 문장</p>
+                <p className="text-sm text-gray-800 leading-relaxed">{savedCepCache.sceneSentence}</p>
+              </div>
+            )}
+
+            {(savedCepCache.lifeLanguages?.length || 0) > 0 && (
+              <div className="mb-2">
+                <p className="text-[11px] font-bold text-rose-700 mb-1.5">📝 삶의 언어 5개 (카테고리 진입 직전 일상 표현)</p>
+                <ul className="space-y-1.5">
+                  {savedCepCache.lifeLanguages!.map((s, i) => (
+                    <li key={i}>
+                      <button
+                        type="button"
+                        onClick={() => setTopic(s)}
+                        className="w-full text-left px-3 py-2 text-sm rounded-lg border bg-white text-gray-800 border-rose-200 hover:bg-rose-100 hover:border-rose-400 transition-colors"
+                        title="클릭하면 주제 입력란에 자동 입력"
+                      >
+                        <span className="text-rose-500 mr-1.5">▸</span>
+                        {s}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {(savedCepCache.clusters?.length || 0) > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {savedCepCache.clusters!.map((c, i) => (
+                  <span key={i} className="text-[11px] bg-rose-100 text-rose-800 px-2 py-1 rounded-full border border-rose-200">
+                    🧩 {c.clusterName}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <p className="mt-3 text-[11px] text-rose-600">
+              💡 삶의 언어를 클릭하면 주제 입력란에 자동 입력됩니다. 장면 문장은 콘텐츠 생성 시 자동 적용됩니다.
             </p>
           </section>
         )}
