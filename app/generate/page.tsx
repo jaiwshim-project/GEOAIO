@@ -2093,13 +2093,13 @@ export default function GeneratePage() {
                                     onClick={() => handleTopicSuggestionClick(s)}
                                     className={`w-full text-left px-3 py-2.5 text-sm transition-colors border-b border-gray-50 last:border-0 ${
                                       isUsed
-                                        ? 'bg-emerald-50/40 text-gray-500 hover:bg-emerald-50 hover:text-emerald-700'
+                                        ? 'bg-rose-50/40 text-gray-500 hover:bg-rose-50 hover:text-rose-700'
                                         : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'
                                     }`}
                                     title={isUsed ? '이미 이 주제로 콘텐츠를 생성한 적이 있어요. 다시 사용해도 됩니다.' : undefined}
                                   >
-                                    {isUsed && <span className="text-emerald-600 mr-1.5">✅</span>}
-                                    <span className={isUsed ? 'line-through decoration-emerald-300/60' : ''}>{s}</span>
+                                    {isUsed && <span className="text-rose-600 mr-1.5 font-bold">✓</span>}
+                                    <span className={isUsed ? 'line-through decoration-rose-500 decoration-2' : ''}>{s}</span>
                                   </button>
                                 </li>
                               );
