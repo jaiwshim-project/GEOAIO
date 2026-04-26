@@ -161,19 +161,37 @@ ${content}
       }
     }
 
-    // Claude 폴백
-    if (!convertedContent && claudeKey) {
-      const client = new Anthropic({ apiKey: claudeKey });
-      const message = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 12000,
-        messages: [{ role: 'user', content: prompt }],
-      });
-      convertedContent = message.content[0].type === 'text' ? message.content[0].text : '';
-      finishReason = message.stop_reason || '';
-      if (finishReason && finishReason !== 'end_turn' && finishReason !== 'stop_sequence') {
-        truncated = true;
-        console.log('[convert-eeat] Claude 응답 잘림:', finishReason);
+    // 옵션 C: Gemini 응답 부실(빈·짧음·잘림)이면 Claude로 자동 폴백
+    // 정상 응답 길이는 보통 1500자+. 500자 미만이면 부실 판정.
+    if (claudeKey && (!convertedContent || convertedContent.length < 500 || truncated)) {
+      const reason = !convertedContent ? '빈 응답' : convertedContent.length < 500 ? `${convertedContent.length}자 부실` : `잘림(${finishReason})`;
+      console.log(`[convert-eeat] Gemini ${reason} — Claude로 자동 폴백`);
+    }
+
+    // Claude 폴백 (Gemini 빈 응답 OR 부실 OR 잘림)
+    if (claudeKey && (!convertedContent || convertedContent.length < 500 || truncated)) {
+      try {
+        const client = new Anthropic({ apiKey: claudeKey });
+        const message = await client.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 12000,
+          messages: [{ role: 'user', content: prompt }],
+        });
+        const claudeText = message.content[0].type === 'text' ? message.content[0].text : '';
+        // Claude 응답이 Gemini보다 길면 채택 (더 완성도 높을 가능성)
+        if (claudeText.length > convertedContent.length) {
+          convertedContent = claudeText;
+          truncated = false; // Claude로 새로 받았으니 reset
+          finishReason = message.stop_reason || '';
+          if (finishReason && finishReason !== 'end_turn' && finishReason !== 'stop_sequence') {
+            truncated = true;
+            console.log('[convert-eeat] Claude 응답 잘림:', finishReason);
+          } else {
+            console.log('[convert-eeat] Claude 폴백 성공', claudeText.length, '자');
+          }
+        }
+      } catch (e) {
+        console.warn('[convert-eeat] Claude 폴백 실패, Gemini 결과 유지:', e);
       }
     }
 
