@@ -83,6 +83,11 @@ export default function GenerateResultPage() {
   const [eeatCompletingSingle, setEeatCompletingSingle] = useState(false);
   const [eeatCompleteSingleStatus, setEeatCompleteSingleStatus] = useState<string>('');
 
+  // ⭐ E-E-A-T 자동 일괄 변환 (10개 톤 모두 자동 완성)
+  const [eeatAutoMode, setEeatAutoMode] = useState(true);
+  const [eeatAutoStatus, setEeatAutoStatus] = useState<Record<number, 'idle' | 'processing' | 'done' | 'failed'>>({});
+  const [eeatAutoStarted, setEeatAutoStarted] = useState(false);
+
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
@@ -383,6 +388,90 @@ export default function GenerateResultPage() {
       setEeatCompletingSingle(false);
     }, 4000);
   };
+
+  // ⭐ E-E-A-T 자동 일괄 변환 — result 로드 직후 미완성 톤 모두 자동 완성
+  useEffect(() => {
+    if (!eeatAutoMode) return;
+    if (eeatAutoStarted) return;
+    if (!result || !abVersions || abVersions.length === 0) return;
+
+    // 미완성 톤 인덱스 추출
+    const incompleteIdx = abVersions
+      .map((v, i) => ({ v, i }))
+      .filter(({ v }) => v && !validateEeatComplete(v.content || '').ok)
+      .map(({ i }) => i);
+
+    if (incompleteIdx.length === 0) return; // 이미 모두 완성
+
+    setEeatAutoStarted(true);
+
+    // 초기 상태 — 미완성 톤은 idle, 완성된 톤은 done 으로 표시
+    setEeatAutoStatus(() => {
+      const init: Record<number, 'idle' | 'processing' | 'done' | 'failed'> = {};
+      abVersions.forEach((v, i) => {
+        init[i] = validateEeatComplete(v?.content || '').ok ? 'done' : 'idle';
+      });
+      return init;
+    });
+
+    const PARALLEL = 5;
+    const queue = [...incompleteIdx];
+
+    const processOne = async (idx: number) => {
+      setEeatAutoStatus(prev => ({ ...prev, [idx]: 'processing' }));
+      const v = abVersions[idx];
+      if (!v) {
+        setEeatAutoStatus(prev => ({ ...prev, [idx]: 'failed' }));
+        return;
+      }
+      let currentContent = v.content || '';
+      if (currentContent.length < 200) {
+        setEeatAutoStatus(prev => ({ ...prev, [idx]: 'failed' }));
+        return;
+      }
+      // 자동 모드는 보수적 — 톤당 최대 3회 (수동은 5회)
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const continued = await requestContinue(v, currentContent);
+        if (!continued) continue;
+        currentContent = mergeMd(currentContent, continued);
+        // 부분 진행도 화면에 즉시 반영
+        setAbVersions(prev => {
+          const next = [...prev];
+          if (next[idx]) next[idx] = { ...next[idx], content: currentContent };
+          return next;
+        });
+        const check = validateEeatComplete(currentContent);
+        if (check.ok) {
+          setEeatAutoStatus(prev => ({ ...prev, [idx]: 'done' }));
+          setEeatFailed(prev => {
+            const n = new Set(prev);
+            n.delete(idx);
+            return n;
+          });
+          return;
+        }
+      }
+      setEeatAutoStatus(prev => ({ ...prev, [idx]: 'failed' }));
+    };
+
+    const runner = async () => {
+      while (queue.length > 0) {
+        const idx = queue.shift();
+        if (idx === undefined) break;
+        await processOne(idx);
+      }
+    };
+    Promise.all(Array.from({ length: PARALLEL }, () => runner()))
+      .then(() => {
+        // 모두 끝났을 때 현재 표시 중인 탭과 result 동기화
+        setAbVersions(prev => {
+          const v = prev[activeAbTab];
+          if (v) setResult(v);
+          return prev;
+        });
+      })
+      .catch((e) => console.error('[eeatAuto] runner error:', e));
+  }, [result, abVersions, eeatAutoMode, eeatAutoStarted, activeAbTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // E-E-A-T 자동 변환 함수
   const startEeatConversion = async (
@@ -1290,6 +1379,22 @@ export default function GenerateResultPage() {
                       }`}
                       title={!isReady ? (isConverting ? '변환 중...' : '변환 대기 중') : undefined}
                     >
+                      {/* ⭐ 자동 EEAT 진행 배지 (좌상단) */}
+                      {eeatAutoStatus[i] === 'processing' && (
+                        <span className="absolute top-0.5 left-0.5 text-[9px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full animate-pulse font-bold leading-none">
+                          ⏳ EEAT
+                        </span>
+                      )}
+                      {eeatAutoStatus[i] === 'done' && eeatAutoStarted && (
+                        <span className="absolute top-0.5 left-0.5 text-[9px] px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full font-bold leading-none">
+                          ✅ 완성
+                        </span>
+                      )}
+                      {eeatAutoStatus[i] === 'failed' && (
+                        <span className="absolute top-0.5 left-0.5 text-[9px] px-1.5 py-0.5 bg-rose-100 text-rose-700 rounded-full font-bold leading-none">
+                          ⚠️ 수동
+                        </span>
+                      )}
                       {/* 상태 배지 */}
                       <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center shadow text-[10px] ${
                         isConverting
@@ -1379,6 +1484,26 @@ export default function GenerateResultPage() {
                 </button>
               );
             })()}
+            {/* ⭐ 자동 EEAT 일괄 변환 토글 + 진행 요약 */}
+            <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 transition-all cursor-pointer">
+              <input
+                type="checkbox"
+                checked={eeatAutoMode}
+                onChange={(e) => setEeatAutoMode(e.target.checked)}
+                className="w-3.5 h-3.5 accent-purple-600"
+              />
+              ✨ 자동 EEAT 일괄
+            </label>
+            {eeatAutoStarted && (
+              <span className="inline-flex items-center px-2 py-1 text-[11px] font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                {Object.values(eeatAutoStatus).filter(s => s === 'done').length}
+                /
+                {Object.values(eeatAutoStatus).filter(s => s !== 'idle').length || 1} 완성
+                {Object.values(eeatAutoStatus).some(s => s === 'processing') && (
+                  <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                )}
+              </span>
+            )}
             <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-all ml-auto">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
               새로 만들기
