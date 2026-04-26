@@ -12,6 +12,16 @@ import { saveHistoryItem, generateId } from '@/lib/history';
 import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, type Profile, type ProfileData } from '@/lib/supabase-storage';
 // canUseFeature, incrementUsage는 커스텀 사용자 시스템에서 API 방식으로 대체
 import { useUser, type UserProject } from '@/lib/user-context';
+import { track } from '@vercel/analytics';
+
+// fire-and-forget 안전 트래킹: 실패해도 사용자 흐름을 막지 않음
+const safeTrack = (event: string, props?: Record<string, string | number | boolean | null>) => {
+  try {
+    track(event, props);
+  } catch (e) {
+    console.error('[analytics] track failed:', e);
+  }
+};
 
 const categories: { id: ContentCategory; label: string; description: string; icon: string; color: string; bgIdle: string }[] = [
   {
@@ -208,6 +218,19 @@ export default function GeneratePage() {
   const [loadingKeywords, setLoadingKeywords] = useState(false);
   // 타겟 키워드 입력 (초기값은 빈 문자열)
   const [customKeyword, setCustomKeyword] = useState('');
+
+  // CEP(Category Entry Point) 발굴 상태
+  const [cepOpen, setCepOpen] = useState(false);
+  const [cepSeed, setCepSeed] = useState('');
+  const [cepLoading, setCepLoading] = useState<'idle' | 'cluster' | 'scene' | 'score'>('idle');
+  const [cepClusters, setCepClusters] = useState<{ clusterName: string; keywords: string[]; searchPath: string[]; intent: string }[]>([]);
+  const [cepLifeLanguages, setCepLifeLanguages] = useState<string[]>([]);
+  const [cepSelectedCluster, setCepSelectedCluster] = useState<number | null>(null);
+  const [sceneSentence, setSceneSentence] = useState('');
+  const [cepTask, setCepTask] = useState('');
+  const [cepHooks, setCepHooks] = useState<string[]>([]);
+  const [cepCandidates, setCepCandidates] = useState<{ cepKeyword: string; sceneSentence?: string; score?: { marketFit: number; brandFit: number; provability: number; total: number; rationale: { market: string; brand: string; proof: string } }; recommendation?: string }[]>([]);
+  const [cepError, setCepError] = useState<string | null>(null);
 
   // 프로필 목록 로드
   useEffect(() => {
@@ -641,6 +664,79 @@ export default function GeneratePage() {
     return parts.length > 0 ? parts.join('\n\n') : undefined;
   };
 
+  // ==================== CEP(Category Entry Point) 핸들러 ====================
+  const handleCepClusterSearch = async () => {
+    if (!cepSeed.trim()) { setCepError('시드 키워드를 입력하세요'); return; }
+    safeTrack('cep_seed_submit', { seed_length: cepSeed.length, has_industry: !!businessInfo.industry });
+    setCepLoading('cluster'); setCepError(null);
+    try {
+      const r = await fetch('/api/cep/cluster-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+        body: JSON.stringify({
+          seedKeyword: cepSeed,
+          industry: businessInfo.industry || businessInfo.customIndustry,
+          businessContext: businessInfo.companyName ? `${businessInfo.companyName} - ${businessInfo.mainProduct || ''}` : '',
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'cluster search failed');
+      setCepClusters(d.clusters || []);
+      setCepLifeLanguages(d.lifeLanguages || []);
+    } catch (e) { setCepError(e instanceof Error ? e.message : '클러스터 수집 실패'); }
+    finally { setCepLoading('idle'); }
+  };
+
+  const handleCepTranslateScene = async (idx: number) => {
+    const cluster = cepClusters[idx];
+    if (!cluster) return;
+    setCepSelectedCluster(idx);
+    setCepLoading('scene'); setCepError(null);
+    try {
+      const r = await fetch('/api/cep/translate-scene', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+        body: JSON.stringify({
+          cluster,
+          industry: businessInfo.industry || businessInfo.customIndustry,
+          businessContext: businessInfo.companyName,
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'scene translate failed');
+      setSceneSentence(d.sceneSentence || '');
+      setCepTask(d.task || '');
+      setCepHooks(d.contentHooks || []);
+      safeTrack('cep_cluster_translate', {
+        keywords_count: cluster.keywords.length,
+        path_depth: cluster.searchPath?.length || 0,
+      });
+    } catch (e) { setCepError(e instanceof Error ? e.message : '장면 번역 실패'); }
+    finally { setCepLoading('idle'); }
+  };
+
+  const handleCepScore = async () => {
+    if (cepClusters.length === 0) return;
+    setCepLoading('score'); setCepError(null);
+    try {
+      const candidates = cepClusters.map(c => ({ cepKeyword: c.clusterName, sceneSentence: c.intent, type: 'explicit' as const }));
+      const r = await fetch('/api/cep/score-candidates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+        body: JSON.stringify({
+          candidates,
+          businessContext: businessInfo.companyName ? `${businessInfo.companyName} - ${businessInfo.mainProduct || ''} - 강점:${(businessInfo.strengths || []).join(',')}` : '',
+          ragSummary: '',
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'score failed');
+      setCepCandidates(d.candidates || []);
+      safeTrack('cep_score', { candidates_count: cepClusters.length });
+    } catch (e) { setCepError(e instanceof Error ? e.message : '평가 실패'); }
+    finally { setCepLoading('idle'); }
+  };
+
   const handleGenerate = async () => {
     if (!selectedCategory || !topic.trim()) return;
 
@@ -708,7 +804,14 @@ export default function GeneratePage() {
 
       // ── 멀티 에이전트 병렬 생성 ──
       // 마크다운 단순 생성이라 빠름 → 3개씩 병렬로 안전하게 처리
+      safeTrack('content_generate', {
+        cep_applied: !!sceneSentence,
+        has_rag: projectFiles.length > 0,
+        category: selectedCategory,
+        tone_count: 10,
+      });
       const AGENT_BATCH = 3; // 동시 실행 에이전트 수
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
       const generateTone = async (t: typeof toneOptions[0], idx: number) => {
@@ -732,6 +835,13 @@ export default function GeneratePage() {
                 file_name: f.file_name,
                 content: f.content.slice(0, 3000),
               })),
+              // CEP(Category Entry Point) 발굴 데이터
+              sceneSentence: sceneSentence || undefined,
+              cepTask: cepTask || undefined,
+              cepKeyword: cepClusters[cepSelectedCluster ?? -1]?.clusterName,
+              searchPath: cepClusters[cepSelectedCluster ?? -1]?.searchPath,
+              cepCluster: cepClusters[cepSelectedCluster ?? -1]?.keywords,
+              lifeLanguages: cepLifeLanguages.length ? cepLifeLanguages : undefined,
             }),
           });
           const data = await res.json();
@@ -1388,6 +1498,248 @@ export default function GeneratePage() {
                 💡 Gemini로 생성합니다. 실패 시 Claude로 자동 재시도됩니다.
               </p>
             </div>
+
+            {/* CEP(Category Entry Point) 발굴 위저드 */}
+            {selectedCategory && (
+              <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 rounded-xl shadow-sm border border-purple-200 p-5">
+                <button
+                  type="button"
+                  onClick={() => setCepOpen(o => {
+                    const next = !o;
+                    if (next) safeTrack('cep_wizard_open', { industry: businessInfo.industry || null });
+                    return next;
+                  })}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <div>
+                    <h2 className="text-lg font-semibold text-purple-900 flex items-center gap-2">
+                      🎯 CEP 장면 발굴
+                      <span className="text-xs font-normal px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">선택</span>
+                    </h2>
+                    <p className="text-xs text-purple-700/80 mt-1">
+                      Category Entry Point — 시드 키워드에서 &lsquo;장면 문장&rsquo;을 만들어 콘텐츠 점유 포인트를 강화합니다
+                    </p>
+                  </div>
+                  <svg
+                    className={`w-5 h-5 text-purple-600 transition-transform ${cepOpen ? 'rotate-180' : ''}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {cepOpen && (
+                  <div className="mt-4 space-y-4">
+                    {/* 1) 시드 키워드 입력 + 클러스터 발견 */}
+                    <div>
+                      <label className="block text-sm font-medium text-purple-900 mb-1.5">시드 키워드</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={cepSeed}
+                          onChange={(e) => setCepSeed(e.target.value)}
+                          placeholder="예: 임플란트, 홈트레이닝, AI 마케팅"
+                          className="flex-1 px-3 py-2.5 border border-purple-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleCepClusterSearch}
+                          disabled={cepLoading === 'cluster' || !cepSeed.trim()}
+                          className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                        >
+                          {cepLoading === 'cluster' ? (
+                            <>
+                              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                              수집 중...
+                            </>
+                          ) : '클러스터 발견'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 에러 */}
+                    {cepError && (
+                      <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                        {cepError}
+                      </div>
+                    )}
+
+                    {/* 2) 삶의 언어 칩 */}
+                    {cepLifeLanguages.length > 0 && (
+                      <div>
+                        <label className="block text-xs font-semibold text-purple-800 mb-1.5">💬 삶의 언어 (클릭하면 주제에 추가)</label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {cepLifeLanguages.map((lang, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => setTopic(t => t ? t + ' / ' + lang : lang)}
+                              className="px-2.5 py-1 text-xs bg-white border border-purple-300 text-purple-700 rounded-full hover:bg-purple-100 transition-colors"
+                            >
+                              + {lang}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 3) 클러스터 카드 리스트 */}
+                    {cepClusters.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-semibold text-purple-800">🧩 클러스터 ({cepClusters.length}개)</label>
+                          <button
+                            type="button"
+                            onClick={handleCepScore}
+                            disabled={cepLoading === 'score'}
+                            className="text-xs px-3 py-1.5 bg-indigo-100 text-indigo-700 border border-indigo-300 rounded-lg hover:bg-indigo-200 disabled:opacity-50 flex items-center gap-1"
+                          >
+                            {cepLoading === 'score' ? (
+                              <>
+                                <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                                평가 중...
+                              </>
+                            ) : '⚖ 후보 평가'}
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                          {cepClusters.map((c, idx) => {
+                            const selected = cepSelectedCluster === idx;
+                            return (
+                              <div
+                                key={idx}
+                                className={`rounded-lg border p-3 transition-all ${
+                                  selected
+                                    ? 'bg-purple-600 border-purple-700 text-white shadow-md'
+                                    : 'bg-white border-purple-200 hover:border-purple-400'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                  <h3 className={`text-sm font-bold ${selected ? 'text-white' : 'text-purple-900'}`}>
+                                    {c.clusterName}
+                                  </h3>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCepTranslateScene(idx)}
+                                    disabled={cepLoading === 'scene'}
+                                    className={`text-xs px-2 py-1 rounded-md whitespace-nowrap font-semibold transition-colors ${
+                                      selected
+                                        ? 'bg-white text-purple-700 hover:bg-purple-50'
+                                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                                    } disabled:opacity-50`}
+                                  >
+                                    {cepLoading === 'scene' && cepSelectedCluster === idx ? '번역 중…' : '장면 번역'}
+                                  </button>
+                                </div>
+
+                                {/* keywords chips */}
+                                <div className="flex flex-wrap gap-1 mb-2">
+                                  {(c.keywords || []).slice(0, 8).map((kw, ki) => (
+                                    <span
+                                      key={ki}
+                                      className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                        selected ? 'bg-purple-500 text-white' : 'bg-purple-100 text-purple-700'
+                                      }`}
+                                    >
+                                      {kw}
+                                    </span>
+                                  ))}
+                                </div>
+
+                                {/* searchPath */}
+                                {c.searchPath && c.searchPath.length > 0 && (
+                                  <div className={`text-[11px] mb-1.5 ${selected ? 'text-purple-100' : 'text-gray-600'}`}>
+                                    {c.searchPath.map((s, si) => (
+                                      <span key={si}>
+                                        {si > 0 && <span className="mx-1">→</span>}
+                                        <span className={selected ? 'underline' : 'underline decoration-purple-300'}>{s}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* intent */}
+                                {c.intent && (
+                                  <p className={`text-xs italic ${selected ? 'text-purple-50' : 'text-gray-500'}`}>
+                                    “{c.intent}”
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 4) 후보 평가 점수표 */}
+                    {cepCandidates.length > 0 && (
+                      <div className="bg-white rounded-lg border border-indigo-200 p-3">
+                        <h4 className="text-xs font-semibold text-indigo-800 mb-2">📊 후보 점수 (시장적합 / 브랜드적합 / 입증가능 / 합계)</h4>
+                        <div className="space-y-1.5">
+                          <div className="grid grid-cols-12 gap-2 text-[10px] font-semibold text-indigo-600 border-b border-indigo-100 pb-1">
+                            <div className="col-span-4">CEP 키워드</div>
+                            <div className="col-span-1 text-center">시장</div>
+                            <div className="col-span-1 text-center">브랜드</div>
+                            <div className="col-span-1 text-center">입증</div>
+                            <div className="col-span-1 text-center">합계</div>
+                            <div className="col-span-4">추천</div>
+                          </div>
+                          {cepCandidates.map((cd, i) => (
+                            <div key={i} className="grid grid-cols-12 gap-2 text-xs items-center py-1 border-b border-gray-50 last:border-0">
+                              <div className="col-span-4 font-medium text-gray-800 truncate">{cd.cepKeyword}</div>
+                              <div className="col-span-1 text-center text-purple-700">{cd.score?.marketFit ?? '-'}</div>
+                              <div className="col-span-1 text-center text-purple-700">{cd.score?.brandFit ?? '-'}</div>
+                              <div className="col-span-1 text-center text-purple-700">{cd.score?.provability ?? '-'}</div>
+                              <div className="col-span-1 text-center font-bold text-indigo-700">{cd.score?.total ?? '-'}</div>
+                              <div className="col-span-4 text-[11px] text-gray-600 truncate" title={cd.recommendation || ''}>
+                                {cd.recommendation || '-'}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 5) 장면 문장 / 작업 / 콘텐츠 후크 */}
+                    <div className="bg-white rounded-lg border border-purple-200 p-3 space-y-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-purple-800 mb-1">🎬 장면 문장 (sceneSentence)</label>
+                        <textarea
+                          value={sceneSentence}
+                          onChange={(e) => setSceneSentence(e.target.value)}
+                          placeholder="예: 30대 직장인이 점심시간에 잇몸 통증으로 검색하는 순간"
+                          rows={2}
+                          className="w-full px-3 py-2 border border-purple-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-purple-800 mb-1">✅ 작업 (cepTask)</label>
+                        <input
+                          type="text"
+                          value={cepTask}
+                          onChange={(e) => setCepTask(e.target.value)}
+                          placeholder="예: 통증을 빠르게 진단하고 가까운 치과 찾기"
+                          className="w-full px-3 py-2 border border-purple-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder-gray-400"
+                        />
+                      </div>
+                      {cepHooks.length > 0 && (
+                        <div>
+                          <label className="block text-xs font-semibold text-purple-800 mb-1">🪝 콘텐츠 후크</label>
+                          <div className="bg-gray-50 border border-gray-200 rounded-lg p-2.5 space-y-1">
+                            {cepHooks.map((h, i) => (
+                              <div key={i} className="text-xs text-gray-700 flex gap-1.5">
+                                <span className="text-purple-500">·</span>
+                                <span>{h}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* 입력 폼 */}
             {selectedCategory && (

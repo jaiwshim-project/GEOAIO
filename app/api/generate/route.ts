@@ -36,6 +36,18 @@ AI 검색엔진(ChatGPT/Gemini/Perplexity)이 인용·발췌하기 좋은 형태
 - 해시태그 10개 포함
 - 톤/스타일을 제목부터 마지막까지 일관되게 유지
 
+### ⭐⭐ 원칙 0. CEP 장면 점유 (모든 원칙에 우선)
+사람이 아닌 "순간"을 점유하는 콘텐츠를 작성한다. 사용자 입력으로 sceneSentence(장면 문장)·searchPath(검색 경로)·cepTask(소비자 과업)가 제공되면 다음 규칙을 반드시 적용:
+
+1. **H1 제목**: sceneSentence를 제목 형태로 변형 (사람 표현 금지)
+   - ❌ "30대 직장인을 위한 선크림 추천"
+   - ✅ "화장 망치지 않는 아침 자외선 차단, 선크림 고르는 법"
+2. **도입부 첫 문단**: sceneSentence를 자연스럽게 녹인 묘사 (그 순간의 불편/욕구를 1~2문장으로 재현)
+3. **각 H2 섹션**: 그 장면의 한 단면(원인/대안/선택 기준/검증)을 다룸
+4. **금지 표현**: "30대 여성", "직장인", "육아맘", "헬스하는 남성" 등 인구통계 명사. 대신 행동·순간·맥락으로 기술
+5. **searchPath가 주어지면**: FAQ 섹션에서 그 검색어 흐름의 다음 질문에 답하는 구조로 Q를 구성
+6. **cepTask가 주어지면**: 결론 CTA가 "그 과업의 해결책"으로 자연스럽게 이어지도록
+
 ### ⭐ AI 인용률 향상 3대 원칙 (필수 적용)
 
 **원칙 1. 작성자 권위 신호 자동 삽입**
@@ -193,12 +205,26 @@ export async function POST(request: NextRequest) {
     const pFiles = (body as any).projectFiles as { file_name: string; content: string }[] | undefined;
     const hasRag = pFiles && pFiles.length > 0;
 
+    // CEP 장면 점유 컨텍스트 블록 (sceneSentence 또는 cepKeyword 있을 때만)
+    const cepBlock = (body.sceneSentence || body.cepKeyword) ? `
+[🎯 CEP 장면 점유 — 최우선 컨텍스트]
+${body.sceneSentence ? `장면 문장: "${body.sceneSentence}"` : ''}
+${body.cepTask ? `소비자 과업: ${body.cepTask}` : ''}
+${body.cepKeyword ? `대표 CEP 키워드: ${body.cepKeyword}` : ''}
+${body.searchPath?.length ? `검색 경로: ${body.searchPath.join(' → ')}` : ''}
+${body.cepCluster?.length ? `검색어 클러스터: ${body.cepCluster.join(', ')}` : ''}
+${body.lifeLanguages?.length ? `삶의 언어 (카테고리 진입 직전): ${body.lifeLanguages.join(' / ')}` : ''}
+
+⚠️ 위 장면이 제공된 경우, 본문 H1·도입부·결론은 반드시 이 장면을 점유해야 한다.
+인구통계 표현(30대, 직장인, 육아맘 등) 사용 금지. 사람이 아닌 순간을 다뤄라.
+` : '';
+
     let userMessage: string;
 
     if (hasRag) {
       // ── RAG 기반 생성: RAG 지식 → E-E-A-T 구조화 콘텐츠 ──
       const ragContent = pFiles!.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n');
-      userMessage = `[프로젝트 RAG 지식 기반]
+      userMessage = `${cepBlock}[프로젝트 RAG 지식 기반]
 아래 문서는 이 프로젝트의 핵심 자료입니다. 이 내용을 1차 지식 기반으로 삼아 E-E-A-T 구조화 콘텐츠를 작성하세요.
 
 ${ragContent}
@@ -260,7 +286,7 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 ${companyInfo ? `- ⚠️ 회사명·대표자명·주소는 RAG 자료에 있는 그대로 정확히 본문에 표기 (변경·축약·임의 생성 절대 금지)` : ''}`;
     } else {
       // ── 일반 생성 (RAG 없음) ──
-      userMessage = `다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
+      userMessage = `${cepBlock}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
@@ -439,6 +465,18 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         blog_url: linkInfo.blog_url,
         company_name: body.company_name,
       });
+    }
+    // CEP 장면 점유 추적 메타 보존 (sceneSentence가 있을 때)
+    if (body.sceneSentence && p) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (!p.metadata) p.metadata = {} as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (p.metadata as any).cep = {
+        sceneSentence: body.sceneSentence,
+        cepKeyword: body.cepKeyword,
+        searchPath: body.searchPath,
+        cepTask: body.cepTask,
+      };
     }
     return withCors(NextResponse.json(parsed));
 

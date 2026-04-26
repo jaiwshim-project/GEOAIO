@@ -267,6 +267,31 @@ export default function ManualPage() {
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>하단 API 키 패널:</strong> 생성 버튼 아래에 API 키 설정 카드가 상시 표시 — 키 오류 시 페이지 이동 없이 즉시 교체 가능</li>
               </ul>
             </div>
+            <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-50 rounded-xl p-4 border-2 border-purple-200 ring-1 ring-purple-100">
+              <h3 className="text-[13pt] font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                <span>🎯</span> Step 2.5: CEP 장면 발굴 위저드
+                <span className="text-[10px] px-2 py-0.5 bg-purple-200 text-purple-800 rounded-full font-bold">NEW · 선택</span>
+              </h3>
+              <p className="text-[11px] text-gray-800 mb-3"><strong>CEP(Category Entry Point)</strong>는 소비자가 카테고리에 진입하는 &quot;순간·장면&quot;입니다. 콘텐츠 생성 화면 상단의 <strong>&quot;🎯 CEP 장면 발굴&quot;</strong> 패널을 펼치면 검색 데이터 기반 5단계 위저드가 동작하여, AI 검색엔진이 인용하기 좋은 <strong>장면 문장</strong>을 자동 도출합니다.</p>
+              <ol className="space-y-2 text-[11px] text-gray-800 mb-3">
+                <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">①</span> <span><strong>시드 키워드 입력</strong> + [클러스터 발견] 클릭 → 네이버 자동완성과 LLM 분석으로 검색어 풀과 <strong>&quot;삶의 언어&quot;</strong>(예: &quot;비 오는 주말 아이와 갈 곳&quot;) 자동 수집</span></li>
+                <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">②</span> <span><strong>클러스터 카드 선택</strong> → 같은 의도로 묶인 검색어 그룹과 검색 경로(예: 선크림 밀림 → 화장 뜸 → 화장 잘먹는 선크림)를 보고 점유할 클러스터 1개 선택</span></li>
+                <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">③</span> <span><strong>[장면 번역] 클릭</strong> → 클러스터를 한 줄 장면 문장으로 자동 변환 (예: &quot;아침 화장 전, 선크림은 발라야 하지만 베이스 메이크업이 뜨지 않기를 바라는 순간&quot;)</span></li>
+                <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">④</span> <span><strong>[후보 평가] 클릭</strong> → 시장성 / 브랜드 적합성 / 입증 가능성 3축 점수표가 자동 생성. 명시적 CEP와 잠재적 CEP를 비교</span></li>
+                <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">⑤</span> <span><strong>장면 문장 확정</strong> → 결정한 문장은 그대로 콘텐츠 생성에 자동 전달되어 H1·도입부·H2·결론을 그 장면이 점유</span></li>
+              </ol>
+              <div className="bg-white rounded-lg p-3 border border-purple-200 mb-2">
+                <p className="text-[11px] font-bold text-purple-700 mb-1">💡 효과</p>
+                <ul className="space-y-1 text-[11px] text-gray-700">
+                  <li>• <strong>AI 검색 인용률 ↑</strong> — Perplexity·SearchGPT가 &quot;장면 쿼리&quot;에 직접 답으로 발췌</li>
+                  <li>• <strong>경쟁 강도 ↓</strong> — &quot;30대 여성&quot; 같은 인구통계 표현 대신 비어 있는 장면 좌표 점유</li>
+                  <li>• <strong>E-E-A-T × CEP 결합</strong> — &quot;누가 썼는가&quot;(권위) + &quot;어떤 순간을 위해&quot;(맥락) 이중 신뢰 신호</li>
+                </ul>
+              </div>
+              <div className="bg-amber-50 rounded-lg p-2.5 border border-amber-200">
+                <p className="text-[10px] text-amber-800"><strong>⚠️ 사용 팁:</strong> 위저드 패널은 기본 접힘 상태입니다. 카테고리 선택 후 패널 헤더의 &quot;🎯 CEP 장면 발굴&quot;을 클릭해 펼치세요. 입력한 장면 문장은 10가지 톤 생성에 일괄 적용됩니다. CEP 적용 vs 미적용의 비교 데모는 프로젝트 루트 <code className="bg-purple-100 px-1 py-0.5 rounded text-purple-700">cep-comparison-demo.html</code>에서 확인할 수 있습니다.</p>
+              </div>
+            </div>
             <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
               <h3 className="text-[13pt] font-semibold text-emerald-800 mb-2 flex items-center gap-2">
                 참조 자료 활용 (RAG 방식)
