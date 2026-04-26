@@ -43,6 +43,31 @@ function hasExistingAdBlock(content: string, project?: ProjectLinkInfo | null): 
   return false;
 }
 
+/**
+ * 콘텐츠에서 광고 블록(project-links)과 trailing 해시태그 라인을 모두 제거.
+ * 이어쓰기(continueGeneration) 합치기 직전에 호출해 광고/해시태그가 본문 중간에
+ * 끼어들거나 누적되는 사고를 방지.
+ */
+export function stripProjectLinks(content: string): string {
+  if (!content) return content;
+  let out = content;
+
+  // 1) 마커가 있는 광고 블록: <!-- project-links --> 부터 다음 --- 라인까지
+  out = out.replace(/\n*<!-- project-links -->[\s\S]*?\n-{3,}\s*(?=\n|$)/g, '');
+
+  // 2) 마커가 없는 광고 블록 (LLM이 직접 만들었거나 구버전):
+  //    --- + (빈줄) + 📍 ... 더 알아보기 + ... + --- 패턴
+  out = out.replace(
+    /\n*-{3,}\s*\n+\s*\*?\*?\s*📍[^\n]*?더\s*알아보기[^\n]*\*?\*?[\s\S]*?\n-{3,}\s*(?=\n|$)/g,
+    ''
+  );
+
+  // 3) trailing 해시태그 라인 제거 (이어쓰기 시 새 응답이 자연스럽게 이어지게)
+  out = out.replace(/\n+\s*#[가-힣A-Za-z0-9_][^\n]*(?:\n\s*#[가-힣A-Za-z0-9_][^\n]*)*\s*$/m, '');
+
+  return out.trimEnd();
+}
+
 export function injectProjectLinks(content: string, project?: ProjectLinkInfo | null): string {
   if (!content) return content;
   const homepage = project?.homepage_url?.trim();

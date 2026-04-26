@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory, GenerateResponse } from '@/lib/types';
 import { addRevision, generateId } from '@/lib/history';
+import { stripProjectLinks } from '@/lib/inject-project-links';
 import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, saveBlogPostsBatch, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 import { useUser } from '@/lib/user-context';
 
@@ -270,8 +271,11 @@ export default function GenerateResultPage() {
   };
 
   // 두 콘텐츠 자연스럽게 결합
+  // ⚠️ 합치기 전 orig에서 광고 블록과 trailing 해시태그를 제거.
+  //    이 단계 없이 단순 이어붙이면 광고 블록이 본문 중간에 끼고 이어쓰기마다 누적됨.
+  //    (이어쓰기 4회 = 광고 4번 + FAQ/결론 중복 사고 발생).
   const mergeMd = (orig: string, cont: string): string => {
-    const o = orig.trim();
+    const o = stripProjectLinks(orig).trim();
     const c = cont.trim();
     const sep = c.startsWith('#') || c.startsWith('|') ? '\n\n' : '\n';
     return o + sep + c;
