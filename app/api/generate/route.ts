@@ -340,25 +340,8 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
         });
         text = response.text || '';
         console.log('[API] Gemini 응답', text.length, '자');
-
-        // 옵션 C: Gemini 응답이 부실하면 Claude로 자동 폴백 (빈·짧은 JSON)
-        if (text.length < 500 && claudeKey) {
-          console.log(`[API] Gemini 응답 부실(${text.length}자) — Claude로 자동 폴백`);
-          try {
-            const client = new Anthropic({ apiKey: claudeKey });
-            const message = await client.messages.create({
-              model: 'claude-sonnet-4-20250514', max_tokens: 8192,
-              messages: [{ role: 'user', content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1"]}}` }],
-            });
-            const claudeText = message.content[0].type === 'text' ? message.content[0].text : '';
-            if (claudeText.length > text.length) {
-              text = claudeText;
-              console.log('[API] Claude 폴백 성공', text.length, '자');
-            }
-          } catch (e) {
-            console.warn('[API] Claude 폴백 실패, Gemini 부실 응답 그대로 반환:', e);
-          }
-        }
+        // ⚠️ 옵션 C(Gemini→Claude 폴백) 롤백: 504 timeout 유발 (60초 한도 초과).
+        //   Claude 폴백은 result page generateTone의 자동 재시도가 1번 더 시도하는 것으로 대체.
       } catch (geminiError: unknown) {
         lastError = geminiError instanceof Error ? geminiError : new Error(String(geminiError));
         console.log('[API] Gemini 실패, Claude로 폴백:', lastError.message);

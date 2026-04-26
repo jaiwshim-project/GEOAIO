@@ -1037,11 +1037,12 @@ export default function GeneratePage() {
 
         // 1차 시도
         let result = await fetchOnce();
-        // 자동 재시도 조건: HTTP 실패 또는 content 부실(빈/짧음)
-        const isPoorContent = result.ok && (!result.data?.content || (typeof result.data.content === 'string' && result.data.content.length < 1000));
-        if (!result.ok || isPoorContent) {
-          console.log(`[generate] 톤 "${t.label}" 자동 재시도: ${result.ok ? `content ${result.data?.content?.length || 0}자 부실` : `HTTP ${result.status}`}`);
-          await new Promise(r => setTimeout(r, 1000)); // 1초 대기 (rate limit 회피)
+        const isPoorContent = (r: typeof result) => r.ok && (!r.data?.content || (typeof r.data.content === 'string' && r.data.content.length < 1000));
+
+        // 2회까지 자동 재시도 (504 timeout·부실 응답 모두 대응)
+        for (let attempt = 1; attempt <= 2 && (!result.ok || isPoorContent(result)); attempt++) {
+          console.log(`[generate] 톤 "${t.label}" 자동 재시도 ${attempt}/2: ${result.ok ? `content ${result.data?.content?.length || 0}자 부실` : `HTTP ${result.status}`}`);
+          await new Promise(r => setTimeout(r, 1500)); // 1.5초 대기 (rate limit·서버 회복)
           result = await fetchOnce();
         }
 
