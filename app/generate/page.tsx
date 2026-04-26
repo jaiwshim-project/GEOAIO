@@ -1890,7 +1890,37 @@ export default function GeneratePage() {
                   return (
                     <button
                       key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
+                      onClick={() => {
+                        // 새 카테고리 클릭 = 새 컨텍스트 시작 → CEP·추천 주제 모두 리셋
+                        // (이전 cache 데이터는 새 카테고리에 안 맞으므로 깨끗하게 초기화)
+                        if (selectedCategory !== cat.id) {
+                          // 추천 주제 리셋
+                          setTopicSuggestions([]);
+                          setUsedTopics([]);
+                          setSavedTopicsCache(null);
+                          setTopic('');
+                          setTargetKeyword('');
+                          setSelectedSubKeyword('');
+                          // CEP 위저드 결과 리셋
+                          setCepClusters([]);
+                          setCepLifeLanguages([]);
+                          setCepSelectedCluster(null);
+                          setSceneSentence('');
+                          setCepTask('');
+                          setCepHooks([]);
+                          setCepCandidates([]);
+                          setCepSeed('');
+                          setSavedCepCache(null);
+                          setCepAutoStatus('idle');
+                          // localStorage cache 모두 삭제
+                          try {
+                            localStorage.removeItem(SUGGEST_CACHE_KEY);
+                            localStorage.removeItem(CEP_CACHE_KEY);
+                          } catch {}
+                          console.log(`[reset] 새 카테고리 "${cat.label}" 선택 — CEP·추천 주제 리셋`);
+                        }
+                        setSelectedCategory(cat.id);
+                      }}
                       className={`relative p-3 rounded-xl text-left transition-all duration-200 border ${
                         isSelected
                           ? `bg-gradient-to-br ${cat.color} text-white shadow-lg`
