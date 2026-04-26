@@ -4,5 +4,8 @@
     "app/api/generate/route.ts": {
       "maxDuration": 120
     }
-  }
+  },
+  "crons": [
+    { "path": "/api/cron/measure-citations", "schedule": "0 9 * * *" }
+  ]
 }

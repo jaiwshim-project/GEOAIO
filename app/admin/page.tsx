@@ -96,6 +96,47 @@ export default function AdminPage() {
   const [allProjects, setAllProjects] = useState<AdminProject[]>([]);
   const [expandedUserProjects, setExpandedUserProjects] = useState<string | null>(null);
 
+  // CEP 코호트 통계 (분대 Golf의 /api/admin/cep-stats)
+  type CepStats = {
+    period_days: number;
+    total_generations: number;
+    cep_applied: number;
+    cep_skipped: number;
+    adoption_rate: number;
+    top_cep_keywords: { keyword: string; count: number }[];
+    daily_trend: { date: string; cep: number; total: number }[];
+  };
+  const [cepStats, setCepStats] = useState<CepStats | null>(null);
+  const [cepStatsLoading, setCepStatsLoading] = useState(false);
+  const [cepStatsError, setCepStatsError] = useState('');
+
+  const loadCepStats = async (pw?: string) => {
+    const password = pw || sessionStorage.getItem('admin_pw') || '';
+    if (!password) return;
+    setCepStatsLoading(true);
+    setCepStatsError('');
+    try {
+      const res = await fetch('/api/admin/cep-stats?days=14', {
+        method: 'POST',
+        headers: {
+          'X-Admin-Pass': password,
+          'Content-Type': 'application/json',
+        },
+        body: '{}',
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `조회 실패 (${res.status})`);
+      }
+      const data: CepStats = await res.json();
+      setCepStats(data);
+    } catch (err) {
+      setCepStatsError(err instanceof Error ? err.message : '오류 발생');
+    } finally {
+      setCepStatsLoading(false);
+    }
+  };
+
   const loadAllProjects = async (pw?: string) => {
     const password = pw || sessionStorage.getItem('admin_pw') || '';
     try {
@@ -162,6 +203,7 @@ export default function AdminPage() {
             setAuthenticated(true);
             loadUsers(savedPw);
             loadAllProjects(savedPw);
+            loadCepStats(savedPw);
             setAuthChecking(false);
             return;
           }
@@ -171,6 +213,7 @@ export default function AdminPage() {
           setAuthenticated(true);
           loadUsers();
           loadAllProjects();
+          loadCepStats();
         }
       } catch {
         // not logged in
@@ -217,6 +260,7 @@ export default function AdminPage() {
         setAuthenticated(true);
         loadUsers(adminPassword);
         loadAllProjects(adminPassword);
+        loadCepStats(adminPassword);
       } else {
         const data = await res.json();
         setPasswordError(data.error || '비밀번호가 틀렸습니다.');
@@ -514,6 +558,126 @@ export default function AdminPage() {
             <p className="text-xs font-medium text-violet-500">맥스</p>
             <p className="text-2xl font-bold text-violet-600">{planStats.max}</p>
           </div>
+        </div>
+
+        {/* CEP 코호트 카드 */}
+        <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-50 border-2 border-purple-200 rounded-2xl p-6 mb-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-purple-900 flex items-center gap-2">
+              <span>🎯</span>
+              <span>CEP 위저드 도입 코호트 (최근 14일)</span>
+            </h2>
+            <button
+              onClick={() => loadCepStats()}
+              disabled={cepStatsLoading}
+              className="px-3 py-1.5 text-xs font-semibold text-purple-700 bg-white border border-purple-300 rounded-lg hover:bg-purple-50 transition-all disabled:opacity-50"
+            >
+              {cepStatsLoading ? '불러오는 중...' : '새로고침'}
+            </button>
+          </div>
+
+          {cepStatsError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3 text-xs text-red-700">
+              {cepStatsError}
+            </div>
+          )}
+
+          {cepStatsLoading && !cepStats ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full" />
+              <span className="ml-3 text-sm text-purple-700">CEP 통계 불러오는 중...</span>
+            </div>
+          ) : !cepStats ? (
+            <div className="text-center py-10 text-sm text-purple-400">
+              CEP 통계 데이터가 아직 없습니다.
+            </div>
+          ) : (
+            <>
+              {/* KPI 3개 박스 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                <div className="bg-white rounded-xl border border-purple-200 p-4">
+                  <p className="text-3xl font-bold text-purple-700">
+                    {(cepStats.adoption_rate * 100).toFixed(1)}
+                    <span className="text-lg text-purple-400 font-semibold">%</span>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">CEP 적용률 (Adoption Rate)</p>
+                </div>
+                <div className="bg-white rounded-xl border border-purple-200 p-4">
+                  <p className="text-3xl font-bold text-indigo-700">
+                    {cepStats.cep_applied.toLocaleString()}
+                    <span className="text-base text-gray-400 font-semibold"> / {cepStats.total_generations.toLocaleString()}</span>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">CEP 적용 / 전체 생성</p>
+                </div>
+                <div className="bg-white rounded-xl border border-purple-200 p-4">
+                  <p className="text-3xl font-bold text-slate-600">
+                    {cepStats.cep_skipped.toLocaleString()}
+                    <span className="text-base text-gray-400 font-semibold"> / {cepStats.total_generations.toLocaleString()}</span>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">CEP 미적용 / 전체 생성</p>
+                </div>
+              </div>
+
+              {/* 일별 추이 막대 그래프 */}
+              <div className="bg-white rounded-xl border border-purple-200 p-4 mb-5">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold text-gray-700">일별 추이 (CEP / 전체)</h3>
+                  <div className="flex items-center gap-3 text-[10px] text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-purple-500" /> CEP
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-slate-300" /> 전체
+                    </span>
+                  </div>
+                </div>
+                {cepStats.daily_trend.length === 0 ? (
+                  <p className="text-center py-6 text-xs text-gray-400">데이터가 없습니다.</p>
+                ) : (
+                  (() => {
+                    const maxTotal = Math.max(1, ...cepStats.daily_trend.map(d => d.total));
+                    return (
+                      <div className="flex items-end gap-1 h-32">
+                        {cepStats.daily_trend.map((d, i) => {
+                          const totalPct = (d.total / maxTotal) * 100;
+                          const cepPct = (d.cep / maxTotal) * 100;
+                          const dayLabel = d.date?.slice(5) || '';
+                          return (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-1" title={`${d.date} · CEP ${d.cep}/${d.total}`}>
+                              <div className="relative w-full flex-1 flex items-end">
+                                <div className="absolute bottom-0 left-0 right-0 bg-slate-300 rounded-t" style={{ height: `${totalPct}%` }} />
+                                <div className="absolute bottom-0 left-0 right-0 bg-purple-500 rounded-t" style={{ height: `${cepPct}%` }} />
+                              </div>
+                              <span className="text-[9px] text-gray-400">{dayLabel}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()
+                )}
+              </div>
+
+              {/* Top CEP 키워드 칩 */}
+              <div className="bg-white rounded-xl border border-purple-200 p-4">
+                <h3 className="text-sm font-bold text-gray-700 mb-3">Top CEP 키워드 (상위 10개)</h3>
+                {cepStats.top_cep_keywords.length === 0 ? (
+                  <p className="text-center py-3 text-xs text-gray-400">키워드 데이터가 없습니다.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {cepStats.top_cep_keywords.slice(0, 10).map((k, i) => (
+                      <span
+                        key={`${k.keyword}-${i}`}
+                        className="bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-xs font-semibold border border-purple-200"
+                      >
+                        {k.keyword} ({k.count}회)
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* 폴더 탭 */}

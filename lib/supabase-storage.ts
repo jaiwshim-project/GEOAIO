@@ -363,6 +363,36 @@ export async function getImages(historyId: string): Promise<{ url: string; promp
 // 블로그 포스트 CRUD
 // ============================
 
+/**
+ * blog_articles 행에서 CEP 메타를 추출.
+ * metadata 컬럼 우선, 없으면 author 필드의 JSON 폴백.
+ */
+export function extractBlogCepMeta(row: { metadata?: unknown; author?: unknown }): {
+  sceneSentence?: string;
+  cepKeyword?: string;
+  searchPath?: string[];
+  cepTask?: string;
+} | null {
+  // 1순위: metadata 컬럼
+  const md = row.metadata as Record<string, unknown> | null | undefined;
+  if (md && typeof md === 'object') {
+    const cep = (md as { cep?: Record<string, unknown> }).cep;
+    if (cep && typeof cep === 'object') {
+      return cep as ReturnType<typeof extractBlogCepMeta>;
+    }
+  }
+  // 2순위: author 필드 JSON 폴백 (구 데이터)
+  if (typeof row.author === 'string' && row.author.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(row.author) as { metadata?: { cep?: unknown } };
+      if (parsed?.metadata?.cep && typeof parsed.metadata.cep === 'object') {
+        return parsed.metadata.cep as ReturnType<typeof extractBlogCepMeta>;
+      }
+    } catch { /* ignore */ }
+  }
+  return null;
+}
+
 export async function saveBlogPost(post: {
   title: string;
   content: string;
@@ -388,6 +418,7 @@ export async function saveBlogPost(post: {
       category: post.category,
       tags: post.hashtags || [],
       author: meta,
+      metadata: post.metadata || {},
     };
     console.log('saveBlogPost inserting:', insertData);
     const { data, error } = await getSupabase()
@@ -430,6 +461,7 @@ export async function saveBlogPostsBatch(posts: {
       historyId: post.historyId || '',
       metadata: post.metadata || {},
     }),
+    metadata: post.metadata || {},
   }));
   const { data, error } = await getSupabase()
     .from('blog_articles')
@@ -456,6 +488,19 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
     if (row.author) {
       try { meta = JSON.parse(row.author); } catch { /* ignore */ }
     }
+    // metadata 컬럼이 1급 시민. 없거나 비어있으면 author JSON에서 폴백.
+    const columnMeta = (row.metadata && typeof row.metadata === 'object')
+      ? (row.metadata as Record<string, unknown>)
+      : null;
+    const fallbackMeta = (meta.metadata as Record<string, unknown>) || {};
+    const finalMetadata = (columnMeta && Object.keys(columnMeta).length > 0)
+      ? columnMeta
+      : fallbackMeta;
+    // CEP 메타 추출 시 헬퍼 사용 (저장 안 하는 호출자는 무시)
+    const cep = extractBlogCepMeta(row);
+    if (cep && !finalMetadata.cep) {
+      finalMetadata.cep = cep;
+    }
     return {
       id: row.id,
       title: row.title,
@@ -464,7 +509,7 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
       category: row.category || '',
       tag: (meta.tag as string) || '',
       hashtags: Array.isArray(row.tags) ? row.tags : [],
-      metadata: (meta.metadata as Record<string, unknown>) || {},
+      metadata: finalMetadata,
       targetKeyword: (meta.targetKeyword as string) || '',
       historyId: (meta.historyId as string) || '',
       published: true,
