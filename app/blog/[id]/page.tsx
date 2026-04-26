@@ -97,6 +97,8 @@ function markdownToHtml(text: string) {
     html = html
       .replace(/^### (.*$)/gm, '<h3 style="font-size:1em;font-weight:700;color:#374151;margin:20px 0 6px;padding-left:12px;border-left:3px solid #c7d2fe">$1</h3>')
       .replace(/^# (.*$)/gm, '<h1 style="font-size:1.3em;font-weight:800;color:#4f46e5;margin:24px 0 12px">$1</h1>')
+      // 마크다운 링크 [text](url) → <a> (이미지 ![]() 패턴은 제외)
+      .replace(/(^|[^!])\[([^\]]+)\]\(([^)\s]+)\)/g, '$1<a href="$3" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;text-decoration:underline;font-weight:500;word-break:break-all">$2</a>')
       .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#1e293b">$1</strong>')
       .replace(/^\- (.*$)/gm, '<li style="margin-left:20px;list-style:none;margin-bottom:4px;padding-left:8px;position:relative"><span style="position:absolute;left:-14px;color:#6366f1;font-weight:bold">&#8226;</span>$1</li>')
       .replace(/^\d+\. (.*$)/gm, '<li style="margin-left:20px;list-style:decimal;margin-bottom:4px;color:#374151">$1</li>')
