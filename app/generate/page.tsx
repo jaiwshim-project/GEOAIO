@@ -1879,9 +1879,9 @@ export default function GeneratePage() {
                         <li key={i}>
                           <button
                             type="button"
-                            onClick={() => setTopic(s)}
+                            onClick={() => { setTopic(s); fetchKeywordSuggestions(s); }}
                             className="w-full text-left px-3 py-2 text-sm rounded-lg border bg-white text-gray-800 border-rose-200 hover:bg-rose-100 hover:border-rose-400 transition-colors"
-                            title="클릭하면 주제 입력란에 자동 입력"
+                            title="클릭하면 주제 입력란에 자동 입력 + 키워드 자동 추천"
                           >
                             <span className="text-rose-500 mr-1.5">▸</span>
                             {s}
@@ -2024,7 +2024,10 @@ export default function GeneratePage() {
                             <button
                               key={i}
                               type="button"
-                              onClick={() => setTopic(t => t ? t + ' / ' + lang : lang)}
+                              onClick={() => {
+                                setTopic(t => t ? t + ' / ' + lang : lang);
+                                fetchKeywordSuggestions(lang);
+                              }}
                               className="px-2.5 py-1 text-xs bg-white border border-purple-300 text-purple-700 rounded-full hover:bg-purple-100 transition-colors"
                             >
                               + {lang}
@@ -2247,6 +2250,8 @@ export default function GeneratePage() {
                               setTopicSuggestions(displayTopics);
                               setUsedTopics(displayUsed);
                             }
+                            // 키워드 자동 추천 + 자동 선택
+                            fetchKeywordSuggestions(t);
                           }}
                           className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors border ${
                             isUsed
