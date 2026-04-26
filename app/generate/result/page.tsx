@@ -981,7 +981,9 @@ export default function GenerateResultPage() {
     const headers = parseCells(lines[0]);
     const startIdx = /^[\s|:-]+$/.test(lines[1]) ? 2 : 1;
     const rows = lines.slice(startIdx).map(parseCells);
-    const thStyle = 'padding:10px 16px;text-align:left;font-weight:600;font-size:0.85em;color:#ffffff;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:1px solid #818cf8;white-space:nowrap';
+    // 헤드 글씨는 진한 빨강(#dc2626) — 보라 그라데이션 배경이 복사 시 사라져도
+    // 흰 배경에서도 잘 보이게 보장 (사용자가 외부 에디터로 붙여넣을 때 가독성 확보)
+    const thStyle = 'padding:10px 16px;text-align:left;font-weight:700;font-size:0.85em;color:#dc2626;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:1px solid #818cf8;white-space:nowrap;text-shadow:0 1px 2px rgba(255,255,255,0.5)';
     const tdBaseStyle = 'padding:10px 16px;font-size:0.85em;border:1px solid #e5e7eb;color:#374151';
     let html = '<table style="width:100%;border-collapse:collapse;margin:20px 0;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08)">';
     html += '<thead><tr>' + headers.map(h => `<th style="${thStyle}">${h.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</th>`).join('') + '</tr></thead>';
