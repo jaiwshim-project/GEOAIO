@@ -149,7 +149,16 @@ async function collectKeywordPool(seedKeyword: string): Promise<string[]> {
 
 function buildUserMessage(seedKeyword: string, industry: string | undefined, pool: string[]): string {
   const hasPool = pool.length > 0;
-  return `시드 키워드: "${seedKeyword}"
+  const standaloneHeader = hasPool
+    ? ''
+    : `⚠️ LLM 단독 모드 (자동완성 수집 실패)
+키워드 풀 수집이 실패했지만 너는 한국어 검색 데이터에 학습된 LLM이다.
+"${seedKeyword}" 시드를 받았을 때 사용자가 카테고리에 진입하는 검색 패턴을
+너의 사전 지식으로 추론하라. 클러스터 5개·lifeLanguages 5개를 반드시 채워라.
+빈 배열로 응답하면 시스템이 작동하지 않는다.
+
+`;
+  return `${standaloneHeader}시드 키워드: "${seedKeyword}"
 ${industry ? `산업/분야: ${industry}` : ''}
 
 [키워드 풀 — 자동완성 수집 결과 ${pool.length}개]
@@ -215,6 +224,7 @@ function normalizeLLMResult(raw: Partial<LLMResult> | undefined): LLMResult {
 
 export async function POST(request: NextRequest) {
   try {
+    const isDebug = request.nextUrl.searchParams.get('debug') === '1';
     const body = (await request.json()) as CEPClusterRequest;
 
     if (!body?.seedKeyword?.trim()) {
@@ -255,9 +265,9 @@ export async function POST(request: NextRequest) {
           contents: userMessage,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 4096,
             responseMimeType: 'application/json',
-            responseSchema: RESPONSE_SCHEMA,
+            // responseSchema 제거 — strict mode가 빈 객체로 도망가는 것 방지. JSON MIME만 강제하고 형식은 prompt로 유도.
           },
         });
         text = response.text || '';
@@ -299,13 +309,17 @@ export async function POST(request: NextRequest) {
       text = message.content[0].type === 'text' ? message.content[0].text : '';
     }
 
+    // 디버깅용 raw 응답 로깅 (Vercel logs)
+    console.log('[cep/cluster-search] LLM raw text length:', text.length, 'first 500:', text.slice(0, 500));
+
     // JSON 파싱 + 정규화
     let llmResult: LLMResult;
     try {
       const raw = parseLLMJson(text) as Partial<LLMResult>;
       llmResult = normalizeLLMResult(raw);
     } catch (parseErr) {
-      console.error('[cep/cluster-search] LLM JSON 파싱 실패:', parseErr, 'raw:', text.slice(0, 500));
+      console.error('[cep/cluster-search] LLM JSON 파싱 실패:', parseErr instanceof Error ? parseErr.message : parseErr);
+      console.error('[cep/cluster-search] raw text (full):', text);
       llmResult = { lifeLanguages: [], clusters: [] };
     }
 
@@ -315,6 +329,19 @@ export async function POST(request: NextRequest) {
       autoCompleteRaw,
       clusters: llmResult.clusters,
     };
+
+    if (isDebug) {
+      return withCors(NextResponse.json({
+        ...result,
+        _debug: {
+          poolSize: autoCompleteRaw.length,
+          llmRawTextLength: text.length,
+          llmRawTextPreview: text.slice(0, 1000),
+          parsedClustersCount: llmResult.clusters.length,
+          parsedLifeLangsCount: llmResult.lifeLanguages.length,
+        },
+      }));
+    }
 
     return withCors(NextResponse.json(result));
   } catch (error: unknown) {

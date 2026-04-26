@@ -231,6 +231,9 @@ export default function GeneratePage() {
   const [cepHooks, setCepHooks] = useState<string[]>([]);
   const [cepCandidates, setCepCandidates] = useState<{ cepKeyword: string; sceneSentence?: string; score?: { marketFit: number; brandFit: number; provability: number; total: number; rationale: { market: string; brand: string; proof: string } }; recommendation?: string }[]>([]);
   const [cepError, setCepError] = useState<string | null>(null);
+  // CEP 자동 도출(분대 Oscar): topic 입력 시 백그라운드 자동 진행
+  const [cepAutoMode, setCepAutoMode] = useState(true);
+  const [cepAutoStatus, setCepAutoStatus] = useState<'idle' | 'searching' | 'translating' | 'done' | 'failed'>('idle');
 
   // 프로필 목록 로드
   useEffect(() => {
@@ -663,6 +666,72 @@ export default function GeneratePage() {
     if (bizParts.length > 0) parts.push(`[비즈니스 정보]\n${bizParts.join('\n')}`);
     return parts.length > 0 ? parts.join('\n\n') : undefined;
   };
+
+  // ==================== CEP 자동 도출 (분대 Oscar) ====================
+  // topic 또는 targetKeyword 입력 시 1.5초 debounce 후 cluster-search → translate-scene 자동 실행
+  useEffect(() => {
+    if (!cepAutoMode) return;
+    if (!selectedCategory) return;
+    // 이미 sceneSentence가 있으면 (사용자 직접 입력 또는 이전 자동 결과) 재실행 방지
+    if (sceneSentence) return;
+    // 시드 후보: topic 우선, 없으면 targetKeyword
+    const seedSource = (topic.trim() || targetKeyword.trim()).slice(0, 50);
+    if (seedSource.length < 3) return;
+
+    const timer = setTimeout(async () => {
+      if (cepAutoStatus !== 'idle') return; // 진행 중이면 스킵
+      setCepAutoStatus('searching');
+      setCepError(null);
+      try {
+        // Step 1: cluster-search
+        const r1 = await fetch('/api/cep/cluster-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+          body: JSON.stringify({
+            seedKeyword: seedSource,
+            industry: businessInfo.industry || businessInfo.customIndustry,
+            businessContext: businessInfo.companyName || '',
+          }),
+        });
+        const d1 = await r1.json();
+        if (!r1.ok) throw new Error(d1.error || 'cluster search failed');
+        const clusters = d1.clusters || [];
+        const lifeLangs = d1.lifeLanguages || [];
+        setCepClusters(clusters);
+        setCepLifeLanguages(lifeLangs);
+        setCepSeed(seedSource);
+
+        if (clusters.length === 0) {
+          setCepAutoStatus('failed');
+          return;
+        }
+
+        // Step 2: 첫 클러스터 자동 선택 + translate-scene
+        setCepSelectedCluster(0);
+        setCepAutoStatus('translating');
+        const r2 = await fetch('/api/cep/translate-scene', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(geminiApiKey ? { 'X-Gemini-Key': geminiApiKey } : {}) },
+          body: JSON.stringify({
+            cluster: clusters[0],
+            industry: businessInfo.industry || businessInfo.customIndustry,
+            businessContext: businessInfo.companyName,
+          }),
+        });
+        const d2 = await r2.json();
+        if (!r2.ok) throw new Error(d2.error || 'scene translate failed');
+        setSceneSentence(d2.sceneSentence || '');
+        setCepTask(d2.task || '');
+        setCepHooks(d2.contentHooks || []);
+        setCepAutoStatus('done');
+      } catch (e) {
+        setCepAutoStatus('failed');
+        setCepError(e instanceof Error ? e.message : 'CEP 자동 도출 실패');
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic, targetKeyword, selectedCategory, cepAutoMode, sceneSentence, geminiApiKey]);
 
   // ==================== CEP(Category Entry Point) 핸들러 ====================
   const handleCepClusterSearch = async () => {
@@ -1502,31 +1571,59 @@ export default function GeneratePage() {
             {/* CEP(Category Entry Point) 발굴 위저드 */}
             {selectedCategory && (
               <div className="bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 rounded-xl shadow-sm border border-purple-200 p-5">
-                <button
-                  type="button"
-                  onClick={() => setCepOpen(o => {
-                    const next = !o;
-                    if (next) safeTrack('cep_wizard_open', { industry: businessInfo.industry || null });
-                    return next;
-                  })}
-                  className="w-full flex items-center justify-between text-left"
-                >
-                  <div>
-                    <h2 className="text-lg font-semibold text-purple-900 flex items-center gap-2">
-                      🎯 CEP 장면 발굴
-                      <span className="text-xs font-normal px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">선택</span>
-                    </h2>
-                    <p className="text-xs text-purple-700/80 mt-1">
-                      Category Entry Point — 시드 키워드에서 &lsquo;장면 문장&rsquo;을 만들어 콘텐츠 점유 포인트를 강화합니다
-                    </p>
-                  </div>
-                  <svg
-                    className={`w-5 h-5 text-purple-600 transition-transform ${cepOpen ? 'rotate-180' : ''}`}
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCepOpen(o => {
+                      const next = !o;
+                      if (next) safeTrack('cep_wizard_open', { industry: businessInfo.industry || null });
+                      return next;
+                    })}
+                    className="flex-1 flex items-center justify-between text-left"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                    <div>
+                      <h2 className="text-lg font-semibold text-purple-900 flex items-center gap-2">
+                        🎯 CEP 장면 발굴
+                        <span className="text-xs font-normal px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">선택</span>
+                      </h2>
+                      <p className="text-xs text-purple-700/80 mt-1">
+                        Category Entry Point — 시드 키워드에서 &lsquo;장면 문장&rsquo;을 만들어 콘텐츠 점유 포인트를 강화합니다
+                      </p>
+                    </div>
+                    <svg
+                      className={`w-5 h-5 text-purple-600 transition-transform ${cepOpen ? 'rotate-180' : ''}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {/* 자동 도출 배지 + 토글 (분대 Oscar) */}
+                  <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    {sceneSentence && cepAutoStatus === 'done' && (
+                      <span className="text-xs px-2 py-0.5 bg-purple-200 text-purple-800 rounded-full font-bold">
+                        ✨ 자동 도출 완료
+                      </span>
+                    )}
+                    {cepAutoStatus === 'searching' && (
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">🔍 클러스터 분석 중...</span>
+                    )}
+                    {cepAutoStatus === 'translating' && (
+                      <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">🎬 장면 번역 중...</span>
+                    )}
+                    {cepAutoStatus === 'failed' && (
+                      <span className="text-xs px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full">⚠️ 자동 도출 실패 — 수동 사용</span>
+                    )}
+                    <label className="flex items-center gap-1 text-xs text-purple-700 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={cepAutoMode}
+                        onChange={(e) => setCepAutoMode(e.target.checked)}
+                        className="w-3 h-3"
+                      />
+                      자동
+                    </label>
+                  </div>
+                </div>
 
                 {cepOpen && (
                   <div className="mt-4 space-y-4">
