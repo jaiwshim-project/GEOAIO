@@ -93,8 +93,17 @@ export async function POST(request: NextRequest) {
       return withCors(NextResponse.json({ error: 'content 필요' }, { status: 400 }));
     }
 
-    const geminiKey = getGeminiKey(request);
+    // Claude 단독 사용 (EEAT 7단계 변환 전용). md 초안 생성은 별도 API(/api/generate)에서 Gemini 단독 호출.
     const claudeKey = getClaudeKey(request);
+    const geminiKey = getGeminiKey(request);
+    void geminiKey; // geminiKey는 이 라우트에서 사용하지 않음 (다른 라우트가 동일 라이브러리 import 시 안전성 유지)
+
+    if (!claudeKey) {
+      return withCors(NextResponse.json(
+        { error: 'Claude API 키가 필요합니다.' },
+        { status: 401 }
+      ));
+    }
 
     // ── 이어쓰기 모드: 잘린 콘텐츠를 마저 작성 ──
     const prompt = continuation && previousContent
@@ -137,62 +146,32 @@ ${content}
 ⭐ 분량: 1,600~2,200자 (간결하게 핵심만, 마지막 해시태그까지 반드시 완성)`;
 
     let convertedContent = '';
-    let finishReason: string = ''; // 'STOP' = 정상 종료, 'MAX_TOKENS' = 잘림
+    let finishReason: string = '';
     let truncated = false;
 
-    // Gemini 우선
-    if (geminiKey) {
-      try {
-        const ai = new GoogleGenAI({ apiKey: geminiKey });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: prompt,
-          config: { maxOutputTokens: 12000 }, // 잘림 방지: 6000 → 8000
-        });
-        convertedContent = response.text || '';
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        finishReason = (response as any).candidates?.[0]?.finishReason || '';
-        if (finishReason && finishReason !== 'STOP') {
-          truncated = true;
-          console.log('[convert-eeat] Gemini 응답 잘림:', finishReason);
-        }
-      } catch (e) {
-        console.log('[convert-eeat] Gemini 실패, Claude 폴백:', e);
+    // Claude 단독 호출 (EEAT 7단계 변환 전용). 폴백 없음 — timeout 회피.
+    try {
+      console.log('[convert-eeat] Claude 단독 호출');
+      const client = new Anthropic({ apiKey: claudeKey });
+      const message = await client.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      convertedContent = message.content[0].type === 'text' ? message.content[0].text : '';
+      finishReason = message.stop_reason || '';
+      if (finishReason && finishReason !== 'end_turn' && finishReason !== 'stop_sequence') {
+        truncated = true;
+        console.log('[convert-eeat] Claude 응답 잘림:', finishReason);
       }
-    }
-
-    // 옵션 C: Gemini 응답 부실(빈·짧음·잘림)이면 Claude로 자동 폴백
-    // 정상 응답 길이는 보통 1500자+. 500자 미만이면 부실 판정.
-    if (claudeKey && (!convertedContent || convertedContent.length < 500 || truncated)) {
-      const reason = !convertedContent ? '빈 응답' : convertedContent.length < 500 ? `${convertedContent.length}자 부실` : `잘림(${finishReason})`;
-      console.log(`[convert-eeat] Gemini ${reason} — Claude로 자동 폴백`);
-    }
-
-    // Claude 폴백 (Gemini 빈 응답 OR 부실 OR 잘림)
-    if (claudeKey && (!convertedContent || convertedContent.length < 500 || truncated)) {
-      try {
-        const client = new Anthropic({ apiKey: claudeKey });
-        const message = await client.messages.create({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 12000,
-          messages: [{ role: 'user', content: prompt }],
-        });
-        const claudeText = message.content[0].type === 'text' ? message.content[0].text : '';
-        // Claude 응답이 Gemini보다 길면 채택 (더 완성도 높을 가능성)
-        if (claudeText.length > convertedContent.length) {
-          convertedContent = claudeText;
-          truncated = false; // Claude로 새로 받았으니 reset
-          finishReason = message.stop_reason || '';
-          if (finishReason && finishReason !== 'end_turn' && finishReason !== 'stop_sequence') {
-            truncated = true;
-            console.log('[convert-eeat] Claude 응답 잘림:', finishReason);
-          } else {
-            console.log('[convert-eeat] Claude 폴백 성공', claudeText.length, '자');
-          }
-        }
-      } catch (e) {
-        console.warn('[convert-eeat] Claude 폴백 실패, Gemini 결과 유지:', e);
-      }
+      console.log('[convert-eeat] Claude 응답', convertedContent.length, '자');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('[convert-eeat] Claude 실패:', msg);
+      return withCors(NextResponse.json(
+        { error: `Claude 변환 실패: ${msg}` },
+        { status: 500 }
+      ));
     }
 
     if (!convertedContent) {

@@ -198,20 +198,17 @@ export async function POST(request: NextRequest) {
       return withCors(NextResponse.json({ error: '콘텐츠 유형을 선택해주세요.' }, { status: 400 }));
     }
 
-    // X-API-Provider 헤더로 선택된 AI 우선 적용 (기본값: claude)
-    const apiProvider = request.headers.get('X-API-Provider') || 'claude';
+    // Gemini 단독 사용 (md 초안 생성). EEAT 7단계 변환은 별도 API(/api/convert-eeat)에서 Claude 단독 호출.
     const claudeKey = getClaudeKey(request);
     const geminiKey = getGeminiKey(request);
 
-    if (!claudeKey && !geminiKey) {
+    if (!geminiKey) {
       return withCors(NextResponse.json(
-        { error: 'Claude 또는 Gemini API 키가 필요합니다. /settings 페이지에서 API 키를 등록해주세요.' },
+        { error: 'Gemini API 키가 필요합니다. /settings 페이지에서 API 키를 등록해주세요.' },
         { status: 401 }
       ));
     }
-
-    // Gemini 기본값 고정 (Claude는 폴백으로만 사용)
-    const useClaudeFirst = false;
+    void claudeKey; // claudeKey는 이 라우트에서 사용하지 않음 (다른 라우트가 동일 라이브러리 import 시 안전성 유지)
 
     const categoryLabel = CATEGORY_LABELS[body.category] || body.category;
     const toneDesc = body.tone || '전문적이고 신뢰감 있는';
@@ -325,127 +322,30 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문 내용에 자연스럽게 반드시 포함하세요.` : ''}`;
     }
 
+    // Gemini 단독 호출 (md 초안 생성 전용). 폴백 없음 — timeout 회피.
     let text = '';
-    let lastError: Error | null = null;
-
-    // Gemini 선택 시 먼저 Gemini 시도
-    if (!useClaudeFirst && geminiKey) {
-      try {
-        console.log('[API] Gemini 우선 선택으로 콘텐츠 생성');
-        const ai = new GoogleGenAI({ apiKey: geminiKey });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: userMessage,
-          config: { systemInstruction: SYSTEM_INSTRUCTION, maxOutputTokens: 8192, responseMimeType: 'application/json', responseSchema: RESPONSE_SCHEMA },
-        });
-        text = response.text || '';
-        console.log('[API] Gemini 응답', text.length, '자');
-        // ⚠️ 옵션 C(Gemini→Claude 폴백) 롤백: 504 timeout 유발 (60초 한도 초과).
-        //   Claude 폴백은 result page generateTone의 자동 재시도가 1번 더 시도하는 것으로 대체.
-      } catch (geminiError: unknown) {
-        lastError = geminiError instanceof Error ? geminiError : new Error(String(geminiError));
-        console.log('[API] Gemini 실패, Claude로 폴백:', lastError.message);
-        if (claudeKey) {
-          const client = new Anthropic({ apiKey: claudeKey });
-          const message = await client.messages.create({
-            model: 'claude-sonnet-4-20250514', max_tokens: 8192,
-            messages: [{ role: 'user', content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1"]}}` }],
-          });
-          text = message.content[0].type === 'text' ? message.content[0].text : '';
-        } else throw lastError;
-      }
-    }
-
-    // 선택된 AI 우선 시도, 실패 시 자동 폴백
-    if (useClaudeFirst && claudeKey) {
-      try {
-        console.log('[API] Claude로 콘텐츠 생성 시도');
-        const client = new Anthropic({ apiKey: claudeKey });
-        const message = await client.messages.create({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 8192,
-          messages: [
-            {
-              role: 'user',
-              content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1","#태그2"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1","팁2","팁3"]}}`,
-            },
-          ],
-        });
-        text = message.content[0].type === 'text' ? message.content[0].text : '';
-        console.log('[API] Claude 성공');
-      } catch (claudeError: unknown) {
-        lastError = claudeError instanceof Error ? claudeError : new Error(String(claudeError));
-        console.log('[API] Claude 실패, Gemini로 폴백:', lastError.message);
-
-        // Claude 실패 → Gemini로 폴백
-        if (geminiKey) {
-          try {
-            const ai = new GoogleGenAI({ apiKey: geminiKey });
-            const response = await ai.models.generateContent({
-              model: 'gemini-2.5-flash',
-              contents: userMessage,
-              config: {
-                systemInstruction: SYSTEM_INSTRUCTION,
-                maxOutputTokens: 8192,
-                responseMimeType: 'application/json',
-                responseSchema: RESPONSE_SCHEMA,
-              },
-            });
-            text = response.text || '';
-            console.log('[API] Gemini 성공');
-          } catch (geminiError: unknown) {
-            console.error('[API] Gemini도 실패:', geminiError);
-            throw lastError;
-          }
-        } else {
-          throw lastError;
-        }
-      }
-    } else if (geminiKey) {
-      // Gemini 우선 선택 또는 Claude 없을 때 Gemini 시도
-      try {
-        console.log('[API] Gemini로 콘텐츠 생성 시도');
-        const ai = new GoogleGenAI({ apiKey: geminiKey });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: userMessage,
-          config: {
-            systemInstruction: SYSTEM_INSTRUCTION,
-            maxOutputTokens: 8192,
-            responseMimeType: 'application/json',
-            responseSchema: RESPONSE_SCHEMA,
-          },
-        });
-        text = response.text || '';
-        console.log('[API] Gemini 성공');
-      } catch (geminiError: unknown) {
-        lastError = geminiError instanceof Error ? geminiError : new Error(String(geminiError));
-        console.log('[API] Gemini 실패, Claude로 폴백:', lastError.message);
-
-        // Gemini 실패 → Claude로 폴백
-        if (claudeKey) {
-          try {
-            const client = new Anthropic({ apiKey: claudeKey });
-            const message = await client.messages.create({
-              model: 'claude-sonnet-4-20250514',
-              max_tokens: 8192,
-              messages: [
-                {
-                  role: 'user',
-                  content: `${SYSTEM_INSTRUCTION}\n\n${userMessage}\n\n반드시 아래 JSON 형식으로만 응답하세요. 마크다운 코드블록 없이 순수 JSON만:\n{"title":"제목","content":"마크다운 본문","hashtags":["#태그1","#태그2"],"metadata":{"wordCount":1000,"estimatedReadTime":"약 5분","seoTips":["팁1","팁2","팁3"]}}`,
-                },
-              ],
-            });
-            text = message.content[0].type === 'text' ? message.content[0].text : '';
-            console.log('[API] Claude 성공');
-          } catch (claudeError: unknown) {
-            console.error('[API] Claude도 실패:', claudeError);
-            throw lastError;
-          }
-        } else {
-          throw lastError;
-        }
-      }
+    try {
+      console.log('[API] Gemini 콘텐츠 생성 (단독)');
+      const ai = new GoogleGenAI({ apiKey: geminiKey });
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: userMessage,
+        config: {
+          systemInstruction: SYSTEM_INSTRUCTION,
+          maxOutputTokens: 6144,
+          responseMimeType: 'application/json',
+          responseSchema: RESPONSE_SCHEMA,
+        },
+      });
+      text = response.text || '';
+      console.log('[API] Gemini 응답', text.length, '자');
+    } catch (geminiError: unknown) {
+      const msg = geminiError instanceof Error ? geminiError.message : String(geminiError);
+      console.error('[API] Gemini 실패:', msg);
+      return withCors(NextResponse.json(
+        { error: `Gemini 생성 실패: ${msg}` },
+        { status: 500 }
+      ));
     }
 
     // JSON 추출 — 코드블록 / 앞뒤 텍스트 / 순수 JSON 모두 처리
