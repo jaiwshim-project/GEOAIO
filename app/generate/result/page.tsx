@@ -429,8 +429,8 @@ export default function GenerateResultPage() {
         setEeatAutoStatus(prev => ({ ...prev, [idx]: 'failed' }));
         return;
       }
-      // 자동 모드는 보수적 — 톤당 최대 3회 (수동은 5회)
-      for (let attempt = 1; attempt <= 3; attempt++) {
+      // 자동 모드 EEAT 이어쓰기 최대 5회 (Paid Tier 안정 한도, ⚠️ 수동필요 배지 최소화)
+      for (let attempt = 1; attempt <= 5; attempt++) {
         const continued = await requestContinue(v, currentContent);
         if (!continued) continue;
         currentContent = mergeMd(currentContent, continued);
