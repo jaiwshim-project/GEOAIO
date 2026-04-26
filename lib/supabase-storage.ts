@@ -393,6 +393,42 @@ export function extractBlogCepMeta(row: { metadata?: unknown; author?: unknown }
   return null;
 }
 
+/**
+ * CEP 자동 측정 큐 등록 — 어느 발행 경로(client/server)에서든 service role로 안전 INSERT.
+ * fire-and-forget 권장. 실패해도 발행 자체를 막지 않음.
+ */
+async function enqueueCepMeasurement(post: {
+  id: string;
+  title?: string;
+  metadata?: Record<string, unknown>;
+}): Promise<void> {
+  const cep = (post.metadata as { cep?: { sceneSentence?: string; cepKeyword?: string; searchPath?: string[] } } | undefined)?.cep;
+  if (!cep || (!cep.sceneSentence && !cep.cepKeyword)) return;
+
+  // server: 절대 URL 필요 / client: 상대 URL OK
+  const isServer = typeof window === 'undefined';
+  const baseUrl = isServer
+    ? (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.geo-aio.com')
+    : '';
+  const endpoint = `${baseUrl}/api/cep/enqueue`;
+
+  try {
+    await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        blogArticleId: post.id,
+        title: post.title,
+        sceneSentence: cep.sceneSentence,
+        cepKeyword: cep.cepKeyword,
+        searchPath: cep.searchPath,
+      }),
+    });
+  } catch (e) {
+    console.error('[CEP] enqueueCepMeasurement failed:', e);
+  }
+}
+
 export async function saveBlogPost(post: {
   title: string;
   content: string;
@@ -431,6 +467,12 @@ export async function saveBlogPost(post: {
       throw new Error(`DB 오류: ${error.message} (code: ${error.code})`);
     }
     console.log('saveBlogPost success:', data);
+    // CEP 자동 측정 큐 등록 (fire-and-forget — 발행 흐름 막지 않음)
+    enqueueCepMeasurement({
+      id: data.id,
+      title: post.title,
+      metadata: post.metadata,
+    }).catch(() => {});
     return data.id;
   } catch (err) {
     console.error('saveBlogPost catch:', err);
@@ -468,7 +510,18 @@ export async function saveBlogPostsBatch(posts: {
     .insert(rows)
     .select('id');
   if (error) throw error;
-  return (data || []).map(row => row.id);
+  const ids = (data || []).map(row => row.id);
+  // CEP 자동 측정 큐 등록 (fire-and-forget, 각 글마다)
+  posts.forEach((post, idx) => {
+    if (ids[idx]) {
+      enqueueCepMeasurement({
+        id: ids[idx],
+        title: post.title,
+        metadata: post.metadata,
+      }).catch(() => {});
+    }
+  });
+  return ids;
 }
 
 export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
