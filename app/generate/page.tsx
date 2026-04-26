@@ -1049,18 +1049,11 @@ export default function GeneratePage() {
           }
         };
 
-        // 1차 시도
-        let result = await fetchOnce();
-        const isPoorContent = (r: typeof result) => r.ok && (!r.data?.content || (typeof r.data.content === 'string' && r.data.content.length < 1000));
-
-        // 2회까지 자동 재시도 (504 timeout·부실 응답 모두 대응)
-        for (let attempt = 1; attempt <= 2 && (!result.ok || isPoorContent(result)); attempt++) {
-          console.log(`[generate] 톤 "${t.label}" 자동 재시도 ${attempt}/2: ${result.ok ? `content ${result.data?.content?.length || 0}자 부실` : `HTTP ${result.status}`}`);
-          await new Promise(r => setTimeout(r, 1500)); // 1.5초 대기 (rate limit·서버 회복)
-          result = await fetchOnce();
-        }
+        // 1차 시도만 — 자동 재시도 제거 (사용자 요청: '성공한 것만 사용')
+        const result = await fetchOnce();
 
         if (!result.ok) {
+          console.log(`[generate] 톤 "${t.label}" 생성 실패 (HTTP ${result.status}) — 재시도 없이 ⚠️ 표시`);
           return { title: topic.trim(), content: `${t.label} 생성 실패: ${result.data?.error || result.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
         }
         return { ...result.data, toneName: t.label, toneValue: t.value };
