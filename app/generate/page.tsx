@@ -217,6 +217,8 @@ export default function GeneratePage() {
   const [showTopicDropdown, setShowTopicDropdown] = useState(false);
   // 사용된 추천 주제 마킹 (결과 페이지 → 다른 주제로 또 생성 흐름 지원)
   const [usedTopics, setUsedTopics] = useState<string[]>([]);
+  // 📚 localStorage에 저장된 추천 주제 — 별도 고정 섹션용 (어떤 경우에도 표시)
+  const [savedTopicsCache, setSavedTopicsCache] = useState<{ topics: string[]; usedTopics?: string[]; category?: string; subKeyword?: string; savedAt?: number } | null>(null);
   // 키워드 추천
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
@@ -390,6 +392,41 @@ export default function GeneratePage() {
       setUsedTopics(newUsed);
     } catch {}
   };
+
+  // 📚 마운트 시 localStorage에서 저장된 추천 주제 직접 읽어 별도 섹션에 표시 (고정 섹션용)
+  // 자동 복원 useEffect와 무관하게 항상 동작 — 사용자가 어떤 경우에도 볼 수 있음
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(SUGGEST_CACHE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.topics) && parsed.topics.length > 0) {
+        setSavedTopicsCache(parsed);
+        console.log(`[savedTopics] localStorage에서 ${parsed.topics.length}개 추천 주제 로드`);
+      }
+    } catch (e) {
+      console.warn('[savedTopics] localStorage 읽기 실패:', e);
+    }
+  }, []);
+
+  // 새 추천 주제가 fetch될 때 savedTopicsCache도 갱신 (state 동기화)
+  useEffect(() => {
+    if (topicSuggestions.length === 0) return;
+    setSavedTopicsCache(prev => {
+      if (prev && JSON.stringify(prev.topics) === JSON.stringify(topicSuggestions)
+          && JSON.stringify(prev.usedTopics || []) === JSON.stringify(usedTopics)) {
+        return prev;
+      }
+      return {
+        topics: topicSuggestions,
+        usedTopics,
+        category: selectedCategory || undefined,
+        subKeyword: selectedSubKeyword || undefined,
+        savedAt: Date.now(),
+      };
+    });
+  }, [topicSuggestions, usedTopics, selectedCategory, selectedSubKeyword]);
 
   // 페이지 마운트 시 추천 주제 복원 (3중 안전망)
   // 1순위: URL query (?cep_topics_b64=...) — 결과 페이지에서 명시적으로 보낸 것 (가장 신뢰)
@@ -1236,6 +1273,79 @@ export default function GeneratePage() {
       <ApiKeyPanel visible={showApiKeyInput} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+        {/* 📚 저장된 추천 주제 (localStorage) — 항상 표시되는 고정 섹션 */}
+        {savedTopicsCache && Array.isArray(savedTopicsCache.topics) && savedTopicsCache.topics.length > 0 && (
+          <section className="bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-50 border-2 border-purple-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📚</span>
+                <h3 className="text-sm font-bold text-purple-900">저장된 추천 주제</h3>
+                <span className="text-xs text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-semibold">
+                  {savedTopicsCache.topics.length}개 ·{' '}
+                  {(savedTopicsCache.usedTopics?.length || 0)}/{savedTopicsCache.topics.length} 사용
+                </span>
+                {savedTopicsCache.savedAt && (
+                  <span className="text-[10px] text-purple-600">
+                    (저장: {new Date(savedTopicsCache.savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })})
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('저장된 추천 주제를 모두 삭제하시겠습니까?')) {
+                    try { localStorage.removeItem(SUGGEST_CACHE_KEY); } catch {}
+                    setSavedTopicsCache(null);
+                    setTopicSuggestions([]);
+                    setUsedTopics([]);
+                  }
+                }}
+                className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
+                title="저장된 추천 주제 모두 삭제"
+              >
+                🗑️ 비우기
+              </button>
+            </div>
+            <ul className="space-y-1.5">
+              {savedTopicsCache.topics.map((t, i) => {
+                const isUsed = (savedTopicsCache.usedTopics || []).includes(t);
+                return (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTopic(t);
+                        // 카테고리·subKeyword도 함께 복원 (저장돼 있으면)
+                        if (savedTopicsCache.category && !selectedCategory) {
+                          setSelectedCategory(savedTopicsCache.category as ContentCategory);
+                        }
+                        if (savedTopicsCache.subKeyword && !selectedSubKeyword) {
+                          setSelectedSubKeyword(savedTopicsCache.subKeyword);
+                        }
+                        // 추천 주제 dropdown 데이터도 동기화
+                        setTopicSuggestions(savedTopicsCache.topics);
+                        setUsedTopics(savedTopicsCache.usedTopics || []);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors border ${
+                        isUsed
+                          ? 'bg-rose-50/50 text-rose-400 border-rose-200 cursor-pointer hover:bg-rose-100'
+                          : 'bg-white text-gray-800 border-purple-200 hover:bg-purple-100 hover:border-purple-400'
+                      }`}
+                      title={isUsed ? '이미 사용한 주제 (다시 사용 가능)' : '클릭하면 주제 입력란에 자동 입력'}
+                    >
+                      {isUsed && <span className="text-rose-600 mr-1.5 font-bold">✓</span>}
+                      <span className={isUsed ? 'line-through decoration-rose-500 decoration-2' : ''}>{t}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-3 text-[11px] text-purple-600">
+              💡 클릭하면 주제 입력란에 자동 입력 + 카테고리도 자동 선택됩니다. 빨간 줄 주제는 이미 사용한 주제예요.
+            </p>
+          </section>
+        )}
+
         {/* 히어로 */}
         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 text-white px-6 sm:px-10 py-8 flex items-center gap-6">
           <div className="absolute inset-0 opacity-10">
