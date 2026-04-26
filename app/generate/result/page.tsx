@@ -1770,15 +1770,27 @@ export default function GenerateResultPage() {
           </div>
           <div className="p-4">
             <p className="text-xs text-gray-500 mb-3">생성된 콘텐츠를 블로그 페이지에 바로 게시합니다. 카테고리를 선택하면 해당 탭에 자동으로 분류됩니다.</p>
-            <button
-              onClick={handleOpenBlogPublish}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:scale-105 shadow-sm"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-              블로그에 게시하기
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleOpenBlogPublish}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:scale-105 shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                블로그에 게시하기
+              </button>
+              <button
+                onClick={() => router.push('/generate')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-300 hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg hover:scale-105 shadow-sm"
+                title="추천 주제 페이지로 돌아가서 다른 주제 선택"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                📝 다른 주제로 또 생성
+              </button>
+            </div>
           </div>
         </div>
 
