@@ -24,21 +24,59 @@ const EXTRA_COLORS = [
 ];
 
 function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  // Server-side: service role 우선 (Supabase max-rows 우회 + RLS 우회로 전체 글 fetch).
+  // 없으면 anon key 폴백.
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.replace(/\s/g, '')
+    || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key);
+}
+
+// 콘텐츠 언어 자동 감지 (제목 + 본문 앞부분 샘플 기준)
+type DetectedLang = 'ko' | 'en' | 'zh' | 'ja';
+function detectLanguage(text: string): DetectedLang {
+  if (!text) return 'ko';
+  const sample = text.slice(0, 1500);
+  const counts = {
+    ko: (sample.match(/[가-힣]/g) || []).length, // 한글
+    ja: (sample.match(/[぀-ゟ゠-ヿ]/g) || []).length, // 히라가나·가타카나 (일본어 고유)
+    zh: (sample.match(/[一-鿿]/g) || []).length, // CJK 한자 (중국어/일본어 공통)
+    en: (sample.match(/[a-zA-Z]/g) || []).length, // 라틴
+  };
+  // 1순위: 가나가 5+ 보이면 일본어 (한자가 섞여 있어도)
+  if (counts.ja >= 5) return 'ja';
+  // 2순위: 한글 10+ 면 한국어
+  if (counts.ko >= 10) return 'ko';
+  // 3순위: 한자 10+ 인데 가나 없으면 중국어
+  if (counts.zh >= 10) return 'zh';
+  // 4순위: 라틴 위주면 영어
+  if (counts.en >= 20) return 'en';
+  // 기본: 한국어
+  return 'ko';
 }
 
 async function getCategoryPosts(slug: string): Promise<BlogPost[]> {
-  const { data } = await getSupabase()
-    .from('blog_articles')
-    .select('*')
-    .eq('category', slug)
-    .order('created_at', { ascending: false })
-    .limit(10000);
+  // 페이지네이션으로 모든 글 가져오기 — Supabase max-rows 한도 우회.
+  // 한 번에 1000개씩, 최대 50페이지(=50,000개)까지 안전 가드.
+  const PAGE_SIZE = 1000;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allRows: any[] = [];
+  const supabase = getSupabase();
+  for (let page = 0; page < 50; page++) {
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    const { data, error } = await supabase
+      .from('blog_articles')
+      .select('*')
+      .eq('category', slug)
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    if (error) break;
+    if (!data || data.length === 0) break;
+    allRows.push(...data);
+    if (data.length < PAGE_SIZE) break; // 마지막 페이지
+  }
 
-  return (data || []).map(row => {
+  return allRows.map(row => {
     let meta: Record<string, unknown> = {};
     try { meta = JSON.parse(row.author || '{}'); } catch {}
     return {
@@ -83,11 +121,45 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function BlogCategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogCategoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
+}) {
   const { slug: rawSlug } = await params;
+  const sp = await searchParams;
   // URL 인코딩된 한글 슬러그 디코딩 (예: %EB%9D%BC... → 라이프스타일)
   const slug = decodeURIComponent(rawSlug);
-  const [posts, meta] = await Promise.all([getCategoryPosts(slug), getCategoryMeta(slug)]);
+  const [allPosts, meta] = await Promise.all([getCategoryPosts(slug), getCategoryMeta(slug)]);
+
+  // 각 포스트의 언어 자동 감지 (제목 + 본문 앞부분 샘플)
+  const postsWithLang = allPosts.map(p => ({
+    ...p,
+    detectedLang: detectLanguage(`${p.title || ''}\n${(p.content || '').slice(0, 1500)}`),
+  }));
+  const langCounts: Record<DetectedLang, number> = {
+    ko: postsWithLang.filter(p => p.detectedLang === 'ko').length,
+    en: postsWithLang.filter(p => p.detectedLang === 'en').length,
+    zh: postsWithLang.filter(p => p.detectedLang === 'zh').length,
+    ja: postsWithLang.filter(p => p.detectedLang === 'ja').length,
+  };
+
+  // URL ?lang= 파라미터로 필터. 없으면 가장 많은 언어 자동 선택
+  const validLangs: DetectedLang[] = ['ko', 'en', 'zh', 'ja'];
+  const requestedLang = sp.lang as DetectedLang | undefined;
+  const activeLang: DetectedLang = (requestedLang && validLangs.includes(requestedLang))
+    ? requestedLang
+    : (Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0][0] as DetectedLang);
+  const posts = postsWithLang.filter(p => p.detectedLang === activeLang);
+
+  const LANG_LABELS: Record<DetectedLang, { label: string; flag: string }> = {
+    ko: { label: '한국어', flag: '🇰🇷' },
+    en: { label: 'English', flag: '🇺🇸' },
+    zh: { label: '中文', flag: '🇨🇳' },
+    ja: { label: '日本語', flag: '🇯🇵' },
+  };
 
   // 동적 카테고리도 허용 — 포스트가 없으면 빈 페이지로 표시
   const formatDate = (dateStr: string) => {
@@ -119,16 +191,53 @@ export default async function BlogCategoryPage({ params }: { params: Promise<{ s
         </Link>
 
         {/* 카테고리 헤더 */}
-        <section className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${meta.color} text-white px-6 sm:px-10 py-8 mb-8`}>
+        <section className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${meta.color} text-white px-6 sm:px-10 py-8 mb-6`}>
           <div className="relative">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">{meta.label}</h1>
             {meta.description && <p className="text-white/90 text-sm leading-relaxed">{meta.description}</p>}
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium mt-4">
-              <span className="w-2 h-2 rounded-full bg-white/70 animate-pulse" />
-              {posts.length}개 포스트
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mt-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium">
+                <span className="w-2 h-2 rounded-full bg-white/70 animate-pulse" />
+                전체 {allPosts.length}개
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/25 rounded-full text-xs font-medium">
+                {LANG_LABELS[activeLang].flag} {LANG_LABELS[activeLang].label} {posts.length}개
+              </span>
+            </div>
           </div>
         </section>
+
+        {/* 언어 탭 — 자동 감지된 언어별 포스트 분류 */}
+        <div className="mb-6 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="grid grid-cols-4 divide-x divide-gray-100">
+            {validLangs.map(lang => {
+              const isActive = lang === activeLang;
+              const count = langCounts[lang];
+              const isEmpty = count === 0;
+              const href = `/blog/category/${rawSlug}${lang === 'ko' ? '' : `?lang=${lang}`}`;
+              return (
+                <Link
+                  key={lang}
+                  href={isEmpty ? '#' : href}
+                  className={`flex flex-col items-center justify-center gap-0.5 py-3 px-2 transition-colors ${
+                    isActive
+                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'
+                      : isEmpty
+                      ? 'text-gray-300 cursor-not-allowed pointer-events-none'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                  aria-disabled={isEmpty}
+                >
+                  <span className="text-base">{LANG_LABELS[lang].flag}</span>
+                  <span className="text-xs font-semibold">{LANG_LABELS[lang].label}</span>
+                  <span className={`text-[10px] ${isActive ? 'text-emerald-100' : isEmpty ? 'text-gray-300' : 'text-gray-400'}`}>
+                    {count}개
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
 
         {/* 포스트 목록 */}
         {posts.length > 0 ? (
