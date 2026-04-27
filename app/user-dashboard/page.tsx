@@ -532,6 +532,35 @@ export default function UserDashboardPage() {
           )}
         </div>
 
+        {/* ===== 프로젝트 목록 (제목만) ===== */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-white font-bold text-base flex items-center gap-2">
+              프로젝트 목록
+              <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-indigo-500/30 text-indigo-100 border border-indigo-300/30">
+                총 {projects.length}개
+              </span>
+            </h3>
+          </div>
+          {loadingProjects ? (
+            <div className="text-center py-3 text-gray-400 text-sm">불러오는 중...</div>
+          ) : projects.length === 0 ? (
+            <p className="text-gray-500 text-xs text-center py-2">등록된 프로젝트가 없습니다.</p>
+          ) : (
+            <ul className="space-y-1">
+              {projects.map((p, idx) => {
+                const seq = String(projects.length - idx).padStart(2, '0');
+                return (
+                  <li key={p.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                    <span className="text-indigo-300 text-xs font-mono shrink-0 w-6">{seq}.</span>
+                    <span className="text-white text-sm truncate">{p.name}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
         {/* ===== 프로젝트 ===== */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
           <div className="flex items-center justify-between mb-5">
