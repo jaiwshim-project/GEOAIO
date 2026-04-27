@@ -90,38 +90,90 @@ export default function GenerateResultPage() {
 
   // ⭐ 언어 탭 (한국어 기본, 영/중/일 번역은 클릭 시 1회 번역 + 캐시)
   type Lang = 'ko' | 'en' | 'zh' | 'ja';
-  const [activeLang, setActiveLang] = useState<Lang>('ko');
-  const [translatedVersions, setTranslatedVersions] = useState<Record<Lang, Record<number, { title: string; content: string }>>>({
-    ko: {}, en: {}, zh: {}, ja: {},
+  const VALID_LANGS: Lang[] = ['ko', 'en', 'zh', 'ja'];
+  // URL ?lang=en 우선, 없으면 ko
+  const initialLang: Lang = (() => {
+    if (typeof window === 'undefined') return 'ko';
+    const p = new URLSearchParams(window.location.search).get('lang');
+    return (p && VALID_LANGS.includes(p as Lang)) ? (p as Lang) : 'ko';
+  })();
+  const [activeLang, setActiveLang] = useState<Lang>(initialLang);
+  const [translatedVersions, setTranslatedVersions] = useState<Record<Lang, Record<number, { title: string; content: string }>>>(() => {
+    // 새로고침 시 sessionStorage에서 복원
+    if (typeof window === 'undefined') return { ko: {}, en: {}, zh: {}, ja: {} };
+    try {
+      const id = new URLSearchParams(window.location.search).get('id');
+      if (id) {
+        const saved = sessionStorage.getItem(`gr_trans_${id}`);
+        if (saved) return JSON.parse(saved);
+      }
+    } catch {}
+    return { ko: {}, en: {}, zh: {}, ja: {} };
+  });
+  // 번역 실패한 톤 인덱스 (언어별). 폴백으로 한국어 보여주는 경우 ⚠️ 표시용.
+  const [translationFailed, setTranslationFailed] = useState<Record<Lang, Set<number>>>({
+    ko: new Set(), en: new Set(), zh: new Set(), ja: new Set(),
   });
   const [translatingLang, setTranslatingLang] = useState<Lang | null>(null);
   const [translateProgress, setTranslateProgress] = useState(0);
   // 비동기 콜백에서 최신 활성 톤·언어 참조용
   const activeAbTabRef = useRef(0);
-  const activeLangRef = useRef<Lang>('ko');
+  const activeLangRef = useRef<Lang>(initialLang);
   useEffect(() => { activeAbTabRef.current = activeAbTab; }, [activeAbTab]);
   useEffect(() => { activeLangRef.current = activeLang; }, [activeLang]);
 
-  // ⭐ result는 derived: (activeAbTab, activeLang, abVersions, translatedVersions) 변경 시 자동 동기화.
-  //    EEAT 처리·번역 등 어디서 abVersions/translatedVersions/activeLang/activeAbTab가 바뀌어도
-  //    이 useEffect가 마지막에 실행되어 result를 올바른 콘텐츠로 강제 덮어씀.
-  //    번역 완료 시 한국어 EEAT의 setResult가 덮어쓰는 회귀를 방지.
+  // 활성 언어 변경 시 URL ?lang= 동기화 (새로고침해도 유지)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    if (activeLang === 'ko') url.searchParams.delete('lang');
+    else url.searchParams.set('lang', activeLang);
+    window.history.replaceState({}, '', url.toString());
+  }, [activeLang]);
+
+  // 새로고침 시 URL ?lang=en 등 비한국어이면 자동 번역 시작 (cache 부족할 때만)
+  // abVersions가 로드된 후에 1회만 트리거
+  const autoTranslateTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (autoTranslateTriggeredRef.current) return;
+    if (activeLang === 'ko') return;
+    if (!abVersions || abVersions.length === 0) return;
+    const cached = Object.keys(translatedVersions[activeLang] || {}).length;
+    if (cached >= abVersions.length) return; // 이미 모두 캐시됨
+    autoTranslateTriggeredRef.current = true;
+    startTranslation(activeLang);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [abVersions, activeLang]);
+
+  // 번역 캐시 → sessionStorage 저장 (새로고침해도 유지)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id) return;
+    try {
+      sessionStorage.setItem(`gr_trans_${id}`, JSON.stringify(translatedVersions));
+    } catch {}
+  }, [translatedVersions]);
+
+  // ⭐ result는 derived: 어떤 곳에서 setResult가 호출되든 마지막에 정확한 값으로 동기화.
+  //    result 자체를 deps에 포함 → EEAT가 setResult(한국어) 호출해도 재실행되어 번역 콘텐츠 복구.
+  //    무한 루프 방지: 현재 result가 이미 desired와 같으면 setResult 스킵.
   useEffect(() => {
     if (!abVersions || abVersions.length === 0) return;
     const v = abVersions[activeAbTab];
     if (!v) return;
-    if (activeLang === 'ko') {
-      setResult(v);
-      return;
+    let desiredTitle: string = v.title || '';
+    let desiredContent: string = v.content || '';
+    if (activeLang !== 'ko') {
+      const trans = translatedVersions[activeLang]?.[activeAbTab];
+      if (trans) {
+        desiredTitle = trans.title;
+        desiredContent = trans.content;
+      }
     }
-    const trans = translatedVersions[activeLang]?.[activeAbTab];
-    if (trans) {
-      setResult({ ...v, title: trans.title, content: trans.content });
-    } else {
-      // 아직 번역 안 됨 — 한국어 원문으로 폴백
-      setResult(v);
-    }
-  }, [activeAbTab, activeLang, abVersions, translatedVersions]);
+    if (result?.title === desiredTitle && result?.content === desiredContent) return;
+    setResult({ ...v, title: desiredTitle, content: desiredContent });
+  }, [result, activeAbTab, activeLang, abVersions, translatedVersions]);
 
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
@@ -352,15 +404,20 @@ export default function GenerateResultPage() {
           ...prev,
           [lang]: { ...(prev[lang] || {}), [idx]: entry! },
         }));
-        if (idx === activeAbTabRef.current && lang === activeLangRef.current) {
-          setResult({ ...v, title: entry.title, content: entry.content });
-        }
+        // 이전에 실패로 마크됐다면 해제
+        setTranslationFailed(prev => {
+          if (!prev[lang]?.has(idx)) return prev;
+          const next = new Set(prev[lang]);
+          next.delete(idx);
+          return { ...prev, [lang]: next };
+        });
       } else {
-        console.error(`[translate] 톤 ${idx + 1} 3회 시도 모두 실패 — 한국어 원문으로 폴백`);
-        // 폴백: 원문(한국어) 그대로 캐시에 저장. 사용자가 캐시 hit으로 즉시 보지만 번역되지 않음.
-        setTranslatedVersions(prev => ({
+        console.error(`[translate] 톤 ${idx + 1} 3회 시도 모두 실패 — ⚠ 마크하고 한국어 원문 표시`);
+        // 캐시에 저장하지 X — derived useEffect가 한국어 원문으로 폴백.
+        // 실패 set에만 추가 → 톤 탭에 ⚠️ 뱃지로 표시.
+        setTranslationFailed(prev => ({
           ...prev,
-          [lang]: { ...(prev[lang] || {}), [idx]: { title: v.title || '', content: v.content || '' } },
+          [lang]: new Set([...(prev[lang] || []), idx]),
         }));
       }
       setTranslateProgress(prev => prev + 1);
@@ -1627,6 +1684,34 @@ export default function GenerateResultPage() {
                           ⚠️ 수동
                         </span>
                       )}
+                      {/* ⭐ 번역 상태 뱃지 (우상단, 비한국어일 때) */}
+                      {activeLang !== 'ko' && (() => {
+                        const hasTrans = !!translatedVersions[activeLang]?.[i];
+                        const isFailedTrans = translationFailed[activeLang]?.has(i);
+                        const isTranslating = translatingLang === activeLang && !hasTrans && !isFailedTrans;
+                        if (hasTrans) {
+                          return (
+                            <span className="absolute bottom-0.5 right-0.5 text-[9px] px-1.5 py-0.5 bg-emerald-500 text-white rounded-full font-bold leading-none shadow-sm" title={`${activeLang.toUpperCase()} 번역 완료`}>
+                              ✓ {activeLang.toUpperCase()}
+                            </span>
+                          );
+                        }
+                        if (isFailedTrans) {
+                          return (
+                            <span className="absolute bottom-0.5 right-0.5 text-[9px] px-1.5 py-0.5 bg-rose-500 text-white rounded-full font-bold leading-none shadow-sm" title={`${activeLang.toUpperCase()} 번역 실패 — 한국어 원문 표시 중`}>
+                              ⚠ KO
+                            </span>
+                          );
+                        }
+                        if (isTranslating) {
+                          return (
+                            <span className="absolute bottom-0.5 right-0.5 text-[9px] px-1.5 py-0.5 bg-amber-500 text-white rounded-full font-bold leading-none shadow-sm animate-pulse" title="번역 중">
+                              ⋯
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                       {/* 상태 배지 */}
                       <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center shadow text-[10px] ${
                         isConverting
