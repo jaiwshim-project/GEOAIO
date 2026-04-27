@@ -1176,7 +1176,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 3; // 3개 병렬 (10톤 → 4그룹). Gemini Flash 동시성 안전선. 재시도 없이 ⚠️로 노출.
+      const AGENT_BATCH = 5; // 5개 병렬 (10톤 → 2그룹). Claude Haiku 4.5 + prompt cache. 재시도 없이 ⚠️로 노출.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 

@@ -106,7 +106,8 @@ export async function POST(request: NextRequest) {
     }
 
     // ── 이어쓰기 모드: 잘린 콘텐츠를 마저 작성 ──
-    const prompt = continuation && previousContent
+    const isContinuation = !!(continuation && previousContent);
+    const prompt = isContinuation
       ? `당신은 E-E-A-T 콘텐츠 마무리 전문가입니다.
 아래 콘텐츠가 중간에 잘려서 미완성 상태입니다. **이어서 작성**하여 누락된 섹션들을 마무리하세요.
 
@@ -131,10 +132,7 @@ ${previousContent.slice(-3000)}
 ---
 
 위 끝부분에서 시작해서, 누락된 섹션을 모두 완성하세요. 마크다운 텍스트만 출력.`
-      : `${EEAT_INSTRUCTION}
-
----
-[원본 콘텐츠 - 아래 내용을 E-E-A-T 7단계로 재구성하세요]
+      : `[원본 콘텐츠 - 아래 내용을 E-E-A-T 7단계로 재구성하세요]
 제목: ${title || topic || ''}
 톤: ${tone || '전문적'}
 
@@ -149,17 +147,38 @@ ${content}
     let finishReason: string = '';
     let truncated = false;
 
-    // Claude 단독 호출 (EEAT 7단계 변환 전용). 폴백 없음 — timeout 회피.
+    // Claude Haiku 4.5 + prompt caching (system 캐시: 일반 모드의 EEAT_INSTRUCTION).
+    // 이어쓰기 모드는 정적 시스템 프롬프트 없음 — 캐싱 미적용.
     try {
-      console.log('[convert-eeat] Claude 단독 호출');
+      console.log('[convert-eeat] Claude Haiku 4.5 호출', isContinuation ? '(continuation)' : '(structured)');
       const client = new Anthropic({ apiKey: claudeKey });
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 8000,
+        ...(isContinuation
+          ? {}
+          : {
+              system: [{
+                type: 'text' as const,
+                text: EEAT_INSTRUCTION,
+                cache_control: { type: 'ephemeral' as const },
+              }],
+            }),
         messages: [{ role: 'user', content: prompt }],
       });
       convertedContent = message.content[0].type === 'text' ? message.content[0].text : '';
       finishReason = message.stop_reason || '';
+      // 캐시 사용 로깅 (모니터링용)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const usage = (message as any).usage;
+      if (usage) {
+        console.log('[convert-eeat] usage:', {
+          input: usage.input_tokens,
+          output: usage.output_tokens,
+          cache_create: usage.cache_creation_input_tokens || 0,
+          cache_read: usage.cache_read_input_tokens || 0,
+        });
+      }
       if (finishReason && finishReason !== 'end_turn' && finishReason !== 'stop_sequence') {
         truncated = true;
         console.log('[convert-eeat] Claude 응답 잘림:', finishReason);
