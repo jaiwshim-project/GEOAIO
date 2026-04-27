@@ -102,6 +102,27 @@ export default function GenerateResultPage() {
   useEffect(() => { activeAbTabRef.current = activeAbTab; }, [activeAbTab]);
   useEffect(() => { activeLangRef.current = activeLang; }, [activeLang]);
 
+  // ⭐ result는 derived: (activeAbTab, activeLang, abVersions, translatedVersions) 변경 시 자동 동기화.
+  //    EEAT 처리·번역 등 어디서 abVersions/translatedVersions/activeLang/activeAbTab가 바뀌어도
+  //    이 useEffect가 마지막에 실행되어 result를 올바른 콘텐츠로 강제 덮어씀.
+  //    번역 완료 시 한국어 EEAT의 setResult가 덮어쓰는 회귀를 방지.
+  useEffect(() => {
+    if (!abVersions || abVersions.length === 0) return;
+    const v = abVersions[activeAbTab];
+    if (!v) return;
+    if (activeLang === 'ko') {
+      setResult(v);
+      return;
+    }
+    const trans = translatedVersions[activeLang]?.[activeAbTab];
+    if (trans) {
+      setResult({ ...v, title: trans.title, content: trans.content });
+    } else {
+      // 아직 번역 안 됨 — 한국어 원문으로 폴백
+      setResult(v);
+    }
+  }, [activeAbTab, activeLang, abVersions, translatedVersions]);
+
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
