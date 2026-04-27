@@ -958,6 +958,11 @@ export default function GenerateResultPage() {
     if (!result) return;
     setIsPublishing(true);
     try {
+      // 발행 시 활성 언어를 metadata.lang에 박아 블로그 카테고리 페이지에서 언어 탭 자동 분류 가능
+      const metaWithLang: Record<string, unknown> = {
+        ...((result.metadata as unknown as Record<string, unknown>) || {}),
+        lang: activeLang,
+      };
       const postId = await saveBlogPost({
         title: result.title,
         content: result.content,
@@ -965,7 +970,7 @@ export default function GenerateResultPage() {
         category: selectedBlogCategory,
         tag: blogTag,
         hashtags: result.hashtags || [],
-        metadata: result.metadata as unknown as Record<string, unknown>,
+        metadata: metaWithLang,
         targetKeyword: targetKeyword,
         historyId: currentHistoryId || '',
       });
@@ -988,8 +993,20 @@ export default function GenerateResultPage() {
 
   const handlePublishSelectedToBlog = async () => {
     const selectedIdxs = Array.from(selectedVersions).sort((a, b) => a - b);
-    const versionsToPublish = selectedIdxs.map(i => abVersions[i]).filter(Boolean);
-    if (versionsToPublish.length === 0) return;
+    // 활성 언어가 비한국어면 번역본을 우선 발행. 번역 없는 톤은 제외.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const versionsToPublish = selectedIdxs.map(i => {
+      const v = abVersions[i];
+      if (!v) return null;
+      if (activeLang === 'ko') return { ...v, _idx: i };
+      const trans = translatedVersions[activeLang]?.[i];
+      if (!trans) return null; // 번역 없으면 skip
+      return { ...v, title: trans.title, content: trans.content, _idx: i };
+    }).filter(Boolean) as ((typeof abVersions[number]) & { _idx: number })[];
+    if (versionsToPublish.length === 0) {
+      alert(activeLang !== 'ko' ? '선택한 톤들에 번역본이 없습니다.' : '선택된 버전이 없습니다.');
+      return;
+    }
     setIsPublishing(true);
     try {
       const posts = versionsToPublish.map((v) => {
@@ -1001,7 +1018,10 @@ export default function GenerateResultPage() {
           category: selectedBlogCategory,
           tag: blogTag || (v as { toneName?: string }).toneName || '',
           hashtags: v.hashtags || [],
-          metadata: v.metadata as unknown as Record<string, unknown>,
+          metadata: {
+            ...((v.metadata as unknown as Record<string, unknown>) || {}),
+            lang: activeLang, // ⭐ 언어 태그 — 카테고리 페이지에서 언어 탭 자동 분류
+          },
           targetKeyword: targetKeyword,
           historyId: currentHistoryId || '',
         };

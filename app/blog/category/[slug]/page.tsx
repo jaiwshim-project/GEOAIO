@@ -31,37 +31,44 @@ function getSupabase() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key);
 }
 
-// 콘텐츠 언어 자동 감지 (제목 + 본문 앞부분 샘플 기준)
+// 콘텐츠 언어 자동 감지 — 승자독식(highest count wins) 방식
+// 영문 글에 한국어 회사명이 몇 개 섞여 있어도 영어로 정확히 분류되도록.
 type DetectedLang = 'ko' | 'en' | 'zh' | 'ja';
 function detectLanguage(text: string): DetectedLang {
   if (!text) return 'ko';
-  const sample = text.slice(0, 1500);
-  const counts = {
-    ko: (sample.match(/[가-힣]/g) || []).length, // 한글
-    ja: (sample.match(/[぀-ゟ゠-ヿ]/g) || []).length, // 히라가나·가타카나 (일본어 고유)
-    zh: (sample.match(/[一-鿿]/g) || []).length, // CJK 한자 (중국어/일본어 공통)
-    en: (sample.match(/[a-zA-Z]/g) || []).length, // 라틴
-  };
-  // 1순위: 가나가 5+ 보이면 일본어 (한자가 섞여 있어도)
-  if (counts.ja >= 5) return 'ja';
-  // 2순위: 한글 10+ 면 한국어
-  if (counts.ko >= 10) return 'ko';
-  // 3순위: 한자 10+ 인데 가나 없으면 중국어
-  if (counts.zh >= 10) return 'zh';
-  // 4순위: 라틴 위주면 영어
-  if (counts.en >= 20) return 'en';
-  // 기본: 한국어
-  return 'ko';
+  const sample = text.slice(0, 3000);
+  const ko = (sample.match(/[가-힣]/g) || []).length; // 한글 음절
+  const ja = (sample.match(/[぀-ゟ゠-ヿ]/g) || []).length; // 히라가나·가타카나 (일본어 고유)
+  const zh = (sample.match(/[一-鿿]/g) || []).length; // CJK 한자 (중·일 공통)
+  const en = (sample.match(/[a-zA-Z]/g) || []).length; // 라틴 알파벳
+
+  // 가나(히라가나·가타카나)는 일본어 고유 — 일정량 보이면 무조건 일본어
+  if (ja >= 10) return 'ja';
+
+  // 그 외는 가장 많이 등장한 문자 종류가 승리
+  const candidates: Array<[DetectedLang, number]> = [
+    ['ko', ko],
+    ['en', en],
+    ['zh', zh],
+  ];
+  candidates.sort((a, b) => b[1] - a[1]);
+  const [topLang, topCount] = candidates[0];
+  if (topCount === 0) return 'ko'; // 콘텐츠 비어있음
+
+  // 한자가 1등인데 가나가 조금이라도 있으면(5+) 일본어로 보정
+  if (topLang === 'zh' && ja >= 5) return 'ja';
+  return topLang;
 }
 
 async function getCategoryPosts(slug: string): Promise<BlogPost[]> {
-  // 페이지네이션으로 모든 글 가져오기 — Supabase max-rows 한도 우회.
-  // 한 번에 1000개씩, 최대 50페이지(=50,000개)까지 안전 가드.
-  const PAGE_SIZE = 1000;
+  // 페이지네이션으로 모든 글 가져오기.
+  // PAGE_SIZE를 100으로 작게 설정 — Supabase의 어떤 max-rows 설정(100/1000 등)에도 안전.
+  // 한 페이지가 PAGE_SIZE(100)보다 적게 오면 마지막 페이지로 판단.
+  const PAGE_SIZE = 100;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allRows: any[] = [];
   const supabase = getSupabase();
-  for (let page = 0; page < 50; page++) {
+  for (let page = 0; page < 500; page++) { // 최대 50,000개까지 안전 가드
     const from = page * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
     const { data, error } = await supabase
@@ -70,11 +77,15 @@ async function getCategoryPosts(slug: string): Promise<BlogPost[]> {
       .eq('category', slug)
       .order('created_at', { ascending: false })
       .range(from, to);
-    if (error) break;
+    if (error) {
+      console.error(`[blog-category] page ${page} 오류:`, error.message);
+      break;
+    }
     if (!data || data.length === 0) break;
     allRows.push(...data);
     if (data.length < PAGE_SIZE) break; // 마지막 페이지
   }
+  console.log(`[blog-category] ${slug} 카테고리 ${allRows.length}개 fetch 완료`);
 
   return allRows.map(row => {
     let meta: Record<string, unknown> = {};
@@ -134,11 +145,17 @@ export default async function BlogCategoryPage({
   const slug = decodeURIComponent(rawSlug);
   const [allPosts, meta] = await Promise.all([getCategoryPosts(slug), getCategoryMeta(slug)]);
 
-  // 각 포스트의 언어 자동 감지 (제목 + 본문 앞부분 샘플)
-  const postsWithLang = allPosts.map(p => ({
-    ...p,
-    detectedLang: detectLanguage(`${p.title || ''}\n${(p.content || '').slice(0, 1500)}`),
-  }));
+  // 각 포스트의 언어 결정:
+  // 1순위 — metadata.lang (발행 시 박힌 명시적 언어 태그, 100% 정확)
+  // 2순위 — 본문 자동 감지 (구 글 호환)
+  const postsWithLang = allPosts.map(p => {
+    const metaLang = (p.metadata as { lang?: string } | undefined)?.lang;
+    const validLangs: DetectedLang[] = ['ko', 'en', 'zh', 'ja'];
+    const detectedLang: DetectedLang = (metaLang && validLangs.includes(metaLang as DetectedLang))
+      ? (metaLang as DetectedLang)
+      : detectLanguage(`${p.title || ''}\n${(p.content || '').slice(0, 1500)}`);
+    return { ...p, detectedLang };
+  });
   const langCounts: Record<DetectedLang, number> = {
     ko: postsWithLang.filter(p => p.detectedLang === 'ko').length,
     en: postsWithLang.filter(p => p.detectedLang === 'en').length,
