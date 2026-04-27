@@ -268,7 +268,7 @@ export default function GenerateResultPage() {
     }
   };
 
-  // 일괄 번역 (concurrency 3)
+  // 순차 번역 (concurrency 1) — 톤 0부터 차례로 완료, 각 톤 끝나는 즉시 표시
   const startTranslation = async (lang: Lang) => {
     if (lang === 'ko') return;
     if (abVersions.length === 0) return;
@@ -276,7 +276,7 @@ export default function GenerateResultPage() {
     setTranslateProgress(0);
 
     const versions = abVersions;
-    const concurrency = 3;
+    const concurrency = 1;
     let nextIdx = 0;
     const inFlight: Promise<void>[] = [];
 
