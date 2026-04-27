@@ -592,22 +592,35 @@ export default function GenerateResultPage() {
 
     // 슬롯 1개 처리: md → EEAT → 검증·이어쓰기
     const processOne = async (tone: Tone, idx: number) => {
-      // 1) md 생성
+      // 1) md 생성 — 1회만 재시도 (cache_create 부담을 가장 먼저 받는 톤 0 보호)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fetchMdOnce = async (): Promise<any> => {
+        try {
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
+            body: JSON.stringify({ ...baseBody, tone: tone.value }),
+          });
+          const data = await res.json();
+          if (res.ok && !data.error && data.content && data.content.length >= 100) return data;
+        } catch {}
+        return null;
+      };
+
       setLiveStatus(prev => ({ ...prev, [idx]: 'md' }));
       versions[idx] = { ...versions[idx], title: `(${tone.label}) 마크다운 생성 중...` };
       setAbVersions([...versions]);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let mdResult: any = null;
-      try {
-        const res = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
-          body: JSON.stringify({ ...baseBody, tone: tone.value }),
-        });
-        const data = await res.json();
-        if (res.ok && !data.error && data.content) mdResult = data;
-      } catch {}
+      let mdResult: any = await fetchMdOnce();
+      if (!mdResult) {
+        // 1차 실패 → 2초 대기 후 1회 재시도 (이때 다른 톤이 만든 캐시 활용 가능)
+        console.log(`[live] 톤 ${idx + 1}(${tone.label}) md 1차 실패 — 2초 후 1회 재시도`);
+        versions[idx] = { ...versions[idx], title: `(${tone.label}) 재시도 중...` };
+        setAbVersions([...versions]);
+        await new Promise(r => setTimeout(r, 2000));
+        mdResult = await fetchMdOnce();
+      }
 
       if (!mdResult || !mdResult.content || mdResult.content.length < 100) {
         versions[idx] = {
