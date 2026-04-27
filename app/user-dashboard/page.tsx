@@ -181,28 +181,28 @@ export default function UserDashboardPage() {
       const projectId = data.project.id;
       const uploadedFiles: ProjectFile[] = [];
 
-      // 2. 파일 업로드 (parse-file → DB 저장)
+      // 2. 파일 업로드 (parse-file → 원본+텍스트 동시 저장)
       for (let i = 0; i < newFiles.length; i++) {
         const file = newFiles[i];
         try {
           // 2a. 텍스트 추출
           setAddProgress(`텍스트 추출 중... (${i + 1}/${newFiles.length}) ${file.name}`);
-          const fd = new FormData();
-          fd.append('file', file);
-          const parseRes = await fetch('/api/parse-file', { method: 'POST', body: fd });
+          const parseFd = new FormData();
+          parseFd.append('file', file);
+          const parseRes = await fetch('/api/parse-file', { method: 'POST', body: parseFd });
           let content = '';
           if (parseRes.ok) {
             const parseData = await parseRes.json();
             content = parseData.text || '';
           }
 
-          // 2b. DB 저장
-          setAddProgress(`저장 중... (${i + 1}/${newFiles.length}) ${file.name}`);
-          const fRes = await fetch('/api/user-projects/files', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ project_id: projectId, file_name: file.name, file_size: file.size, file_type: file.type, content }),
-          });
+          // 2b. 원본 바이너리 + 텍스트 저장 (Storage + DB)
+          setAddProgress(`업로드 중... (${i + 1}/${newFiles.length}) ${file.name}`);
+          const upFd = new FormData();
+          upFd.append('file', file);
+          upFd.append('project_id', projectId);
+          upFd.append('content', content);
+          const fRes = await fetch('/api/user-projects/files/upload', { method: 'POST', body: upFd });
           const fData = await fRes.json();
           if (fRes.ok && fData.file) {
             uploadedFiles.push(fData.file as ProjectFile);
@@ -289,6 +289,30 @@ export default function UserDashboardPage() {
     }
   };
 
+  const handleDownloadFile = async (fileId: string, fileName: string) => {
+    try {
+      const res = await fetch(`/api/user-projects/files/download?id=${encodeURIComponent(fileId)}`);
+      if (!res.ok) {
+        const ct = res.headers.get('content-type') || '';
+        const msg = ct.includes('application/json') ? (await res.json()).error : await res.text();
+        alert(`다운로드 실패: ${msg || res.status}`);
+        return;
+      }
+      const blob = await res.blob();
+      // 서버가 Content-Disposition으로 파일명을 지정하지만, 클라이언트에서 다시 한 번 보장
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(`다운로드 오류: ${e instanceof Error ? e.message : '네트워크 오류'}`);
+    }
+  };
+
   const handleUpdateProject = async (projectId: string) => {
     if (!editName.trim()) { setEditError('프로젝트 이름을 입력해주세요.'); return; }
     setEditSaving(true);
@@ -304,25 +328,26 @@ export default function UserDashboardPage() {
       const data = await res.json();
       if (!res.ok) { setEditError(data.error || '수정 실패'); return; }
 
-      // 2. 새 파일 업로드
+      // 2. 새 파일 업로드 (원본+텍스트 동시)
       const uploadedFiles: ProjectFile[] = [];
       for (let i = 0; i < editNewFiles.length; i++) {
         const file = editNewFiles[i];
         try {
-          setEditProgress(`파일 추가 중... (${i + 1}/${editNewFiles.length}) ${file.name}`);
-          const fd = new FormData();
-          fd.append('file', file);
-          const parseRes = await fetch('/api/parse-file', { method: 'POST', body: fd });
+          setEditProgress(`텍스트 추출 중... (${i + 1}/${editNewFiles.length}) ${file.name}`);
+          const parseFd = new FormData();
+          parseFd.append('file', file);
+          const parseRes = await fetch('/api/parse-file', { method: 'POST', body: parseFd });
           let content = '';
           if (parseRes.ok) {
             const parseData = await parseRes.json();
             content = parseData.text || '';
           }
-          const fRes = await fetch('/api/user-projects/files', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ project_id: projectId, file_name: file.name, file_size: file.size, file_type: file.type, content }),
-          });
+          setEditProgress(`업로드 중... (${i + 1}/${editNewFiles.length}) ${file.name}`);
+          const upFd = new FormData();
+          upFd.append('file', file);
+          upFd.append('project_id', projectId);
+          upFd.append('content', content);
+          const fRes = await fetch('/api/user-projects/files/upload', { method: 'POST', body: upFd });
           const fData = await fRes.json();
           if (fRes.ok && fData.file) uploadedFiles.push(fData.file as ProjectFile);
           else setEditError(`파일 저장 실패 (${file.name}): ${fData.error || ''}`);
@@ -782,6 +807,15 @@ export default function UserDashboardPage() {
                                   <span className="text-gray-200 text-xs flex-1 truncate">{f.file_name}</span>
                                   {f.file_size && <span className="text-gray-500 text-xs shrink-0">{formatFileSize(f.file_size)}</span>}
                                   <button
+                                    onClick={() => handleDownloadFile(f.id, f.file_name)}
+                                    className="p-1 text-gray-400 hover:text-indigo-300 transition-colors shrink-0"
+                                    title="텍스트 다운로드"
+                                  >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                  </button>
+                                  <button
                                     onClick={() => handleDeleteFile(project.id, f.id)}
                                     disabled={deletingFileId === f.id}
                                     className="p-1 text-gray-500 hover:text-red-400 transition-colors disabled:opacity-40 shrink-0"
@@ -940,6 +974,15 @@ export default function UserDashboardPage() {
                                   <span className="text-sm shrink-0">{FILE_ICONS[ext] || '📄'}</span>
                                   <span className="text-gray-200 text-xs flex-1 truncate">{f.file_name}</span>
                                   {f.file_size && <span className="text-gray-500 text-xs shrink-0">{formatFileSize(f.file_size)}</span>}
+                                  <button
+                                    onClick={() => handleDownloadFile(f.id, f.file_name)}
+                                    className="p-1 text-gray-400 hover:text-indigo-300 transition-colors shrink-0"
+                                    title="텍스트 다운로드"
+                                  >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                  </button>
                                 </div>
                               );
                             })}
