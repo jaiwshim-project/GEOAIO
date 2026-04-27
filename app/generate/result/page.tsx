@@ -88,6 +88,20 @@ export default function GenerateResultPage() {
   const [eeatAutoStatus, setEeatAutoStatus] = useState<Record<number, 'idle' | 'processing' | 'done' | 'failed'>>({});
   const [eeatAutoStarted, setEeatAutoStarted] = useState(false);
 
+  // ⭐ 언어 탭 (한국어 기본, 영/중/일 번역은 클릭 시 1회 번역 + 캐시)
+  type Lang = 'ko' | 'en' | 'zh' | 'ja';
+  const [activeLang, setActiveLang] = useState<Lang>('ko');
+  const [translatedVersions, setTranslatedVersions] = useState<Record<Lang, Record<number, { title: string; content: string }>>>({
+    ko: {}, en: {}, zh: {}, ja: {},
+  });
+  const [translatingLang, setTranslatingLang] = useState<Lang | null>(null);
+  const [translateProgress, setTranslateProgress] = useState(0);
+  // 비동기 콜백에서 최신 활성 톤·언어 참조용
+  const activeAbTabRef = useRef(0);
+  const activeLangRef = useRef<Lang>('ko');
+  useEffect(() => { activeAbTabRef.current = activeAbTab; }, [activeAbTab]);
+  useEffect(() => { activeLangRef.current = activeLang; }, [activeLang]);
+
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
@@ -219,6 +233,106 @@ export default function GenerateResultPage() {
   }, [router]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── E-E-A-T 검증 (컴포넌트 스코프에서 재사용) ──
+  // ── 톤 탭 클릭: 활성 언어에 맞춰 결과 표시 ──
+  const handleToneTabClick = (i: number) => {
+    setActiveAbTab(i);
+    if (activeLang === 'ko') {
+      setResult(abVersions[i] || null);
+      return;
+    }
+    const trans = translatedVersions[activeLang]?.[i];
+    if (trans && abVersions[i]) {
+      setResult({ ...abVersions[i], title: trans.title, content: trans.content });
+    } else {
+      setResult(abVersions[i] || null); // 아직 번역 전 — 한국어로 표시
+    }
+  };
+
+  // ── 언어 탭 클릭: 캐시 있으면 즉시 표시, 없으면 일괄 번역 ──
+  const handleLangClick = (lang: Lang) => {
+    setActiveLang(lang);
+    const idx = activeAbTab;
+    if (lang === 'ko') {
+      setResult(abVersions[idx] || null);
+      return;
+    }
+    // 캐시 있으면 표시
+    const trans = translatedVersions[lang]?.[idx];
+    if (trans && abVersions[idx]) {
+      setResult({ ...abVersions[idx], title: trans.title, content: trans.content });
+    }
+    // 캐시 부족하면 번역 시작 (이미 진행 중이면 무시)
+    const cached = Object.keys(translatedVersions[lang] || {}).length;
+    if (cached < abVersions.length && translatingLang !== lang) {
+      startTranslation(lang);
+    }
+  };
+
+  // 일괄 번역 (concurrency 3)
+  const startTranslation = async (lang: Lang) => {
+    if (lang === 'ko') return;
+    if (abVersions.length === 0) return;
+    setTranslatingLang(lang);
+    setTranslateProgress(0);
+
+    const versions = abVersions;
+    const concurrency = 3;
+    let nextIdx = 0;
+    const inFlight: Promise<void>[] = [];
+
+    const translateOne = async (idx: number) => {
+      const v = versions[idx];
+      // 이미 캐시된 슬롯은 건너뜀
+      if (translatedVersions[lang]?.[idx]) {
+        setTranslateProgress(prev => prev + 1);
+        return;
+      }
+      try {
+        const res = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: v.title,
+            content: v.content,
+            targetLang: lang,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const entry = { title: data.title || v.title || '', content: data.content || v.content || '' };
+          setTranslatedVersions(prev => ({
+            ...prev,
+            [lang]: { ...(prev[lang] || {}), [idx]: entry },
+          }));
+          // 사용자가 보고 있는 슬롯이면 즉시 표시 갱신
+          if (idx === activeAbTabRef.current && lang === activeLangRef.current) {
+            setResult({ ...v, title: entry.title, content: entry.content });
+          }
+        }
+      } catch (e) {
+        console.error(`[translate] 톤 ${idx + 1} 실패:`, e);
+      } finally {
+        setTranslateProgress(prev => prev + 1);
+      }
+    };
+
+    while (nextIdx < versions.length || inFlight.length > 0) {
+      while (inFlight.length < concurrency && nextIdx < versions.length) {
+        const i = nextIdx++;
+        const p = translateOne(i).finally(() => {
+          const k = inFlight.indexOf(p);
+          if (k !== -1) inFlight.splice(k, 1);
+        });
+        inFlight.push(p);
+      }
+      if (inFlight.length > 0) {
+        await Promise.race(inFlight);
+      }
+    }
+
+    setTranslatingLang(null);
+  };
+
   const validateEeatComplete = (content: string): { ok: boolean; reason?: string } => {
     if (!content) return { ok: false, reason: '콘텐츠 비어있음' };
     if (content.length < 1100) return { ok: false, reason: `분량 부족 (${content.length}자)` };
@@ -1295,6 +1409,70 @@ export default function GenerateResultPage() {
           </div>
         )}
 
+        {/* 언어 탭 — 한국어 기본, 영/중/일 클릭 시 1회 번역 + 캐시 */}
+        {abVersions.length > 0 && (() => {
+          const LANGS: { key: Lang; label: string; sub: string }[] = [
+            { key: 'ko', label: '한국어', sub: 'KO' },
+            { key: 'en', label: 'English', sub: 'EN' },
+            { key: 'zh', label: '中文', sub: 'ZH' },
+            { key: 'ja', label: '日本語', sub: 'JA' },
+          ];
+          const cachedCount = (l: Lang) => Object.keys(translatedVersions[l] || {}).length;
+          return (
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+              <div className="px-5 py-3 bg-gradient-to-r from-emerald-700 to-teal-800 flex items-center gap-2">
+                <svg className="w-4 h-4 text-emerald-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                </svg>
+                <p className="text-sm font-bold text-white">출력 언어</p>
+                {translatingLang && (
+                  <span className="ml-3 text-[11px] text-emerald-100">
+                    번역 중 ({translateProgress}/{abVersions.length})
+                  </span>
+                )}
+                <span className="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-emerald-100 border border-white/20">
+                  {LANGS.find(l => l.key === activeLang)?.label || '한국어'}
+                </span>
+              </div>
+              <div className="p-3 grid grid-cols-4 gap-2">
+                {LANGS.map(l => {
+                  const isActive = activeLang === l.key;
+                  const isLoading = translatingLang === l.key;
+                  const cached = l.key === 'ko' ? abVersions.length : cachedCount(l.key);
+                  return (
+                    <button
+                      key={l.key}
+                      onClick={() => handleLangClick(l.key)}
+                      disabled={isLoading}
+                      className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl border text-sm font-semibold transition-all ${
+                        isActive
+                          ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
+                          : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'
+                      } disabled:opacity-60 disabled:cursor-wait`}
+                    >
+                      <span>{l.label}</span>
+                      <span className={`text-[10px] ${isActive ? 'text-emerald-100' : 'text-emerald-500'}`}>
+                        {l.key === 'ko'
+                          ? '원본'
+                          : cached === abVersions.length
+                          ? '✓ 번역됨'
+                          : isLoading
+                          ? `번역 중... ${translateProgress}/${abVersions.length}`
+                          : cached > 0
+                          ? `${cached}/${abVersions.length} 번역됨`
+                          : '클릭 시 번역'}
+                      </span>
+                      {isLoading && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* 톤 버전 탭 */}
         {abVersions.length > 1 && (() => {
           const TONE_COLORS = [
@@ -1361,8 +1539,7 @@ export default function GenerateResultPage() {
                             return next;
                           });
                         } else {
-                          setActiveAbTab(i);
-                          setResult(v);
+                          handleToneTabClick(i);
                           setSelectedVersions(prev => {
                             const next = new Set(prev);
                             if (next.has(i)) { if (next.size > 1) next.delete(i); }
