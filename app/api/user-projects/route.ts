@@ -31,13 +31,13 @@ export async function GET(req: NextRequest) {
 // 새 작업 항목 추가
 export async function POST(req: NextRequest) {
   try {
-    const { user_id, name, description, company_name, representative_name, region, homepage_url, blog_url } = await req.json();
+    const { user_id, name, description, company_name, representative_name, region, homepage_url, blog_url, contact_email, contact_phone } = await req.json();
     if (!user_id || !name?.trim()) return NextResponse.json({ error: '사용자 ID와 항목 이름은 필수입니다.' }, { status: 400 });
 
     const supabase = getServiceClient();
     const { data, error } = await supabase
       .from('user_projects')
-      .insert({ user_id, name: name.trim(), description, company_name: company_name?.trim() || null, representative_name: representative_name?.trim() || null, region: region?.trim() || null, homepage_url: homepage_url?.trim() || null, blog_url: blog_url?.trim() || null })
+      .insert({ user_id, name: name.trim(), description, company_name: company_name?.trim() || null, representative_name: representative_name?.trim() || null, region: region?.trim() || null, homepage_url: homepage_url?.trim() || null, blog_url: blog_url?.trim() || null, contact_email: contact_email?.trim() || null, contact_phone: contact_phone?.trim() || null })
       .select('*')
       .single();
 
@@ -51,13 +51,13 @@ export async function POST(req: NextRequest) {
 // 작업 항목 수정
 export async function PATCH(req: NextRequest) {
   try {
-    const { id, name, description, company_name, representative_name, region, homepage_url, blog_url } = await req.json();
+    const { id, name, description, company_name, representative_name, region, homepage_url, blog_url, contact_email, contact_phone } = await req.json();
     if (!id || !name?.trim()) return NextResponse.json({ error: 'id와 이름은 필수입니다.' }, { status: 400 });
 
     const supabase = getServiceClient();
     const { data, error } = await supabase
       .from('user_projects')
-      .update({ name: name.trim(), description: description || null, company_name: company_name?.trim() || null, representative_name: representative_name?.trim() || null, region: region?.trim() || null, homepage_url: homepage_url?.trim() || null, blog_url: blog_url?.trim() || null })
+      .update({ name: name.trim(), description: description || null, company_name: company_name?.trim() || null, representative_name: representative_name?.trim() || null, region: region?.trim() || null, homepage_url: homepage_url?.trim() || null, blog_url: blog_url?.trim() || null, contact_email: contact_email?.trim() || null, contact_phone: contact_phone?.trim() || null })
       .eq('id', id)
       .select('*')
       .single();

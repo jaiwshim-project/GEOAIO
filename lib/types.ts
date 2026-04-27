@@ -165,6 +165,8 @@ export interface GenerateRequest {
   company_name?: string;
   representative_name?: string;
   region?: string;
+  contact_email?: string;
+  contact_phone?: string;
   // === CEP (Category Entry Point) 통합 ===
   sceneSentence?: string;       // Step 5 — 점유할 장면 문장 (사람이 아닌 순간)
   searchPath?: string[];        // Step 2 — 소비자 검색 경로 (예: 선크림 밀림 → 화장 뜸 → 화장 잘먹는 선크림)

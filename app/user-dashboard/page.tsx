@@ -33,6 +33,8 @@ export default function UserDashboardPage() {
   const [newRegion, setNewRegion] = useState('');
   const [newHomepageUrl, setNewHomepageUrl] = useState('');
   const [newBlogUrl, setNewBlogUrl] = useState('');
+  const [newContactEmail, setNewContactEmail] = useState('');
+  const [newContactPhone, setNewContactPhone] = useState('');
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -51,6 +53,8 @@ export default function UserDashboardPage() {
   const [editRegion, setEditRegion] = useState('');
   const [editHomepageUrl, setEditHomepageUrl] = useState('');
   const [editBlogUrl, setEditBlogUrl] = useState('');
+  const [editContactEmail, setEditContactEmail] = useState('');
+  const [editContactPhone, setEditContactPhone] = useState('');
   const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
   const [editIsDragging, setEditIsDragging] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
@@ -169,7 +173,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null, region: newRegion.trim() || null, homepage_url: newHomepageUrl.trim() || null, blog_url: newBlogUrl.trim() || null }),
+        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null, region: newRegion.trim() || null, homepage_url: newHomepageUrl.trim() || null, blog_url: newBlogUrl.trim() || null, contact_email: newContactEmail.trim() || null, contact_phone: newContactPhone.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '추가 실패'); return; }
@@ -218,6 +222,8 @@ export default function UserDashboardPage() {
       setNewRegion('');
       setNewHomepageUrl('');
       setNewBlogUrl('');
+      setNewContactEmail('');
+      setNewContactPhone('');
       setNewFiles([]);
       setShowAddForm(false);
     } catch {
@@ -237,6 +243,8 @@ export default function UserDashboardPage() {
     setEditRegion(project.region || '');
     setEditHomepageUrl(project.homepage_url || '');
     setEditBlogUrl(project.blog_url || '');
+    setEditContactEmail(project.contact_email || '');
+    setEditContactPhone(project.contact_phone || '');
     setEditNewFiles([]);
     setEditError('');
     setEditProgress('');
@@ -291,7 +299,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null, region: editRegion.trim() || null, homepage_url: editHomepageUrl.trim() || null, blog_url: editBlogUrl.trim() || null }),
+        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null, region: editRegion.trim() || null, homepage_url: editHomepageUrl.trim() || null, blog_url: editBlogUrl.trim() || null, contact_email: editContactEmail.trim() || null, contact_phone: editContactPhone.trim() || null }),
       });
       const data = await res.json();
       if (!res.ok) { setEditError(data.error || '수정 실패'); return; }
@@ -325,11 +333,11 @@ export default function UserDashboardPage() {
 
       setProjects(prev => prev.map(p =>
         p.id === projectId
-          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url, files: [...(p.files || []), ...uploadedFiles] }
+          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url, contact_email: data.project.contact_email, contact_phone: data.project.contact_phone, files: [...(p.files || []), ...uploadedFiles] }
           : p
       ));
       if (selectedProject?.id === projectId) {
-        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url });
+        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url, contact_email: data.project.contact_email, contact_phone: data.project.contact_phone });
       }
       setEditingId(null);
       setEditNewFiles([]);
@@ -373,6 +381,10 @@ export default function UserDashboardPage() {
     setNewCompanyName('');
     setNewRepName('');
     setNewRegion('');
+    setNewHomepageUrl('');
+    setNewBlogUrl('');
+    setNewContactEmail('');
+    setNewContactPhone('');
     setNewFiles([]);
   };
 
@@ -564,6 +576,22 @@ export default function UserDashboardPage() {
                   className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
                 />
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input
+                  type="email"
+                  value={newContactEmail}
+                  onChange={(e) => setNewContactEmail(e.target.value)}
+                  placeholder="📧 이메일 (선택, 예: contact@brand.com)"
+                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
+                />
+                <input
+                  type="tel"
+                  value={newContactPhone}
+                  onChange={(e) => setNewContactPhone(e.target.value)}
+                  placeholder="📞 연락처 (선택, 예: 02-1234-5678)"
+                  className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
+                />
+              </div>
               <input
                 type="text"
                 value={newDesc}
@@ -654,7 +682,9 @@ export default function UserDashboardPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {projects.map((project) => (
+              {projects.map((project, index) => {
+                const seq = String(projects.length - index).padStart(2, '0');
+                return (
                 <div
                   key={project.id}
                   className={`p-4 rounded-xl border transition-all ${
@@ -666,7 +696,9 @@ export default function UserDashboardPage() {
                   {editingId === project.id ? (
                     /* ===== 수정 폼 ===== */
                     <div className="space-y-3">
-                      <p className="text-indigo-300 text-xs font-semibold">프로젝트 수정</p>
+                      <p className="text-indigo-300 text-xs font-semibold">
+                        <span className="font-mono mr-1">{seq}.</span>프로젝트 수정
+                      </p>
                       <input
                         type="text"
                         value={editName}
@@ -710,6 +742,22 @@ export default function UserDashboardPage() {
                           value={editBlogUrl}
                           onChange={(e) => setEditBlogUrl(e.target.value)}
                           placeholder="📝 블로그 URL"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input
+                          type="email"
+                          value={editContactEmail}
+                          onChange={(e) => setEditContactEmail(e.target.value)}
+                          placeholder="📧 이메일"
+                          className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
+                        />
+                        <input
+                          type="tel"
+                          value={editContactPhone}
+                          onChange={(e) => setEditContactPhone(e.target.value)}
+                          placeholder="📞 연락처"
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
                         />
                       </div>
@@ -814,8 +862,11 @@ export default function UserDashboardPage() {
                           </svg>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-bold text-sm">{project.name}</p>
-                          {(project.company_name || project.representative_name || project.region) && (
+                          <p className="text-white font-bold text-sm">
+                            <span className="text-indigo-300 mr-1.5 font-mono">{seq}.</span>
+                            {project.name}
+                          </p>
+                          {(project.company_name || project.representative_name || project.region || project.contact_email || project.contact_phone) && (
                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                               {project.company_name && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-indigo-300 text-xs">
@@ -830,6 +881,16 @@ export default function UserDashboardPage() {
                               {project.region && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-300 text-xs">
                                   📍 {project.region}
+                                </span>
+                              )}
+                              {project.contact_email && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-500/20 border border-sky-500/30 rounded-full text-sky-300 text-xs">
+                                  📧 {project.contact_email}
+                                </span>
+                              )}
+                              {project.contact_phone && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded-full text-amber-300 text-xs">
+                                  📞 {project.contact_phone}
                                 </span>
                               )}
                             </div>
@@ -888,7 +949,8 @@ export default function UserDashboardPage() {
                     </>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -957,7 +1019,9 @@ export default function UserDashboardPage() {
               <p className="text-gray-400 text-xs text-center py-2">등록된 프로젝트가 없습니다.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {projects.map((p) => (
+                {projects.map((p, idx) => {
+                  const seq = String(projects.length - idx).padStart(2, '0');
+                  return (
                   <button
                     key={p.id}
                     onClick={() => handleGenProjectSelect(p.id)}
@@ -967,9 +1031,10 @@ export default function UserDashboardPage() {
                         : 'bg-white/10 text-gray-300 hover:bg-white/20'
                     }`}
                   >
-                    {p.name}
+                    <span className="font-mono opacity-80 mr-1">{seq}.</span>{p.name}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             )}
 

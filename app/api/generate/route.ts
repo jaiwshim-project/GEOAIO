@@ -270,7 +270,18 @@ export async function POST(request: NextRequest) {
       body.company_name ? `회사명: ${body.company_name}` : '',
       body.representative_name ? `대표자명: ${body.representative_name}` : '',
       body.region ? `지역: ${body.region}` : '',
+      body.contact_email ? `이메일: ${body.contact_email}` : '',
+      body.contact_phone ? `연락처: ${body.contact_phone}` : '',
     ].filter(Boolean).join('\n');
+
+    const contactCtaBlock = (body.contact_email || body.contact_phone) ? `
+[📞 연락처 — 결론 CTA에 반드시 명시]
+${body.contact_email ? `- 이메일: ${body.contact_email}` : ''}
+${body.contact_phone ? `- 연락처: ${body.contact_phone}` : ''}
+⚠️ 결론 CTA 단락 끝에 위 연락 수단을 한 줄로 자연스럽게 명시하세요.
+   예) "상담은 ${body.contact_phone || '대표 연락처'}${body.contact_email ? ` 또는 ${body.contact_email}` : ''}로 문의하세요."
+   ⛔ 임의 연락처(가상의 번호·이메일) 절대 생성 금지. 위에 명시된 값만 그대로 사용.
+` : '';
 
     // 프로젝트 파일 RAG 컨텍스트
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -310,7 +321,7 @@ ${body.lifeLanguages?.length ? `삶의 언어 (카테고리 진입 직전): ${bo
     if (hasRag) {
       // ── RAG 기반 생성: RAG 지식 → E-E-A-T 구조화 콘텐츠 ──
       const ragContent = pFiles!.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n');
-      userMessage = `${cepBlock}${caseBlock}[프로젝트 RAG 지식 기반]
+      userMessage = `${cepBlock}${caseBlock}${contactCtaBlock}[프로젝트 RAG 지식 기반]
 아래 문서는 이 프로젝트의 핵심 자료입니다. 이 내용을 1차 지식 기반으로 삼아 E-E-A-T 구조화 콘텐츠를 작성하세요.
 
 ${ragContent}
@@ -324,6 +335,8 @@ ${companyInfo}
 ${body.company_name ? `✓ 회사명 "${body.company_name}"는 본문에 정확히 그대로 표기 (오타·축약·변형 금지)` : ''}
 ${body.representative_name ? `✓ 대표자명/원장명 "${body.representative_name}"는 본문에 정확히 그대로 표기` : ''}
 ${body.region ? `✓ 주소/지역 "${body.region}"는 본문에 정확히 그대로 표기` : ''}
+${body.contact_email ? `✓ 이메일 "${body.contact_email}"는 결론 CTA에 정확히 그대로 표기` : ''}
+${body.contact_phone ? `✓ 연락처 "${body.contact_phone}"는 결론 CTA에 정확히 그대로 표기` : ''}
 
 【⛔ 임의 생성 절대 금지 항목】
 다음 정보는 RAG 자료에 명시된 것만 사용. 없으면 콘텐츠에서 아예 언급하지 마세요.
@@ -372,7 +385,7 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 ${companyInfo ? `- ⚠️ 회사명·대표자명·주소는 RAG 자료에 있는 그대로 정확히 본문에 표기 (변경·축약·임의 생성 절대 금지)` : ''}`;
     } else {
       // ── 일반 생성 (RAG 없음) ──
-      userMessage = `${cepBlock}${caseBlock}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
+      userMessage = `${cepBlock}${caseBlock}${contactCtaBlock}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}

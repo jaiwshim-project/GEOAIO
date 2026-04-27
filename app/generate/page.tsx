@@ -1200,6 +1200,8 @@ export default function GeneratePage() {
                 region: activeProjectInfo?.region || undefined,
                 homepage_url: activeProjectInfo?.homepage_url || undefined,
                 blog_url: activeProjectInfo?.blog_url || undefined,
+                contact_email: activeProjectInfo?.contact_email || undefined,
+                contact_phone: activeProjectInfo?.contact_phone || undefined,
                 projectFiles: projectFiles.slice(0, 3).map(f => ({
                   file_name: f.file_name,
                   content: f.content.slice(0, 3000),
