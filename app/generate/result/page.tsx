@@ -1631,11 +1631,23 @@ export default function GenerateResultPage() {
                   const isConverting = eeatConverting && i === eeatProgress;
                   // 1차 생성 실패 판정 — content가 너무 짧거나 fallback 메시지(생성 실패/오류)면 비활성화
                   const isFailed = !v?.content || (typeof v.content === 'string' && (v.content.length < 200 || /생성\s*(실패|오류)/.test(v.content)));
-                  const isDisabled = !isReady || isFailed;
+                  // ⭐ 비한국어 탭 활성 시 — 번역 성공한 톤만 클릭 가능. 실패·미번역은 비활성화.
+                  const noTranslation = activeLang !== 'ko' && !translatedVersions[activeLang]?.[i];
+                  const isTranslating = translatingLang === activeLang && noTranslation && !translationFailed[activeLang]?.has(i);
+                  const transFailed = translationFailed[activeLang]?.has(i);
+                  const isDisabled = !isReady || isFailed || noTranslation;
                   return (
                     <button
                       key={i}
                       disabled={isDisabled}
+                      title={
+                        isFailed ? '생성 실패 — 선택 불가'
+                        : !isReady ? (isConverting ? '변환 중...' : '변환 대기 중')
+                        : transFailed ? `${activeLang.toUpperCase()} 번역 실패 — 선택 불가 (한국어 원문)`
+                        : isTranslating ? `${activeLang.toUpperCase()} 번역 중...`
+                        : noTranslation ? `${activeLang.toUpperCase()} 번역 대기 중`
+                        : undefined
+                      }
                       onClick={(e) => {
                         if (isDisabled) return;
                         if (e.shiftKey || e.ctrlKey || e.metaKey) {
@@ -1660,13 +1672,18 @@ export default function GenerateResultPage() {
                           ? 'bg-rose-50 text-rose-400 border-rose-200 cursor-not-allowed opacity-50 line-through'
                           : !isReady
                           ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
+                          : transFailed
+                          ? 'bg-rose-50 text-rose-400 border-rose-200 cursor-not-allowed opacity-50'
+                          : isTranslating
+                          ? 'bg-amber-50 text-amber-500 border-amber-200 cursor-wait opacity-70'
+                          : noTranslation
+                          ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
                           : isViewing
                           ? `${color.active} shadow-lg hover:shadow-md hover:-translate-y-0.5`
                           : isChecked
                           ? `${color.idle} ring-2 ring-emerald-400 ring-offset-1 hover:shadow-md hover:-translate-y-0.5`
                           : `${color.idle} opacity-60 hover:shadow-md hover:-translate-y-0.5`
                       }`}
-                      title={isFailed ? '생성 실패 — 선택 불가' : !isReady ? (isConverting ? '변환 중...' : '변환 대기 중') : undefined}
                     >
                       {/* ⭐ 자동 EEAT 진행 배지 (좌상단) */}
                       {eeatAutoStatus[i] === 'processing' && (
