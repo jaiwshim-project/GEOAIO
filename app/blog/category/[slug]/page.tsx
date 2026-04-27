@@ -192,105 +192,185 @@ export default async function BlogCategoryPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-stone-50 relative">
+      {/* 배경 텍스처 — 미세한 도트 패턴 */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.025]"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(15 23 42) 1px, transparent 0)',
+          backgroundSize: '24px 24px',
+        }}
+      />
       <Header />
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 뒤로가기 */}
+      <main className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        {/* 뒤로가기 — 고급스러운 캡슐 */}
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 mb-6 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 text-[11px] font-medium tracking-wider uppercase text-stone-500 hover:text-stone-900 mb-8 transition-all border border-stone-200 bg-white/60 backdrop-blur-sm rounded-full hover:border-amber-200 hover:bg-amber-50/40"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          전체 카테고리로
+          전체 카테고리
         </Link>
 
-        {/* 카테고리 헤더 */}
-        <section className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${meta.color} text-white px-6 sm:px-10 py-8 mb-6`}>
-          <div className="relative">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">{meta.label}</h1>
-            {meta.description && <p className="text-white/90 text-sm leading-relaxed">{meta.description}</p>}
-            <div className="flex flex-wrap items-center gap-2 mt-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium">
-                <span className="w-2 h-2 rounded-full bg-white/70 animate-pulse" />
-                전체 {allPosts.length}개
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/25 rounded-full text-xs font-medium">
-                {LANG_LABELS[activeLang].flag} {LANG_LABELS[activeLang].label} {posts.length}개
-              </span>
+        {/* 카테고리 헤더 — 프리미엄 카드 (gradient border + 미세한 골드 액센트) */}
+        <section className="relative mb-8">
+          <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-br from-amber-400/30 via-stone-300/40 to-amber-500/30 blur-sm" />
+          <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${meta.color} text-white px-6 sm:px-12 py-10 sm:py-14 shadow-2xl shadow-stone-900/10`}>
+            {/* 미세한 빛 효과 */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.15),transparent_50%)] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            {/* 골드 hairline */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent" />
+            <div className="relative">
+              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-white/60 mb-3">Category Collection</p>
+              <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-3 leading-tight" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+                {meta.label}
+              </h1>
+              {meta.description && (
+                <p className="text-white/80 text-sm sm:text-base leading-relaxed max-w-2xl font-light">
+                  {meta.description}
+                </p>
+              )}
+              <div className="flex flex-wrap items-center gap-2 mt-7">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-black/15 backdrop-blur-sm rounded-full text-[11px] font-semibold tracking-wider border border-white/10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(252,211,77,0.8)] animate-pulse" />
+                  TOTAL · {allPosts.length}
+                </span>
+                {validLangs.map((lang) => {
+                  const count = langCounts[lang];
+                  const isActive = lang === activeLang;
+                  return (
+                    <span
+                      key={lang}
+                      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] tracking-wider border backdrop-blur-sm transition-all ${
+                        isActive
+                          ? 'bg-white/30 border-amber-300/60 text-white font-bold shadow-[0_0_20px_-4px_rgba(252,211,77,0.4)]'
+                          : count > 0
+                          ? 'bg-white/10 border-white/15 text-white/85 font-semibold'
+                          : 'bg-white/5 border-white/10 text-white/40 font-medium'
+                      }`}
+                    >
+                      <span>{LANG_LABELS[lang].flag}</span>
+                      {LANG_LABELS[lang].label}
+                      <span className={`text-[10px] ml-0.5 ${isActive ? 'text-amber-200' : 'text-white/60'}`}>{count}</span>
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* 언어 탭 — 자동 감지된 언어별 포스트 분류 */}
-        <div className="mb-6 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="grid grid-cols-4 divide-x divide-gray-100">
-            {validLangs.map(lang => {
-              const isActive = lang === activeLang;
-              const count = langCounts[lang];
-              const isEmpty = count === 0;
-              const href = `/blog/category/${rawSlug}${lang === 'ko' ? '' : `?lang=${lang}`}`;
-              return (
-                <Link
-                  key={lang}
-                  href={isEmpty ? '#' : href}
-                  className={`flex flex-col items-center justify-center gap-0.5 py-3 px-2 transition-colors ${
-                    isActive
-                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white'
-                      : isEmpty
-                      ? 'text-gray-300 cursor-not-allowed pointer-events-none'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                  aria-disabled={isEmpty}
-                >
-                  <span className="text-base">{LANG_LABELS[lang].flag}</span>
-                  <span className="text-xs font-semibold">{LANG_LABELS[lang].label}</span>
-                  <span className={`text-[10px] ${isActive ? 'text-emerald-100' : isEmpty ? 'text-gray-300' : 'text-gray-400'}`}>
-                    {count}개
-                  </span>
-                </Link>
-              );
-            })}
+        {/* 언어 탭 — 프리미엄 세그먼트 컨트롤 */}
+        <div className="mb-10 relative">
+          <p className="text-[10px] font-semibold tracking-[0.25em] uppercase text-stone-400 mb-3 ml-1">Language</p>
+          <div className="bg-white rounded-2xl border border-stone-200/80 shadow-[0_2px_24px_-8px_rgba(15,23,42,0.08)] p-1.5">
+            <div className="grid grid-cols-4 gap-1">
+              {validLangs.map(lang => {
+                const isActive = lang === activeLang;
+                const count = langCounts[lang];
+                const isEmpty = count === 0;
+                const href = `/blog/category/${rawSlug}${lang === 'ko' ? '' : `?lang=${lang}`}`;
+                return (
+                  <Link
+                    key={lang}
+                    href={isEmpty ? '#' : href}
+                    className={`relative flex flex-col items-center justify-center gap-1 py-3.5 px-2 rounded-xl transition-all duration-300 ${
+                      isActive
+                        ? 'bg-gradient-to-br from-stone-900 to-stone-800 text-white shadow-lg shadow-stone-900/20'
+                        : isEmpty
+                        ? 'text-stone-300 cursor-not-allowed pointer-events-none'
+                        : 'text-stone-600 hover:bg-stone-50'
+                    }`}
+                    aria-disabled={isEmpty}
+                  >
+                    {isActive && (
+                      <span className="absolute -top-px left-1/2 -translate-x-1/2 w-12 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
+                    )}
+                    <span className="text-lg leading-none">{LANG_LABELS[lang].flag}</span>
+                    <span className="text-[11px] font-bold tracking-wide">{LANG_LABELS[lang].label}</span>
+                    <span className={`text-[9px] font-semibold tracking-[0.15em] ${
+                      isActive ? 'text-amber-300' : isEmpty ? 'text-stone-300' : 'text-stone-400'
+                    }`}>
+                      {count.toString().padStart(2, '0')}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* 포스트 목록 */}
+        {/* 포스트 목록 — 프리미엄 카드 */}
         {posts.length > 0 ? (
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <article key={post.id} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-all group">
-                <Link href={`/blog/${post.id}`} className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      {post.tag && (
-                        <span className={`px-2 py-0.5 text-[11px] font-semibold rounded-full ${TAG_COLORS[post.tag] || 'bg-gray-100 text-gray-600'}`}>
-                          {post.tag}
+          <>
+            <div className="flex items-baseline justify-between mb-5 px-1">
+              <p className="text-[10px] font-semibold tracking-[0.25em] uppercase text-stone-400">Articles</p>
+              <p className="text-[11px] font-medium text-stone-400">
+                <span className="text-stone-900 font-semibold">{posts.length}</span> of {allPosts.length}
+              </p>
+            </div>
+            <div className="space-y-3">
+              {posts.map((post) => (
+                <article
+                  key={post.id}
+                  className="group relative bg-white rounded-2xl border border-stone-200/70 hover:border-stone-300 transition-all duration-300 overflow-hidden hover:shadow-[0_8px_30px_-12px_rgba(15,23,42,0.18)]"
+                >
+                  {/* 좌측 골드 바 (호버 시) */}
+                  <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-amber-500 to-amber-300 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Link href={`/blog/${post.id}`} className="flex items-start justify-between gap-4 p-6">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-3">
+                        {post.tag && (
+                          <span className={`px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-stone-100 text-stone-600'}`}>
+                            {post.tag}
+                          </span>
+                        )}
+                        <span className="text-[11px] font-medium tracking-wider text-stone-400">
+                          {formatDate(post.createdAt)}
                         </span>
-                      )}
-                      <span className="text-xs text-gray-400">{formatDate(post.createdAt)}</span>
-                      {post.targetKeyword && (
-                        <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full hidden sm:inline">{post.targetKeyword}</span>
-                      )}
+                        {post.targetKeyword && (
+                          <span className="text-[10px] font-semibold tracking-wider text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full hidden sm:inline">
+                            {post.targetKeyword}
+                          </span>
+                        )}
+                      </div>
+                      <h2
+                        className="text-lg sm:text-xl font-bold text-stone-900 group-hover:text-stone-700 transition-colors mb-2 leading-snug tracking-tight"
+                        style={{ fontFamily: 'ui-serif, Georgia, serif' }}
+                      >
+                        {post.title}
+                      </h2>
+                      <p className="text-[13.5px] text-stone-500 line-clamp-2 leading-relaxed font-light">
+                        {post.summary}
+                      </p>
                     </div>
-                    <h2 className="text-base font-bold text-gray-900 group-hover:text-indigo-600 transition-colors mb-1.5">{post.title}</h2>
-                    <p className="text-sm text-gray-500 line-clamp-2">{post.summary}</p>
-                  </div>
-                  <div className={`shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-60 group-hover:opacity-100 transition-opacity`}>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                </Link>
-              </article>
-            ))}
-          </div>
+                    <div
+                      className={`shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 shadow-md`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </>
         ) : (
-          <div className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">
-            <p className="text-sm text-gray-400 font-medium">이 카테고리에 포스트가 없습니다</p>
-            <Link href="/generate" className="inline-flex items-center gap-2 px-4 py-2 mt-4 text-sm font-medium bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all">
-              콘텐츠 생성하러 가기
+          <div className="text-center py-20 bg-white/60 backdrop-blur-sm rounded-2xl border border-dashed border-stone-300">
+            <p className="text-sm text-stone-400 font-medium tracking-wider">No articles in this collection</p>
+            <Link
+              href="/generate"
+              className="inline-flex items-center gap-2 px-6 py-2.5 mt-5 text-xs font-bold tracking-wider uppercase bg-stone-900 text-white rounded-full hover:bg-stone-800 transition-all"
+            >
+              Create Content
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
           </div>
         )}
