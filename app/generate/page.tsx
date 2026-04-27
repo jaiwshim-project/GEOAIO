@@ -1168,120 +1168,65 @@ export default function GeneratePage() {
         }
       }
 
-      // ── 멀티 에이전트 병렬 생성 ──
-      // 마크다운 단순 생성이라 빠름 → 3개씩 병렬로 안전하게 처리
-      safeTrack('content_generate', {
+      // ── 라이브 모드: params 저장 + 즉시 navigate, 결과 페이지에서 톤별 파이프라인 ──
+      safeTrack('content_generate_live_start', {
         cep_applied: !!sceneSentence,
         has_rag: projectFiles.length > 0,
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 5; // 5개 병렬 (10톤 → 2그룹). Claude Haiku 4.5 + prompt cache. 재시도 없이 ⚠️로 노출.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const results: any[] = new Array(toneOptions.length).fill(null);
 
-      const generateTone = async (t: typeof toneOptions[0], idx: number) => {
-        // 단일 fetch 호출 — 재시도용 inner 함수
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const fetchOnce = async (): Promise<{ ok: boolean; data: any; status: number }> => {
-          try {
-            const res = await fetch('/api/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
-              body: JSON.stringify({
-                category: selectedCategory,
-                topic: topic.trim(),
-                targetKeyword: targetKeyword.trim() || undefined,
-                subKeyword: selectedSubKeyword || undefined,
-                tone: t.value,
-                additionalNotes: notes,
-                company_name: activeProjectInfo?.company_name || undefined,
-                representative_name: activeProjectInfo?.representative_name || undefined,
-                region: activeProjectInfo?.region || undefined,
-                homepage_url: activeProjectInfo?.homepage_url || undefined,
-                blog_url: activeProjectInfo?.blog_url || undefined,
-                contact_email: activeProjectInfo?.contact_email || undefined,
-                contact_phone: activeProjectInfo?.contact_phone || undefined,
-                projectFiles: projectFiles.slice(0, 3).map(f => ({
-                  file_name: f.file_name,
-                  content: f.content.slice(0, 3000),
-                })),
-                // CEP(Category Entry Point) 발굴 데이터
-                sceneSentence: sceneSentence || undefined,
-                cepTask: cepTask || undefined,
-                cepKeyword: cepClusters[cepSelectedCluster ?? -1]?.clusterName,
-                searchPath: cepClusters[cepSelectedCluster ?? -1]?.searchPath,
-                cepCluster: cepClusters[cepSelectedCluster ?? -1]?.keywords,
-                lifeLanguages: cepLifeLanguages.length ? cepLifeLanguages : undefined,
-                // 환자/고객 케이스 정보 (selectedCategory === 'case'일 때만)
-                caseStudy: selectedCategory === 'case' ? {
-                  profile: caseProfile,
-                  symptom: caseSymptom,
-                  treatment: caseTreatment,
-                  result: caseResult,
-                } : undefined,
-              }),
-            });
-            const data = await res.json();
-            return { ok: res.ok && !data.error, data, status: res.status };
-          } catch {
-            return { ok: false, data: null, status: 0 };
-          }
-        };
-
-        // 1차 시도만 — 자동 재시도 제거 (사용자 요청: '성공한 것만 사용')
-        const result = await fetchOnce();
-
-        if (!result.ok) {
-          console.log(`[generate] 톤 "${t.label}" 생성 실패 (HTTP ${result.status}) — 재시도 없이 ⚠️ 표시`);
-          return { title: topic.trim(), content: `${t.label} 생성 실패: ${result.data?.error || result.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
-        }
-        return { ...result.data, toneName: t.label, toneValue: t.value };
+      // 톤 없는 base body (결과 페이지에서 tone만 추가하여 호출)
+      const baseBody = {
+        category: selectedCategory,
+        topic: topic.trim(),
+        targetKeyword: targetKeyword.trim() || undefined,
+        subKeyword: selectedSubKeyword || undefined,
+        additionalNotes: notes,
+        company_name: activeProjectInfo?.company_name || undefined,
+        representative_name: activeProjectInfo?.representative_name || undefined,
+        region: activeProjectInfo?.region || undefined,
+        homepage_url: activeProjectInfo?.homepage_url || undefined,
+        blog_url: activeProjectInfo?.blog_url || undefined,
+        contact_email: activeProjectInfo?.contact_email || undefined,
+        contact_phone: activeProjectInfo?.contact_phone || undefined,
+        projectFiles: projectFiles.slice(0, 3).map(f => ({
+          file_name: f.file_name,
+          content: f.content.slice(0, 3000),
+        })),
+        sceneSentence: sceneSentence || undefined,
+        cepTask: cepTask || undefined,
+        cepKeyword: cepClusters[cepSelectedCluster ?? -1]?.clusterName,
+        searchPath: cepClusters[cepSelectedCluster ?? -1]?.searchPath,
+        cepCluster: cepClusters[cepSelectedCluster ?? -1]?.keywords,
+        lifeLanguages: cepLifeLanguages.length ? cepLifeLanguages : undefined,
+        caseStudy: selectedCategory === 'case' ? {
+          profile: caseProfile,
+          symptom: caseSymptom,
+          treatment: caseTreatment,
+          result: caseResult,
+        } : undefined,
       };
 
-      // AGENT_BATCH 개씩 병렬 실행 (멀티 에이전트)
-      for (let i = 0; i < toneOptions.length; i += AGENT_BATCH) {
-        const agentGroup = toneOptions.slice(i, i + AGENT_BATCH);
-        const agentResults = await Promise.all(
-          agentGroup.map((t, j) => generateTone(t, i + j))
-        );
-        agentResults.forEach((r, j) => { results[i + j] = r; });
-        setToneProgress(Math.min(i + AGENT_BATCH, toneOptions.length));
-      }
-      // 사용량 기록 (커스텀 사용자 시스템)
-      if (currentUser) {
-        fetch('/api/usage-count', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: currentUser.id, feature: 'generate' }),
-        }).catch(() => {});
-      }
       const now = new Date();
       const historyId = generateId();
       const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-      // 히스토리 저장 실패해도 redirect는 진행
-      try {
-        await saveHistoryItem({
-          id: historyId, type: 'generation',
-          title: results[0]?.title || topic.trim(),
-          summary: `10가지 톤 버전 | ${topic.trim()}`,
-          date: dateStr, category: selectedCategory || undefined,
-          targetKeyword: targetKeyword.trim() || undefined,
-          generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
-        });
-      } catch { /* 히스토리 저장 실패는 무시하고 계속 진행 */ }
-      // 부분 실패도 결과 페이지로 redirect — 사용자가 ⚠️ 표시로 직접 확인
-      // 정상 = content 200자+ (실패 메시지 '전문적 생성 실패' 등 거름)
-      const validResults = results.filter(r => r.content && r.content.length > 200);
-      if (validResults.length === 0) {
-        console.warn('[generate] 모든 톤 부실 응답 — 결과 페이지에서 ⚠️ 처리 위해 redirect 강행');
-        // throw 제거. results[0]을 mainResult로 사용 (사용자가 결과 페이지에서 상태 확인)
-      }
-      const mainResult = { ...(validResults[0] || results[0] || { title: topic.trim(), content: '', hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] } }), abVersions: results };
-      // 생성 즉시 sessionStorage로 전달 → 블로그 게시 시 DB 저장 (generate_results 불필요)
       const resultId = `session_${Date.now()}`;
+
+      // 10개 placeholder 슬롯 — 결과 페이지가 라이브 파이프라인으로 채움
+      const placeholderVersions = toneOptions.map(t => ({
+        title: '생성 중...',
+        content: '',
+        hashtags: [],
+        metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] },
+        toneName: t.label,
+        toneValue: t.value,
+      }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const placeholderMain: any = { ...placeholderVersions[0], abVersions: placeholderVersions };
+
       sessionStorage.setItem(`gr_${resultId}`, JSON.stringify({
-        result: mainResult,
+        result: placeholderMain,
         category: selectedCategory,
         topic: topic.trim(),
         targetKeyword: targetKeyword.trim(),
@@ -1289,7 +1234,34 @@ export default function GeneratePage() {
         historyId,
         project_id: selectedProject?.id,
       }));
-      router.push(`/generate/result?id=${resultId}`);
+
+      // 결과 페이지가 사용할 라이브 파이프라인 params
+      sessionStorage.setItem(`glive_${resultId}`, JSON.stringify({
+        baseBody,
+        tones: toneOptions,
+        apiToUse,
+        historyId,
+        dateStr,
+        project: activeProjectInfo ? {
+          id: activeProjectInfo.id,
+          homepage_url: activeProjectInfo.homepage_url || null,
+          blog_url: activeProjectInfo.blog_url || null,
+          company_name: activeProjectInfo.company_name || null,
+        } : null,
+        user_id: currentUser?.id || null,
+      }));
+
+      // 사용량 기록 (선제 차감 — 라이브 모드 시작 시점)
+      if (currentUser) {
+        fetch('/api/usage-count', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: currentUser.id, feature: 'generate' }),
+        }).catch(() => {});
+      }
+
+      // 즉시 결과 페이지로 이동 (10개 모두 끝날 때까지 대기 X)
+      router.push(`/generate/result?id=${resultId}&live=1`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
       setError(msg);

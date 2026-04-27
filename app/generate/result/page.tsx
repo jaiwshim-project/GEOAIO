@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory, GenerateResponse } from '@/lib/types';
-import { addRevision, generateId } from '@/lib/history';
+import { addRevision, generateId, saveHistoryItem } from '@/lib/history';
 import { stripProjectLinks } from '@/lib/inject-project-links';
 import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, saveBlogPostsBatch, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 import { useUser } from '@/lib/user-context';
@@ -88,6 +88,10 @@ export default function GenerateResultPage() {
   const [eeatAutoStatus, setEeatAutoStatus] = useState<Record<number, 'idle' | 'processing' | 'done' | 'failed'>>({});
   const [eeatAutoStarted, setEeatAutoStarted] = useState(false);
 
+  // ⭐ 라이브 모드 — 톤별 md→EEAT 파이프라인 진행 상황
+  const [liveMode, setLiveMode] = useState(false);
+  const [liveStatus, setLiveStatus] = useState<Record<number, 'pending' | 'md' | 'eeat' | 'done' | 'failed'>>({});
+
   // 블로그 게시
   const [showBlogPublish, setShowBlogPublish] = useState(false);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>(() => {
@@ -125,10 +129,12 @@ export default function GenerateResultPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
+    const isLive = params.get('live') === '1';
     if (!id) {
       router.push('/generate');
       return;
     }
+    if (isLive) setLiveMode(true);
     // session_ ID면 sessionStorage에서 로드, 아니면 Supabase에서 로드
     const loadData = async () => {
       let data: import('@/lib/supabase-storage').GenerateResultData | null = null;
@@ -210,6 +216,23 @@ export default function GenerateResultPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const versions = (data.result as any)?.abVersions || [];
       const normalizedVersions = versions.length > 0 ? versions.map(normalizeResult) : [];
+
+      if (isLive && id.startsWith('session_')) {
+        // ── 라이브 모드: glive_${id} 파라미터로 파이프라인 시작 ──
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let liveParams: any = null;
+        try {
+          const raw = sessionStorage.getItem(`glive_${id}`);
+          if (raw) liveParams = JSON.parse(raw);
+        } catch {}
+        if (liveParams) {
+          setAbVersions(normalizedVersions);
+          runLivePipeline(liveParams, id);
+          return;
+        }
+        // liveParams 없으면 일반 모드로 폴백
+      }
+
       if (normalizedVersions.length > 0) {
         setAbVersions(normalizedVersions);
         // 각 톤별로 개별 검증 → 미완성만 선택적으로 처리
@@ -472,6 +495,232 @@ export default function GenerateResultPage() {
       })
       .catch((e) => console.error('[eeatAuto] runner error:', e));
   }, [result, abVersions, eeatAutoMode, eeatAutoStarted, activeAbTab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ============================================================
+  // ⭐ 라이브 모드 파이프라인
+  // 결과 페이지가 마운트되자마자 톤별 md→EEAT 파이프라인 실행.
+  // concurrency 3, 톤 1부터 우선 시작. 각 슬롯은 완료 즉시 채움.
+  // ============================================================
+  const runLivePipeline = async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    liveParams: any,
+    resultId: string,
+  ) => {
+    type Tone = { value: string; label: string };
+    const tones = (liveParams.tones || []) as Tone[];
+    const baseBody = liveParams.baseBody || {};
+    const apiToUse = liveParams.apiToUse || 'gemini';
+    const project = liveParams.project || null;
+
+    if (tones.length === 0) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const versions: any[] = tones.map((t) => ({
+      title: '생성 중...',
+      content: '',
+      hashtags: [],
+      metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] },
+      toneName: t.label,
+      toneValue: t.value,
+    }));
+    setAbVersions([...versions]);
+    setResult(versions[0]);
+    setEeatConverting(true);
+    setEeatProgress(0);
+    setEeatDone(false);
+    setLiveStatus(Object.fromEntries(tones.map((_, i) => [i, 'pending'])));
+
+    const failedSet = new Set<number>();
+    let completedCount = 0;
+
+    // 단발 EEAT 호출
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tryConvertOnce = async (v: any) => {
+      try {
+        const res = await fetch('/api/convert-eeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: v.content,
+            title: v.title,
+            tone: v.toneValue,
+            homepage_url: project?.homepage_url || undefined,
+            blog_url: project?.blog_url || undefined,
+            company_name: project?.company_name || undefined,
+          }),
+        });
+        if (res.status === 422) {
+          const data = await res.json();
+          return { content: data.partialContent || '', title: v.title, _truncated: true };
+        }
+        if (!res.ok) return null;
+        const data = await res.json();
+        return { content: data.content || v.content, title: data.title || v.title, _truncated: false };
+      } catch {
+        return null;
+      }
+    };
+
+    // 이어쓰기 호출
+    const tryContinue = async (v: { toneValue?: string }, previousContent: string): Promise<string | null> => {
+      try {
+        const res = await fetch('/api/convert-eeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: previousContent,
+            previousContent,
+            continuation: true,
+            tone: v.toneValue || tone,
+            homepage_url: project?.homepage_url || undefined,
+            blog_url: project?.blog_url || undefined,
+            company_name: project?.company_name || undefined,
+          }),
+        });
+        if (!res.ok && res.status !== 422) return null;
+        const data = await res.json();
+        return data.content || data.partialContent || null;
+      } catch {
+        return null;
+      }
+    };
+
+    const mergeContent = (a: string, b: string) => {
+      const sep = b.startsWith('#') || b.startsWith('|') ? '\n\n' : '\n';
+      return a.trim() + sep + b.trim();
+    };
+
+    // 슬롯 1개 처리: md → EEAT → 검증·이어쓰기
+    const processOne = async (tone: Tone, idx: number) => {
+      // 1) md 생성
+      setLiveStatus(prev => ({ ...prev, [idx]: 'md' }));
+      versions[idx] = { ...versions[idx], title: `(${tone.label}) 마크다운 생성 중...` };
+      setAbVersions([...versions]);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let mdResult: any = null;
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
+          body: JSON.stringify({ ...baseBody, tone: tone.value }),
+        });
+        const data = await res.json();
+        if (res.ok && !data.error && data.content) mdResult = data;
+      } catch {}
+
+      if (!mdResult || !mdResult.content || mdResult.content.length < 100) {
+        versions[idx] = {
+          ...versions[idx],
+          title: `${tone.label} 생성 실패`,
+          content: `${tone.label} 톤 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.`,
+        };
+        failedSet.add(idx);
+        setEeatFailed(new Set(failedSet));
+        setLiveStatus(prev => ({ ...prev, [idx]: 'failed' }));
+        completedCount++;
+        setEeatProgress(completedCount);
+        setAbVersions([...versions]);
+        if (idx === 0) setResult(versions[0]);
+        return;
+      }
+
+      versions[idx] = {
+        ...versions[idx],
+        title: mdResult.title || tone.label,
+        content: mdResult.content,
+        hashtags: mdResult.hashtags || [],
+        metadata: mdResult.metadata || versions[idx].metadata,
+      };
+      setAbVersions([...versions]);
+      if (idx === 0) setResult(versions[0]);
+
+      // 2) EEAT 변환
+      setLiveStatus(prev => ({ ...prev, [idx]: 'eeat' }));
+      const converted = await tryConvertOnce(versions[idx]);
+      if (converted) {
+        versions[idx] = {
+          ...versions[idx],
+          content: converted.content || versions[idx].content,
+          title: converted.title || versions[idx].title,
+        };
+      }
+
+      // 3) 검증 + 이어쓰기 (최대 3회)
+      let validation = validateEeatComplete(versions[idx].content);
+      let attempts = 0;
+      while (!validation.ok && attempts < 3 && versions[idx].content && versions[idx].content.length > 200) {
+        const continued = await tryContinue(versions[idx], versions[idx].content);
+        if (!continued) break;
+        versions[idx].content = mergeContent(versions[idx].content, continued);
+        validation = validateEeatComplete(versions[idx].content);
+        attempts++;
+      }
+
+      if (!validation.ok) {
+        failedSet.add(idx);
+        setEeatFailed(new Set(failedSet));
+        setLiveStatus(prev => ({ ...prev, [idx]: 'failed' }));
+      } else {
+        setLiveStatus(prev => ({ ...prev, [idx]: 'done' }));
+      }
+      completedCount++;
+      setEeatProgress(completedCount);
+      setAbVersions([...versions]);
+      if (idx === 0) setResult(versions[0]);
+    };
+
+    // concurrency 3, 톤 0이 항상 먼저 시작
+    const concurrency = 3;
+    let nextIdx = 0;
+    const inFlight: Promise<void>[] = [];
+
+    while (nextIdx < tones.length || inFlight.length > 0) {
+      while (inFlight.length < concurrency && nextIdx < tones.length) {
+        const myIdx = nextIdx++;
+        const promise = processOne(tones[myIdx], myIdx).finally(() => {
+          const i = inFlight.indexOf(promise);
+          if (i !== -1) inFlight.splice(i, 1);
+        });
+        inFlight.push(promise);
+      }
+      if (inFlight.length > 0) {
+        await Promise.race(inFlight);
+      }
+    }
+
+    setEeatConverting(false);
+    setEeatDone(true);
+
+    // 최종 결과를 sessionStorage에 저장 — 페이지 새로고침해도 유지
+    try {
+      const raw = sessionStorage.getItem(`gr_${resultId}`);
+      if (raw) {
+        const data = JSON.parse(raw);
+        data.result = { ...versions[0], abVersions: versions };
+        sessionStorage.setItem(`gr_${resultId}`, JSON.stringify(data));
+      }
+      // glive_ 파라미터는 더 이상 필요 없으니 정리
+      sessionStorage.removeItem(`glive_${resultId}`);
+    } catch {}
+
+    // 히스토리 저장 (실패해도 무시)
+    try {
+      await saveHistoryItem({
+        id: liveParams.historyId,
+        type: 'generation',
+        title: versions[0]?.title || baseBody.topic,
+        summary: `10가지 톤 버전 | ${baseBody.topic}`,
+        date: liveParams.dateStr,
+        category: baseBody.category || undefined,
+        targetKeyword: baseBody.targetKeyword || undefined,
+        generateResult: versions[0],
+        topic: baseBody.topic,
+        tone: '10가지 톤',
+        revisions: [],
+      });
+    } catch {}
+  };
 
   // E-E-A-T 자동 변환 함수
   const startEeatConversion = async (
@@ -1237,7 +1486,7 @@ export default function GenerateResultPage() {
           </div>
         )}
 
-        {/* E-E-A-T 자동 변환 진행 바 (1개씩 순차) */}
+        {/* 진행 바 — 라이브 모드: 톤별 md→EEAT 파이프라인 / 일반 모드: 검증·보완 */}
         {eeatConverting && (
           <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4">
             <div className="flex items-center gap-3 mb-3">
@@ -1247,10 +1496,15 @@ export default function GenerateResultPage() {
               </svg>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-indigo-700">
-                  E-E-A-T 검증·보완 중: <span className="text-indigo-900">{abVersions[eeatProgress]?.toneName || '...'}</span>
+                  {liveMode ? '톤별 콘텐츠 생성 중' : 'E-E-A-T 검증·보완 중'}:{' '}
+                  <span className="text-indigo-900">{abVersions[eeatProgress]?.toneName || '...'}</span>
                   <span className="text-xs text-indigo-400 ml-2">({eeatProgress}/{abVersions.length})</span>
                 </p>
-                <p className="text-xs text-indigo-400 mt-0.5">이미 완성된 톤은 그대로 유지 · 미완성만 이어쓰기로 보완</p>
+                <p className="text-xs text-indigo-400 mt-0.5">
+                  {liveMode
+                    ? '톤 1부터 순서대로 표시 · 완료된 톤은 즉시 읽을 수 있어요 (3개 동시 백그라운드 생성 중)'
+                    : '이미 완성된 톤은 그대로 유지 · 미완성만 이어쓰기로 보완'}
+                </p>
               </div>
               <span className="text-sm font-bold text-indigo-600">{Math.round((eeatProgress / Math.max(abVersions.length, 1)) * 100)}%</span>
             </div>
@@ -1263,9 +1517,13 @@ export default function GenerateResultPage() {
             {/* 톤별 상태 표시 */}
             <div className="flex flex-wrap gap-1.5">
               {abVersions.map((v, i) => {
-                const isDone = i < eeatProgress;
-                const isActive = i === eeatProgress;
-                const isFailed = eeatFailed.has(i);
+                const lvStatus = liveMode ? liveStatus[i] : null;
+                const isDone = liveMode ? lvStatus === 'done' : i < eeatProgress;
+                const isMd = liveMode && lvStatus === 'md';
+                const isEeat = liveMode && lvStatus === 'eeat';
+                const isActive = liveMode ? (isMd || isEeat) : i === eeatProgress;
+                const isFailed = liveMode ? lvStatus === 'failed' : eeatFailed.has(i);
+                const label = isMd ? 'MD' : isEeat ? 'EEAT' : null;
                 return (
                   <span
                     key={i}
@@ -1280,6 +1538,7 @@ export default function GenerateResultPage() {
                     }`}
                   >
                     {isFailed ? '⚠ ' : isDone ? '✓ ' : isActive ? '◌ ' : ''}{v.toneName || `톤 ${i + 1}`}
+                    {label && <span className="ml-1 text-[9px] opacity-70">{label}</span>}
                   </span>
                 );
               })}
