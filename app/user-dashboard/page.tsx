@@ -550,10 +550,21 @@ export default function UserDashboardPage() {
             <ul className="space-y-1">
               {projects.map((p, idx) => {
                 const seq = String(projects.length - idx).padStart(2, '0');
+                const isActive = selectedProject?.id === p.id;
                 return (
-                  <li key={p.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
-                    <span className="text-indigo-300 text-xs font-mono shrink-0 w-6">{seq}.</span>
-                    <span className="text-white text-sm truncate">{p.name}</span>
+                  <li key={p.id}>
+                    <button
+                      onClick={() => handleSelectProject(p)}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors text-left ${
+                        isActive
+                          ? 'bg-indigo-600/30 ring-1 ring-indigo-400/50'
+                          : 'hover:bg-white/10'
+                      }`}
+                    >
+                      <span className="text-indigo-300 text-xs font-mono shrink-0 w-6">{seq}.</span>
+                      <span className="text-white text-sm truncate flex-1">{p.name}</span>
+                      {isActive && <span className="text-[10px] text-indigo-200 shrink-0">선택됨</span>}
+                    </button>
                   </li>
                 );
               })}
