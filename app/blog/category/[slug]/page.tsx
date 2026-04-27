@@ -192,22 +192,25 @@ export default async function BlogCategoryPage({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-stone-50 relative">
-      {/* 배경 텍스처 — 미세한 도트 패턴 */}
+    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] relative">
+      {/* 프리미엄 배경 — 다크 그라디언트 + 미세한 광택 + 골드 텍스처 */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.025]"
+        className="absolute inset-0 pointer-events-none opacity-[0.06]"
         style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(15 23 42) 1px, transparent 0)',
-          backgroundSize: '24px 24px',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(252 211 77) 1px, transparent 0)',
+          backgroundSize: '32px 32px',
         }}
       />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
       <Header />
 
       <main className="relative max-w-5xl mx-auto px-3 sm:px-5 lg:px-6 py-4 sm:py-5">
-        {/* 뒤로가기 — 컴팩트 캡슐 */}
+        {/* 뒤로가기 — 골드 캡슐 */}
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-medium tracking-wider uppercase text-stone-500 hover:text-stone-900 mb-3 transition-all border border-stone-200 bg-white/60 backdrop-blur-sm rounded-full hover:border-amber-200 hover:bg-amber-50/40"
+          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-medium tracking-wider uppercase text-amber-200/80 hover:text-amber-100 mb-3 transition-all border border-amber-400/20 bg-white/5 backdrop-blur-md rounded-full hover:border-amber-300/50 hover:bg-amber-500/10"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -215,12 +218,14 @@ export default async function BlogCategoryPage({
           전체 카테고리
         </Link>
 
-        {/* 카테고리 헤더 — 컴팩트 프리미엄 카드 */}
+        {/* 카테고리 헤더 — 프리미엄 다크 카드 (골드 보더 글로우) */}
         <section className="relative mb-4">
-          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-amber-400/30 via-stone-300/40 to-amber-500/30 blur-sm" />
-          <div className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${meta.color} text-white px-4 sm:px-6 py-4 sm:py-5 shadow-lg shadow-stone-900/10`}>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.15),transparent_50%)] pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent" />
+          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-amber-400/60 via-amber-500/30 to-amber-400/60 blur-[2px] opacity-80" />
+          <div className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${meta.color} text-white px-4 sm:px-6 py-4 sm:py-5 shadow-2xl shadow-black/40`}>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.18),transparent_55%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.15)_100%)] pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
             <div className="relative">
               <div className="flex items-baseline gap-2 mb-1">
                 <p className="text-[9px] font-semibold tracking-[0.25em] uppercase text-white/55">Collection</p>
@@ -268,90 +273,93 @@ export default async function BlogCategoryPage({
           </div>
         </section>
 
-        {/* 언어 탭 — 컴팩트 세그먼트 컨트롤 */}
-        <div className="mb-4 bg-white rounded-xl border border-stone-200/80 shadow-[0_2px_16px_-8px_rgba(15,23,42,0.08)] p-1">
-          <div className="grid grid-cols-4 gap-0.5">
-            {validLangs.map(lang => {
-              const isActive = lang === activeLang;
-              const count = langCounts[lang];
-              const isEmpty = count === 0;
-              const href = `/blog/category/${rawSlug}${lang === 'ko' ? '' : `?lang=${lang}`}`;
-              return (
-                <Link
-                  key={lang}
-                  href={isEmpty ? '#' : href}
-                  className={`relative flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-300 ${
-                    isActive
-                      ? 'bg-gradient-to-br from-stone-900 to-stone-800 text-white shadow-md shadow-stone-900/20'
-                      : isEmpty
-                      ? 'text-stone-300 cursor-not-allowed pointer-events-none'
-                      : 'text-stone-600 hover:bg-stone-50'
-                  }`}
-                  aria-disabled={isEmpty}
-                >
-                  {isActive && (
-                    <span className="absolute -top-px left-1/2 -translate-x-1/2 w-10 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
-                  )}
-                  <span className="text-sm leading-none">{LANG_LABELS[lang].flag}</span>
-                  <span className="text-[11px] font-bold tracking-wide">{LANG_LABELS[lang].label}</span>
-                  <span className={`text-[9px] font-semibold tracking-[0.1em] ${
-                    isActive ? 'text-amber-300' : isEmpty ? 'text-stone-300' : 'text-stone-400'
-                  }`}>
-                    {count}
-                  </span>
-                </Link>
-              );
-            })}
+        {/* 언어 탭 — 프리미엄 다크 세그먼트 (골드 글로우) */}
+        <div className="relative mb-4">
+          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-400/40 via-amber-500/20 to-amber-400/40 blur-[2px] opacity-60" />
+          <div className="relative bg-gradient-to-br from-slate-900/95 to-slate-950/95 backdrop-blur-xl rounded-xl border border-amber-400/20 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)] p-1">
+            <div className="grid grid-cols-4 gap-0.5">
+              {validLangs.map(lang => {
+                const isActive = lang === activeLang;
+                const count = langCounts[lang];
+                const isEmpty = count === 0;
+                const href = `/blog/category/${rawSlug}${lang === 'ko' ? '' : `?lang=${lang}`}`;
+                return (
+                  <Link
+                    key={lang}
+                    href={isEmpty ? '#' : href}
+                    className={`relative flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-300 ${
+                      isActive
+                        ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-slate-900 shadow-lg shadow-amber-500/40 font-bold'
+                        : isEmpty
+                        ? 'text-slate-600 cursor-not-allowed pointer-events-none'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-amber-200'
+                    }`}
+                    aria-disabled={isEmpty}
+                  >
+                    {isActive && (
+                      <span className="absolute -top-px left-1/2 -translate-x-1/2 w-10 h-px bg-gradient-to-r from-transparent via-amber-200 to-transparent" />
+                    )}
+                    <span className="text-sm leading-none">{LANG_LABELS[lang].flag}</span>
+                    <span className="text-[11px] font-bold tracking-wide">{LANG_LABELS[lang].label}</span>
+                    <span className={`text-[9px] font-semibold tracking-[0.1em] ${
+                      isActive ? 'text-slate-900/70' : isEmpty ? 'text-slate-600' : 'text-slate-500'
+                    }`}>
+                      {count}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* 포스트 목록 — 컴팩트 프리미엄 카드 */}
+        {/* 포스트 목록 — 프리미엄 다크 글래스 카드 */}
         {posts.length > 0 ? (
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
-              <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-stone-400">Articles</p>
-              <p className="text-[10px] font-medium text-stone-400">
-                <span className="text-stone-900 font-semibold">{posts.length}</span> of {allPosts.length}
+              <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-amber-300/70">Articles</p>
+              <p className="text-[10px] font-medium text-slate-400">
+                <span className="text-amber-200 font-semibold">{posts.length}</span> of {allPosts.length}
               </p>
             </div>
             <div className="space-y-1.5">
               {posts.map((post) => (
                 <article
                   key={post.id}
-                  className="group relative bg-white rounded-lg border border-stone-200/70 hover:border-stone-300 transition-all duration-200 overflow-hidden hover:shadow-[0_4px_20px_-8px_rgba(15,23,42,0.18)]"
+                  className="group relative bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-md rounded-lg border border-amber-400/15 hover:border-amber-400/50 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_28px_-8px_rgba(252,211,77,0.25)] hover:bg-gradient-to-br hover:from-slate-800/80 hover:to-slate-900/80"
                 >
                   <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-amber-500 to-amber-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-2.5">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         {post.tag && (
-                          <span className={`px-1.5 py-0 text-[9px] font-bold tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-stone-100 text-stone-600'}`}>
+                          <span className={`px-1.5 py-0 text-[9px] font-bold tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-white/10 text-slate-300 border border-white/10'}`}>
                             {post.tag}
                           </span>
                         )}
-                        <span className="text-[10px] font-medium tracking-wide text-stone-400">
+                        <span className="text-[10px] font-medium tracking-wide text-slate-400">
                           {formatDate(post.createdAt)}
                         </span>
                         {post.targetKeyword && (
-                          <span className="text-[9px] font-semibold tracking-wide text-amber-700 bg-amber-50 border border-amber-100 px-1.5 py-0 rounded-full hidden sm:inline">
+                          <span className="text-[9px] font-semibold tracking-wide text-amber-300 bg-amber-500/10 border border-amber-400/30 px-1.5 py-0 rounded-full hidden sm:inline">
                             {post.targetKeyword}
                           </span>
                         )}
                       </div>
                       <h2
-                        className="text-sm sm:text-[15px] font-bold text-stone-900 group-hover:text-stone-700 transition-colors leading-snug tracking-tight line-clamp-1"
+                        className="text-sm sm:text-[15px] font-bold text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
                         style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                       >
                         {post.title}
                       </h2>
                       {post.summary && (
-                        <p className="text-[12px] text-stone-500 line-clamp-1 leading-snug font-light mt-0.5">
+                        <p className="text-[12px] text-slate-400 line-clamp-1 leading-snug font-light mt-0.5">
                           {post.summary}
                         </p>
                       )}
                     </div>
                     <div
-                      className={`shrink-0 w-7 h-7 rounded-md bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 shadow-sm`}
+                      className={`shrink-0 w-7 h-7 rounded-md bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 shadow-md ring-1 ring-amber-400/30`}
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -363,11 +371,11 @@ export default async function BlogCategoryPage({
             </div>
           </>
         ) : (
-          <div className="text-center py-10 bg-white/60 backdrop-blur-sm rounded-xl border border-dashed border-stone-300">
-            <p className="text-xs text-stone-400 font-medium tracking-wider">No articles in this collection</p>
+          <div className="text-center py-10 bg-slate-900/40 backdrop-blur-md rounded-xl border border-dashed border-amber-400/20">
+            <p className="text-xs text-slate-400 font-medium tracking-wider">No articles in this collection</p>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-bold tracking-wider uppercase bg-stone-900 text-white rounded-full hover:bg-stone-800 transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-bold tracking-wider uppercase bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-full hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/30"
             >
               Create Content
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
