@@ -538,7 +538,7 @@ export async function getBlogPosts(category?: string): Promise<BlogPost[]> {
     query = query.eq('category', category);
   }
 
-  const { data, error } = await query.limit(200);
+  const { data, error } = await query.limit(10000);
   if (error) throw error;
   return (data || []).map(row => {
     let meta: Record<string, unknown> = {};

@@ -44,7 +44,7 @@ async function getServerBlogData() {
       .from('blog_articles')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(1000);
+      .limit(10000);
 
     const posts: BlogPost[] = (postsData || []).map(row => {
       let meta: Record<string, unknown> = {};

@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     query = query.eq('category', category);
   }
 
-  const { data, error } = await query.limit(200);
+  const { data, error } = await query.limit(10000);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

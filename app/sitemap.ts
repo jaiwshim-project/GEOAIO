@@ -60,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from('blog_articles')
       .select('id, updated_at, created_at')
       .order('created_at', { ascending: false })
-      .limit(500);
+      .limit(10000);
 
     if (posts) {
       for (const post of posts) {

@@ -36,7 +36,7 @@ async function getCategoryPosts(slug: string): Promise<BlogPost[]> {
     .select('*')
     .eq('category', slug)
     .order('created_at', { ascending: false })
-    .limit(100);
+    .limit(10000);
 
   return (data || []).map(row => {
     let meta: Record<string, unknown> = {};
