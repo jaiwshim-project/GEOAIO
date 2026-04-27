@@ -287,33 +287,62 @@ export default function GenerateResultPage() {
         setTranslateProgress(prev => prev + 1);
         return;
       }
-      try {
-        const res = await fetch('/api/translate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: v.title,
-            content: v.content,
-            targetLang: lang,
-          }),
-        });
-        if (res.ok) {
+
+      const attemptOnce = async (): Promise<{ title: string; content: string } | null> => {
+        try {
+          const res = await fetch('/api/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: v.title,
+              content: v.content,
+              targetLang: lang,
+            }),
+          });
+          if (!res.ok) return null;
           const data = await res.json();
-          const entry = { title: data.title || v.title || '', content: data.content || v.content || '' };
-          setTranslatedVersions(prev => ({
-            ...prev,
-            [lang]: { ...(prev[lang] || {}), [idx]: entry },
-          }));
-          // 사용자가 보고 있는 슬롯이면 즉시 표시 갱신
-          if (idx === activeAbTabRef.current && lang === activeLangRef.current) {
-            setResult({ ...v, title: entry.title, content: entry.content });
-          }
+          const content = data.content || '';
+          // 비어 있거나 너무 짧은 응답은 실패로 간주 (재시도 대상)
+          if (!content || content.length < 100) return null;
+          return { title: data.title || v.title || '', content };
+        } catch (e) {
+          console.error(`[translate] 톤 ${idx + 1} 호출 오류:`, e);
+          return null;
         }
-      } catch (e) {
-        console.error(`[translate] 톤 ${idx + 1} 실패:`, e);
-      } finally {
-        setTranslateProgress(prev => prev + 1);
+      };
+
+      // 최대 3회 시도, 백오프 1s → 2s → 4s
+      let entry: { title: string; content: string } | null = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        entry = await attemptOnce();
+        if (entry) {
+          if (attempt > 1) console.log(`[translate] 톤 ${idx + 1} ${attempt}회 시도 후 성공`);
+          break;
+        }
+        if (attempt < 3) {
+          const delay = 1000 * Math.pow(2, attempt - 1);
+          console.log(`[translate] 톤 ${idx + 1} ${attempt}회 실패 — ${delay}ms 후 재시도`);
+          await new Promise(r => setTimeout(r, delay));
+        }
       }
+
+      if (entry) {
+        setTranslatedVersions(prev => ({
+          ...prev,
+          [lang]: { ...(prev[lang] || {}), [idx]: entry! },
+        }));
+        if (idx === activeAbTabRef.current && lang === activeLangRef.current) {
+          setResult({ ...v, title: entry.title, content: entry.content });
+        }
+      } else {
+        console.error(`[translate] 톤 ${idx + 1} 3회 시도 모두 실패 — 한국어 원문으로 폴백`);
+        // 폴백: 원문(한국어) 그대로 캐시에 저장. 사용자가 캐시 hit으로 즉시 보지만 번역되지 않음.
+        setTranslatedVersions(prev => ({
+          ...prev,
+          [lang]: { ...(prev[lang] || {}), [idx]: { title: v.title || '', content: v.content || '' } },
+        }));
+      }
+      setTranslateProgress(prev => prev + 1);
     };
 
     while (nextIdx < versions.length || inFlight.length > 0) {
