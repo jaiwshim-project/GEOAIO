@@ -268,7 +268,7 @@ export default function GenerateResultPage() {
     }
   };
 
-  // 순차 번역 (concurrency 1) — 톤 0부터 차례로 완료, 각 톤 끝나는 즉시 표시
+  // 병렬 번역 (concurrency 3) — 3개 동시 처리. 재시도 로직으로 실패 복구.
   const startTranslation = async (lang: Lang) => {
     if (lang === 'ko') return;
     if (abVersions.length === 0) return;
@@ -276,7 +276,7 @@ export default function GenerateResultPage() {
     setTranslateProgress(0);
 
     const versions = abVersions;
-    const concurrency = 1;
+    const concurrency = 3;
     let nextIdx = 0;
     const inFlight: Promise<void>[] = [];
 
