@@ -86,6 +86,8 @@ async function getServerBlogData() {
         extraIdx++;
       }
     }
+    // 카테고리 카드 가나다·알파벳 순 정렬 (한글 우선, 영문 뒤)
+    categories.sort((a, b) => a.label.localeCompare(b.label, 'ko-KR', { sensitivity: 'base' }));
 
     return { posts, categories };
   } catch {
