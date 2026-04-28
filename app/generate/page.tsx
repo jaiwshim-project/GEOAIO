@@ -1098,13 +1098,10 @@ export default function GeneratePage() {
   const handleGenerate = async () => {
     if (!selectedCategory || !topic.trim()) return;
 
-    // 추천 주제 중 하나로 생성하면 사용 이력에 추가 (sessionStorage 동기화)
-    try {
-      const t = topic.trim();
-      if (t && topicSuggestions.includes(t)) {
-        updateUsedTopicInCache(t);
-      }
-    } catch {}
+    // 주의: '사용함' 마킹은 클릭 시점이 아니라 결과 페이지로 navigate 직전에 수행 (실패한 시도가 빨간 줄로 보이는 버그 방지)
+
+    // 에러 메시지가 잘 보이도록 페이지 최상단으로 스크롤
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // ==================== API 자동 선택 로직 ====================
     // 주의: API 키는 서버 환경 변수에서만 관리 (localStorage 사용 금지)
@@ -1289,6 +1286,13 @@ export default function GeneratePage() {
         historyId,
         project_id: selectedProject?.id,
       }));
+      // ⭐ 성공적으로 navigate 직전에만 '사용함' 마킹 (실패한 시도는 빨간 줄 안 그어짐)
+      try {
+        const t = topic.trim();
+        if (t && topicSuggestions.includes(t)) {
+          updateUsedTopicInCache(t);
+        }
+      } catch {}
       router.push(`/generate/result?id=${resultId}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.';
