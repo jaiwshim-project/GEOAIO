@@ -182,7 +182,7 @@ export default function PricingPage() {
               </div>
               <p className="text-xs text-gray-500 mt-1">부가세 별도</p>
               <p className="text-xs font-bold text-rose-600">월 120만원 상당 = 연 20% 절감</p>
-              <p className="text-[10px] text-gray-400 mt-1.5 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다.</p>
+              <p className="text-[10px] text-gray-400 mt-1.5 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
             </div>
 
             <div className="border-t border-gray-100 pt-4 mb-4">
@@ -223,6 +223,94 @@ export default function PricingPage() {
             </button>
           </div>
 
+        </div>
+
+        {/* 외국어 옵션 안내 */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-indigo-50 border border-sky-200 rounded-2xl p-6 mb-8">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-sky-200/30 to-transparent rounded-full -translate-y-10 translate-x-10 pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-start gap-3 mb-4">
+              <span className="text-2xl">🌐</span>
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-sky-100 border border-sky-200 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                  <p className="text-[10px] font-bold tracking-wider text-sky-700">NEW · 다국어 서비스</p>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">외국어 콘텐츠 옵션 (영어 · 중국어 · 일본어)</h3>
+                <p className="text-xs text-slate-600 mt-1">
+                  글로벌 AI 검색(영문 ChatGPT · Perplexity · Gemini, 중문 Baidu/문심일언, 일본 ChatGPT 등) 인용을 위한 다국어 콘텐츠 생성/포스팅 서비스
+                </p>
+              </div>
+            </div>
+
+            {/* 지원 언어 칩 */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-sky-200 rounded-full text-xs font-semibold text-slate-700">🇺🇸 English</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-sky-200 rounded-full text-xs font-semibold text-slate-700">🇨🇳 中文</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-sky-200 rounded-full text-xs font-semibold text-slate-700">🇯🇵 日本語</span>
+            </div>
+
+            {/* 핵심 규칙 */}
+            <div className="grid sm:grid-cols-2 gap-3 mb-4">
+              <div className="bg-white rounded-xl p-3.5 border border-sky-200">
+                <p className="text-[11px] font-bold text-sky-700 mb-1">📌 가격 구조</p>
+                <p className="text-sm text-slate-800">
+                  외국어 서비스는 <strong className="text-rose-600">한국어 대비 +30%</strong>
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5">언어 1종 추가당 한국어 기본요금의 30%</p>
+              </div>
+              <div className="bg-white rounded-xl p-3.5 border border-amber-200">
+                <p className="text-[11px] font-bold text-amber-700 mb-1">⚠️ 선택 규칙</p>
+                <p className="text-sm text-slate-800">
+                  외국어 단독 선택 <strong className="text-rose-600">불가</strong>
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5">한국어를 기본으로 선택 후 외국어를 추가</p>
+              </div>
+            </div>
+
+            {/* 플랜별 외국어 추가 요금표 */}
+            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div className="px-4 py-2.5 bg-gradient-to-r from-slate-50 to-sky-50 border-b border-slate-200">
+                <p className="text-xs font-bold text-slate-700">플랜별 외국어 1종 추가 시 요금 (한국어 + 외국어)</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50">
+                    <tr className="text-xs text-slate-600">
+                      <th className="px-3 py-2 text-left font-semibold">플랜</th>
+                      <th className="px-3 py-2 text-right font-semibold">한국어 (기본)</th>
+                      <th className="px-3 py-2 text-right font-semibold">외국어 추가 (+30%)</th>
+                      <th className="px-3 py-2 text-right font-semibold text-sky-700">한국어 + 외국어 1종</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    <tr>
+                      <td className="px-3 py-2.5 font-bold text-blue-700">프로 (월간)</td>
+                      <td className="px-3 py-2.5 text-right text-slate-700">200만원/월</td>
+                      <td className="px-3 py-2.5 text-right text-rose-600 font-semibold">+60만원/월</td>
+                      <td className="px-3 py-2.5 text-right font-bold text-slate-900">260만원/월</td>
+                    </tr>
+                    <tr>
+                      <td className="px-3 py-2.5 font-bold text-indigo-700">프리미엄 (분기)</td>
+                      <td className="px-3 py-2.5 text-right text-slate-700">540만원/분기</td>
+                      <td className="px-3 py-2.5 text-right text-rose-600 font-semibold">+162만원/분기</td>
+                      <td className="px-3 py-2.5 text-right font-bold text-slate-900">702만원/분기</td>
+                    </tr>
+                    <tr className="bg-amber-50/40">
+                      <td className="px-3 py-2.5 font-bold text-amber-700">맥스 (연간 · 20% 할인)</td>
+                      <td className="px-3 py-2.5 text-right text-slate-700">1,440만원/연</td>
+                      <td className="px-3 py-2.5 text-right text-rose-600 font-semibold">+432만원/연</td>
+                      <td className="px-3 py-2.5 text-right font-bold text-slate-900">1,872만원/연</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-500 mt-3 leading-relaxed">
+              ※ 부가세 별도. 외국어 2종 이상 동시 추가 또는 언어별 콘텐츠 비중 조정은 별도 협의로 진행됩니다.
+            </p>
+          </div>
         </div>
 
         {/* 결제 안내 */}

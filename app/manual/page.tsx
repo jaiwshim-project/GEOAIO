@@ -1353,6 +1353,17 @@ export default function ManualPage() {
                 </div>
               </div>
               <p className="text-[10px] text-gray-500 mt-2">맥스가 가장 좋은 혜택 + 가장 저렴 (연간 일시불 20% 할인). 프리미엄은 가운데 위치.</p>
+              <p className="text-[10px] text-rose-600 mt-1">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
+
+              {/* 외국어 옵션 안내 */}
+              <div className="mt-3 bg-gradient-to-br from-sky-50 to-indigo-50 border border-sky-200 rounded-lg p-3">
+                <p className="text-[11px] font-bold text-sky-800 mb-1">🌐 외국어 콘텐츠 옵션 (영어 · 중국어 · 일본어)</p>
+                <ul className="text-[10px] text-gray-700 space-y-0.5 list-disc list-inside ml-1">
+                  <li>외국어 요금 = 한국어 대비 <strong className="text-rose-600">+30%</strong> (언어 1종 추가당)</li>
+                  <li>한국어 기본 선택 필수 · 외국어 단독 선택 불가</li>
+                  <li>예시 — 프로 260만원/월, 프리미엄 702만원/분기, 맥스 1,872만원/연 (한국어+외국어 1종)</li>
+                </ul>
+              </div>
             </div>
 
             {/* 6. 사용자 메뉴 변경 */}

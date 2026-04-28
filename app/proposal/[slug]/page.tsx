@@ -1250,7 +1250,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <span className="text-[10px] font-bold text-rose-600">(20% 할인)</span>
                     </div>
                     <p className="text-[11px] font-bold text-rose-600">월 120만원 상당 · 연 20% 절감</p>
-                    <p className="text-[9px] text-gray-600 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다.</p>
+                    <p className="text-[9px] text-gray-600 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 150건</strong> (연 1,800건)</span></li>
@@ -1260,6 +1260,65 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   </ul>
                 </div>
               </div>
+
+              {/* 외국어 옵션 안내 */}
+              <div className="mt-4 bg-gradient-to-br from-sky-50 via-white to-indigo-50 border border-sky-200 rounded-xl p-4">
+                <div className="flex items-start gap-2.5 mb-3">
+                  <span className="text-lg leading-none mt-0.5">🌐</span>
+                  <div className="flex-1">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-100 border border-sky-200 mb-1">
+                      <span className="w-1 h-1 rounded-full bg-sky-500" />
+                      <p className="text-[9px] font-bold tracking-wider text-sky-700">NEW · 다국어</p>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900">외국어 콘텐츠 옵션 (영어 · 중국어 · 일본어)</h4>
+                    <p className="text-[11px] text-slate-600 mt-0.5">글로벌 AI 검색 인용을 위한 다국어 콘텐츠 생성/포스팅</p>
+                  </div>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-2 mb-3">
+                  <div className="bg-white rounded-lg p-2.5 border border-sky-200">
+                    <p className="text-[10px] font-bold text-sky-700 mb-0.5">📌 가격 구조</p>
+                    <p className="text-xs text-slate-800">외국어 = 한국어 대비 <strong className="text-rose-600">+30%</strong></p>
+                  </div>
+                  <div className="bg-white rounded-lg p-2.5 border border-amber-200">
+                    <p className="text-[10px] font-bold text-amber-700 mb-0.5">⚠️ 선택 규칙</p>
+                    <p className="text-xs text-slate-800">한국어 기본 필수 · 외국어는 추가 선택</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+                  <table className="w-full text-[11px]">
+                    <thead className="bg-slate-50">
+                      <tr className="text-[10px] text-slate-600">
+                        <th className="px-2.5 py-1.5 text-left font-semibold">플랜</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">한국어</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">+외국어 1종</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold text-sky-700">합계</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      <tr>
+                        <td className="px-2.5 py-1.5 font-bold text-blue-700">프로 (월간)</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-700">200/월</td>
+                        <td className="px-2.5 py-1.5 text-right text-rose-600">+60</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">260만원/월</td>
+                      </tr>
+                      <tr>
+                        <td className="px-2.5 py-1.5 font-bold text-indigo-700">프리미엄 (분기)</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-700">540/분기</td>
+                        <td className="px-2.5 py-1.5 text-right text-rose-600">+162</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">702만원/분기</td>
+                      </tr>
+                      <tr className="bg-amber-50/40">
+                        <td className="px-2.5 py-1.5 font-bold text-amber-700">맥스 (연간)</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-700">1,440/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-rose-600">+432</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">1,872만원/연</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-2">※ 부가세 별도 · 외국어 2종 이상은 별도 협의</p>
+              </div>
+
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link
                   href="/pricing"
