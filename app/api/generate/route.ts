@@ -250,17 +250,24 @@ export async function POST(request: NextRequest) {
       return withCors(NextResponse.json({ error: '콘텐츠 유형을 선택해주세요.' }, { status: 400 }));
     }
 
-    // Gemini 단독 사용 (md 초안 생성). EEAT 7단계 변환은 별도 API(/api/convert-eeat)에서 Claude 단독 호출.
+    // 기본: Gemini Flash. body.provider === 'claude' 면 Claude Haiku 4.5 폴백 사용.
     const claudeKey = getClaudeKey(request);
     const geminiKey = getGeminiKey(request);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const useClaude = (body as any).provider === 'claude';
 
-    if (!geminiKey) {
+    if (useClaude && !claudeKey) {
+      return withCors(NextResponse.json(
+        { error: 'Claude API 키가 필요합니다 (폴백 호출).' },
+        { status: 401 }
+      ));
+    }
+    if (!useClaude && !geminiKey) {
       return withCors(NextResponse.json(
         { error: 'Gemini API 키가 필요합니다. /settings 페이지에서 API 키를 등록해주세요.' },
         { status: 401 }
       ));
     }
-    void claudeKey; // claudeKey는 이 라우트에서 사용하지 않음 (다른 라우트가 동일 라이브러리 import 시 안전성 유지)
 
     const categoryLabel = CATEGORY_LABELS[body.category] || body.category;
     const toneDesc = body.tone || '전문적이고 신뢰감 있는';
@@ -401,30 +408,75 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문 내용에 자연스럽게 반드시 포함하세요.` : ''}`;
     }
 
-    // Gemini 단독 호출 (md 초안 생성 전용). 폴백 없음 — timeout 회피.
+    // 호출 분기: useClaude=true면 Claude Haiku 4.5, 기본은 Gemini Flash.
     let text = '';
-    try {
-      console.log('[API] Gemini 콘텐츠 생성 (단독)');
-      const ai = new GoogleGenAI({ apiKey: geminiKey });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: userMessage,
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
-          maxOutputTokens: 8192,
-          responseMimeType: 'application/json',
-          responseSchema: RESPONSE_SCHEMA,
-        },
-      });
-      text = response.text || '';
-      console.log('[API] Gemini 응답', text.length, '자');
-    } catch (geminiError: unknown) {
-      const msg = geminiError instanceof Error ? geminiError.message : String(geminiError);
-      console.error('[API] Gemini 실패:', msg);
-      return withCors(NextResponse.json(
-        { error: `Gemini 생성 실패: ${msg}` },
-        { status: 500 }
-      ));
+    if (useClaude) {
+      try {
+        console.log('[API] Claude Haiku 4.5 폴백 호출');
+        const client = new Anthropic({ apiKey: claudeKey! });
+        // JSON 형식 강제 — 마지막에 출력 형식 안내 추가
+        const claudeUserMsg = `${userMessage}
+
+[출력 형식 — 엄수]
+다음 JSON 형식 그대로 출력하세요. 코드블록(\`\`\`)·설명문·인사말 일체 금지. 첫 글자는 반드시 '{'.
+{
+  "title": "콘텐츠 제목 (수치·임팩트 있는 한 줄)",
+  "content": "마크다운 본문 전체 (1700자 이상 2300자 이내, ## H2부터 시작)",
+  "hashtags": ["#태그1", "#태그2", ... 총 10개],
+  "metadata": {
+    "wordCount": 글자수,
+    "estimatedReadTime": "약 N분",
+    "seoTips": ["팁1", "팁2", "팁3"]
+  }
+}`;
+        const message = await client.messages.create({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 8192,
+          system: [{
+            type: 'text' as const,
+            text: SYSTEM_INSTRUCTION,
+            cache_control: { type: 'ephemeral' as const },
+          }],
+          messages: [
+            { role: 'user', content: claudeUserMsg },
+            { role: 'assistant', content: '{' },
+          ],
+        });
+        const raw = message.content[0]?.type === 'text' ? message.content[0].text : '';
+        text = '{' + raw;
+        console.log('[API] Claude 응답', text.length, '자');
+      } catch (claudeError: unknown) {
+        const msg = claudeError instanceof Error ? claudeError.message : String(claudeError);
+        console.error('[API] Claude 폴백 실패:', msg);
+        return withCors(NextResponse.json(
+          { error: `Claude 생성 실패: ${msg}` },
+          { status: 500 }
+        ));
+      }
+    } else {
+      try {
+        console.log('[API] Gemini 콘텐츠 생성');
+        const ai = new GoogleGenAI({ apiKey: geminiKey! });
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: userMessage,
+          config: {
+            systemInstruction: SYSTEM_INSTRUCTION,
+            maxOutputTokens: 8192,
+            responseMimeType: 'application/json',
+            responseSchema: RESPONSE_SCHEMA,
+          },
+        });
+        text = response.text || '';
+        console.log('[API] Gemini 응답', text.length, '자');
+      } catch (geminiError: unknown) {
+        const msg = geminiError instanceof Error ? geminiError.message : String(geminiError);
+        console.error('[API] Gemini 실패:', msg);
+        return withCors(NextResponse.json(
+          { error: `Gemini 생성 실패: ${msg}` },
+          { status: 500 }
+        ));
+      }
     }
 
     // JSON 추출 — 코드블록 / 앞뒤 텍스트 / 순수 JSON 모두 처리

@@ -1268,6 +1268,86 @@ export default function GeneratePage() {
         }
         setToneProgress(Math.min(i + AGENT_BATCH, toneOptions.length));
       }
+
+      // ⭐ Claude 폴백 — Gemini로 실패한 톤을 Claude Haiku 4.5로 재시도 (concurrency 2)
+      const isFailed = (r: { content?: string } | null | undefined) =>
+        !r || !r.content || r.content.length < 200 || /생성\s*(실패|오류)/.test(r.content || '');
+      const failedIdxs = results.map((r, idx) => isFailed(r) ? idx : -1).filter(i => i >= 0);
+      if (failedIdxs.length > 0) {
+        console.log(`[generate] Gemini 실패 ${failedIdxs.length}개 → Claude 폴백 시작`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fetchClaudeOnce = async (t: typeof toneOptions[0]): Promise<any> => {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 90000); // Claude는 좀 더 여유
+          try {
+            const res = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: ctrl.signal,
+              body: JSON.stringify({
+                provider: 'claude',
+                category: selectedCategory,
+                topic: topic.trim(),
+                targetKeyword: targetKeyword.trim() || undefined,
+                subKeyword: selectedSubKeyword || undefined,
+                tone: t.value,
+                additionalNotes: notes,
+                company_name: activeProjectInfo?.company_name || undefined,
+                representative_name: activeProjectInfo?.representative_name || undefined,
+                region: activeProjectInfo?.region || undefined,
+                homepage_url: activeProjectInfo?.homepage_url || undefined,
+                blog_url: activeProjectInfo?.blog_url || undefined,
+                contact_email: activeProjectInfo?.contact_email || undefined,
+                contact_phone: activeProjectInfo?.contact_phone || undefined,
+                projectFiles: projectFiles.slice(0, 3).map(f => ({
+                  file_name: f.file_name,
+                  content: f.content.slice(0, 3000),
+                })),
+                sceneSentence: sceneSentence || undefined,
+                cepTask: cepTask || undefined,
+                cepKeyword: cepClusters[cepSelectedCluster ?? -1]?.clusterName,
+                searchPath: cepClusters[cepSelectedCluster ?? -1]?.searchPath,
+                cepCluster: cepClusters[cepSelectedCluster ?? -1]?.keywords,
+                lifeLanguages: cepLifeLanguages.length ? cepLifeLanguages : undefined,
+                caseStudy: selectedCategory === 'case' ? {
+                  profile: caseProfile,
+                  symptom: caseSymptom,
+                  treatment: caseTreatment,
+                  result: caseResult,
+                } : undefined,
+              }),
+            });
+            const data = await res.json();
+            if (res.ok && !data.error && data.content && data.content.length >= 200) {
+              return { ...data, toneName: t.label, toneValue: t.value };
+            }
+            return null;
+          } catch {
+            return null;
+          } finally {
+            clearTimeout(timer);
+          }
+        };
+
+        const CLAUDE_BATCH = 2;
+        for (let k = 0; k < failedIdxs.length; k += CLAUDE_BATCH) {
+          const groupIdxs = failedIdxs.slice(k, k + CLAUDE_BATCH);
+          const groupTones = groupIdxs.map(i => toneOptions[i]);
+          try {
+            const claudeResults = await Promise.all(groupTones.map(t => fetchClaudeOnce(t)));
+            claudeResults.forEach((r, j) => {
+              if (r) {
+                console.log(`[generate] 톤 "${groupTones[j].label}" Claude 폴백 성공`);
+                results[groupIdxs[j]] = r;
+              }
+            });
+          } catch (e) {
+            console.error(`[generate] Claude 폴백 배치 예외:`, e);
+          }
+        }
+        const stillFailed = results.filter(r => isFailed(r)).length;
+        console.log(`[generate] Claude 폴백 완료 — 최종 실패 ${stillFailed}/${toneOptions.length}`);
+      }
       // 사용량 기록 (커스텀 사용자 시스템)
       if (currentUser) {
         fetch('/api/usage-count', {
