@@ -210,7 +210,7 @@ export default async function BlogCategoryPage({
         {/* 뒤로가기 — 골드 캡슐 */}
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-semibold tracking-wider uppercase text-amber-100 hover:text-white mb-3 transition-all border border-amber-400/40 bg-white/5 backdrop-blur-md rounded-full hover:border-amber-300 hover:bg-amber-500/15"
+          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-medium tracking-wider uppercase text-amber-100 hover:text-white mb-3 transition-all border border-amber-400/40 bg-white/5 backdrop-blur-md rounded-full hover:border-amber-300 hover:bg-amber-500/15"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -228,9 +228,9 @@ export default async function BlogCategoryPage({
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
             <div className="relative">
               <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-[9px] font-bold tracking-[0.25em] uppercase text-amber-200">Collection</p>
+                <p className="text-[9px] font-semibold tracking-[0.25em] uppercase text-amber-200">Collection</p>
                 <span className="text-[9px] text-white/70">·</span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white">
                   <span className="w-1 h-1 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(252,211,77,0.8)]" />
                   {allPosts.length}
                 </span>
@@ -241,7 +241,7 @@ export default async function BlogCategoryPage({
                     {meta.label}
                   </h1>
                   {meta.description && (
-                    <p className="text-white text-[11px] leading-snug max-w-xl font-medium mt-1 line-clamp-1">
+                    <p className="text-white text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
                       {meta.description}
                     </p>
                   )}
@@ -255,15 +255,15 @@ export default async function BlogCategoryPage({
                         key={lang}
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] tracking-wide border backdrop-blur-sm transition-all ${
                           isActive
-                            ? 'bg-white/30 border-amber-300 text-white font-bold shadow-[0_0_12px_-2px_rgba(252,211,77,0.5)]'
+                            ? 'bg-white/30 border-amber-300 text-white font-semibold shadow-[0_0_12px_-2px_rgba(252,211,77,0.5)]'
                             : count > 0
-                            ? 'bg-white/15 border-white/30 text-white font-bold'
-                            : 'bg-white/5 border-white/15 text-white/70 font-semibold'
+                            ? 'bg-white/15 border-white/30 text-white font-medium'
+                            : 'bg-white/5 border-white/15 text-white/70 font-medium'
                         }`}
                       >
                         <span className="text-[10px]">{LANG_LABELS[lang].flag}</span>
                         {LANG_LABELS[lang].label}
-                        <span className={isActive ? 'text-amber-200 font-bold' : 'text-white font-bold'}>{count}</span>
+                        <span className={isActive ? 'text-amber-200 font-semibold' : 'text-white font-medium'}>{count}</span>
                       </span>
                     );
                   })}
@@ -289,10 +289,10 @@ export default async function BlogCategoryPage({
                     href={isEmpty ? '#' : href}
                     className={`relative flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-300 ${
                       isActive
-                        ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/50 font-bold'
+                        ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/50 font-semibold'
                         : isEmpty
-                        ? 'text-slate-500 cursor-not-allowed pointer-events-none'
-                        : 'text-white hover:bg-white/10 hover:text-amber-200'
+                        ? 'text-slate-500 cursor-not-allowed pointer-events-none font-medium'
+                        : 'text-white hover:bg-white/10 hover:text-amber-200 font-medium'
                     }`}
                     aria-disabled={isEmpty}
                   >
@@ -300,9 +300,9 @@ export default async function BlogCategoryPage({
                       <span className="absolute -top-px left-1/2 -translate-x-1/2 w-10 h-px bg-gradient-to-r from-transparent via-amber-100 to-transparent" />
                     )}
                     <span className="text-sm leading-none">{LANG_LABELS[lang].flag}</span>
-                    <span className="text-[11px] font-bold tracking-wide">{LANG_LABELS[lang].label}</span>
-                    <span className={`text-[9px] font-bold tracking-[0.1em] ${
-                      isActive ? 'text-slate-950' : isEmpty ? 'text-slate-500' : 'text-amber-200'
+                    <span className="text-[11px] tracking-wide">{LANG_LABELS[lang].label}</span>
+                    <span className={`text-[9px] tracking-[0.1em] ${
+                      isActive ? 'text-slate-950 font-semibold' : isEmpty ? 'text-slate-500' : 'text-amber-200'
                     }`}>
                       {count}
                     </span>
@@ -317,9 +317,9 @@ export default async function BlogCategoryPage({
         {posts.length > 0 ? (
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
-              <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-amber-200">Articles</p>
-              <p className="text-[10px] font-semibold text-white">
-                <span className="text-amber-200 font-bold">{posts.length}</span> of {allPosts.length}
+              <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-amber-200">Articles</p>
+              <p className="text-[10px] text-white">
+                <span className="text-amber-200 font-semibold">{posts.length}</span> of {allPosts.length}
               </p>
             </div>
             <div className="space-y-1.5">
@@ -333,27 +333,27 @@ export default async function BlogCategoryPage({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         {post.tag && (
-                          <span className={`px-1.5 py-0 text-[9px] font-bold tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-white/15 text-white border border-white/20'}`}>
+                          <span className={`px-1.5 py-0 text-[9px] font-medium tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-white/15 text-white border border-white/20'}`}>
                             {post.tag}
                           </span>
                         )}
-                        <span className="text-[10px] font-semibold tracking-wide text-slate-200">
+                        <span className="text-[10px] tracking-wide text-slate-300">
                           {formatDate(post.createdAt)}
                         </span>
                         {post.targetKeyword && (
-                          <span className="text-[9px] font-bold tracking-wide text-amber-200 bg-amber-500/20 border border-amber-400/50 px-1.5 py-0 rounded-full hidden sm:inline">
+                          <span className="text-[9px] font-medium tracking-wide text-amber-200 bg-amber-500/20 border border-amber-400/50 px-1.5 py-0 rounded-full hidden sm:inline">
                             {post.targetKeyword}
                           </span>
                         )}
                       </div>
                       <h2
-                        className="text-sm sm:text-[15px] font-bold text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
+                        className="text-sm sm:text-[15px] font-semibold text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
                         style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                       >
                         {post.title}
                       </h2>
                       {post.summary && (
-                        <p className="text-[12px] text-slate-100 line-clamp-1 leading-snug font-medium mt-0.5">
+                        <p className="text-[12px] text-slate-200 line-clamp-1 leading-snug mt-0.5">
                           {post.summary}
                         </p>
                       )}
@@ -372,10 +372,10 @@ export default async function BlogCategoryPage({
           </>
         ) : (
           <div className="text-center py-10 bg-slate-900/40 backdrop-blur-md rounded-xl border border-dashed border-amber-400/40">
-            <p className="text-xs text-white font-semibold tracking-wider">No articles in this collection</p>
+            <p className="text-xs text-white font-medium tracking-wider">No articles in this collection</p>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-bold tracking-wider uppercase bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-full hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/30"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-full hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/30"
             >
               Create Content
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
