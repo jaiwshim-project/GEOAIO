@@ -1359,9 +1359,11 @@ export default function ManualPage() {
               <div className="mt-3 bg-gradient-to-br from-sky-50 to-indigo-50 border border-sky-200 rounded-lg p-3">
                 <p className="text-[11px] font-bold text-sky-800 mb-1">🌐 외국어 콘텐츠 옵션 (영어 · 중국어 · 일본어)</p>
                 <ul className="text-[10px] text-gray-700 space-y-0.5 list-disc list-inside ml-1">
-                  <li>외국어 요금 = 한국어 대비 <strong className="text-rose-600">+30%</strong> (언어 1종 추가당)</li>
-                  <li>한국어 기본 선택 필수 · 외국어 단독 선택 불가</li>
-                  <li>예시 — 프로 260만원/월, 프리미엄 702만원/분기, 맥스 1,872만원/연 (한국어+외국어 1종)</li>
+                  <li>체감식 가산: <strong className="text-rose-600">1종 +60% · 2종 +40% · 3종 +30%</strong> (예: 한국어+영어+중국어 = 200%)</li>
+                  <li>한국어 기본 선택 필수 · 외국어 단독 선택 불가 · 4종 이상은 별도 협의</li>
+                  <li>프로(월): 200 / 320 / 400 / 460만원 (한국어 → +1종 → +2종 → +3종)</li>
+                  <li>프리미엄(분기): 540 / 864 / 1,080 / 1,242만원</li>
+                  <li>맥스(연): 1,440 / 2,304 / 2,880 / 3,312만원</li>
                 </ul>
               </div>
             </div>

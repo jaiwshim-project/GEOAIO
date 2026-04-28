@@ -1276,8 +1276,11 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </div>
                 <div className="grid sm:grid-cols-2 gap-2 mb-3">
                   <div className="bg-white rounded-lg p-2.5 border border-sky-200">
-                    <p className="text-[10px] font-bold text-sky-700 mb-0.5">📌 가격 구조</p>
-                    <p className="text-xs text-slate-800">외국어 = 한국어 대비 <strong className="text-rose-600">+30%</strong></p>
+                    <p className="text-[10px] font-bold text-sky-700 mb-0.5">📌 체감식 가산</p>
+                    <ul className="text-[11px] text-slate-700 space-y-0.5">
+                      <li>· 1종 +<strong className="text-rose-600">60%</strong> · 2종 +<strong className="text-rose-600">40%</strong> · 3종 +<strong className="text-rose-600">30%</strong></li>
+                      <li className="text-[10px] text-slate-500">예: 한국어 + 영어 + 중국어 = 200%</li>
+                    </ul>
                   </div>
                   <div className="bg-white rounded-lg p-2.5 border border-amber-200">
                     <p className="text-[10px] font-bold text-amber-700 mb-0.5">⚠️ 선택 규칙</p>
@@ -1289,34 +1292,38 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <thead className="bg-slate-50">
                       <tr className="text-[10px] text-slate-600">
                         <th className="px-2.5 py-1.5 text-left font-semibold">플랜</th>
-                        <th className="px-2.5 py-1.5 text-right font-semibold">한국어</th>
-                        <th className="px-2.5 py-1.5 text-right font-semibold">+외국어 1종</th>
-                        <th className="px-2.5 py-1.5 text-right font-semibold text-sky-700">합계</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">한국어 (100%)</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">+1종 (160%)</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">+2종 (200%)</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold text-sky-700">+3종 (230%)</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       <tr>
                         <td className="px-2.5 py-1.5 font-bold text-blue-700">프로 (월간)</td>
                         <td className="px-2.5 py-1.5 text-right text-slate-700">200/월</td>
-                        <td className="px-2.5 py-1.5 text-right text-rose-600">+60</td>
-                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">260만원/월</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">320/월</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">400/월</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">460만원/월</td>
                       </tr>
                       <tr>
                         <td className="px-2.5 py-1.5 font-bold text-indigo-700">프리미엄 (분기)</td>
                         <td className="px-2.5 py-1.5 text-right text-slate-700">540/분기</td>
-                        <td className="px-2.5 py-1.5 text-right text-rose-600">+162</td>
-                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">702만원/분기</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">864/분기</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">1,080/분기</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">1,242만원/분기</td>
                       </tr>
                       <tr className="bg-amber-50/40">
                         <td className="px-2.5 py-1.5 font-bold text-amber-700">맥스 (연간)</td>
                         <td className="px-2.5 py-1.5 text-right text-slate-700">1,440/연</td>
-                        <td className="px-2.5 py-1.5 text-right text-rose-600">+432</td>
-                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">1,872만원/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">2,304/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">2,880/연</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">3,312만원/연</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <p className="text-[10px] text-slate-500 mt-2">※ 부가세 별도 · 외국어 2종 이상은 별도 협의</p>
+                <p className="text-[10px] text-slate-500 mt-2">※ 부가세 별도 · 4종 이상 또는 언어별 비중 조정은 별도 협의</p>
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
