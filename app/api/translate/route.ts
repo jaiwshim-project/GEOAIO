@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { getGeminiKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
 
 export const maxDuration = 60;
@@ -11,15 +11,6 @@ const LANG_NAMES: Record<string, string> = {
   en: 'English',
   zh: 'Simplified Chinese (中文)',
   ja: 'Japanese (日本語)',
-};
-
-const SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    title: { type: Type.STRING, description: 'Translated title' },
-    content: { type: Type.STRING, description: 'Translated markdown body' },
-  },
-  required: ['title', 'content'],
 };
 
 export async function POST(request: NextRequest) {
@@ -38,6 +29,8 @@ export async function POST(request: NextRequest) {
       return withCors(NextResponse.json({ error: 'Gemini API 키 필요' }, { status: 401 }));
     }
 
+    // ⭐ JSON 출력 제거 — 마크다운 직접 출력. JSON escape 충돌이 가장 큰 실패 원인이었음.
+    // 출력 형식: 첫 줄 = "# <translated title>", 그 다음 빈 줄, 그 다음 마크다운 본문.
     const prompt = `Translate the following Korean blog content to ${langName}.
 
 CRITICAL RULES — preserve structure exactly:
@@ -47,7 +40,12 @@ CRITICAL RULES — preserve structure exactly:
 - Proper nouns: keep brand/company/person names unless a well-known localized version exists.
 - Numbers, statistics, prices: keep numerical values exact.
 - FAQ Q/A blocks: keep "Q:" and "A:" prefixes (translate just the question/answer text).
-- Output JSON ONLY. No preamble, no markdown code fence.
+
+OUTPUT FORMAT (very important):
+- Line 1: "# " followed by the translated title (single H1).
+- Line 2: blank.
+- Line 3 onwards: the translated markdown body (start with ## H2 sections — do NOT include the H1 again).
+- Output ONLY the markdown. No preamble like "Sure, here is...". No code fences.
 
 [Source title]
 ${title || '(no title)'}
@@ -56,8 +54,7 @@ ${title || '(no title)'}
 ${content}`;
 
     const ai = new GoogleGenAI({ apiKey: geminiKey });
-    // 안전 필터 해제 — 사용자 자체 검수 완료된 비즈니스 콘텐츠라 BLOCK_NONE이 적합.
-    // 이 한 줄이 medical/legal/political 콘텐츠 번역 실패의 가장 큰 원인 해결.
+    // 안전 필터 해제
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const safetySettings: any[] = [
       { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
@@ -71,9 +68,8 @@ ${content}`;
         model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
-          maxOutputTokens: 16384, // 8192 → 16384 (출력 잘림 방지)
-          responseMimeType: 'application/json',
-          responseSchema: SCHEMA,
+          maxOutputTokens: 16384,
+          // responseMimeType + responseSchema 제거 → JSON escape 충돌 회피
           safetySettings,
         },
       });
@@ -83,47 +79,59 @@ ${content}`;
       return { text: response.text || '', finishReason };
     };
 
-    // 서버 측 1회 재시도 (빈 응답·SAFETY·OTHER 등 일시적 실패 보호)
+    // 서버 1회 재시도
     let { text, finishReason } = await callGemini();
-    if (!text || text.length < 50) {
-      console.log(`[translate] 1차 빈 응답 (finishReason=${finishReason}, target=${targetLang}) — 재시도`);
+    if (!text || text.length < 200) {
+      console.log(`[translate] 1차 짧은 응답 (finishReason=${finishReason}, len=${text.length}, target=${targetLang}) — 재시도`);
       await new Promise(r => setTimeout(r, 800));
       const second = await callGemini();
-      if (second.text && second.text.length >= 50) {
+      if (second.text && second.text.length >= 200) {
         text = second.text;
         finishReason = second.finishReason;
-        console.log(`[translate] 재시도 성공 (finishReason=${finishReason})`);
+        console.log(`[translate] 재시도 성공 (finishReason=${finishReason}, len=${text.length})`);
       } else {
-        console.error(`[translate] 재시도도 실패 (finishReason=${second.finishReason}) target=${targetLang}, content len=${content.length}`);
+        console.error(`[translate] 재시도도 실패 (finishReason=${second.finishReason}, len=${second.text.length}) target=${targetLang}, content len=${content.length}`);
       }
     }
 
-    let parsed: { title?: string; content?: string } = {};
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      // 폴백 1: 코드블록 안 JSON
-      const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (m) {
-        try { parsed = JSON.parse(m[1].trim()); } catch {}
+    // 마크다운 파싱 — 첫 H1 줄을 title로, 나머지를 content로
+    let parsedTitle = '';
+    let parsedContent = '';
+
+    if (text && text.trim()) {
+      // 코드펜스 ```markdown / ``` 제거 (모델이 가끔 감쌈)
+      let cleaned = text.trim();
+      cleaned = cleaned.replace(/^```(?:markdown|md)?\s*\n?/i, '').replace(/\n?```\s*$/, '').trim();
+
+      // "Sure, here is the translation:" 같은 preamble 제거 — 첫 H1 또는 첫 ## 까지 잘라냄
+      const firstHeadingIdx = cleaned.search(/^#\s+/m);
+      if (firstHeadingIdx > 0) {
+        cleaned = cleaned.slice(firstHeadingIdx);
       }
-      // 폴백 2: 첫 { 부터 마지막 } 까지 (잘려도 시도)
-      if (!parsed.content) {
-        const start = text.indexOf('{');
-        const end = text.lastIndexOf('}');
-        if (start !== -1 && end !== -1 && end > start) {
-          try { parsed = JSON.parse(text.slice(start, end + 1)); } catch {}
-        }
+
+      // 첫 줄이 # H1이면 title 추출, 아니면 원본 title 유지
+      const lines = cleaned.split('\n');
+      const firstLine = lines[0]?.trim() || '';
+      const h1Match = firstLine.match(/^#\s+(.+)$/);
+      if (h1Match) {
+        parsedTitle = h1Match[1].trim();
+        parsedContent = lines.slice(1).join('\n').trimStart();
+      } else {
+        // H1이 없으면 첫 줄을 title로 가정
+        parsedTitle = firstLine;
+        parsedContent = lines.slice(1).join('\n').trimStart();
       }
     }
-    if (!parsed.content) {
+
+    if (!parsedContent || parsedContent.length < 100) {
       return withCors(NextResponse.json({
-        error: `번역 실패 (finishReason=${finishReason}, len=${text.length})`,
+        error: `번역 실패 (finishReason=${finishReason}, output len=${text.length}, parsed len=${parsedContent.length})`,
       }, { status: 500 }));
     }
+
     return withCors(NextResponse.json({
-      title: parsed.title || title || '',
-      content: parsed.content,
+      title: parsedTitle || title || '',
+      content: parsedContent,
     }));
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : '번역 실패';
