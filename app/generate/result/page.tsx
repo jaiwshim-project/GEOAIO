@@ -1536,6 +1536,51 @@ export default function GenerateResultPage() {
           </div>
         )}
 
+        {/* 블로그 게시 버튼 — 최상단 (언어 탭 위) */}
+        <div className="bg-white rounded-xl shadow-sm border border-rose-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-rose-50 to-pink-50 px-5 py-2 border-b border-rose-200">
+            <h3 className="text-sm font-bold text-rose-800 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+              블로그 자동 게시
+            </h3>
+          </div>
+          <div className="p-4">
+            <p className="text-xs text-gray-500 mb-3">생성된 콘텐츠를 블로그 페이지에 바로 게시합니다. 카테고리를 선택하면 해당 탭에 자동으로 분류됩니다.</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleOpenBlogPublish}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:scale-105 shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                블로그에 게시하기
+              </button>
+              <button
+                onClick={() => {
+                  // localStorage가 어떤 이유로 사라져도 URL로 추천 주제 복원 보장 (붙박이)
+                  let url = '/generate';
+                  try {
+                    const cached = localStorage.getItem('cep:suggestedTopics');
+                    if (cached) {
+                      const b64 = btoa(unescape(encodeURIComponent(cached)));
+                      url = `/generate?cep_topics_b64=${b64}`;
+                    }
+                  } catch {}
+                  router.push(url);
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-300 hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg hover:scale-105 shadow-sm"
+                title="추천 주제 페이지로 돌아가서 다른 주제 선택"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                📝 다른 주제로 또 생성
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* 언어 탭 — 한국어 기본, 영/중/일 클릭 시 1회 번역 + 캐시 */}
         {abVersions.length > 0 && (() => {
           const LANGS: { key: Lang; label: string; sub: string }[] = [
@@ -2113,52 +2158,6 @@ export default function GenerateResultPage() {
               )}
             </div>
           </div>
-
-        {/* 블로그 게시 버튼 */}
-        <div className="bg-white rounded-xl shadow-sm border border-rose-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-rose-50 to-pink-50 px-5 py-2 border-b border-rose-200">
-            <h3 className="text-sm font-bold text-rose-800 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
-              블로그 자동 게시
-            </h3>
-          </div>
-          <div className="p-4">
-            <p className="text-xs text-gray-500 mb-3">생성된 콘텐츠를 블로그 페이지에 바로 게시합니다. 카테고리를 선택하면 해당 탭에 자동으로 분류됩니다.</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={handleOpenBlogPublish}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:scale-105 shadow-sm"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                블로그에 게시하기
-              </button>
-              <button
-                onClick={() => {
-                  // localStorage가 어떤 이유로 사라져도 URL로 추천 주제 복원 보장 (붙박이)
-                  let url = '/generate';
-                  try {
-                    const cached = localStorage.getItem('cep:suggestedTopics');
-                    if (cached) {
-                      // base64 인코딩해서 URL query에 첨부
-                      const b64 = btoa(unescape(encodeURIComponent(cached)));
-                      url = `/generate?cep_topics_b64=${b64}`;
-                    }
-                  } catch {}
-                  router.push(url);
-                }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-300 hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg hover:scale-105 shadow-sm"
-                title="추천 주제 페이지로 돌아가서 다른 주제 선택"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                📝 다른 주제로 또 생성
-              </button>
-            </div>
-          </div>
-        </div>
 
       </main>
 
