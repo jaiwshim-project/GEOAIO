@@ -238,7 +238,7 @@ export default function PricingPage() {
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900">외국어 콘텐츠 옵션 (영어 · 중국어 · 일본어)</h3>
                 <p className="text-xs text-slate-600 mt-1">
-                  글로벌 AI 검색(영문 ChatGPT · Perplexity · Gemini, 중문 Baidu/문심일언, 일본 ChatGPT 등) 인용을 위한 다국어 콘텐츠 생성/포스팅 서비스
+                  글로벌 AI 검색(영문 ChatGPT · Perplexity · Gemini, 중문 AI 검색(Baidu, 문심일언 등), 일본 ChatGPT 등) 인용을 위한 다국어 콘텐츠 생성/포스팅 서비스
                 </p>
               </div>
             </div>
