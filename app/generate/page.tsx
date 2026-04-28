@@ -1181,10 +1181,14 @@ export default function GeneratePage() {
         // 단일 fetch 호출 — 재시도용 inner 함수
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const fetchOnce = async (): Promise<{ ok: boolean; data: any; status: number }> => {
+          // 60초 타임아웃 — API가 hang 걸리거나 서버가 응답 안 해도 무한 대기 방지
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 60000);
           try {
             const res = await fetch('/api/generate', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
+              signal: ctrl.signal,
               body: JSON.stringify({
                 category: selectedCategory,
                 topic: topic.trim(),
@@ -1221,8 +1225,11 @@ export default function GeneratePage() {
             });
             const data = await res.json();
             return { ok: res.ok && !data.error, data, status: res.status };
-          } catch {
-            return { ok: false, data: null, status: 0 };
+          } catch (e) {
+            const isAbort = (e as { name?: string })?.name === 'AbortError';
+            return { ok: false, data: { error: isAbort ? 'timeout (60s)' : 'network' }, status: 0 };
+          } finally {
+            clearTimeout(timer);
           }
         };
 
@@ -1237,12 +1244,28 @@ export default function GeneratePage() {
       };
 
       // AGENT_BATCH 개씩 병렬 실행 (멀티 에이전트)
+      // 어떤 배치가 통째로 실패해도 루프는 계속 — 성공한 톤만 모아 결과 페이지로 이동.
       for (let i = 0; i < toneOptions.length; i += AGENT_BATCH) {
         const agentGroup = toneOptions.slice(i, i + AGENT_BATCH);
-        const agentResults = await Promise.all(
-          agentGroup.map((t, j) => generateTone(t, i + j))
-        );
-        agentResults.forEach((r, j) => { results[i + j] = r; });
+        try {
+          const agentResults = await Promise.all(
+            agentGroup.map((t, j) => generateTone(t, i + j))
+          );
+          agentResults.forEach((r, j) => { results[i + j] = r; });
+        } catch (e) {
+          // generateTone 내부에서 try/catch로 감싸 항상 객체 반환하므로 여기 도달 가능성 낮지만 안전장치
+          console.error(`[generate] 배치 ${i}~${i + AGENT_BATCH - 1} 예외 — placeholder로 계속 진행:`, e);
+          agentGroup.forEach((t, j) => {
+            results[i + j] = {
+              title: topic.trim(),
+              content: `${t.label} 생성 실패 (배치 예외)`,
+              hashtags: [],
+              metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] },
+              toneName: t.label,
+              toneValue: t.value,
+            };
+          });
+        }
         setToneProgress(Math.min(i + AGENT_BATCH, toneOptions.length));
       }
       // 사용량 기록 (커스텀 사용자 시스템)
