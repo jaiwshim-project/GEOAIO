@@ -141,25 +141,25 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
             <div className="relative">
-              <p className="text-[9px] font-bold tracking-[0.3em] uppercase text-amber-200 mb-1.5">GEO-AIO Press Room</p>
+              <p className="text-[9px] font-semibold tracking-[0.3em] uppercase text-amber-200 mb-1.5">GEO-AIO Press Room</p>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
                 블로그 · 기사 · 방송
               </h1>
-              <p className="text-white text-[12px] sm:text-[13px] leading-snug font-medium mt-1.5 max-w-2xl">
+              <p className="text-white text-[12px] sm:text-[13px] leading-snug mt-1.5 max-w-2xl">
                 다양한 업종의 블로그·언론 기사·방송 콘텐츠를 한곳에서. AI 검색엔진에 최적화된 실제 운영 사례.
               </p>
               <div className="flex items-center flex-wrap gap-1.5 mt-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full text-[10px] font-bold tracking-wider text-white">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full text-[10px] font-medium tracking-wider text-white">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(252,211,77,0.8)] animate-pulse" />
                   TOTAL · {posts.length}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full text-[10px] font-bold tracking-wider text-white">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 backdrop-blur-sm border border-white/25 rounded-full text-[10px] font-medium tracking-wider text-white">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 shadow-[0_0_8px_rgba(110,231,183,0.7)] animate-pulse" />
                   {categories.length} CATEGORIES
                 </span>
                 <button
                   onClick={() => router.push('/generate')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-full text-[10px] font-bold tracking-wider transition-all shadow-md shadow-amber-500/40"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-full text-[10px] font-semibold tracking-wider transition-all shadow-md shadow-amber-500/40"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -183,10 +183,10 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                   <button
                     key={cat.slug}
                     onClick={() => router.push(`/blog/category/${encodeURIComponent(cat.slug)}`)}
-                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
+                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-all ${
                       isActive
-                        ? `bg-gradient-to-r ${cat.color} text-white shadow-lg ring-1 ring-amber-400/40`
-                        : 'bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-amber-400/40 hover:text-amber-100'
+                        ? `bg-gradient-to-r ${cat.color} text-white font-semibold shadow-lg ring-1 ring-amber-400/40`
+                        : 'bg-white/5 text-white font-medium border border-white/10 hover:bg-white/10 hover:border-amber-400/40 hover:text-amber-100'
                     }`}
                   >
                     {isActive && (
@@ -196,7 +196,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                     <span className="hidden sm:inline">{cat.label}</span>
                     <span className="sm:hidden">{cat.label.split(' ')[0]}</span>
                     {postCount > 0 && (
-                      <span className={`ml-0.5 px-1.5 py-0 text-[9px] font-bold rounded-full ${
+                      <span className={`ml-0.5 px-1.5 py-0 text-[9px] font-semibold rounded-full ${
                         isActive ? 'bg-amber-300/30 text-amber-100' : 'bg-amber-500/20 text-amber-200'
                       }`}>
                         {postCount}
@@ -211,11 +211,11 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
 
         {/* 탭 설명 */}
         <div className="mb-3 px-1">
-          <h2 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+          <h2 className="text-base sm:text-lg font-semibold text-white tracking-tight" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
             {currentCategory?.label}
           </h2>
           {currentCategory?.description && (
-            <p className="text-[11px] text-slate-200 mt-0.5 font-medium">{currentCategory.description}</p>
+            <p className="text-[11px] text-slate-200 mt-0.5">{currentCategory.description}</p>
           )}
         </div>
 
@@ -224,7 +224,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
           <div className="mb-4">
             <button
               onClick={() => setSelectedPost(null)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-semibold tracking-wider uppercase text-amber-100 hover:text-white mb-3 transition-all border border-amber-400/40 bg-white/5 backdrop-blur-md rounded-full hover:border-amber-300 hover:bg-amber-500/15"
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-medium tracking-wider uppercase text-amber-100 hover:text-white mb-3 transition-all border border-amber-400/40 bg-white/5 backdrop-blur-md rounded-full hover:border-amber-300 hover:bg-amber-500/15"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -236,13 +236,13 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
               <div className="p-5 sm:p-7">
                 <div className="flex items-center gap-2 mb-4">
                   {selectedPost.tag && (
-                    <span className={`px-2.5 py-0.5 text-[11px] font-bold rounded-full ${TAG_COLORS[selectedPost.tag] || 'bg-gray-100 text-gray-700 border border-gray-200'}`}>
+                    <span className={`px-2.5 py-0.5 text-[11px] font-medium rounded-full ${TAG_COLORS[selectedPost.tag] || 'bg-gray-100 text-gray-700 border border-gray-200'}`}>
                       {selectedPost.tag}
                     </span>
                   )}
-                  <span className="text-xs text-gray-500 font-medium">{formatDate(selectedPost.createdAt)}</span>
+                  <span className="text-xs text-gray-500">{formatDate(selectedPost.createdAt)}</span>
                   {selectedPost.targetKeyword && (
-                    <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">{selectedPost.targetKeyword}</span>
+                    <span className="text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">{selectedPost.targetKeyword}</span>
                   )}
                 </div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-5" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>{selectedPost.title}</h1>
@@ -253,7 +253,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                 {selectedPost.hashtags && selectedPost.hashtags.length > 0 && (
                   <div className="mt-6 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
                     {selectedPost.hashtags.map((tag, i) => (
-                      <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                      <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
                         {tag.startsWith('#') ? tag : `#${tag}`}
                       </span>
                     ))}
@@ -268,9 +268,9 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
         {!selectedPost && (
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
-              <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-amber-200">Articles</p>
-              <p className="text-[10px] font-semibold text-white">
-                <span className="text-amber-200 font-bold">{filteredPosts.length}</span> of {posts.length}
+              <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-amber-200">Articles</p>
+              <p className="text-[10px] text-white">
+                <span className="text-amber-200 font-semibold">{filteredPosts.length}</span> of {posts.length}
               </p>
             </div>
             <div className="space-y-1.5">
@@ -289,27 +289,27 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                       >
                         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                           {post.tag && (
-                            <span className={`px-1.5 py-0 text-[9px] font-bold tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-white/15 text-white border border-white/20'}`}>
+                            <span className={`px-1.5 py-0 text-[9px] font-semibold tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-white/15 text-white border border-white/20'}`}>
                               {post.tag}
                             </span>
                           )}
-                          <span className="text-[10px] font-semibold tracking-wide text-slate-200">
+                          <span className="text-[10px] tracking-wide text-slate-300">
                             {formatDate(post.createdAt)}
                           </span>
                           {post.targetKeyword && (
-                            <span className="text-[9px] font-bold tracking-wide text-amber-200 bg-amber-500/20 border border-amber-400/50 px-1.5 py-0 rounded-full hidden sm:inline">
+                            <span className="text-[9px] font-medium tracking-wide text-amber-200 bg-amber-500/20 border border-amber-400/50 px-1.5 py-0 rounded-full hidden sm:inline">
                               {post.targetKeyword}
                             </span>
                           )}
                         </div>
                         <h3
-                          className="text-sm sm:text-[15px] font-bold text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
+                          className="text-sm sm:text-[15px] font-semibold text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
                           style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                         >
                           {post.title}
                         </h3>
                         {post.summary && (
-                          <p className="text-[12px] text-slate-100 line-clamp-1 leading-snug font-medium mt-0.5">
+                          <p className="text-[12px] text-slate-200 line-clamp-1 leading-snug mt-0.5">
                             {post.summary}
                           </p>
                         )}
@@ -344,11 +344,11 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                   <svg className="w-10 h-10 mx-auto text-amber-300/60 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
-                  <p className="text-xs text-white font-semibold tracking-wider">이 카테고리에 포스트가 없습니다</p>
+                  <p className="text-xs text-white font-medium tracking-wider">이 카테고리에 포스트가 없습니다</p>
                   <p className="text-[11px] text-slate-300 mt-1 mb-3">콘텐츠를 생성한 후 블로그에 게시해보세요.</p>
                   <button
                     onClick={() => router.push('/generate')}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-bold tracking-wider uppercase bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-full hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/30"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-full hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/30"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
