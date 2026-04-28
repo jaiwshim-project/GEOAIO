@@ -228,9 +228,9 @@ export default async function BlogCategoryPage({
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
             <div className="relative">
               <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-[9px] font-semibold tracking-[0.25em] uppercase text-amber-200">Collection</p>
+                <p className="text-[9px] font-medium tracking-[0.25em] uppercase text-amber-200">Collection</p>
                 <span className="text-[9px] text-white/70">·</span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-white">
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-white">
                   <span className="w-1 h-1 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(252,211,77,0.8)]" />
                   {allPosts.length}
                 </span>
@@ -255,15 +255,15 @@ export default async function BlogCategoryPage({
                         key={lang}
                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] tracking-wide border backdrop-blur-sm transition-all ${
                           isActive
-                            ? 'bg-white/30 border-amber-300 text-white font-semibold shadow-[0_0_12px_-2px_rgba(252,211,77,0.5)]'
+                            ? 'bg-white/30 border-amber-300 text-white font-medium shadow-[0_0_12px_-2px_rgba(252,211,77,0.5)]'
                             : count > 0
-                            ? 'bg-white/15 border-white/30 text-white font-medium'
-                            : 'bg-white/5 border-white/15 text-white/70 font-medium'
+                            ? 'bg-white/15 border-white/30 text-white'
+                            : 'bg-white/5 border-white/15 text-white/70'
                         }`}
                       >
                         <span className="text-[10px]">{LANG_LABELS[lang].flag}</span>
                         {LANG_LABELS[lang].label}
-                        <span className={isActive ? 'text-amber-200 font-semibold' : 'text-white font-medium'}>{count}</span>
+                        <span className={isActive ? 'text-amber-200 font-medium' : 'text-white'}>{count}</span>
                       </span>
                     );
                   })}
@@ -289,10 +289,10 @@ export default async function BlogCategoryPage({
                     href={isEmpty ? '#' : href}
                     className={`relative flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-300 ${
                       isActive
-                        ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/50 font-semibold'
+                        ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/50 font-medium'
                         : isEmpty
-                        ? 'text-slate-500 cursor-not-allowed pointer-events-none font-medium'
-                        : 'text-white hover:bg-white/10 hover:text-amber-200 font-medium'
+                        ? 'text-slate-500 cursor-not-allowed pointer-events-none'
+                        : 'text-white hover:bg-white/10 hover:text-amber-200'
                     }`}
                     aria-disabled={isEmpty}
                   >
@@ -302,7 +302,7 @@ export default async function BlogCategoryPage({
                     <span className="text-sm leading-none">{LANG_LABELS[lang].flag}</span>
                     <span className="text-[11px] tracking-wide">{LANG_LABELS[lang].label}</span>
                     <span className={`text-[9px] tracking-[0.1em] ${
-                      isActive ? 'text-slate-950 font-semibold' : isEmpty ? 'text-slate-500' : 'text-amber-200'
+                      isActive ? 'text-slate-950 font-medium' : isEmpty ? 'text-slate-500' : 'text-amber-200'
                     }`}>
                       {count}
                     </span>
@@ -317,9 +317,9 @@ export default async function BlogCategoryPage({
         {posts.length > 0 ? (
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
-              <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-amber-200">Articles</p>
+              <p className="text-[9px] font-medium tracking-[0.2em] uppercase text-amber-200">Articles</p>
               <p className="text-[10px] text-white">
-                <span className="text-amber-200 font-semibold">{posts.length}</span> of {allPosts.length}
+                <span className="text-amber-200 font-medium">{posts.length}</span> of {allPosts.length}
               </p>
             </div>
             <div className="space-y-1.5">
@@ -347,7 +347,7 @@ export default async function BlogCategoryPage({
                         )}
                       </div>
                       <h2
-                        className="text-sm sm:text-[15px] font-semibold text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
+                        className="text-sm sm:text-[15px] font-medium text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
                         style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                       >
                         {post.title}
