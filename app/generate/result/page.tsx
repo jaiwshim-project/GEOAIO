@@ -501,6 +501,41 @@ export default function GenerateResultPage() {
     }
   };
 
+  // ⭐ regenerate API 호출 — generate 단계 빈응답(< 200자) 회복용 처음부터 새로 작성
+  const requestRegenerate = async (
+    v: GenerateResponse & { toneName?: string; toneValue?: string },
+  ): Promise<string | null> => {
+    try {
+      const res = await fetch('/api/convert-eeat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          regenerate: true,
+          topic,
+          title: v.title,
+          tone: v.toneValue || tone,
+          seriesRole: (v as { seriesRole?: string }).seriesRole,
+          seriesIntent: (v as { seriesIntent?: string }).seriesIntent,
+          seriesAngle: (v as { seriesAngle?: string }).seriesAngle,
+          seriesPillarCatalog: (v as { seriesPillarCatalog?: string[] }).seriesPillarCatalog,
+          businessInfo: selectedProject ? {
+            company_name: selectedProject.company_name,
+            representative: (selectedProject as { representative?: string }).representative,
+            region: (selectedProject as { region?: string }).region,
+          } : undefined,
+          homepage_url: selectedProject?.homepage_url || undefined,
+          blog_url: selectedProject?.blog_url || undefined,
+          company_name: selectedProject?.company_name || undefined,
+        }),
+      });
+      if (!res.ok && res.status !== 422) return null;
+      const data = await res.json();
+      return data.content || data.partialContent || null;
+    } catch {
+      return null;
+    }
+  };
+
   // 두 콘텐츠 자연스럽게 결합
   // ⚠️ 합치기 전 orig에서 광고 블록과 trailing 해시태그를 제거.
   //    이 단계 없이 단순 이어붙이면 광고 블록이 본문 중간에 끼고 이어쓰기마다 누적됨.
@@ -540,13 +575,21 @@ export default function GenerateResultPage() {
     try {
       let currentContent = v.content || '';
 
+      // ⭐ 200자 미만(generate 단계 빈응답): 이어쓰기 불가 → 처음부터 새로 작성
       if (currentContent.length < 200) {
-        setEeatCompleteSingleStatus(`콘텐츠가 너무 짧아 이어쓰기 불가 (${currentContent.length}자)`);
-        setTimeout(() => {
-          setEeatCompleteSingleStatus('');
-          setEeatCompletingSingle(false);
-        }, 3000);
-        return;
+        setEeatCompleteSingleStatus(`콘텐츠가 너무 짧음 (${currentContent.length}자) — 처음부터 새로 작성 중...`);
+        const regenerated = await requestRegenerate(v);
+        if (regenerated && regenerated.length >= 200) {
+          currentContent = regenerated;
+          setEeatCompleteSingleStatus(`✓ 새 글 생성 (${regenerated.length}자) — 검증 중...`);
+        } else {
+          setEeatCompleteSingleStatus(`처음부터 쓰기도 실패 — 현재 상태 유지`);
+          setTimeout(() => {
+            setEeatCompleteSingleStatus('');
+            setEeatCompletingSingle(false);
+          }, 3000);
+          return;
+        }
       }
 
       // 최대 5회 이어쓰기로 완결 시도
@@ -651,9 +694,24 @@ export default function GenerateResultPage() {
         return;
       }
       let currentContent = v.content || '';
+      // ⭐ 200자 미만(generate 빈응답): 처음부터 새로 작성으로 복구
       if (currentContent.length < 200) {
-        setEeatAutoStatus(prev => ({ ...prev, [idx]: 'failed' }));
-        return;
+        console.log(`[E-E-A-T 자동] 톤 ${idx + 1} 너무 짧음(${currentContent.length}자) — regenerate 시도`);
+        const regenerated = await requestRegenerate(v);
+        if (regenerated && regenerated.length >= 200) {
+          console.log(`[E-E-A-T 자동] 톤 ${idx + 1} ✓ regenerate 성공 (${regenerated.length}자)`);
+          currentContent = regenerated;
+          // 즉시 화면 반영
+          setAbVersions(prev => {
+            const next = [...prev];
+            if (next[idx]) next[idx] = { ...next[idx], content: currentContent };
+            return next;
+          });
+        } else {
+          console.warn(`[E-E-A-T 자동] 톤 ${idx + 1} regenerate 실패 — failed 처리`);
+          setEeatAutoStatus(prev => ({ ...prev, [idx]: 'failed' }));
+          return;
+        }
       }
       // 자동 모드 EEAT 이어쓰기 최대 5회 (Paid Tier 안정 한도, ⚠️ 수동필요 배지 최소화)
       for (let attempt = 1; attempt <= 5; attempt++) {
@@ -869,11 +927,23 @@ export default function GenerateResultPage() {
       let currentContent = originalContent;
       let isComplete = false;
 
+      // ⭐ generate 단계 빈응답(< 200자) — 이어쓰기 불가 → 처음부터 새로 작성으로 복구
+      if (currentContent.length < 200) {
+        console.log(`[E-E-A-T] 톤 ${i + 1} 콘텐츠 너무 짧음(${currentContent.length}자) — 처음부터 새로 작성 시도`);
+        const regenerated = await requestRegenerate(v);
+        if (regenerated && regenerated.length >= 200) {
+          console.log(`[E-E-A-T] 톤 ${i + 1} ✓ regenerate 성공 (${regenerated.length}자) — 이어쓰기 루프 진입`);
+          currentContent = regenerated;
+        } else {
+          console.warn(`[E-E-A-T] 톤 ${i + 1} regenerate 실패 — 이어쓰기 루프 건너뜀`);
+        }
+      }
+
       // 최대 5회 이어쓰기 시도 (각 시도마다 누적)
       for (let attempt = 1; attempt <= 5; attempt++) {
-        // 너무 짧아서 이어쓰기 불가능한 경우만 패스
+        // regenerate 후에도 200자 미만이면 이어쓰기 불가 — 패스
         if (currentContent.length < 200) {
-          console.log(`[E-E-A-T] 톤 ${i + 1} 콘텐츠 너무 짧음(${currentContent.length}자) — 이어쓰기 불가`);
+          console.log(`[E-E-A-T] 톤 ${i + 1} regenerate 후에도 짧음(${currentContent.length}자) — 이어쓰기 불가`);
           break;
         }
 

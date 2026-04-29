@@ -92,10 +92,17 @@ export async function POST(request: NextRequest) {
       homepage_url, blog_url, company_name,
       // ⭐ Phase 2: 시리즈 메타 — 이어쓰기/재구성 시에도 angle 유지
       seriesRole, seriesIntent, seriesAngle, seriesPillarCatalog,
+      // ⭐ regenerate 모드: 콘텐츠가 200자 미만 등 회복 불가 시 처음부터 새로 작성
+      regenerate, businessInfo,
     } = body;
 
-    if (!content && !continuation) {
-      return withCors(NextResponse.json({ error: 'content 필요' }, { status: 400 }));
+    const isRegenerate = !!regenerate;
+
+    if (!content && !continuation && !isRegenerate) {
+      return withCors(NextResponse.json({ error: 'content 또는 regenerate 필요' }, { status: 400 }));
+    }
+    if (isRegenerate && !topic) {
+      return withCors(NextResponse.json({ error: 'regenerate 모드는 topic 필수' }, { status: 400 }));
     }
 
     // Claude 단독 사용 (EEAT 7단계 변환 전용). md 초안 생성은 별도 API(/api/generate)에서 Gemini 단독 호출.
@@ -130,9 +137,29 @@ ${seriesPillarCatalog.map((c: string) => `  · "${c}"`).join('\n')}
 ⚠️ 카탈로그로 회귀하면 다른 9편과 중복으로 인식되어 사실상 0점입니다. angle 관점 유지.
 ` : '';
 
+    // ── regenerate 모드: 처음부터 새 글 작성 (generate 단계 실패 회복용) ──
+    const businessBlock = businessInfo ? `
+[비즈니스 정보 — 도입부·결론에 자연스럽게 녹일 것]
+${businessInfo.company_name ? `· 회사/브랜드: ${businessInfo.company_name}` : ''}
+${businessInfo.representative ? `· 대표: ${businessInfo.representative}` : ''}
+${businessInfo.region ? `· 지역: ${businessInfo.region}` : ''}
+${businessInfo.strengths && Array.isArray(businessInfo.strengths) ? `· 강점: ${businessInfo.strengths.join(', ')}` : ''}
+${businessInfo.experience ? `· 경력/경험: ${businessInfo.experience}` : ''}
+` : '';
+
     // ── 이어쓰기 모드: 잘린 콘텐츠를 마저 작성 ──
     const isContinuation = !!(continuation && previousContent);
-    const prompt = isContinuation
+    const prompt = isRegenerate
+      ? `[원본 생성 단계가 실패하여(빈응답·짧음) 처음부터 새로 작성합니다]
+주제: ${topic}
+톤: ${tone || '전문적'}${seriesBlock}${businessBlock}
+
+위 주제·톤으로 E-E-A-T 7단계 구조의 마크다운 글을 처음부터 작성하세요.
+⭐ 분량: 1,800~2,400자 (FAQ·비교표·해시태그까지 반드시 포함)
+⭐ 시드/원본 콘텐츠가 없으니 일반 도메인 지식과 비즈니스 정보만으로 자연스럽게 작성.
+⭐ 첫 줄은 반드시 '#'으로 시작하는 H1 제목 — 수치가 포함된 강력한 문장으로.
+⭐ 인사말·메타텍스트("네 알겠습니다", "다음과 같이 작성하겠습니다") 일체 금지.`
+      : isContinuation
       ? `당신은 E-E-A-T 콘텐츠 마무리 전문가입니다.
 아래 콘텐츠가 중간에 잘려서 미완성 상태입니다. **이어서 작성**하여 누락된 섹션들을 마무리하세요.${seriesBlock}
 
@@ -175,7 +202,7 @@ ${content}
     // Claude Haiku 4.5 + prompt caching (system 캐시: 일반 모드의 EEAT_INSTRUCTION).
     // 이어쓰기 모드는 정적 시스템 프롬프트 없음 — 캐싱 미적용.
     try {
-      console.log('[convert-eeat] Claude Haiku 4.5 호출', isContinuation ? '(continuation)' : '(structured)');
+      console.log('[convert-eeat] Claude Haiku 4.5 호출', isRegenerate ? '(regenerate)' : isContinuation ? '(continuation)' : '(structured)');
       const client = new Anthropic({ apiKey: claudeKey });
       const message = await client.messages.create({
         model: 'claude-haiku-4-5-20251001',

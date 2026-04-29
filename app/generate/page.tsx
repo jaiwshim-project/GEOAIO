@@ -126,6 +126,10 @@ type ToneOption = {
   intent: SeriesIntent;
   angle: string;       // 이 글이 점유할 고유 정보 각도 (LLM이 topic에 맞춰 해석)
   exclude?: string[];  // 본문에서 다루지 말아야 할 항목 (Pillar 중복 방지)
+  // ⭐ Phase b: 안정성 그룹 분리
+  // core = 누적 테스트에서 angle 점유 안정 (Pillar/Compare/Theory/ROI/HowTo)
+  // extended = 회귀 빈번 (pain-point/urgency/case-deep/trend/critique) — 디버깅 후 활성
+  group: 'core' | 'extended';
 };
 
 const SPOKE_EXCLUDE_COMMON = [
@@ -168,68 +172,95 @@ const toneOptions: ToneOption[] = [
     value: '전문적이고 신뢰감 있는', label: '전문적',
     seriesRole: 'pillar', intent: 'overview',
     angle: '주제 전체를 종합하는 허브 가이드 — 핵심 원리·체계·KPI·등급 기준을 한 글에 집약',
+    group: 'core',
   },
   {
     value: '친근하고 대화체의', label: '친근한',
     seriesRole: 'spoke', intent: 'pain-point',
     angle: '입문자가 가장 자주 묻거나 오해하는 5가지 — 비유·체험·공감 중심',
     exclude: SPOKE_EXCLUDE_COMMON,
+    group: 'extended',
   },
   {
     value: '설득력 있고 강렬한', label: '설득적',
     seriesRole: 'spoke', intent: 'urgency',
     angle: '지금 행동하지 않을 때의 3개월·6개월·12개월 시간순 시나리오',
     exclude: SPOKE_EXCLUDE_COMMON,
+    group: 'extended',
   },
   {
     value: '간결하고 명확한', label: '간결한',
     seriesRole: 'spoke', intent: 'howto',
     angle: '오늘 30분 안에 시작하는 단계별 실행 — 핵심 항목 중 1가지만 깊게',
     exclude: [...SPOKE_EXCLUDE_COMMON, '여러 원리·KPI를 동시에 나열'],
+    group: 'core',
   },
   {
     value: '스토리텔링 중심의', label: '스토리텔링',
     seriesRole: 'spoke', intent: 'case-deep',
     angle: '실명 또는 익명 사례 1건의 다큐형 풀스토리 (Before·Process·After)',
     exclude: [...SPOKE_EXCLUDE_COMMON, '여러 사례를 짧게 나열'],
+    group: 'extended',
   },
   {
     value: '뉴스/저널리즘 스타일의', label: '뉴스형',
     seriesRole: 'spoke', intent: 'trend',
     angle: '최근 발표·통계·업계 동향·향후 변화 — 시점성 있는 데이터 분석',
     exclude: SPOKE_EXCLUDE_COMMON,
+    group: 'extended',
   },
   {
     value: '교육적이고 강의형의', label: '교육형',
     seriesRole: 'spoke', intent: 'theory',
     angle: '주제의 작동 원리·메커니즘·학술적 배경 — "왜 그렇게 동작하는가"',
     exclude: [...SPOKE_EXCLUDE_COMMON, '실행 단계 가이드형 진행'],
+    group: 'core',
   },
   {
     value: '비교분석 중심의', label: '비교분석형',
     seriesRole: 'spoke', intent: 'compare',
     angle: '대안·경쟁/유사 솔루션 N개 비교 — 장단점·언제 어느 쪽',
     exclude: SPOKE_EXCLUDE_COMMON,
+    group: 'core',
   },
   {
     value: '사례연구 중심의', label: '사례연구형',
     seriesRole: 'spoke', intent: 'roi',
     angle: '서로 다른 업종·규모 3종의 ROI 비교 — Before/After·투입/회수 수치',
     exclude: [...SPOKE_EXCLUDE_COMMON, '단일 사례 깊이 다루기 (스토리텔링 글과 분리)'],
+    group: 'core',
   },
   {
     value: '감성적이고 공감하는', label: '감성형',
     seriesRole: 'spoke', intent: 'critique',
     angle: '솔직한 한계·실패 케이스·이 방법이 안 통하는 상황 — 균형 잡힌 시각',
     exclude: [...SPOKE_EXCLUDE_COMMON, '과장된 성공 사례·일방적 찬양'],
+    group: 'extended',
   },
 ];
+
+// ⭐ Phase b: 안정 그룹별 인덱스 (toneOptions 인덱스 매핑 보존)
+// core = 1차 안정 시리즈 (5편) — 누적 테스트 A~B+ 등급
+// extended = 2차 확장 시리즈 (5편) — 회귀 디버깅 후 활성
+const CORE_TONE_INDICES = toneOptions
+  .map((t, i) => ({ t, i }))
+  .filter(({ t }) => t.group === 'core')
+  .map(({ i }) => i);
+const EXTENDED_TONE_INDICES = toneOptions
+  .map((t, i) => ({ t, i }))
+  .filter(({ t }) => t.group === 'extended')
+  .map(({ i }) => i);
 
 export default function GeneratePage() {
   const router = useRouter();
   const { selectedProject, geminiApiKey: contextApiKey, setGeminiApiKey: setContextApiKey, currentUser } = useUser();
   // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
   const geminiApiKey = contextApiKey;
+
+  // ⭐ Phase b: 안정 그룹 선택 (1차 core 기본, 2차 extended는 회귀 디버깅 후 활성)
+  const [selectedGroup, setSelectedGroup] = useState<'core' | 'extended'>('core');
+  const EXTENDED_GROUP_ENABLED = false; // 디버깅 완료 후 true로 전환
+  const activeGroupIndices = selectedGroup === 'core' ? CORE_TONE_INDICES : EXTENDED_TONE_INDICES;
 
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
   const [selectedSubKeyword, setSelectedSubKeyword] = useState<string>('');
@@ -1422,8 +1453,9 @@ export default function GeneratePage() {
       const isFailedQuick = (r: { content?: string } | null | undefined) =>
         !r || !r.content || r.content.length < 200 || /생성\s*(실패|오류)/.test(r.content || '');
 
-      // Pillar 인덱스 찾기 (현재 0번이지만 향후 변경 대비)
-      const pillarIdx = toneOptions.findIndex(t => t.seriesRole === 'pillar');
+      // ⭐ Phase b: 활성 그룹(core/extended) 안에서만 Pillar 인덱스 찾기
+      // core 그룹은 Pillar 포함, extended 그룹은 Pillar 없음 (1차 Pillar 재사용 — 향후 활성 시)
+      const pillarIdx = activeGroupIndices.find(i => toneOptions[i].seriesRole === 'pillar') ?? -1;
 
       let pillarCatalog: string[] | undefined;
       let usePillarFirst = pillarIdx >= 0;
@@ -1448,10 +1480,10 @@ export default function GeneratePage() {
         }
       }
 
-      // Spoke 인덱스 (Pillar 외 나머지)
+      // ⭐ Phase b: Spoke 인덱스 (활성 그룹 내에서 Pillar 외)
       const spokeIdxs = usePillarFirst
-        ? toneOptions.map((_, i) => i).filter(i => i !== pillarIdx)
-        : toneOptions.map((_, i) => i); // 폴백 시 모두 처리
+        ? activeGroupIndices.filter(i => i !== pillarIdx)
+        : [...activeGroupIndices]; // 폴백 시 활성 그룹 모두 처리
 
       // 어떤 배치가 통째로 실패해도 루프는 계속 — 성공한 톤만 모아 결과 페이지로 이동.
       for (let k = 0; k < spokeIdxs.length; k += AGENT_BATCH) {
@@ -1476,7 +1508,7 @@ export default function GeneratePage() {
             };
           });
         }
-        setToneProgress(Math.min((usePillarFirst ? 1 : 0) + k + AGENT_BATCH, toneOptions.length));
+        setToneProgress(Math.min((usePillarFirst ? 1 : 0) + k + AGENT_BATCH, activeGroupIndices.length));
       }
 
       // ⭐ Phase 1.5: Spoke 1차 실패분 카탈로그 빼고 Gemini로 재시도
@@ -1484,7 +1516,9 @@ export default function GeneratePage() {
       const isFailedInner = (r: { content?: string } | null | undefined) =>
         !r || !r.content || r.content.length < 200 || /생성\s*(실패|오류)/.test(r.content || '');
       if (usePillarFirst && pillarCatalog && pillarCatalog.length > 0) {
-        const failed1 = results.map((r, idx) => isFailedInner(r) && idx !== pillarIdx ? idx : -1).filter(i => i >= 0);
+        // ⭐ Phase b: 활성 그룹 안에서만 실패 인덱스 찾기 (비활성 그룹의 null 슬롯은 무시)
+        const failed1 = activeGroupIndices
+          .filter(idx => idx !== pillarIdx && isFailedInner(results[idx]));
         if (failed1.length > 0) {
           console.warn(`[generate] Spoke 1차 실패 ${failed1.length}개 — 카탈로그 빼고 Gemini로 재시도`);
           for (let k = 0; k < failed1.length; k += AGENT_BATCH) {
@@ -1511,7 +1545,8 @@ export default function GeneratePage() {
       // ⭐ Claude 폴백 — Gemini로 실패한 톤을 Claude Haiku 4.5로 재시도 (concurrency 2)
       const isFailed = (r: { content?: string } | null | undefined) =>
         !r || !r.content || r.content.length < 200 || /생성\s*(실패|오류)/.test(r.content || '');
-      const failedIdxs = results.map((r, idx) => isFailed(r) ? idx : -1).filter(i => i >= 0);
+      // ⭐ Phase b: 활성 그룹 안에서만 폴백 대상 검사
+      const failedIdxs = activeGroupIndices.filter(idx => isFailed(results[idx]));
       if (failedIdxs.length > 0) {
         console.log(`[generate] Gemini 실패 ${failedIdxs.length}개 → Claude 폴백 시작`);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1591,8 +1626,9 @@ export default function GeneratePage() {
             console.error(`[generate] Claude 폴백 배치 예외:`, e);
           }
         }
-        const stillFailed = results.filter(r => isFailed(r)).length;
-        console.log(`[generate] Claude 폴백 완료 — 최종 실패 ${stillFailed}/${toneOptions.length}`);
+        // ⭐ Phase b: 활성 그룹 안에서만 카운트
+        const stillFailed = activeGroupIndices.filter(idx => isFailed(results[idx])).length;
+        console.log(`[generate] Claude 폴백 완료 — 최종 실패 ${stillFailed}/${activeGroupIndices.length}`);
       }
       // 사용량 기록 (커스텀 사용자 시스템)
       if (currentUser) {
@@ -1616,14 +1652,16 @@ export default function GeneratePage() {
           generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
         });
       } catch { /* 히스토리 저장 실패는 무시하고 계속 진행 */ }
-      // 부분 실패도 결과 페이지로 redirect — 사용자가 ⚠️ 표시로 직접 확인
-      // 정상 = content 200자+ (실패 메시지 '전문적 생성 실패' 등 거름)
-      const validResults = results.filter(r => r.content && r.content.length > 200);
+      // ⭐ Phase b: 활성 그룹 결과만 추출 (비활성 그룹의 null 슬롯 제외)
+      const activeResults = activeGroupIndices.map(idx => results[idx]).filter(r => r !== null);
+      const validResults = activeResults.filter(r => r.content && r.content.length > 200);
       if (validResults.length === 0) {
         console.warn('[generate] 모든 톤 부실 응답 — 결과 페이지에서 ⚠️ 처리 위해 redirect 강행');
-        // throw 제거. results[0]을 mainResult로 사용 (사용자가 결과 페이지에서 상태 확인)
       }
-      const mainResult = { ...(validResults[0] || results[0] || { title: topic.trim(), content: '', hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] } }), abVersions: results };
+      const mainResult = {
+        ...(validResults[0] || activeResults[0] || { title: topic.trim(), content: '', hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] } }),
+        abVersions: activeResults,
+      };
       // 생성 즉시 sessionStorage로 전달 → 블로그 게시 시 DB 저장 (generate_results 불필요)
       const resultId = `session_${Date.now()}`;
       sessionStorage.setItem(`gr_${resultId}`, JSON.stringify({
@@ -1631,9 +1669,12 @@ export default function GeneratePage() {
         category: selectedCategory,
         topic: topic.trim(),
         targetKeyword: targetKeyword.trim(),
-        tone: '10가지 톤',
+        tone: selectedGroup === 'core' ? '안정 코어 5편' : '확장 다양성 5편',
         historyId,
         project_id: selectedProject?.id,
+        // ⭐ Phase b: 그룹 메타 + Pillar 카탈로그 — 2차 활성 시 1차 Pillar 재사용용
+        seriesGroup: selectedGroup,
+        seriesPillarCatalog: pillarCatalog,
       }));
       // ⭐ 성공적으로 navigate 직전에만 '사용함' 마킹 (실패한 시도는 빨간 줄 안 그어짐)
       try {
@@ -3059,7 +3100,7 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* 톤/스타일 - 10가지 모두 자동 생성 */}
+                  {/* ⭐ Phase b: 1차/2차 그룹 탭 + 활성 그룹 톤 표시 */}
                   {(() => {
                     const TONE_STYLES = [
                       { bg: 'bg-indigo-50', border: 'border-indigo-300', text: 'text-indigo-700', dot: 'bg-indigo-400' },
@@ -3076,17 +3117,55 @@ export default function GeneratePage() {
                     return (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          톤/스타일
-                          <span className="text-xs text-indigo-500 font-normal ml-1.5">(10가지 버전 동시 생성)</span>
+                          시리즈 그룹
+                          <span className="text-xs text-indigo-500 font-normal ml-1.5">(누적 테스트 결과 기반 안정성 분리)</span>
                         </label>
+                        {/* 그룹 탭 */}
+                        <div className="flex gap-2 mb-3">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedGroup('core')}
+                            className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
+                              selectedGroup === 'core'
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
+                            }`}
+                          >
+                            1차 안정 코어 <span className="text-xs opacity-80">(5편 · A~B+ 등급)</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (EXTENDED_GROUP_ENABLED) setSelectedGroup('extended');
+                            }}
+                            disabled={!EXTENDED_GROUP_ENABLED}
+                            title={EXTENDED_GROUP_ENABLED ? '' : '회귀 디버깅 완료 후 활성 예정'}
+                            className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
+                              !EXTENDED_GROUP_ENABLED
+                                ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed'
+                                : selectedGroup === 'extended'
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
+                            }`}
+                          >
+                            2차 확장 다양성 <span className="text-xs opacity-80">{EXTENDED_GROUP_ENABLED ? '(5편)' : '(디버깅 후 활성)'}</span>
+                          </button>
+                        </div>
+                        {/* 활성 그룹 톤 표시 (비활성 톤은 회색 처리) */}
                         <div className="flex flex-wrap gap-2">
                           {toneOptions.map((opt, i) => {
                             const s = TONE_STYLES[i % TONE_STYLES.length];
+                            const isActive = opt.group === selectedGroup;
                             return (
                               <span key={opt.value}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border ${s.bg} ${s.border} ${s.text}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border ${
+                                  isActive
+                                    ? `${s.bg} ${s.border} ${s.text}`
+                                    : 'bg-gray-50 border-gray-200 text-gray-400'
+                                }`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? s.dot : 'bg-gray-300'}`} />
                                 {opt.label}
+                                {!isActive && <span className="text-[10px] opacity-60">·대기</span>}
                               </span>
                             );
                           })}
