@@ -148,6 +148,114 @@ H2 본문 마지막에 별도 단락으로 한 문장 핵심 결론:
 
 [중요] 톤/스타일에 따라 제목 형식·도입부 문체·어조를 다르게 작성하세요.`;
 
+// ⭐ Phase 2.6: spoke 글 시리즈 시점 가이드 (부드러운 권고 톤)
+// 강한 강제 표현은 모델이 짧게 응답하거나 위축되게 만듦 → 권장 표현으로 완화.
+function buildSpokeSystemAddon(seriesAngle?: string, seriesIntent?: string): string {
+  if (!seriesAngle) return '';
+  return `
+
+## 시리즈 시점 — 이 글의 고유 각도
+
+이 글은 시리즈의 SPOKE(후속편)이며, 각도 "${seriesAngle}" (intent: ${seriesIntent || 'unspecified'})에 집중하여 작성합니다.
+위 7단계 골격(H2 5~7개·FAQ 3개·비교표)은 그대로 유지하되, **각 골격을 위 angle 관점에서 채워주시면 됩니다.**
+
+【작성 가이드】
+- H2 제목은 angle "${seriesAngle}"의 한 단면을 보여주는 형태로 작성하면 좋습니다.
+  (일반적인 "N대 원리란?", "전체 차이는?" 같은 카탈로그형 H2 대신, angle을 잘게 쪼갠 소주제로)
+- FAQ 질문도 angle 맥락에서 자연스럽게 떠오르는 구체 질문으로 구성합니다.
+- 비교표도 angle 관점에서 비교할 항목을 다룹니다.
+- 핵심 원리·KPI·약점 카탈로그는 도입부에 "전반적 원리는 1편 종합 가이드에서 다룹니다" 정도로 1~2줄 언급하면 충분합니다. 본문 H2 주제로는 끌어오지 않는 게 자연스럽습니다.
+
+✍️ 분량은 1700자 이상 충분히 풀어내고, 각 H2 본문도 2~3문단씩 자세히 작성하세요. angle을 다양한 단면에서 깊게 다룰수록 좋은 글이 됩니다.`;
+}
+
+function buildSystemInstruction(seriesRole?: string, seriesAngle?: string, seriesIntent?: string): string {
+  if (seriesRole === 'spoke') {
+    return SYSTEM_INSTRUCTION + buildSpokeSystemAddon(seriesAngle, seriesIntent);
+  }
+  return SYSTEM_INSTRUCTION;
+}
+
+// ⭐ Phase 2: intent별 RAG 슬라이스 키워드
+// Spoke 글에는 RAG 자료 중 자기 intent에 매칭되는 단락만 추출해서 전달.
+// 매칭이 부족하면 원본 그대로 폴백 (안전망).
+const RAG_INTENT_KEYWORDS: Record<string, string[]> = {
+  'pain-point': ['어려움', '불편', '고민', '실수', '오해', '문제', '걱정', '답답', '막막', '실패', '놓친', '빠진', '잘못'],
+  'urgency': ['위기', '긴급', '기한', '놓치', '시간', '시나리오', '늦', '뒤처', '도태', '경쟁', '지금', '당장', '시급'],
+  'howto': ['단계', '절차', '방법', '도구', '구현', '실행', '설정', '적용', '시작', '준비', '가이드', '체크리스트', '실전'],
+  'case-deep': ['사례', '케이스', '스토리', '경험', 'Before', 'After', '한 회사', '한 기업', '실제', '실명', '인터뷰', '도입 후'],
+  'trend': ['최근', '동향', '트렌드', '발표', '연도', '202', '전망', '향후', '미래', '시장', '통계', '발표', '예측'],
+  'theory': ['원리', '메커니즘', '왜', '근거', '이론', '작동', '구조', '개념', '이유', '본질', '핵심', '바탕'],
+  'compare': ['비교', '차이', 'vs', '대비', '장점', '단점', '대안', '선택', '구분', '대조'],
+  'roi': ['ROI', '수익', '투입', '회수', '성과', '점수', '효과', '비용', '%', '점→', '점 →', '향상', '증가', '도달', '달성'],
+  'critique': ['한계', '실패', '주의', '예외', '단점', '약점', '못하', '안 되', '제약', '리스크', '경고', '부작용', '오해'],
+};
+
+// RAG 콘텐츠를 단락 단위로 쪼개고, intent 키워드 매칭되는 단락만 추출.
+// 매칭 부족 시 원본 그대로 반환 (안전망).
+function sliceRagByIntent(ragText: string, intent?: string): { sliced: string; matched: boolean } {
+  if (!intent || !ragText) return { sliced: ragText, matched: false };
+  const keywords = RAG_INTENT_KEYWORDS[intent];
+  if (!keywords || keywords.length === 0) return { sliced: ragText, matched: false };
+
+  // 단락 단위로 쪼개기 (빈 줄 또는 ## 헤더 시작 기준)
+  const paragraphs = ragText.split(/\n\n+|\n(?=##\s)/).filter(p => p.trim().length > 0);
+  if (paragraphs.length === 0) return { sliced: ragText, matched: false };
+
+  // 각 단락에서 키워드 매칭 점수
+  const scored = paragraphs.map(p => {
+    const lower = p.toLowerCase();
+    const score = keywords.reduce((acc, kw) => acc + (lower.includes(kw.toLowerCase()) ? 1 : 0), 0);
+    return { p, score };
+  });
+
+  const matched = scored.filter(s => s.score > 0).map(s => s.p);
+  const matchedText = matched.join('\n\n');
+
+  // ⭐ Phase 2.5: 매칭 부족 시 빈 문자열 반환 → 호출 측에서 비-RAG 모드로 전환
+  // (이전엔 원본 RAG로 폴백 → 카탈로그 회귀 통로가 됨)
+  if (matched.length < 2 || matchedText.length < 500) {
+    return { sliced: '', matched: false };
+  }
+
+  // 너무 길면 상위 점수 단락만 (8000자 한도)
+  if (matchedText.length > 8000) {
+    const topScored = [...scored].sort((a, b) => b.score - a.score).slice(0, 12);
+    const top = topScored.map(s => s.p).join('\n\n');
+    return { sliced: top.length > 500 ? top : matchedText.slice(0, 8000), matched: true };
+  }
+
+  return { sliced: matchedText, matched: true };
+}
+
+// ⭐ Phase 2.6: intent별 RAG 부족 시 angle 추론 가이드 (단순·자유로운 톤)
+// 강한 H2 예시는 모델이 그대로 베끼거나 위축되게 만듦 → 짧은 방향 제시 + "참고일 뿐" 명시.
+const RAG_INTENT_NO_RAG_HINTS: Record<string, string> = {
+  'pain-point': '입문자가 흔히 갖는 오해·고민 5가지를 일반론으로 풀어주세요. (예: "AI가 알아서 찾아준다", "콘텐츠 양이 곧 인용 가능성"… 등 — 이는 참고 예시일 뿐, 자유롭게 구성)',
+  'urgency': '시간 흐름에 따른 시나리오로 풀어주세요 — 지금 안 움직였을 때 3개월 후 / 6개월 후 / 12개월 후 어떤 차이가 생기는지 추론.',
+  'howto': '여러 항목을 동시에 다루지 말고, 1가지 항목(예: AI 봇 허용)에 집중해 단계별 실행 흐름으로 풀어주세요. 측정·진단·적용·검증·함정 정도의 흐름이 자연스럽습니다.',
+  'case-deep': '익명 또는 가상의 사례 1건을 풀스토리로 작성해주세요. Before(상황) → 발견 → 선택 → 실행 → After(변화)의 흐름으로. 여러 사례를 짧게 나열하지는 말고 한 사례를 깊게.',
+  'trend': '향후 변화·동향 중심으로 풀어주세요. AI 검색엔진별 차이, 정책 변화, 시점성 있는 흐름 등을 추론적으로 전망.',
+  'theory': '"왜 그렇게 동작하는가"의 작동 원리·메커니즘 중심으로 풀어주세요. AI가 어떻게 콘텐츠를 발견·이해·인용하는지, 그 인과 관계를 추론.',
+  'compare': '대안·접근법 비교로 풀어주세요. 수동 vs 자동, 부분 개선 vs 전체 재구축, A 도구 vs B 도구 등 — 어떤 상황에 어느 쪽이 나은지 판단 기준 중심.',
+  'roi': '서로 다른 업종/규모의 ROI를 비교 추론으로 풀어주세요(예: 의료 vs 법률 vs 쇼핑몰). 한 번 정한 수치는 글 전체에서 일관되게 사용.',
+  'critique': '솔직한 한계·실패·이 방법이 안 통하는 상황을 다뤄주세요. 측정 불가 영역, 알고리즘 변경 위험, 시스템 제약 등 — 찬양조 대신 균형 잡힌 비판적 시각으로.',
+};
+
+// ⭐ Phase 1.5: intent별 RAG 자료 우선 참조 가이드
+// Spoke 글이 Pillar의 일반 카탈로그를 반복하지 않고, 자기 angle에 맞는 RAG 부분만 우선 참조하도록.
+const RAG_INTENT_HINTS: Record<string, string> = {
+  'pain-point': 'RAG 자료 중 사용자의 어려움·불편·고민·자주 하는 실수·오해 관련 부분만 우선 참조. 시스템·기술·KPI·등급·원리 카탈로그 부분은 본문에 끌어오지 말 것.',
+  'urgency': 'RAG 자료 중 위기·기한·시간순 시나리오·기회비용·놓치면 일어나는 일 관련 부분만 우선 참조. 일반 정의·체계·KPI 카탈로그는 본문 주제로 만들지 말 것.',
+  'howto': 'RAG 자료 중 단계·절차·방법·도구·구현 가이드 관련 부분만 우선 참조. 여러 KPI·원리를 동시에 나열하지 말고, 1가지 항목만 골라 깊게 다룰 것.',
+  'case-deep': 'RAG 자료 중 실명/익명 사례·고객 스토리·Before/After·과정 묘사 관련 부분만 우선 참조. 사례 1건만 골라 다큐형 풀스토리로. 여러 사례를 짧게 나열하지 말 것.',
+  'trend': 'RAG 자료 중 최근 통계·연도·발표·시장 동향·향후 전망 관련 부분만 우선 참조. 일반 정의·원리 카탈로그는 본문에 끌어오지 말 것.',
+  'theory': 'RAG 자료 중 원리·메커니즘·왜 그런가·이론적 배경·근거 관련 부분만 우선 참조. 카탈로그 나열형이 아니라 인과·작동 원리 중심으로.',
+  'compare': 'RAG 자료 중 비교·차이·vs·장단점·언제 어느 쪽 관련 부분만 우선 참조. 단일 개념 정의·체계 설명은 본문 주축으로 삼지 말 것.',
+  'roi': 'RAG 자료 중 수치·성과·ROI·Before/After·투입/회수 관련 부분만 우선 참조. 서로 다른 업종/규모 3건의 수치 비교 중심. 수치 일관성 엄격히 유지.',
+  'critique': 'RAG 자료 중 한계·실패·주의·예외·안 통하는 경우 관련 부분만 우선 참조. RAG에 한계 자료가 부족하면, 일반론적인 한계(측정 불가 영역·알고리즘 변경 위험·임대형 시스템 한계 등)를 솔직히 추론. 찬양조 금지.',
+};
+
 // ⚠️ TONE_GUIDE는 문체·제목·도입부 스타일만 정의합니다.
 // 콘텐츠 구조(H2 섹션, FAQ, 비교표 등)는 SYSTEM_INSTRUCTION의 E-E-A-T 7단계가 고정합니다.
 const TONE_GUIDE: Record<string, string> = {
@@ -323,12 +431,92 @@ ${body.lifeLanguages?.length ? `삶의 언어 (카테고리 진입 직전): ${bo
 원칙 4-3(케이스 인용 우선)에 따라 추상 설명보다 이 구체 사례를 우선합니다.
 ` : '';
 
+    // ⭐ Phase 1.5: 시리즈 시점 블록 — Pillar/Spoke 분기, angle 강제, Pillar 카탈로그 본문 금지, intent별 RAG 가이드
+    const seriesRole = body.seriesRole;
+    const seriesAngle = body.seriesAngle;
+    const seriesIntent = body.seriesIntent;
+    const seriesExclude = body.seriesExclude;
+    const pillarCatalog = body.seriesPillarCatalog;
+    const ragIntentHint = seriesIntent ? RAG_INTENT_HINTS[seriesIntent] : '';
+    const seriesBlock = seriesRole ? (
+      seriesRole === 'pillar' ? `
+[🧭 시리즈 시점 — 이 글이 점유할 고유 각도]
+시리즈 역할: 🎯 PILLAR (1편 종합 가이드 — 시리즈 전체의 허브)
+이 글이 점유할 각도: ${seriesAngle || '주제 전체 종합'}
+검색 의도: ${seriesIntent || 'overview'}
+
+⚠️ 이 글은 시리즈 전체의 "기둥(Pillar)"입니다.
+- 주제 전반의 핵심 원리·체계·주요 지표·등급 기준 등을 한 글에 집약하세요.
+- 다른 9편(Spoke)은 이 글의 각 각도를 더 깊게 파고드는 후속 편입니다.
+- 따라서 이 글에서는 각 항목을 너무 깊이 들어가지 말고, **개관 + 1줄 정의 + 핵심 항목 카탈로그** 형태로 정리.
+- H2 제목에는 RAG 자료의 핵심 항목명("N가지 X", "N대 Y", "N단계 Z")을 그대로 활용해도 좋습니다.
+  (Spoke들은 이 항목을 본문 주제로 다시 쓰지 못하게 막혀 있으니, 여기서 한 번에 정리해 두는 게 핵심)
+` : `
+[🧭 시리즈 시점 — 이 글이 점유할 고유 각도]
+시리즈 역할: 📍 SPOKE (1편 종합 가이드의 한 각도를 깊게 다루는 글)
+이 글이 점유할 각도: ${seriesAngle || '(미지정)'}
+검색 의도: ${seriesIntent || '(미지정)'}
+
+이 글은 시리즈 1편 종합 가이드의 한 각도를 더 깊게 풀어내는 SPOKE편입니다.
+7단계 골격(H2 5~7개·FAQ 3개·비교표)을 그대로 유지하되, 각 골격을 위 angle 관점에서 자연스럽게 풀어주세요.
+
+【권장 사항】
+✓ H2 제목은 angle "${seriesAngle}"의 한 단면을 보여주는 형태로 (일반 카탈로그형 H2 대신 angle을 쪼갠 소주제)
+✓ FAQ 질문도 angle 맥락에서 떠오르는 구체 질문으로
+✓ 비교표도 angle 관점에서 비교할 항목으로
+✓ 핵심 원리·KPI·약점 카탈로그는 도입부에 "전반적 원리는 1편 종합 가이드에서 정리" 1~2줄 언급 정도면 충분합니다 (본문 H2 주제로는 안 끌어오는 게 자연스러움).
+${pillarCatalog && pillarCatalog.length > 0 ? `
+ℹ️ 1편 Pillar에서 이미 다룬 항목 (본문 H2·소제목으로 재사용은 피해주세요):
+${pillarCatalog.map(c => `  · ${c}`).join('\n')}
+` : ''}${ragIntentHint ? `
+📌 RAG 활용 (intent: ${seriesIntent}): ${ragIntentHint}
+` : ''}${seriesExclude && seriesExclude.length > 0 ? `
+ℹ️ 추가 참고: ${seriesExclude.join(' / ')}
+` : ''}
+✍️ angle을 잘게 쪼개 H2 5~7개를 충분한 분량(1700자 이상)으로 풀어주세요.
+   톤("${toneDesc}")과 각도("${seriesAngle}")를 일관 적용하면, 시리즈의 다른 9편과 자연스럽게 차별되는 글이 됩니다.
+`
+    ) : '';
+
     let userMessage: string;
 
+    // ⭐ Phase 2.5: RAG 슬라이스 매칭 부족 시 비-RAG 모드로 전환 (카탈로그 회귀 차단)
+    let effectiveHasRag = hasRag;
+    let ragContent = '';
+    let ragOmittedNote = '';
+
     if (hasRag) {
+      const ragRaw = pFiles!.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n');
+      let ragSliceNote = '';
+      if (seriesRole === 'spoke' && seriesIntent) {
+        const { sliced, matched } = sliceRagByIntent(ragRaw, seriesIntent);
+        if (matched && sliced.length > 0) {
+          ragContent = sliced;
+          ragSliceNote = `\n[ℹ️ RAG 슬라이스: 위 자료는 intent="${seriesIntent}" 관련 단락만 추려진 부분입니다. 이 부분만 활용하여 angle 중심으로 작성.]\n`;
+          console.log(`[API] RAG 슬라이스 적용 (intent=${seriesIntent}): ${ragRaw.length}자 → ${sliced.length}자`);
+        } else {
+          // 매칭 부족 → 비-RAG 모드로 전환 (이전 폴백은 카탈로그 회귀의 통로였음)
+          effectiveHasRag = false;
+          const noRagHint = RAG_INTENT_NO_RAG_HINTS[seriesIntent] || '';
+          ragOmittedNote = `
+[⛔ RAG 자료 부족 — 비-RAG 모드 강제]
+이 글의 intent="${seriesIntent}"·angle="${seriesAngle}" 관련 단락이 RAG 자료에 충분히 없습니다.
+RAG의 일반 카탈로그(원리·KPI·약점 등)를 본문에 끌어오지 마세요. 대신 angle만으로 글을 작성합니다.
+${noRagHint ? `\n[angle 추론 가이드]\n${noRagHint}` : ''}
+`;
+          console.log(`[API] RAG 슬라이스 매칭 부족 (intent=${seriesIntent}) — 비-RAG 모드로 전환`);
+        }
+      } else {
+        // pillar 또는 시리즈 외 → 원본 RAG 그대로
+        ragContent = ragRaw;
+      }
+      // 슬라이스 적용된 경우 ragContent 앞에 안내 노트 삽입
+      if (ragSliceNote) ragContent = ragSliceNote + ragContent;
+    }
+
+    if (effectiveHasRag) {
       // ── RAG 기반 생성: RAG 지식 → E-E-A-T 구조화 콘텐츠 ──
-      const ragContent = pFiles!.map(f => `▶ ${f.file_name}\n${f.content}`).join('\n\n');
-      userMessage = `${cepBlock}${caseBlock}${contactCtaBlock}[프로젝트 RAG 지식 기반]
+      userMessage = `${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}[프로젝트 RAG 지식 기반]
 아래 문서는 이 프로젝트의 핵심 자료입니다. 이 내용을 1차 지식 기반으로 삼아 E-E-A-T 구조화 콘텐츠를 작성하세요.
 
 ${ragContent}
@@ -391,8 +579,8 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 - ${toneDesc} 톤을 제목부터 마지막까지 일관 유지
 ${companyInfo ? `- ⚠️ 회사명·대표자명·주소는 RAG 자료에 있는 그대로 정확히 본문에 표기 (변경·축약·임의 생성 절대 금지)` : ''}`;
     } else {
-      // ── 일반 생성 (RAG 없음) ──
-      userMessage = `${cepBlock}${caseBlock}${contactCtaBlock}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
+      // ── 일반 생성 (RAG 없음 또는 spoke 매칭 부족으로 비-RAG 전환) ──
+      userMessage = `${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}${ragOmittedNote}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
@@ -408,11 +596,14 @@ ${body.additionalNotes ? `\n추가 요청사항:\n${body.additionalNotes}\n` : '
 ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name, body.region].filter(Boolean).join(', ')})를 본문 내용에 자연스럽게 반드시 포함하세요.` : ''}`;
     }
 
+    // ⭐ Phase 2: 동적 시스템 프롬프트 — Spoke 글에는 angle 강제 분기 절 추가
+    const dynamicSystemInstruction = buildSystemInstruction(seriesRole, seriesAngle, seriesIntent);
+
     // 호출 분기: useClaude=true면 Claude Haiku 4.5, 기본은 Gemini Flash.
     let text = '';
     if (useClaude) {
       try {
-        console.log('[API] Claude Haiku 4.5 폴백 호출');
+        console.log('[API] Claude Haiku 4.5 폴백 호출', seriesRole === 'spoke' ? `(spoke·${seriesIntent})` : '');
         const client = new Anthropic({ apiKey: claudeKey! });
         // JSON 형식 강제 — 마지막에 출력 형식 안내 추가
         const claudeUserMsg = `${userMessage}
@@ -434,7 +625,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
           max_tokens: 8192,
           system: [{
             type: 'text' as const,
-            text: SYSTEM_INSTRUCTION,
+            text: dynamicSystemInstruction,
             cache_control: { type: 'ephemeral' as const },
           }],
           messages: [
@@ -455,13 +646,13 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
       }
     } else {
       try {
-        console.log('[API] Gemini 콘텐츠 생성');
+        console.log('[API] Gemini 콘텐츠 생성', seriesRole === 'spoke' ? `(spoke·${seriesIntent})` : '');
         const ai = new GoogleGenAI({ apiKey: geminiKey! });
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: userMessage,
           config: {
-            systemInstruction: SYSTEM_INSTRUCTION,
+            systemInstruction: dynamicSystemInstruction,
             maxOutputTokens: 8192,
             responseMimeType: 'application/json',
             responseSchema: RESPONSE_SCHEMA,

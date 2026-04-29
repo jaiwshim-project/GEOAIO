@@ -175,6 +175,14 @@ export interface GenerateRequest {
   cepKeyword?: string;          // Step 4 — 선택된 대표 CEP 키워드
   cepTask?: string;             // Step 3 — 소비자 과업 (예: "화장 망치지 않고 자외선 차단")
   masterId?: string;            // 마스터 글 ID (파생 콘텐츠일 때)
+  // === Phase 1: 시리즈 시점 (Pillar/Spoke + 고유 각도·의도·금지 항목) ===
+  // 10개 톤이 같은 정보를 반복하지 않도록 각 글이 점유할 각도·의도를 명시.
+  seriesRole?: 'pillar' | 'spoke';
+  seriesIntent?: 'overview' | 'pain-point' | 'urgency' | 'howto' | 'case-deep'
+              | 'trend' | 'theory' | 'compare' | 'roi' | 'critique';
+  seriesAngle?: string;         // 이 글이 점유할 고유 정보 각도 (LLM이 topic에 맞춰 해석)
+  seriesExclude?: string[];     // 본문에서 다루지 말아야 할 항목 (Pillar 중복 방지)
+  seriesPillarCatalog?: string[];  // Pillar(1편)가 이미 다룬 H2·카탈로그 항목 — Spoke 본문에서 재사용 금지
 }
 
 export interface GenerateResponse {

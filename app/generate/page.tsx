@@ -111,20 +111,118 @@ const subKeywordsByCategory: Record<ContentCategory, string[]> = {
   case: ['치과 임플란트', '피부 시술', '교정 치료', '성형 수술', '한의원 진료', '병원 일반', '학원 합격 사례', '서비스 이용 사례'],
 };
 
-// ⚠️ TEMP: 동시성 한계 검증을 위해 5개 톤 임시 비활성화 (2026-04-26).
-//   실패 빈도 높은 5개(친근한·설득적·뉴스형·비교분석형·사례연구형)를 빼고
-//   안정적 5개만 사용. 검증 결과에 따라 복원 또는 옵션 B(토글)로 전환.
-const toneOptions = [
-  { value: '전문적이고 신뢰감 있는', label: '전문적' },
-  { value: '친근하고 대화체의', label: '친근한' },             // 활성 (자동 재시도로 안정화)
-  { value: '설득력 있고 강렬한', label: '설득적' },            // 활성 (Claude 단계별 분리로 안정화)
-  { value: '간결하고 명확한', label: '간결한' },
-  { value: '스토리텔링 중심의', label: '스토리텔링' },
-  { value: '뉴스/저널리즘 스타일의', label: '뉴스형' },        // 활성 (Claude 단계별 분리로 안정화)
-  { value: '교육적이고 강의형의', label: '교육형' },
-  { value: '비교분석 중심의', label: '비교분석형' },           // 활성 (Claude 단계별 분리로 안정화)
-  { value: '사례연구 중심의', label: '사례연구형' },           // 활성 (Claude 단계별 분리로 안정화)
-  { value: '감성적이고 공감하는', label: '감성형' },
+// ⭐ Phase 1: 톤 × 정보 각도 × 의도 분담 (중복 방지)
+// 1편(전문적)을 Pillar로, 2~10편을 Spoke로. 각 Spoke는 고유 angle/intent를 점유하며
+// Pillar에서 다루는 핵심 원리·체계·KPI 카탈로그를 본문에서 반복하지 않는다.
+// → 분석 결과 "톤만 바꾸고 정보 90% 동일" 함정 회피.
+type SeriesIntent =
+  | 'overview' | 'pain-point' | 'urgency' | 'howto' | 'case-deep'
+  | 'trend' | 'theory' | 'compare' | 'roi' | 'critique';
+
+type ToneOption = {
+  value: string;
+  label: string;
+  seriesRole: 'pillar' | 'spoke';
+  intent: SeriesIntent;
+  angle: string;       // 이 글이 점유할 고유 정보 각도 (LLM이 topic에 맞춰 해석)
+  exclude?: string[];  // 본문에서 다루지 말아야 할 항목 (Pillar 중복 방지)
+};
+
+const SPOKE_EXCLUDE_COMMON = [
+  '핵심 원리·법칙·체계의 본문 카탈로그형 나열',
+  '주요 KPI·지표·점수 체계의 본문 정의·항목별 설명',
+  '등급표·점수 임계·평가 기준 카탈로그 본문 설명',
+];
+
+// ⭐ Phase 1.5: Pillar 응답에서 카탈로그 항목 자동 추출
+// Spoke 글들이 본문 H2·FAQ·비교표에서 재사용하지 못하도록 금지 목록으로 작동.
+// 보수적으로 H2 헤더 + 매우 명시적인 "N대 X" 패턴만 추출 (프롬프트 부풀림 방지).
+function extractCatalog(pillarContent: string): string[] {
+  const set = new Set<string>();
+  if (!pillarContent) return [];
+
+  // ① H2 헤더만 추출 (Spoke가 같은 제목으로 H2를 못 만들게 — 가장 핵심)
+  const h2Re = /^##\s+(.+?)\s*$/gm;
+  let m: RegExpExecArray | null;
+  while ((m = h2Re.exec(pillarContent)) !== null) {
+    const title = m[1].replace(/[?？!！.。\s]+$/, '').trim();
+    // 제목 길이 제한 + FAQ 같은 일반 단어는 카탈로그에 안 넣음
+    if (title.length >= 4 && title.length <= 50 && !/^(FAQ|결론|서론|목차|개요)$/i.test(title)) {
+      set.add(title);
+    }
+  }
+
+  // ② 본문에서 "N대 원리/원칙/요소/신호/약점/지표/KPI" 명시 패턴만
+  //    (너무 많은 패턴을 잡으면 프롬프트가 부풀어 Spoke가 본문 생성 포기)
+  const pillarRe = /(\d+\s*(?:대|가지)\s*(?:원리|원칙|법칙|요소|신호|약점|위험|지표|KPI|체크리스트))/g;
+  while ((m = pillarRe.exec(pillarContent)) !== null) {
+    set.add(m[1].replace(/\s+/g, ' ').trim());
+  }
+
+  // 최대 10개로 컷 — 길어지면 모델이 angle 구상 못함
+  return Array.from(set).slice(0, 10);
+}
+
+const toneOptions: ToneOption[] = [
+  {
+    value: '전문적이고 신뢰감 있는', label: '전문적',
+    seriesRole: 'pillar', intent: 'overview',
+    angle: '주제 전체를 종합하는 허브 가이드 — 핵심 원리·체계·KPI·등급 기준을 한 글에 집약',
+  },
+  {
+    value: '친근하고 대화체의', label: '친근한',
+    seriesRole: 'spoke', intent: 'pain-point',
+    angle: '입문자가 가장 자주 묻거나 오해하는 5가지 — 비유·체험·공감 중심',
+    exclude: SPOKE_EXCLUDE_COMMON,
+  },
+  {
+    value: '설득력 있고 강렬한', label: '설득적',
+    seriesRole: 'spoke', intent: 'urgency',
+    angle: '지금 행동하지 않을 때의 3개월·6개월·12개월 시간순 시나리오',
+    exclude: SPOKE_EXCLUDE_COMMON,
+  },
+  {
+    value: '간결하고 명확한', label: '간결한',
+    seriesRole: 'spoke', intent: 'howto',
+    angle: '오늘 30분 안에 시작하는 단계별 실행 — 핵심 항목 중 1가지만 깊게',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '여러 원리·KPI를 동시에 나열'],
+  },
+  {
+    value: '스토리텔링 중심의', label: '스토리텔링',
+    seriesRole: 'spoke', intent: 'case-deep',
+    angle: '실명 또는 익명 사례 1건의 다큐형 풀스토리 (Before·Process·After)',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '여러 사례를 짧게 나열'],
+  },
+  {
+    value: '뉴스/저널리즘 스타일의', label: '뉴스형',
+    seriesRole: 'spoke', intent: 'trend',
+    angle: '최근 발표·통계·업계 동향·향후 변화 — 시점성 있는 데이터 분석',
+    exclude: SPOKE_EXCLUDE_COMMON,
+  },
+  {
+    value: '교육적이고 강의형의', label: '교육형',
+    seriesRole: 'spoke', intent: 'theory',
+    angle: '주제의 작동 원리·메커니즘·학술적 배경 — "왜 그렇게 동작하는가"',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '실행 단계 가이드형 진행'],
+  },
+  {
+    value: '비교분석 중심의', label: '비교분석형',
+    seriesRole: 'spoke', intent: 'compare',
+    angle: '대안·경쟁/유사 솔루션 N개 비교 — 장단점·언제 어느 쪽',
+    exclude: SPOKE_EXCLUDE_COMMON,
+  },
+  {
+    value: '사례연구 중심의', label: '사례연구형',
+    seriesRole: 'spoke', intent: 'roi',
+    angle: '서로 다른 업종·규모 3종의 ROI 비교 — Before/After·투입/회수 수치',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '단일 사례 깊이 다루기 (스토리텔링 글과 분리)'],
+  },
+  {
+    value: '감성적이고 공감하는', label: '감성형',
+    seriesRole: 'spoke', intent: 'critique',
+    angle: '솔직한 한계·실패 케이스·이 방법이 안 통하는 상황 — 균형 잡힌 시각',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '과장된 성공 사례·일방적 찬양'],
+  },
 ];
 
 export default function GeneratePage() {
@@ -196,6 +294,8 @@ export default function GeneratePage() {
 
   // ==================== 톤 생성 진행 상황 ====================
   const [toneProgress, setToneProgress] = useState(0);
+  // ⭐ Phase 3: RAG 자료 자동 보강 진행 메시지 (본 글 생성 전 4개 보강 글 생성 단계)
+  const [ragAugmentMsg, setRagAugmentMsg] = useState<string>('');
 
   // API 가용성 확인 (페이지 로드 시)
   useEffect(() => {
@@ -1165,6 +1265,60 @@ export default function GeneratePage() {
         }
       }
 
+      // ⭐ Phase 3: RAG 자동 보강 — critique·trend·urgency·pain-point 4개 intent 보강 글 자동 생성
+      // 본 글 생성 전에 주제 기반 보강 자료를 만들어 Spoke 글들이 일반 카탈로그로 회귀하지 않도록 유도
+      console.log('[RAG보강] 4개 intent 자동 보강 시작');
+      setRagAugmentMsg('주제별 RAG 자료 자동 보강 중... (한계·트렌드·시나리오·오해 4편)');
+      const supplementIntents = ['critique', 'trend', 'urgency', 'pain-point'] as const;
+      const generateSupplement = async (
+        intent: typeof supplementIntents[number]
+      ): Promise<{ file_name: string; content: string } | null> => {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 30000);
+        try {
+          const res = await fetch('/api/generate-rag-supplement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Provider': apiToUse },
+            signal: ctrl.signal,
+            body: JSON.stringify({ topic: topic.trim(), intent }),
+          });
+          if (!res.ok) {
+            console.warn(`[RAG보강] ${intent} 실패 — HTTP ${res.status}`);
+            return null;
+          }
+          const data = await res.json();
+          if (!data.content || data.content.length < 500) return null;
+          console.log(`[RAG보강] ${intent} 성공 (${data.content.length}자)`);
+          return {
+            file_name: `_auto_rag_${intent}.md`,
+            content: data.content,
+          };
+        } catch (e) {
+          console.warn(`[RAG보강] ${intent} 예외:`, e);
+          return null;
+        } finally {
+          clearTimeout(timer);
+        }
+      };
+      try {
+        const supplementResults = await Promise.all(
+          supplementIntents.map(intent => generateSupplement(intent))
+        );
+        const validSupplements = supplementResults.filter(
+          (s): s is { file_name: string; content: string } => s !== null
+        );
+        console.log(`[RAG보강] 완료 — ${validSupplements.length}/${supplementIntents.length}개 성공`);
+        if (validSupplements.length > 0) {
+          // 보강 파일을 projectFiles 뒤에 추가 (기존 RAG는 그대로 우선)
+          projectFiles = [...projectFiles, ...validSupplements];
+          console.log(`[RAG보강] projectFiles 총 ${projectFiles.length}개 (기존 + 보강 ${validSupplements.length})`);
+        }
+      } catch (e) {
+        console.error('[RAG보강] 전체 실패 — 기존 RAG만으로 진행:', e);
+      } finally {
+        setRagAugmentMsg('');
+      }
+
       // ── 멀티 에이전트 병렬 생성 ──
       // 마크다운 단순 생성이라 빠름 → 3개씩 병렬로 안전하게 처리
       safeTrack('content_generate', {
@@ -1177,7 +1331,11 @@ export default function GeneratePage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
-      const generateTone = async (t: typeof toneOptions[0], idx: number) => {
+      const generateTone = async (
+        t: typeof toneOptions[0],
+        idx: number,
+        ctx?: { pillarCatalog?: string[] }
+      ) => {
         // 단일 fetch 호출 — 재시도용 inner 함수
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const fetchOnce = async (): Promise<{ ok: boolean; data: any; status: number }> => {
@@ -1196,6 +1354,12 @@ export default function GeneratePage() {
                 subKeyword: selectedSubKeyword || undefined,
                 tone: t.value,
                 additionalNotes: notes,
+                // ⭐ Phase 1.5: 시리즈 시점 (Pillar/Spoke + 고유 각도·의도·금지 항목 + Pillar 카탈로그)
+                seriesRole: t.seriesRole,
+                seriesIntent: t.intent,
+                seriesAngle: t.angle,
+                seriesExclude: t.exclude,
+                seriesPillarCatalog: ctx?.pillarCatalog,
                 company_name: activeProjectInfo?.company_name || undefined,
                 representative_name: activeProjectInfo?.representative_name || undefined,
                 region: activeProjectInfo?.region || undefined,
@@ -1203,9 +1367,10 @@ export default function GeneratePage() {
                 blog_url: activeProjectInfo?.blog_url || undefined,
                 contact_email: activeProjectInfo?.contact_email || undefined,
                 contact_phone: activeProjectInfo?.contact_phone || undefined,
-                projectFiles: projectFiles.slice(0, 3).map(f => ({
+                // ⭐ Phase 3: 기존 RAG + 자동 보강 4편 모두 전달 (총 7개까지, 글당 2200자)
+                projectFiles: projectFiles.slice(0, 7).map(f => ({
                   file_name: f.file_name,
-                  content: f.content.slice(0, 3000),
+                  content: f.content.slice(0, 2200),
                 })),
                 // CEP(Category Entry Point) 발굴 데이터
                 sceneSentence: sceneSentence || undefined,
@@ -1236,27 +1401,72 @@ export default function GeneratePage() {
         // 1차 시도만 — 자동 재시도 제거 (사용자 요청: '성공한 것만 사용')
         const result = await fetchOnce();
 
+        // ⭐ Phase 2: result에 series 메타도 저장 → result 페이지의 이어쓰기에서 angle 유지 가능
+        const seriesMeta = {
+          seriesRole: t.seriesRole,
+          seriesIntent: t.intent,
+          seriesAngle: t.angle,
+          seriesPillarCatalog: ctx?.pillarCatalog,
+        };
         if (!result.ok) {
           console.log(`[generate] 톤 "${t.label}" 생성 실패 (HTTP ${result.status}) — 재시도 없이 ⚠️ 표시`);
-          return { title: topic.trim(), content: `${t.label} 생성 실패: ${result.data?.error || result.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value };
+          return { title: topic.trim(), content: `${t.label} 생성 실패: ${result.data?.error || result.status}`, hashtags: [], metadata: { wordCount: 0, estimatedReadTime: '', seoTips: [] }, toneName: t.label, toneValue: t.value, ...seriesMeta };
         }
-        return { ...result.data, toneName: t.label, toneValue: t.value };
+        return { ...result.data, toneName: t.label, toneValue: t.value, ...seriesMeta };
       };
 
-      // AGENT_BATCH 개씩 병렬 실행 (멀티 에이전트)
+      // ⭐ Phase 1.5: Pillar-First 흐름
+      // 1) 1편(Pillar)을 먼저 단독 생성 → 응답에서 카탈로그 자동 추출
+      // 2) 2~10편(Spoke 9편)을 Pillar 카탈로그 주입한 채 3그룹 병렬
+      // Pillar 실패 시 → 기존 4그룹 병렬 흐름으로 자동 폴백 (회귀 방지)
+      const isFailedQuick = (r: { content?: string } | null | undefined) =>
+        !r || !r.content || r.content.length < 200 || /생성\s*(실패|오류)/.test(r.content || '');
+
+      // Pillar 인덱스 찾기 (현재 0번이지만 향후 변경 대비)
+      const pillarIdx = toneOptions.findIndex(t => t.seriesRole === 'pillar');
+
+      let pillarCatalog: string[] | undefined;
+      let usePillarFirst = pillarIdx >= 0;
+
+      if (usePillarFirst) {
+        console.log('[generate] Pillar-First: 1편 단독 생성 시작');
+        try {
+          const pillarResult = await generateTone(toneOptions[pillarIdx], pillarIdx);
+          results[pillarIdx] = pillarResult;
+          setToneProgress(1);
+
+          if (isFailedQuick(pillarResult)) {
+            console.warn('[generate] Pillar 생성 실패 — 기존 4그룹 병렬 흐름으로 폴백');
+            usePillarFirst = false;
+          } else {
+            pillarCatalog = extractCatalog(pillarResult.content || '');
+            console.log(`[generate] Pillar 카탈로그 ${pillarCatalog.length}개 추출:`, pillarCatalog);
+          }
+        } catch (e) {
+          console.error('[generate] Pillar 생성 예외 — 기존 4그룹 병렬 흐름으로 폴백:', e);
+          usePillarFirst = false;
+        }
+      }
+
+      // Spoke 인덱스 (Pillar 외 나머지)
+      const spokeIdxs = usePillarFirst
+        ? toneOptions.map((_, i) => i).filter(i => i !== pillarIdx)
+        : toneOptions.map((_, i) => i); // 폴백 시 모두 처리
+
       // 어떤 배치가 통째로 실패해도 루프는 계속 — 성공한 톤만 모아 결과 페이지로 이동.
-      for (let i = 0; i < toneOptions.length; i += AGENT_BATCH) {
-        const agentGroup = toneOptions.slice(i, i + AGENT_BATCH);
+      for (let k = 0; k < spokeIdxs.length; k += AGENT_BATCH) {
+        const groupIdxs = spokeIdxs.slice(k, k + AGENT_BATCH);
+        const agentGroup = groupIdxs.map(i => toneOptions[i]);
         try {
           const agentResults = await Promise.all(
-            agentGroup.map((t, j) => generateTone(t, i + j))
+            agentGroup.map((t, j) => generateTone(t, groupIdxs[j], { pillarCatalog }))
           );
-          agentResults.forEach((r, j) => { results[i + j] = r; });
+          agentResults.forEach((r, j) => { results[groupIdxs[j]] = r; });
         } catch (e) {
           // generateTone 내부에서 try/catch로 감싸 항상 객체 반환하므로 여기 도달 가능성 낮지만 안전장치
-          console.error(`[generate] 배치 ${i}~${i + AGENT_BATCH - 1} 예외 — placeholder로 계속 진행:`, e);
+          console.error(`[generate] 배치 예외 (idxs=${groupIdxs.join(',')}) — placeholder로 계속 진행:`, e);
           agentGroup.forEach((t, j) => {
-            results[i + j] = {
+            results[groupIdxs[j]] = {
               title: topic.trim(),
               content: `${t.label} 생성 실패 (배치 예외)`,
               hashtags: [],
@@ -1266,7 +1476,36 @@ export default function GeneratePage() {
             };
           });
         }
-        setToneProgress(Math.min(i + AGENT_BATCH, toneOptions.length));
+        setToneProgress(Math.min((usePillarFirst ? 1 : 0) + k + AGENT_BATCH, toneOptions.length));
+      }
+
+      // ⭐ Phase 1.5: Spoke 1차 실패분 카탈로그 빼고 Gemini로 재시도
+      // 카탈로그가 강압적이라 모델이 빈 응답 낸 경우 → 카탈로그 없이 1회 더 시도하면 최소 Phase 1 수준 결과 확보.
+      const isFailedInner = (r: { content?: string } | null | undefined) =>
+        !r || !r.content || r.content.length < 200 || /생성\s*(실패|오류)/.test(r.content || '');
+      if (usePillarFirst && pillarCatalog && pillarCatalog.length > 0) {
+        const failed1 = results.map((r, idx) => isFailedInner(r) && idx !== pillarIdx ? idx : -1).filter(i => i >= 0);
+        if (failed1.length > 0) {
+          console.warn(`[generate] Spoke 1차 실패 ${failed1.length}개 — 카탈로그 빼고 Gemini로 재시도`);
+          for (let k = 0; k < failed1.length; k += AGENT_BATCH) {
+            const groupIdxs = failed1.slice(k, k + AGENT_BATCH);
+            const agentGroup = groupIdxs.map(i => toneOptions[i]);
+            try {
+              // ctx에 pillarCatalog를 넘기지 않음 → seriesPillarCatalog 미주입
+              const retryResults = await Promise.all(
+                agentGroup.map((t, j) => generateTone(t, groupIdxs[j]))
+              );
+              retryResults.forEach((r, j) => {
+                if (!isFailedInner(r)) {
+                  console.log(`[generate] 톤 "${agentGroup[j].label}" 카탈로그 빼고 재시도 성공`);
+                  results[groupIdxs[j]] = r;
+                }
+              });
+            } catch (e) {
+              console.error('[generate] 재시도 배치 예외:', e);
+            }
+          }
+        }
       }
 
       // ⭐ Claude 폴백 — Gemini로 실패한 톤을 Claude Haiku 4.5로 재시도 (concurrency 2)
@@ -1292,6 +1531,12 @@ export default function GeneratePage() {
                 subKeyword: selectedSubKeyword || undefined,
                 tone: t.value,
                 additionalNotes: notes,
+                // ⭐ Phase 1.5: 시리즈 시점 — Claude 폴백에도 Pillar 카탈로그까지 전달
+                seriesRole: t.seriesRole,
+                seriesIntent: t.intent,
+                seriesAngle: t.angle,
+                seriesExclude: t.exclude,
+                seriesPillarCatalog: pillarCatalog,
                 company_name: activeProjectInfo?.company_name || undefined,
                 representative_name: activeProjectInfo?.representative_name || undefined,
                 region: activeProjectInfo?.region || undefined,
@@ -1299,9 +1544,10 @@ export default function GeneratePage() {
                 blog_url: activeProjectInfo?.blog_url || undefined,
                 contact_email: activeProjectInfo?.contact_email || undefined,
                 contact_phone: activeProjectInfo?.contact_phone || undefined,
-                projectFiles: projectFiles.slice(0, 3).map(f => ({
+                // ⭐ Phase 3: 기존 RAG + 자동 보강 4편 모두 전달 (총 7개까지, 글당 2200자)
+                projectFiles: projectFiles.slice(0, 7).map(f => ({
                   file_name: f.file_name,
-                  content: f.content.slice(0, 3000),
+                  content: f.content.slice(0, 2200),
                 })),
                 sceneSentence: sceneSentence || undefined,
                 cepTask: cepTask || undefined,
@@ -2956,7 +3202,9 @@ export default function GeneratePage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        {toneProgress > 0 ? `콘텐츠 생성 중... ${toneProgress}/10` : '10가지 톤 콘텐츠 생성 중...'}
+                        {ragAugmentMsg
+                          ? ragAugmentMsg
+                          : (toneProgress > 0 ? `콘텐츠 생성 중... ${toneProgress}/10` : '10가지 톤 콘텐츠 생성 중...')}
                       </>
                     ) : (
                       <>
