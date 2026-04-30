@@ -251,6 +251,41 @@ const EXTENDED_TONE_INDICES = toneOptions
   .filter(({ t }) => t.group === 'extended')
   .map(({ i }) => i);
 
+// ⭐ 프로젝트별 기본 하네스 — 사용자가 비어 있는 프로젝트에 처음 진입할 때 자동 입력
+// 향후 다른 프로젝트도 동일 패턴으로 추가 가능
+const EVACELL_DEFAULT_HARNESS = `에바셀은 줄기세포·NK세포·PRP·PRF 등을 직접 연구·개발·생산하는 회사가 아닙니다.
+이런 바이오 소재·기술을 필요로 하는 병원에 소개·판매하는 컨설팅·중개 회사입니다.
+특히 '첨단 재생의료기관' 선정·승인에 필요한 절차를 도와주고 컨설팅하는 역할을 합니다.
+
+[반드시 반영할 핵심 정체성]
+- 우리는 직접 연구·개발·생산하는 주체가 아닙니다 (오해 표현 절대 금지).
+- 우리는 바이오 연구개발업체와 병원을 연결하는 "중개자·판매자·컨설턴트" 역할을 합니다.
+- 본문에서 우리 회사의 활동을 묘사할 때는 "소개·연결·중개·판매·컨설팅·승인 절차 지원" 같은 동사만 사용.
+- "우리가 개발했다 / 자체 연구한다 / 제조한다" 류의 표현 절대 금지.
+
+[다루는 영역]
+- 줄기세포, NK세포, PRP, PRF 등 재생의료 소재
+- 첨단 재생의료기관 선정·승인 컨설팅
+- 피부 재생·피부 노화 방지 관련 바이오 기업의 상품·서비스를 병원에 소개·판매 (피부 영역에 한해)
+
+[다루지 않는 영역 — 본문에서 언급하지 마세요]
+- 스킨케어·화장품 (전혀 관계 없음. 어떤 톤·각도에서도 등장 금지)
+- 일반 소비자용 제품
+- 우리가 직접 만드는 자사 브랜드`;
+
+// 프로젝트가 에바셀인지 판별 (이름에 '에바셀' 또는 'eva cell' 포함)
+function isEvacellProject(name?: string | null): boolean {
+  if (!name) return false;
+  const n = name.toLowerCase().replace(/\s+/g, '');
+  return n.includes('에바셀') || n.includes('evacell');
+}
+
+// 프로젝트별 기본 하네스 반환 (없으면 빈 문자열)
+function getProjectDefaultHarness(projectName?: string | null): string {
+  if (isEvacellProject(projectName)) return EVACELL_DEFAULT_HARNESS;
+  return '';
+}
+
 export default function GeneratePage() {
   const router = useRouter();
   const { selectedProject, geminiApiKey: contextApiKey, setGeminiApiKey: setContextApiKey, currentUser } = useUser();
@@ -272,6 +307,7 @@ export default function GeneratePage() {
   const [caseResult, setCaseResult] = useState('');
   const [tone, setTone] = useState('전문적이고 신뢰감 있는');
   const [additionalNotes, setAdditionalNotes] = useState('');
+  const [harnessAutoSaved, setHarnessAutoSaved] = useState(false);
   const [referenceFiles, setReferenceFiles] = useState<{ name: string; content: string }[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -404,6 +440,39 @@ export default function GeneratePage() {
   useEffect(() => {
     getProfiles().then(profiles => setSavedProfiles(profiles));
   }, []);
+
+  // ⭐ 프로젝트 선택 변경 시 하네스 자동 로드
+  // 1순위: localStorage (사용자가 그 프로젝트에서 직접 입력·저장한 내용)
+  // 2순위: 프로젝트별 default 하네스 (예: 에바셀 → 회사 정체성 자동 입력)
+  useEffect(() => {
+    const projectId = selectedProject?.id || selectedProject?.name;
+    if (!projectId) return;
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem(`harness_default_${projectId}`);
+    if (stored !== null) {
+      setAdditionalNotes(stored);
+      return;
+    }
+    const defaultText = getProjectDefaultHarness(selectedProject?.name);
+    if (defaultText) {
+      setAdditionalNotes(defaultText);
+    }
+  }, [selectedProject?.id, selectedProject?.name]);
+
+  // ⭐ 하네스 변경 시 800ms debounce 자동 저장 (프로젝트별 분리)
+  useEffect(() => {
+    const projectId = selectedProject?.id || selectedProject?.name;
+    if (!projectId) return;
+    if (typeof window === 'undefined') return;
+    const handle = setTimeout(() => {
+      try {
+        localStorage.setItem(`harness_default_${projectId}`, additionalNotes);
+        setHarnessAutoSaved(true);
+        setTimeout(() => setHarnessAutoSaved(false), 1500);
+      } catch {}
+    }, 800);
+    return () => clearTimeout(handle);
+  }, [additionalNotes, selectedProject?.id, selectedProject?.name]);
 
 
   // 카테고리 변경 시 이전 추천 초기화
@@ -3138,9 +3207,16 @@ export default function GeneratePage() {
 
                   {/* 콘텐츠 생성용 하네스 — 최우선 지시사항 */}
                   <div>
-                    <label className="block text-sm font-semibold text-indigo-700 mb-1">
-                      ⭐ 콘텐츠 생성용 하네스
-                      <span className="text-xs text-rose-600 font-bold ml-1.5">(최우선 지시사항)</span>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-indigo-700 mb-1">
+                      <span>
+                        ⭐ 콘텐츠 생성용 하네스
+                        <span className="text-xs text-rose-600 font-bold ml-1.5">(최우선 지시사항)</span>
+                      </span>
+                      {harnessAutoSaved && (
+                        <span className="text-[11px] font-normal text-emerald-600 transition-opacity">
+                          ✓ 자동 저장됨 ({selectedProject?.name || '현재 프로젝트'})
+                        </span>
+                      )}
                     </label>
                     <p className="text-xs text-gray-600 mb-2">
                       여기에 입력된 내용은 톤·시리즈·RAG 등 다른 모든 가이드보다 <span className="font-semibold text-rose-600">먼저 반영</span>됩니다. 모델이 이 지시와 다르게 작성할 수 없도록 강제합니다.
