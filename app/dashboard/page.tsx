@@ -123,6 +123,26 @@ export default function DashboardPage() {
           <p className="text-sm text-gray-500 mt-1">콘텐츠 분석 및 생성 작업 이력을 관리합니다</p>
         </div>
 
+        {/* 다른 대시보드 진입 */}
+        <a
+          href="/dashboard/indexing/digitalsmile-tistory"
+          className="block bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 hover:from-emerald-100 hover:via-teal-100 hover:to-cyan-100 rounded-xl shadow-sm border border-emerald-200 p-4 transition-all"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg shrink-0">📊</div>
+              <div>
+                <div className="text-sm font-bold text-emerald-900">색인 모니터링 대시보드</div>
+                <div className="text-xs text-emerald-700 mt-0.5">Google Search Console 색인 추이 · 카테고리별 색인율 · 미색인 사유 분포</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold shrink-0">
+              <span className="hidden sm:inline">digitalsmile.tistory.com</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </div>
+          </div>
+        </a>
+
         {/* 통계 */}
         <div className="bg-white rounded-xl shadow-sm border border-violet-200 overflow-hidden">
           <button

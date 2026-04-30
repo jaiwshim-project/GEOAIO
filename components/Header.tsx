@@ -41,6 +41,7 @@ const mainNav: NavItem[] = [
   },
   { href: '/keyword-analysis', label: '키워드' },
   { href: '/series', label: '시리즈' },
+  { href: '/dashboard/indexing/digitalsmile-tistory', label: '색인' },
 ];
 
 const subNav = [
