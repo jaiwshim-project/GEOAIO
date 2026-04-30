@@ -6,6 +6,8 @@ const SITE_AUTH_COOKIE = 'site-auth';
 const PUBLIC_PATHS = [
   '/site-password',
   '/api/site-password',
+  // 색인 모니터링 API — Bearer 토큰으로 자체 인증, 외부 cron 에이전트가 호출
+  '/api/indexing',
 ];
 
 function isPublic(pathname: string): boolean {
