@@ -5,7 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(req: NextRequest) {
   try {
-    const { category, categoryLabel, pastTopics, projectName, projectDescription, projectFiles, inputTopic, subKeyword } = await req.json();
+    const { category, categoryLabel, pastTopics, projectName, projectDescription, projectFiles, inputTopic, subKeyword, additionalNotes } = await req.json();
     if (!category) return NextResponse.json({ error: 'category 필요' }, { status: 400 });
 
     // API 제공자 결정 (기본값: claude, 우선순위: Claude > Gemini)
@@ -55,7 +55,22 @@ export async function POST(req: NextRequest) {
       ? `\n\n[선택된 분야]: ${subKeyword}\n⚠️ 추천하는 모든 주제는 "${subKeyword}" 분야에 특화되어야 합니다. 이 분야를 기반으로만 주제를 제안하세요.`
       : '';
 
-    const prompt = `당신은 콘텐츠 기획 전문가입니다.
+    // ⭐ 콘텐츠 생성용 하네스 — 주제 추천에서도 최우선 적용
+    // 사용자 하네스 입력은 카테고리·분야·과거 주제 등 다른 모든 가이드보다 우선.
+    const harnessBlock = additionalNotes && typeof additionalNotes === 'string' && additionalNotes.trim()
+      ? `⭐⭐⭐ [최우선 사용자 지시사항 — 가장 먼저 반영] ⭐⭐⭐
+아래는 사용자가 명시한 "콘텐츠 생성용 하네스"입니다.
+주제 추천 시 카테고리·분야·과거 주제 등 다른 모든 가이드와 충돌하면 이 항목이 우선합니다.
+추천하는 5개 주제 모두가 이 지시를 만족해야 합니다. 무시·축약·우회 금지.
+
+${additionalNotes.trim()}
+
+────────────────────────────────────────
+
+`
+      : '';
+
+    const prompt = `${harnessBlock}당신은 콘텐츠 기획 전문가입니다.
 
 ${projectSection}${filesSection}${inputTopicSection}${subKeywordSection}
 

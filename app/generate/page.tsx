@@ -738,6 +738,8 @@ export default function GeneratePage() {
           projectFiles,
           inputTopic: inputTopic || '',
           subKeyword: selectedSubKeyword || undefined,
+          // ⭐ 콘텐츠 생성용 하네스 — 주제 추천에서도 최우선 적용
+          additionalNotes: additionalNotes.trim() || undefined,
         }),
       });
       const data = await res.json();
