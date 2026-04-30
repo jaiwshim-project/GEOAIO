@@ -257,10 +257,9 @@ export default function GeneratePage() {
   // context 로드 전 빈값일 경우 localStorage에서 직접 읽어 fallback
   const geminiApiKey = contextApiKey;
 
-  // ⭐ Phase b: 안정 그룹 선택 (1차 core 기본, 2차 extended는 회귀 디버깅 후 활성)
-  const [selectedGroup, setSelectedGroup] = useState<'core' | 'extended'>('core');
-  const EXTENDED_GROUP_ENABLED = false; // 디버깅 완료 후 true로 전환
-  const activeGroupIndices = selectedGroup === 'core' ? CORE_TONE_INDICES : EXTENDED_TONE_INDICES;
+  // ⭐ 10편 한 번에 생성 — 모든 톤 인덱스 활성
+  // (group 필드와 CORE_/EXTENDED_TONE_INDICES는 참고용으로 보존, 향후 분리 옵션 재도입 시 활용)
+  const activeGroupIndices = toneOptions.map((_, i) => i);
 
   const [selectedCategory, setSelectedCategory] = useState<ContentCategory | null>(null);
   const [selectedSubKeyword, setSelectedSubKeyword] = useState<string>('');
@@ -1669,11 +1668,10 @@ export default function GeneratePage() {
         category: selectedCategory,
         topic: topic.trim(),
         targetKeyword: targetKeyword.trim(),
-        tone: selectedGroup === 'core' ? '안정 코어 5편' : '확장 다양성 5편',
+        tone: '10가지 톤',
         historyId,
         project_id: selectedProject?.id,
-        // ⭐ Phase b: 그룹 메타 + Pillar 카탈로그 — 2차 활성 시 1차 Pillar 재사용용
-        seriesGroup: selectedGroup,
+        // Pillar 카탈로그 — 결과 페이지에서 이어쓰기·재구성 시 angle 유지용
         seriesPillarCatalog: pillarCatalog,
       }));
       // ⭐ 성공적으로 navigate 직전에만 '사용함' 마킹 (실패한 시도는 빨간 줄 안 그어짐)
@@ -3100,7 +3098,7 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* ⭐ Phase b: 1차/2차 그룹 탭 + 활성 그룹 톤 표시 */}
+                  {/* 톤/스타일 - 10가지 모두 자동 생성 */}
                   {(() => {
                     const TONE_STYLES = [
                       { bg: 'bg-indigo-50', border: 'border-indigo-300', text: 'text-indigo-700', dot: 'bg-indigo-400' },
@@ -3117,55 +3115,17 @@ export default function GeneratePage() {
                     return (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          시리즈 그룹
-                          <span className="text-xs text-indigo-500 font-normal ml-1.5">(누적 테스트 결과 기반 안정성 분리)</span>
+                          톤/스타일
+                          <span className="text-xs text-indigo-500 font-normal ml-1.5">(10가지 버전 동시 생성)</span>
                         </label>
-                        {/* 그룹 탭 */}
-                        <div className="flex gap-2 mb-3">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedGroup('core')}
-                            className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
-                              selectedGroup === 'core'
-                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
-                            }`}
-                          >
-                            1차 안정 코어 <span className="text-xs opacity-80">(5편 · A~B+ 등급)</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (EXTENDED_GROUP_ENABLED) setSelectedGroup('extended');
-                            }}
-                            disabled={!EXTENDED_GROUP_ENABLED}
-                            title={EXTENDED_GROUP_ENABLED ? '' : '회귀 디버깅 완료 후 활성 예정'}
-                            className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-xl border transition-all ${
-                              !EXTENDED_GROUP_ENABLED
-                                ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed'
-                                : selectedGroup === 'extended'
-                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-                                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
-                            }`}
-                          >
-                            2차 확장 다양성 <span className="text-xs opacity-80">{EXTENDED_GROUP_ENABLED ? '(5편)' : '(디버깅 후 활성)'}</span>
-                          </button>
-                        </div>
-                        {/* 활성 그룹 톤 표시 (비활성 톤은 회색 처리) */}
                         <div className="flex flex-wrap gap-2">
                           {toneOptions.map((opt, i) => {
                             const s = TONE_STYLES[i % TONE_STYLES.length];
-                            const isActive = opt.group === selectedGroup;
                             return (
                               <span key={opt.value}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border ${
-                                  isActive
-                                    ? `${s.bg} ${s.border} ${s.text}`
-                                    : 'bg-gray-50 border-gray-200 text-gray-400'
-                                }`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? s.dot : 'bg-gray-300'}`} />
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border ${s.bg} ${s.border} ${s.text}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
                                 {opt.label}
-                                {!isActive && <span className="text-[10px] opacity-60">·대기</span>}
                               </span>
                             );
                           })}
