@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
+import Link from 'next/link';
 import { IndexTrendChart, ReasonsPie, CategoryBars, StatCards } from '@/components/indexing/IndexingCharts';
+import { getSiteConfig } from '@/lib/indexing-sites';
 
 interface SnapshotResponse {
   ok: boolean;
@@ -21,6 +23,7 @@ interface SnapshotResponse {
 
 export default function IndexingDashboardPage({ params }: { params: Promise<{ siteId: string }> }) {
   const { siteId } = use(params);
+  const cfg = getSiteConfig(siteId);
   const [data, setData] = useState<SnapshotResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -43,21 +46,14 @@ export default function IndexingDashboardPage({ params }: { params: Promise<{ si
   async function refreshSnapshot() {
     setRefreshing(true);
     try {
-      // digitalsmile-tistory 의 기본 매핑. 다른 사이트는 추후 사이트별 설정 페이지에서 받음.
-      const isDigitalSmile = siteId === 'digitalsmile-tistory';
-      const body = isDigitalSmile ? {
+      // 사이트별 설정을 lib/indexing-sites.ts 의 등록부에서 자동 로드.
+      const cfg = getSiteConfig(siteId);
+      const body = cfg ? {
         siteId,
-        siteUrl: 'sc-domain:digitalsmile.tistory.com',
-        sitemapUrl: 'https://digitalsmile.tistory.com/sitemap.xml',
+        siteUrl: cfg.siteUrl,
+        sitemapUrl: cfg.sitemapUrl,
         sampleSize: 100,
-        categoryMap: {
-          '디지털스마일치과': ['/category/1', '/category/디지털스마일치과'],
-          '임플란트': ['/category/2', '/category/임플란트'],
-          '교정': ['/category/3', '/category/교정'],
-          '라미네이트': ['/category/4', '/category/라미네이트'],
-          '보철': ['/category/5', '/category/보철'],
-          '틀니': ['/category/6', '/category/틀니'],
-        },
+        categoryMap: cfg.categoryMap,
       } : { siteId };
 
       const res = await fetch('/api/indexing/snapshot', {
@@ -81,8 +77,13 @@ export default function IndexingDashboardPage({ params }: { params: Promise<{ si
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">📊 색인 모니터링 대시보드</h1>
-            <p className="text-sm text-gray-500 mt-1">사이트 ID: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{siteId}</code></p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {cfg ? `${cfg.emoji} ${cfg.label}` : '📊 색인 모니터링'}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {cfg ? <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{cfg.domain}</code> : <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{siteId}</code>}
+              <Link href="/dashboard/indexing" className="ml-3 text-xs text-indigo-600 hover:underline">← 다른 사이트 선택</Link>
+            </p>
           </div>
           <div className="flex gap-2">
             <button

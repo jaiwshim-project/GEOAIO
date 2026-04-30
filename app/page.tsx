@@ -210,7 +210,7 @@ export default function LandingPage() {
               { href: '/introduction', label: '소개자료' },
               { href: '/manual', label: '매뉴얼' },
               { href: '/dashboard', label: '대시보드' },
-              { href: '/dashboard/indexing/digitalsmile-tistory', label: '📊 색인 모니터링' },
+              { href: '/dashboard/indexing', label: '📊 색인 모니터링' },
             ].map((link) => (
               <Link
                 key={link.href}

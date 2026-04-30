@@ -125,7 +125,7 @@ export default function DashboardPage() {
 
         {/* 다른 대시보드 진입 */}
         <a
-          href="/dashboard/indexing/digitalsmile-tistory"
+          href="/dashboard/indexing"
           className="block bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 hover:from-emerald-100 hover:via-teal-100 hover:to-cyan-100 rounded-xl shadow-sm border border-emerald-200 p-4 transition-all"
         >
           <div className="flex items-center justify-between gap-4">
@@ -137,7 +137,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 text-emerald-700 text-xs font-semibold shrink-0">
-              <span className="hidden sm:inline">digitalsmile.tistory.com</span>
+              <span className="hidden sm:inline">사이트 선택</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </div>
           </div>

@@ -24,7 +24,7 @@ export default function Footer() {
               <li><Link href="/analyze" className="text-xs text-slate-400 hover:text-white transition-colors">콘텐츠 분석</Link></li>
               <li><Link href="/generate" className="text-xs text-slate-400 hover:text-white transition-colors">콘텐츠 생성</Link></li>
               <li><Link href="/landing" className="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1.5"><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>홍보페이지</Link></li>
-              <li><Link href="/dashboard/indexing/digitalsmile-tistory" className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5">📊 색인 모니터링</Link></li>
+              <li><Link href="/dashboard/indexing" className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5">📊 색인 모니터링</Link></li>
             </ul>
           </div>
           <div>
