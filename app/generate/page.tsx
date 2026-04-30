@@ -3134,16 +3134,21 @@ export default function GeneratePage() {
                     );
                   })()}
 
-                  {/* 추가 요구사항 + 참조 파일 업로드 */}
+                  {/* 콘텐츠 생성용 하네스 — 최우선 지시사항 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">참조 자료 & 추가 요구사항 (선택)</label>
-                    <p className="text-xs text-gray-400 mb-2">입력된 텍스트와 업로드된 파일의 정보를 기반으로 콘텐츠를 생성합니다 (RAG 방식)</p>
+                    <label className="block text-sm font-semibold text-indigo-700 mb-1">
+                      ⭐ 콘텐츠 생성용 하네스
+                      <span className="text-xs text-rose-600 font-bold ml-1.5">(최우선 지시사항)</span>
+                    </label>
+                    <p className="text-xs text-gray-600 mb-2">
+                      여기에 입력된 내용은 톤·시리즈·RAG 등 다른 모든 가이드보다 <span className="font-semibold text-rose-600">먼저 반영</span>됩니다. 모델이 이 지시와 다르게 작성할 수 없도록 강제합니다.
+                    </p>
                     <textarea
                       value={additionalNotes}
                       onChange={(e) => setAdditionalNotes(e.target.value)}
-                      placeholder="콘텐츠에 반영할 정보를 입력하세요...&#10;예: 제품 스펙, 통계 데이터, 전문 용어, 인용할 내용, 특별 요구사항 등"
+                      placeholder="이 콘텐츠가 반드시 따라야 할 핵심 지시사항을 입력하세요...&#10;예: '서두에 회사 슬로건 인용', '특정 통계 95% 반드시 본문 포함', '경쟁사명 절대 언급 금지', '도입부에 사용자 케이스 1건 의무 삽입' 등"
                       rows={4}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent placeholder-gray-400 resize-none"
+                      className="w-full px-4 py-3 border-2 border-indigo-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400 resize-none bg-indigo-50/30"
                     />
                     {/* 파일 업로드 (클릭 + 드래그 앤 드롭) */}
                     <div
