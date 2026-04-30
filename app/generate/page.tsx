@@ -307,6 +307,7 @@ export default function GeneratePage() {
   const [caseResult, setCaseResult] = useState('');
   const [tone, setTone] = useState('전문적이고 신뢰감 있는');
   const [additionalNotes, setAdditionalNotes] = useState('');
+  const [taxonomyCategory, setTaxonomyCategory] = useState('');
   const [harnessAutoSaved, setHarnessAutoSaved] = useState(false);
   const [referenceFiles, setReferenceFiles] = useState<{ name: string; content: string }[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -809,6 +810,8 @@ export default function GeneratePage() {
           subKeyword: selectedSubKeyword || undefined,
           // ⭐ 콘텐츠 생성용 하네스 — 주제 추천에서도 최우선 적용
           additionalNotes: additionalNotes.trim() || undefined,
+          // 📂 사이트 분류 카테고리 — 색인 친화·중복 회피 신호
+          taxonomyCategory: taxonomyCategory.trim() || undefined,
         }),
       });
       const data = await res.json();
@@ -1455,6 +1458,8 @@ export default function GeneratePage() {
                 subKeyword: selectedSubKeyword || undefined,
                 tone: t.value,
                 additionalNotes: notes,
+                // 📂 사이트 분류 카테고리 — 색인 친화·중복 회피
+                taxonomyCategory: taxonomyCategory.trim() || undefined,
                 // ⭐ Phase 1.5: 시리즈 시점 (Pillar/Spoke + 고유 각도·의도·금지 항목 + Pillar 카탈로그)
                 seriesRole: t.seriesRole,
                 seriesIntent: t.intent,
@@ -1636,6 +1641,8 @@ export default function GeneratePage() {
                 subKeyword: selectedSubKeyword || undefined,
                 tone: t.value,
                 additionalNotes: notes,
+                // 📂 사이트 분류 카테고리 — 색인 친화·중복 회피 (Claude 폴백)
+                taxonomyCategory: taxonomyCategory.trim() || undefined,
                 // ⭐ Phase 1.5: 시리즈 시점 — Claude 폴백에도 Pillar 카탈로그까지 전달
                 seriesRole: t.seriesRole,
                 seriesIntent: t.intent,
@@ -3204,6 +3211,26 @@ export default function GeneratePage() {
                       </div>
                     );
                   })()}
+
+                  {/* 📂 사이트 분류 카테고리 — Search Console 색인·중복 회피 */}
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-emerald-700 mb-1">
+                      <span>
+                        📂 사이트 분류 카테고리
+                        <span className="text-xs text-emerald-600 font-normal ml-1.5">(색인·중복 회피용 · 선택)</span>
+                      </span>
+                    </label>
+                    <p className="text-xs text-gray-600 mb-2">
+                      사용자 사이트의 도메인 분류명. 본문 H1·H2·해시태그·CTA에 자연스럽게 반영되어 <span className="font-semibold text-emerald-700">Search Console 색인율·중복 페이지 회피</span>에 직접 영향을 줍니다.
+                    </p>
+                    <input
+                      type="text"
+                      value={taxonomyCategory}
+                      onChange={(e) => setTaxonomyCategory(e.target.value)}
+                      placeholder="예: 임플란트 · 교정 · 라미네이트 · 보철 · 틀니 · 디지털스마일치과"
+                      className="w-full px-4 py-2.5 border-2 border-emerald-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-400 bg-emerald-50/30"
+                    />
+                  </div>
 
                   {/* 콘텐츠 생성용 하네스 — 최우선 지시사항 */}
                   <div>

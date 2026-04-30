@@ -183,6 +183,10 @@ export interface GenerateRequest {
   seriesAngle?: string;         // 이 글이 점유할 고유 정보 각도 (LLM이 topic에 맞춰 해석)
   seriesExclude?: string[];     // 본문에서 다루지 말아야 할 항목 (Pillar 중복 방지)
   seriesPillarCatalog?: string[];  // Pillar(1편)가 이미 다룬 H2·카탈로그 항목 — Spoke 본문에서 재사용 금지
+  // === 사이트/블로그 분류 카테고리 (Search Console 색인·중복회피) ===
+  // ContentCategory(blog/product/faq/...)와 별개. 사용자 사이트의 도메인별 분류명(예: 임플란트, 교정).
+  // 본문 H1·H2·해시태그·CTA에 자연스럽게 반영되고, 같은 분류 내 중복 주제 회피 신호로 사용된다.
+  taxonomyCategory?: string;
 }
 
 export interface GenerateResponse {

@@ -5,7 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(req: NextRequest) {
   try {
-    const { category, categoryLabel, pastTopics, projectName, projectDescription, projectFiles, inputTopic, subKeyword, additionalNotes } = await req.json();
+    const { category, categoryLabel, pastTopics, projectName, projectDescription, projectFiles, inputTopic, subKeyword, additionalNotes, taxonomyCategory } = await req.json();
     if (!category) return NextResponse.json({ error: 'category 필요' }, { status: 400 });
 
     // API 제공자 결정 (기본값: claude, 우선순위: Claude > Gemini)
@@ -55,6 +55,14 @@ export async function POST(req: NextRequest) {
       ? `\n\n[선택된 분야]: ${subKeyword}\n⚠️ 추천하는 모든 주제는 "${subKeyword}" 분야에 특화되어야 합니다. 이 분야를 기반으로만 주제를 제안하세요.`
       : '';
 
+    // ⭐ 사이트 분류 카테고리 — 색인 친화·중복 회피 신호
+    // 사용자 사이트의 도메인 분류명(예: 임플란트/교정)을 받아 추천 5개 주제가 같은 카테고리 내에서
+    // 의도가 겹치지 않도록 분산되도록 강제한다.
+    const taxonomySection = taxonomyCategory && typeof taxonomyCategory === 'string' && taxonomyCategory.trim()
+      ? `\n\n[📂 사이트 분류 카테고리]: "${taxonomyCategory.trim()}"
+⚠️ 추천하는 5개 주제는 모두 위 카테고리에 속해야 하며, 검색 의도(증상/비용/기간/비교/위험/관리/방법)가 서로 겹치지 않도록 분산해 추천하세요. 같은 의도 2건 이상 금지.`
+      : '';
+
     // ⭐ 콘텐츠 생성용 하네스 — 주제 추천에서도 최우선 적용
     // 사용자 하네스 입력은 카테고리·분야·과거 주제 등 다른 모든 가이드보다 우선.
     const harnessBlock = additionalNotes && typeof additionalNotes === 'string' && additionalNotes.trim()
@@ -72,7 +80,7 @@ ${additionalNotes.trim()}
 
     const prompt = `${harnessBlock}당신은 콘텐츠 기획 전문가입니다.
 
-${projectSection}${filesSection}${inputTopicSection}${subKeywordSection}
+${projectSection}${filesSection}${inputTopicSection}${subKeywordSection}${taxonomySection}
 
 ${inputTopic?.trim()
   ? `"${inputTopic.trim()}" 주제를 기반으로 관련 ${categoryLabel || category} 콘텐츠 주제 5개를 추천하세요. 입력 주제의 세부 주제, 확장 주제, 다른 각도의 접근 등 다양하게 제안해주세요.`

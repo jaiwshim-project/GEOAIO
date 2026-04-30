@@ -389,6 +389,23 @@ export async function POST(request: NextRequest) {
       body.contact_phone ? `연락처: ${body.contact_phone}` : '',
     ].filter(Boolean).join('\n');
 
+    // ⭐ 사이트 분류 카테고리 — Search Console 색인·중복회피 신호
+    // 사용자 사이트의 도메인별 분류명(예: 임플란트, 교정). 본문 H1·H2·해시태그·CTA에
+    // 자연스럽게 반영되도록 강제. 같은 분류 내 중복 주제를 피하는 신호로 사용.
+    const taxonomyBlock = body.taxonomyCategory && body.taxonomyCategory.trim() ? `
+[📂 사이트 분류 카테고리 — 색인·중복회피 신호]
+이 글은 사용자 사이트의 "${body.taxonomyCategory.trim()}" 카테고리에 분류됩니다.
+다음 규칙을 반드시 따르세요:
+1. 제목·H1에 "${body.taxonomyCategory.trim()}" 관련 핵심 키워드 자연스럽게 포함
+2. H2 5~7개 중 최소 2개에 카테고리 키워드를 분명하게 노출
+3. 해시태그 10개 중 최소 3개를 카테고리 관련 태그로 구성
+4. 결론 CTA에서 "${body.taxonomyCategory.trim()}" 분야 전문성을 명시 (예: "${body.taxonomyCategory.trim()} 상담은 ...")
+5. 같은 카테고리 안 다른 글과 차별화 — 본 글은 ${body.seriesIntent || body.tone || '제시된'} 의도로만 작성
+⚠️ 카테고리 신호가 약하면 Google Search Console에서 "중복 페이지"로 분류되어 색인이 거부됩니다.
+
+────────────────────────────────────────
+` : '';
+
     // ⭐ 콘텐츠 생성용 하네스 — 최우선 사용자 지시사항
     // 사용자가 입력한 additionalNotes를 톤·시리즈·RAG 등 다른 모든 가이드보다
     // 우선하는 강제 지시로 격상한다. userMessage 최상단에 배치.
@@ -530,7 +547,7 @@ ${noRagHint ? `\n[angle 추론 가이드]\n${noRagHint}` : ''}
 
     if (effectiveHasRag) {
       // ── RAG 기반 생성: RAG 지식 → E-E-A-T 구조화 콘텐츠 ──
-      userMessage = `${harnessBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}[프로젝트 RAG 지식 기반]
+      userMessage = `${harnessBlock}${taxonomyBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}[프로젝트 RAG 지식 기반]
 아래 문서는 이 프로젝트의 핵심 자료입니다. 이 내용을 1차 지식 기반으로 삼아 E-E-A-T 구조화 콘텐츠를 작성하세요.
 
 ${ragContent}
@@ -593,7 +610,7 @@ ${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}${toneGuid
 ${companyInfo ? `- ⚠️ 회사명·대표자명·주소는 RAG 자료에 있는 그대로 정확히 본문에 표기 (변경·축약·임의 생성 절대 금지)` : ''}`;
     } else {
       // ── 일반 생성 (RAG 없음 또는 spoke 매칭 부족으로 비-RAG 전환) ──
-      userMessage = `${harnessBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}${ragOmittedNote}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
+      userMessage = `${harnessBlock}${taxonomyBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}${ragOmittedNote}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
