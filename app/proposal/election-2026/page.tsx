@@ -246,21 +246,53 @@ export default function ElectionProposalPage() {
               <h2 className="text-xl sm:text-2xl font-extrabold">지금 채택하면 받는 것</h2>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-3 mb-6">
-              {[
-                { icon: '📝', title: '100개 공약 콘텐츠 자동 생성', desc: '10분야 × 10편 — 시기·실행방안·기대효과 구조화' },
-                { icon: '🎭', title: '10가지 톤 동시 발행', desc: '전문·친근·감성·스토리·뉴스 등 — SNS 채널별 최적화' },
-                { icon: '🚀', title: '티스토리·블로그 자동 업로드', desc: 'GSC 색인 모니터링 대시보드 포함' },
-                { icon: '🗺️', title: '유세 동선 AI 추천', desc: '시간대·거점·메시지 자동 매핑' },
-              ].map((item, i) => (
-                <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 flex items-start gap-3">
-                  <span className="text-xl shrink-0">{item.icon}</span>
-                  <div>
-                    <div className="text-sm font-extrabold text-amber-200 mb-0.5">{item.title}</div>
-                    <div className="text-xs text-slate-300 leading-relaxed">{item.desc}</div>
+            {/* 그룹 1 — GEO-AIO 본 서비스 (콘텐츠 자동화) */}
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-extrabold tracking-[0.2em] text-amber-300">🎯 GEO-AIO 본 서비스 · 콘텐츠 자동화</span>
+                <span className="flex-1 h-px bg-amber-400/30" />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {[
+                  { icon: '🎭', title: '10가지 톤 동시 발행', desc: '전문·친근·감성·스토리·뉴스 등 — SNS 채널별 최적화 콘텐츠 자동 생성' },
+                  { icon: '🚀', title: '티스토리·블로그 자동 업로드', desc: 'GSC 색인 모니터링 대시보드 포함 · 24~72h 내 색인 도달' },
+                  { icon: '📚', title: 'RAG 기반 정확성', desc: '후보자 자료 PDF 1건 업로드 → 실제 데이터·수치만 본문에 인용' },
+                  { icon: '⚡', title: 'E-E-A-T 자동 구조화', desc: '도입부 → H2 7개 → FAQ → 비교표 → CTA 구조 자동 적용 · AI 인용 가능성 4배' },
+                ].map((item, i) => (
+                  <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 flex items-start gap-3">
+                    <span className="text-xl shrink-0">{item.icon}</span>
+                    <div>
+                      <div className="text-sm font-extrabold text-amber-200 mb-0.5">{item.title}</div>
+                      <div className="text-xs text-slate-300 leading-relaxed">{item.desc}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            {/* 그룹 2 — 부가 서비스 (당선 가능성 강화) */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-extrabold tracking-[0.2em] text-emerald-300">🚀 부가 서비스 · 후보자 당선 가능성 강화</span>
+                <span className="flex-1 h-px bg-emerald-400/30" />
+              </div>
+              <div className="grid sm:grid-cols-2 gap-3">
+                {[
+                  { icon: '📝', title: '100개 공약 자동 정리', desc: '10분야 × 10개 = 100개 공약 — 시기·실행방안·기대효과 자동 구조화' },
+                  { icon: '🗺️', title: '33일 유세 동선 AI 추천', desc: '4단계 일정·48 거점·5대 필승 전략 자동 매핑 (BuzzLab 시뮬레이션 기반)' },
+                ].map((item, i) => (
+                  <div key={i} className="bg-emerald-500/10 backdrop-blur-sm border border-emerald-400/30 ring-1 ring-emerald-400/20 rounded-xl px-4 py-3 flex items-start gap-3">
+                    <span className="text-xl shrink-0">{item.icon}</span>
+                    <div>
+                      <div className="text-sm font-extrabold text-emerald-200 mb-0.5">{item.title}</div>
+                      <div className="text-xs text-slate-300 leading-relaxed">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-emerald-300/80 mt-2 leading-relaxed">
+                ※ 부가 서비스는 GEO-AIO 콘텐츠 자동화와 <strong>패키지로 제공</strong>되며, 후보자 당선 가능성을 높이는 캠페인 의사결정 도구입니다.
+              </p>
             </div>
 
             {/* 도입 일정 */}
