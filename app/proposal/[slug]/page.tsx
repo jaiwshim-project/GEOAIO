@@ -552,6 +552,14 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <h4 className="text-sm font-bold text-rose-800 mb-2">🎨 즉시 게시 + SNS 변환</h4>
                   <p className="text-xs text-gray-700 leading-relaxed">생성된 콘텐츠를 <strong>블로그·인스타·링크드인·네이버블로그·카드뉴스</strong>로 자동 변환·게시.</p>
                 </div>
+                {/* 게시 즉시 색인·AI 인용 효과 — 좌우 폭 전체 (col-span-2) */}
+                <div className="bg-gradient-to-r from-cyan-50 via-sky-50 to-cyan-50 rounded-xl p-4 border border-cyan-200 sm:col-span-2">
+                  <h4 className="text-sm font-bold text-cyan-800 mb-2">🚀 게시 즉시 검색 색인 + AI 인용·추천 효과 발생</h4>
+                  <p className="text-xs text-gray-700 leading-relaxed">
+                    글을 게시하거나 업로드·공개하면 <strong>수 일 내에 구글 검색엔진이 해당 콘텐츠를 색인</strong>하여, 이후
+                    ChatGPT·Gemini·Perplexity 등 <strong>AI와의 대화에서 인용·추천</strong>되어 <strong>즉시 효과가 발생</strong>합니다.
+                  </p>
+                </div>
               </div>
             </section>
 
