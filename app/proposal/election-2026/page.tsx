@@ -415,10 +415,31 @@ export default function ElectionProposalPage() {
           </div>
         </section>
 
-        {/* ── Section 6. AI Election Command Center 12장 가이드 ── */}
+        {/* ── Section 6. 영상 소개 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-sm font-bold shadow-md">6</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-sm font-bold shadow-md">6</span>
+            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">영상으로 보는 GEO-AIO 선거 마케팅 솔루션</h2>
+          </div>
+          <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+            GEO-AIO 플랫폼이 후보자 선거 캠페인에서 어떻게 동작하는지, 한 영상으로 핵심을 확인하세요.
+          </p>
+          <div className="relative w-full aspect-video bg-slate-900 rounded-2xl overflow-hidden ring-1 ring-slate-200 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)]">
+            <iframe
+              src="https://www.youtube.com/embed/2nRsOd-EyDQ"
+              title="GEO-AIO 선거 마케팅 솔루션 소개"
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+        </section>
+
+        {/* ── Section 7. AI Election Command Center 12장 가이드 ── */}
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-sm font-bold shadow-md">7</span>
             <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">AI Election Command Center — 전체 운영 가이드 <span className="text-slate-500">(12장)</span></h2>
           </div>
           <p className="text-sm text-gray-700 mb-5 leading-relaxed">
@@ -445,7 +466,7 @@ export default function ElectionProposalPage() {
           </div>
         </section>
 
-        {/* ── Section 7. 풋터 / 법적 정보 ── */}
+        {/* ── Section 8. 풋터 / 법적 정보 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 mb-6 text-xs text-slate-500 leading-relaxed shadow-[0_8px_32px_-12px_rgba(15,23,42,0.06)]">
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
