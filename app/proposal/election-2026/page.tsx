@@ -59,6 +59,17 @@ export default function ElectionProposalPage() {
               네이버에 노출되어도 ChatGPT·Gemini·Perplexity 답변에 인용되지 않으면 표는 움직이지 않습니다.
             </p>
 
+            {/* 융단폭격 시급성 강조 박스 */}
+            <div className="mt-4 max-w-3xl flex items-start gap-3 px-4 sm:px-5 py-3.5 bg-rose-500/15 border border-rose-400/40 ring-1 ring-rose-300/30 rounded-xl shadow-[0_8px_24px_-8px_rgba(244,63,94,0.4)]">
+              <span className="text-2xl shrink-0 leading-none mt-0.5">⚠️</span>
+              <p className="text-sm sm:text-base text-rose-50 leading-relaxed">
+                3주 선거기간 동안 유권자에게 후보자의 <strong className="text-amber-300">정책과 차별성</strong>을
+                <strong className="text-amber-300"> AI 인용·추천</strong>하게 하려면,
+                <strong className="text-rose-200"> 1주 내에 1,000개 콘텐츠를 대량 노출(융단폭격)</strong>시켜야 합니다.
+                <span className="text-amber-300 font-extrabold"> 빠르게 서둘러야 합니다.</span>
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 max-w-3xl">
               {[
                 { label: '단가 절감', value: '80%' },
