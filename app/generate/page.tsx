@@ -353,7 +353,7 @@ export default function GeneratePage() {
 
   // ==================== API 자동 선택 ====================
   const [availableApis, setAvailableApis] = useState<string[]>([]);
-  const [selectedApi, setSelectedApi] = useState<'gemini' | 'claude' | 'geo-aio'>('gemini');
+  const [selectedApi, setSelectedApi] = useState<'gemini' | 'claude' | 'geo-aio'>('claude');
 
   // ==================== 동적 분야 생성 ====================
   const [dynamicSubKeywords, setDynamicSubKeywords] = useState<string[]>([]);

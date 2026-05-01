@@ -97,23 +97,43 @@ ${pastList ? `\n이미 작성된 주제와 겹치지 않아야 합니다:${pastL
 
     let text = '';
 
-    if (selectedProvider === 'claude') {
-      // Claude API 사용
-      const client = new Anthropic({ apiKey });
+    const callClaude = async (key: string) => {
+      const client = new Anthropic({ apiKey: key });
       const message = await client.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }],
       });
-      text = message.content[0].type === 'text' ? message.content[0].text : '';
-    } else {
-      // Gemini API 사용
-      const ai = new GoogleGenAI({ apiKey });
+      return message.content[0].type === 'text' ? message.content[0].text : '';
+    };
+
+    const callGemini = async (key: string) => {
+      const ai = new GoogleGenAI({ apiKey: key });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
       });
-      text = response.text || '';
+      return response.text || '';
+    };
+
+    if (selectedProvider === 'claude') {
+      try {
+        text = await callClaude(apiKey);
+      } catch (claudeErr) {
+        const geminiKey = getGeminiKey(req);
+        if (!geminiKey) throw claudeErr;
+        console.log('[suggest-topics] Claude 실패 → Gemini 폴백:', claudeErr instanceof Error ? claudeErr.message : claudeErr);
+        text = await callGemini(geminiKey);
+      }
+    } else {
+      try {
+        text = await callGemini(apiKey);
+      } catch (geminiErr) {
+        const claudeKey = getClaudeKey(req);
+        if (!claudeKey) throw geminiErr;
+        console.log('[suggest-topics] Gemini 실패 → Claude 폴백:', geminiErr instanceof Error ? geminiErr.message : geminiErr);
+        text = await callClaude(claudeKey);
+      }
     }
 
     const topics = text
