@@ -263,7 +263,7 @@ export default function ElectionProposalPage() {
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">4</span>
-            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">선거 당선 가능성을 높이는 부가 서비스</h2>
+            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">선거 당선 가능성을 높이는 부가 서비스 <span className="text-emerald-600">(2가지)</span></h2>
           </div>
           <p className="text-sm text-gray-700 mb-4 leading-relaxed">
             아래 두 사례는 <strong>GEO-AIO 홍보 마케팅 콘텐츠 생성 서비스</strong>에 더해, <strong className="text-emerald-700">후보자의 선거 당선 가능성을 높이기 위해 함께 제공되는 부가 서비스</strong>입니다 — 100개 공약 자동 정리·33일 유세 동선 AI 추천 등 캠페인 의사결정을 끌어올리는 도구. 클릭해 직접 확인하세요.
