@@ -52,6 +52,44 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
           </div>
         </section>
 
+        {/* ⭐ 6·3 지방선거 후보자용 1페이지 제안서 — 강조 진입 카드 */}
+        <div className="relative mb-6 mt-1">
+          <span className="absolute -top-3 left-5 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-20 ring-2 ring-white/60 whitespace-nowrap">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+            </span>
+            NEW · 6·3 지방선거 한정
+          </span>
+          <Link
+            href="/proposal/election-2026"
+            className="group relative block bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-6 ring-2 ring-amber-400/40 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.5)] hover:shadow-[0_24px_56px_-16px_rgba(15,23,42,0.6)] hover:scale-[1.01] transition-all overflow-hidden"
+          >
+            <div className="absolute -top-16 -right-16 w-44 h-44 bg-amber-500/25 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-indigo-500/25 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 shadow-md ring-2 ring-amber-300/50 text-2xl">
+                🗳️
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-bold tracking-[0.2em] text-amber-300 mb-1">ELECTION 2026 · 6·3 지방선거 후보자 전용</div>
+                <h3 className="text-lg sm:text-xl font-extrabold text-white leading-snug mb-1">
+                  3주의 골든타임, <span className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent">AI 검색 시대의 선거 마케팅</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  유권자가 ChatGPT·Gemini에 묻기 전에 답이 되어야 합니다. 광고비 80% 절감 · 24~72h 색인 · AI 인용 3배.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-amber-300 font-extrabold shrink-0 group-hover:translate-x-1 transition-transform">
+                <span className="text-sm">제안서 보기</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+        </div>
+
         {/* 안내 */}
         <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
           <p className="text-sm text-gray-700 leading-relaxed">
