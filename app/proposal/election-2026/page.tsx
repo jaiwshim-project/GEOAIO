@@ -370,25 +370,14 @@ export default function ElectionProposalPage() {
               </div>
             </div>
 
-            {/* 연락처 + CTA 버튼 */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white/8 border border-white/15 rounded-xl p-4 sm:p-5">
-              <div>
-                <div className="text-[11px] font-bold text-amber-300 tracking-wide mb-1">상담·시연 문의</div>
-                <div className="text-base font-extrabold text-white mb-0.5">AX Biz Group · 심재우 대표</div>
-                <div className="text-xs text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
-                  <a href="tel:010-2397-5734" className="hover:text-white">📞 010-2397-5734</a>
-                  <a href="mailto:jaiwshim@gmail.com" className="hover:text-white">✉ jaiwshim@gmail.com</a>
-                </div>
+            {/* 연락처 */}
+            <div className="bg-white/8 border border-white/15 rounded-xl p-4 sm:p-5">
+              <div className="text-[11px] font-bold text-amber-300 tracking-wide mb-1">상담·시연 문의</div>
+              <div className="text-base font-extrabold text-white mb-0.5">AX Biz Group · 심재우 대표</div>
+              <div className="text-xs text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <a href="tel:010-2397-5734" className="hover:text-white">📞 010-2397-5734</a>
+                <a href="mailto:jaiwshim@gmail.com" className="hover:text-white">✉ jaiwshim@gmail.com</a>
               </div>
-              <Link
-                href="/landing"
-                className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-900 text-sm font-extrabold rounded-xl shadow-lg shadow-amber-500/30 transition-all whitespace-nowrap shrink-0"
-              >
-                ⚡ 무료 시연 신청하기
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </Link>
             </div>
           </div>
         </section>
