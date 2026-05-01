@@ -127,13 +127,15 @@ export default function ElectionProposalPage() {
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
+              // 국회의원 4명 (상단)
               { name: '하정우',  role: '국회의원',     region: '부산 북구갑',     slug: '하정우-국회의원선거-후보자',           bg: 'from-indigo-50 to-violet-100',  border: 'border-indigo-300',  hover: 'hover:border-indigo-500 hover:shadow-indigo-200/60',  badge: 'bg-indigo-500',  text: 'text-indigo-700' },
-              { name: '이장우',  role: '시장',         region: '대전광역시',       slug: '이장우-대전시장-후보자',                bg: 'from-amber-50 to-orange-100',   border: 'border-amber-300',   hover: 'hover:border-amber-500 hover:shadow-amber-200/60',   badge: 'bg-amber-500',   text: 'text-amber-700' },
-              { name: '민형배',  role: '시장',         region: '광주광역시',       slug: '민형배-광주시장-후보자',                bg: 'from-emerald-50 to-teal-100',   border: 'border-emerald-300', hover: 'hover:border-emerald-500 hover:shadow-emerald-200/60', badge: 'bg-emerald-500', text: 'text-emerald-700' },
-              { name: '황교안',  role: '국회의원',     region: '경기 평택을',       slug: '황교안-평택을-국회의원-후보자',         bg: 'from-rose-50 to-pink-100',      border: 'border-rose-300',    hover: 'hover:border-rose-500 hover:shadow-rose-200/60',    badge: 'bg-rose-500',    text: 'text-rose-700' },
-              { name: '오세훈',  role: '시장',         region: '서울특별시',       slug: '오세훈-서울시장-후보자',                bg: 'from-cyan-50 to-sky-100',       border: 'border-cyan-300',    hover: 'hover:border-cyan-500 hover:shadow-cyan-200/60',    badge: 'bg-cyan-500',    text: 'text-cyan-700' },
-              { name: '조국',    role: '국회의원',     region: '경기 평택을',       slug: '조국-평택을-국회의원-후보자',           bg: 'from-violet-50 to-fuchsia-100', border: 'border-violet-300',  hover: 'hover:border-violet-500 hover:shadow-violet-200/60',  badge: 'bg-violet-500',  text: 'text-violet-700' },
               { name: '한동훈',  role: '국회의원',     region: '부산 북구갑',       slug: '한동훈-부산북구갑-국회의원-후보자',     bg: 'from-orange-50 to-red-100',     border: 'border-orange-300',  hover: 'hover:border-orange-500 hover:shadow-orange-200/60', badge: 'bg-orange-500',  text: 'text-orange-700' },
+              { name: '조국',    role: '국회의원',     region: '경기 평택을',       slug: '조국-평택을-국회의원-후보자',           bg: 'from-violet-50 to-fuchsia-100', border: 'border-violet-300',  hover: 'hover:border-violet-500 hover:shadow-violet-200/60',  badge: 'bg-violet-500',  text: 'text-violet-700' },
+              { name: '황교안',  role: '국회의원',     region: '경기 평택을',       slug: '황교안-평택을-국회의원-후보자',         bg: 'from-rose-50 to-pink-100',      border: 'border-rose-300',    hover: 'hover:border-rose-500 hover:shadow-rose-200/60',    badge: 'bg-rose-500',    text: 'text-rose-700' },
+              // 시장 3명 (하단)
+              { name: '오세훈',  role: '시장',         region: '서울특별시',       slug: '오세훈-서울시장-후보자',                bg: 'from-cyan-50 to-sky-100',       border: 'border-cyan-300',    hover: 'hover:border-cyan-500 hover:shadow-cyan-200/60',    badge: 'bg-cyan-500',    text: 'text-cyan-700' },
+              { name: '민형배',  role: '시장',         region: '광주광역시',       slug: '민형배-광주시장-후보자',                bg: 'from-emerald-50 to-teal-100',   border: 'border-emerald-300', hover: 'hover:border-emerald-500 hover:shadow-emerald-200/60', badge: 'bg-emerald-500', text: 'text-emerald-700' },
+              { name: '이장우',  role: '시장',         region: '대전광역시',       slug: '이장우-대전시장-후보자',                bg: 'from-amber-50 to-orange-100',   border: 'border-amber-300',   hover: 'hover:border-amber-500 hover:shadow-amber-200/60',   badge: 'bg-amber-500',   text: 'text-amber-700' },
             ].map((c) => (
               <Link
                 key={c.slug}
