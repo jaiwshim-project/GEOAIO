@@ -1508,6 +1508,62 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
+            {/* 후보자 전용 — 영상 + 12장 가이드 슬라이드 (국회의원·시장 페이지에만 표시) */}
+            {isCandidate && (
+              <>
+                {/* 영상 소개 */}
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-base shadow-md">🎬</span>
+                    <h3 className="text-xl font-bold text-gray-900">영상으로 보는 GEO-AIO 선거 마케팅 솔루션</h3>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                    GEO-AIO 플랫폼이 후보자 선거 캠페인에서 어떻게 동작하는지, 한 영상으로 핵심을 확인하세요.
+                  </p>
+                  <div className="relative w-full aspect-video bg-slate-900 rounded-2xl overflow-hidden ring-1 ring-slate-200 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)]">
+                    <iframe
+                      src="https://www.youtube.com/embed/2nRsOd-EyDQ"
+                      title="GEO-AIO 선거 마케팅 솔루션 소개"
+                      className="absolute inset-0 w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                </section>
+
+                {/* AI Election Command Center 12장 가이드 */}
+                <section>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-base shadow-md">📑</span>
+                    <h3 className="text-xl font-bold text-gray-900">AI Election Command Center — 운영 가이드 <span className="text-slate-500">(12장)</span></h3>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-5 leading-relaxed">
+                    선거 캠페인 전 과정에 GEO-AIO를 적용하는 <strong className="text-slate-900">12단계 운영 가이드</strong>입니다. 페이지를 순서대로 확인해 캠프 운영의 큰 그림을 잡아보세요.
+                  </p>
+                  <div className="space-y-4">
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const n = String(i + 1).padStart(2, '0');
+                      return (
+                        <div key={n} className="relative bg-white rounded-2xl border border-slate-200/80 ring-1 ring-slate-100 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.18)] overflow-hidden">
+                          <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-amber-300 text-[10px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
+                            {n} / 12
+                          </span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`/images/election-2026/page-${n}.jpg`}
+                            alt={`AI Election Command Center 가이드 ${i + 1}장`}
+                            className="w-full block"
+                            loading="lazy"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              </>
+            )}
+
             {/* Footer info */}
             <div className="border-t border-gray-100 pt-4 text-xs text-gray-600 flex flex-wrap items-center gap-3">
               <span>📞 010-2397-5734</span><span>·</span>
