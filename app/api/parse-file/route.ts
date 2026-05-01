@@ -5,10 +5,11 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 // pdf-parse 1.x — pdfjs-dist worker 의존 없이 자체 파싱.
-// Vercel serverless에서 안정 동작 (DOMMatrix·worker 문제 없음).
+// ⚠️ index.js 의 디버그 코드가 ESM 환경에서 테스트 파일을 찾으려 하는 버그가 있어
+// 하위 모듈(`pdf-parse/lib/pdf-parse.js`)을 직접 import 해 진입점을 우회한다.
 async function extractPdfText(buffer: Buffer): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pdfParse = ((await import('pdf-parse')) as any).default;
+  const pdfParse = ((await import('pdf-parse/lib/pdf-parse.js')) as any).default;
   const data = await pdfParse(buffer);
   return data.text || '';
 }
