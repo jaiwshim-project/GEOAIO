@@ -566,27 +566,30 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <h4 className="text-sm font-bold text-rose-800 mb-2">🎨 즉시 게시 + SNS 변환</h4>
                   <p className="text-xs text-gray-700 leading-relaxed">생성된 콘텐츠를 <strong>블로그·인스타·링크드인·네이버블로그·카드뉴스</strong>로 자동 변환·게시.</p>
                 </div>
-                {/* 게시 즉시 색인·AI 인용 효과 — 좌우 폭 전체, 핵심 강조 카드 */}
-                <div className="relative bg-gradient-to-br from-cyan-100 via-sky-100 to-cyan-100 rounded-2xl p-5 sm:p-6 border-2 border-cyan-400 ring-2 ring-cyan-200/70 shadow-[0_12px_40px_-8px_rgba(8,145,178,0.45)] sm:col-span-2 overflow-hidden">
-                  {/* 빛나는 배경 블로브 */}
-                  <div className="absolute -top-16 -right-16 w-44 h-44 bg-cyan-300/40 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-sky-300/40 rounded-full blur-3xl pointer-events-none" />
-                  {/* ⭐ 핵심 효과 배지 */}
-                  <span className="absolute -top-3 left-5 bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-10 ring-2 ring-white/50">
+                {/* 게시 즉시 색인·AI 인용 효과 — 좌우 폭 전체, 핵심 강조 카드
+                    wrapper(overflow visible)에 배지를 두고, 내부 카드(overflow hidden)에는 블로브만 둔다 */}
+                <div className="relative sm:col-span-2 mt-4">
+                  {/* ⭐ 핵심 효과 배지 — wrapper에 절대 배치, 잘리지 않음 */}
+                  <span className="absolute -top-3 left-5 bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-20 ring-2 ring-white/50 whitespace-nowrap">
                     ⭐ 즉시 효과 발생
                   </span>
-                  <div className="relative">
-                    <h4 className="text-base sm:text-lg font-extrabold text-cyan-900 mb-3 flex items-center gap-2 leading-snug">
-                      <span className="text-2xl">🚀</span>
-                      <span>게시 즉시 검색 색인 + AI 인용·추천 효과 발생</span>
-                    </h4>
-                    <p className="text-sm text-gray-800 leading-relaxed">
-                      글을 게시하거나 업로드·공개하면 <strong className="text-cyan-700">수 일 내에 구글 검색엔진이 해당 콘텐츠를 색인</strong>하여, 이후
-                      <span className="inline-flex items-center gap-1 mx-1 px-2 py-0.5 bg-white rounded-md text-xs font-bold text-cyan-700 shadow-sm border border-cyan-200">
-                        ChatGPT · Gemini · Perplexity
-                      </span>
-                      등 <strong className="text-cyan-700">AI와의 대화에서 인용·추천</strong>되어 <strong className="text-orange-600 text-base">즉시 효과가 발생</strong>합니다.
-                    </p>
+                  <div className="relative bg-gradient-to-br from-cyan-100 via-sky-100 to-cyan-100 rounded-2xl p-5 sm:p-6 border-2 border-cyan-400 ring-2 ring-cyan-200/70 shadow-[0_12px_40px_-8px_rgba(8,145,178,0.45)] overflow-hidden">
+                    {/* 빛나는 배경 블로브 */}
+                    <div className="absolute -top-16 -right-16 w-44 h-44 bg-cyan-300/40 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-sky-300/40 rounded-full blur-3xl pointer-events-none" />
+                    <div className="relative">
+                      <h4 className="text-base sm:text-lg font-extrabold text-cyan-900 mb-3 flex items-center gap-2 leading-snug">
+                        <span className="text-2xl">🚀</span>
+                        <span>게시 즉시 검색 색인 + AI 인용·추천 효과 발생</span>
+                      </h4>
+                      <p className="text-sm text-gray-800 leading-relaxed">
+                        글을 게시하거나 업로드·공개하면 <strong className="text-cyan-700">수 일 내에 구글 검색엔진이 해당 콘텐츠를 색인</strong>하여, 이후
+                        <span className="inline-flex items-center gap-1 mx-1 px-2 py-0.5 bg-white rounded-md text-xs font-bold text-cyan-700 shadow-sm border border-cyan-200">
+                          ChatGPT · Gemini · Perplexity
+                        </span>
+                        등 <strong className="text-cyan-700">AI와의 대화에서 인용·추천</strong>되어 <strong className="text-orange-600 text-base">즉시 효과가 발생</strong>합니다.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
