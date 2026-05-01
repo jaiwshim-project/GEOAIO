@@ -381,20 +381,27 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </p>
               <Link
                 href={`/blog/category/${encodeURIComponent(slug)}`}
-                style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}
-                className="group flex items-center gap-3 px-5 py-3 border rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(251,191,36,0.4)] hover:border-amber-400 transition-all"
+                className="group relative flex items-center gap-4 px-6 py-5 mt-2 bg-gradient-to-r from-amber-50 via-amber-100/80 to-amber-50 border-2 border-amber-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(251,191,36,0.45)] ring-2 ring-amber-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(251,191,36,0.55)] hover:border-amber-500 hover:ring-amber-300 transition-all duration-200"
               >
-                <div style={{ background: '#d97706' }} className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md">
-                  <svg className="w-5 h-5" style={{ color: '#ffffff' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* 🔴 LIVE 배지 */}
+                <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                  </span>
+                  LIVE · 실제 운영 중
+                </span>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shrink-0 shadow-md ring-2 ring-amber-300/40">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <p style={{ color: '#b45309' }} className="text-xs font-semibold mb-0.5">📌 실제 운영 중인 블로그 보기</p>
-                  <p style={{ color: '#0f172a' }} className="text-sm font-bold">{meta.label} 카테고리에 게시된 {posts.length}편의 AI 최적화 콘텐츠</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-amber-700 mb-1 tracking-wide uppercase">📌 실제 운영 중인 블로그 보기</p>
+                  <p className="text-base font-extrabold text-slate-900 leading-snug">{meta.label} 카테고리에 게시된 <span className="text-amber-700">{posts.length}편</span>의 AI 최적화 콘텐츠</p>
                 </div>
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" style={{ color: '#d97706' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                <svg className="w-6 h-6 text-amber-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </Link>
 
@@ -404,20 +411,27 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   href={TISTORY_MAP[slug]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ backgroundColor: '#fdf2f8', borderColor: '#f9a8d4' }}
-                  className="group flex items-center gap-3 px-5 py-3 mt-5 border rounded-xl hover:shadow-[0_8px_24px_-6px_rgba(236,72,153,0.4)] hover:border-pink-400 transition-all"
+                  className="group relative flex items-center gap-4 px-6 py-5 mt-7 bg-gradient-to-r from-rose-50 via-pink-100/80 to-rose-50 border-2 border-pink-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.45)] ring-2 ring-pink-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(236,72,153,0.55)] hover:border-pink-500 hover:ring-pink-300 transition-all duration-200"
                 >
-                  <div style={{ background: '#db2777' }} className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-md">
-                    <svg className="w-5 h-5" style={{ color: '#ffffff' }} fill="currentColor" viewBox="0 0 24 24">
+                  {/* 🔴 LIVE 배지 */}
+                  <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                    </span>
+                    LIVE · 외부 운영 중
+                  </span>
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-700 flex items-center justify-center shrink-0 shadow-md ring-2 ring-pink-300/40">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 17.5c-4.142 0-7.5-3.358-7.5-7.5S7.858 4.5 12 4.5s7.5 3.358 7.5 7.5-3.358 7.5-7.5 7.5zm0-12.5a5 5 0 100 10 5 5 0 000-10zm0 7.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/>
                     </svg>
                   </div>
-                  <div className="flex-1">
-                    <p style={{ color: '#be185d' }} className="text-xs font-semibold mb-0.5">📌 실제 운영 중인 티스토리 보기</p>
-                    <p style={{ color: '#0f172a' }} className="text-sm font-bold break-all">{TISTORY_MAP[slug]}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-bold text-pink-700 mb-1 tracking-wide uppercase">📌 실제 운영 중인 티스토리 보기</p>
+                    <p className="text-sm font-extrabold text-slate-900 break-all leading-snug">{TISTORY_MAP[slug]}</p>
                   </div>
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform shrink-0" style={{ color: '#db2777' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  <svg className="w-6 h-6 text-pink-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </a>
               )}
@@ -552,13 +566,28 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <h4 className="text-sm font-bold text-rose-800 mb-2">🎨 즉시 게시 + SNS 변환</h4>
                   <p className="text-xs text-gray-700 leading-relaxed">생성된 콘텐츠를 <strong>블로그·인스타·링크드인·네이버블로그·카드뉴스</strong>로 자동 변환·게시.</p>
                 </div>
-                {/* 게시 즉시 색인·AI 인용 효과 — 좌우 폭 전체 (col-span-2) */}
-                <div className="bg-gradient-to-r from-cyan-50 via-sky-50 to-cyan-50 rounded-xl p-4 border border-cyan-200 sm:col-span-2">
-                  <h4 className="text-sm font-bold text-cyan-800 mb-2">🚀 게시 즉시 검색 색인 + AI 인용·추천 효과 발생</h4>
-                  <p className="text-xs text-gray-700 leading-relaxed">
-                    글을 게시하거나 업로드·공개하면 <strong>수 일 내에 구글 검색엔진이 해당 콘텐츠를 색인</strong>하여, 이후
-                    ChatGPT·Gemini·Perplexity 등 <strong>AI와의 대화에서 인용·추천</strong>되어 <strong>즉시 효과가 발생</strong>합니다.
-                  </p>
+                {/* 게시 즉시 색인·AI 인용 효과 — 좌우 폭 전체, 핵심 강조 카드 */}
+                <div className="relative bg-gradient-to-br from-cyan-100 via-sky-100 to-cyan-100 rounded-2xl p-5 sm:p-6 border-2 border-cyan-400 ring-2 ring-cyan-200/70 shadow-[0_12px_40px_-8px_rgba(8,145,178,0.45)] sm:col-span-2 overflow-hidden">
+                  {/* 빛나는 배경 블로브 */}
+                  <div className="absolute -top-16 -right-16 w-44 h-44 bg-cyan-300/40 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-sky-300/40 rounded-full blur-3xl pointer-events-none" />
+                  {/* ⭐ 핵심 효과 배지 */}
+                  <span className="absolute -top-3 left-5 bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-10 ring-2 ring-white/50">
+                    ⭐ 즉시 효과 발생
+                  </span>
+                  <div className="relative">
+                    <h4 className="text-base sm:text-lg font-extrabold text-cyan-900 mb-3 flex items-center gap-2 leading-snug">
+                      <span className="text-2xl">🚀</span>
+                      <span>게시 즉시 검색 색인 + AI 인용·추천 효과 발생</span>
+                    </h4>
+                    <p className="text-sm text-gray-800 leading-relaxed">
+                      글을 게시하거나 업로드·공개하면 <strong className="text-cyan-700">수 일 내에 구글 검색엔진이 해당 콘텐츠를 색인</strong>하여, 이후
+                      <span className="inline-flex items-center gap-1 mx-1 px-2 py-0.5 bg-white rounded-md text-xs font-bold text-cyan-700 shadow-sm border border-cyan-200">
+                        ChatGPT · Gemini · Perplexity
+                      </span>
+                      등 <strong className="text-cyan-700">AI와의 대화에서 인용·추천</strong>되어 <strong className="text-orange-600 text-base">즉시 효과가 발생</strong>합니다.
+                    </p>
+                  </div>
                 </div>
               </div>
             </section>
