@@ -87,7 +87,7 @@ export default function ElectionProposalPage() {
         </section>
 
         {/* ── Section 2. 패러다임 전환 (Problem) ── */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 mb-6 shadow-sm">
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-sm font-bold shadow-md">1</span>
             <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">패러다임 전환 — 유권자 정보 탐색 채널이 바뀌었다</h2>
@@ -116,7 +116,7 @@ export default function ElectionProposalPage() {
         </section>
 
         {/* ── Section 3. 후보자별 맞춤 제안서 7건 사례 ── */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 mb-6 shadow-sm">
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-100 to-violet-200 text-violet-700 ring-2 ring-violet-300/50 flex items-center justify-center text-sm font-bold shadow-md">2</span>
             <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">후보자별 맞춤 제안서 — 7건 사례</h2>
@@ -125,36 +125,69 @@ export default function ElectionProposalPage() {
             GEO-AIO 플랫폼에서 이미 작성된 <strong>후보자 7명 맞춤 제안서</strong>입니다. 각 후보의 지역구·직책에 맞춰
             자동 생성된 1페이지 제안서를 클릭해 직접 확인하세요.
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {[
-              // 국회의원 4명 (상단)
-              { name: '하정우',  role: '국회의원',     region: '부산 북구갑',     slug: '하정우-국회의원선거-후보자',           bg: 'from-indigo-50 to-violet-100',  border: 'border-indigo-300',  hover: 'hover:border-indigo-500 hover:shadow-indigo-200/60',  badge: 'bg-indigo-500',  text: 'text-indigo-700' },
-              { name: '한동훈',  role: '국회의원',     region: '부산 북구갑',       slug: '한동훈-부산북구갑-국회의원-후보자',     bg: 'from-orange-50 to-red-100',     border: 'border-orange-300',  hover: 'hover:border-orange-500 hover:shadow-orange-200/60', badge: 'bg-orange-500',  text: 'text-orange-700' },
-              { name: '조국',    role: '국회의원',     region: '경기 평택을',       slug: '조국-평택을-국회의원-후보자',           bg: 'from-violet-50 to-fuchsia-100', border: 'border-violet-300',  hover: 'hover:border-violet-500 hover:shadow-violet-200/60',  badge: 'bg-violet-500',  text: 'text-violet-700' },
-              { name: '황교안',  role: '국회의원',     region: '경기 평택을',       slug: '황교안-평택을-국회의원-후보자',         bg: 'from-rose-50 to-pink-100',      border: 'border-rose-300',    hover: 'hover:border-rose-500 hover:shadow-rose-200/60',    badge: 'bg-rose-500',    text: 'text-rose-700' },
-              // 시장 3명 (하단)
-              { name: '오세훈',  role: '시장',         region: '서울특별시',       slug: '오세훈-서울시장-후보자',                bg: 'from-cyan-50 to-sky-100',       border: 'border-cyan-300',    hover: 'hover:border-cyan-500 hover:shadow-cyan-200/60',    badge: 'bg-cyan-500',    text: 'text-cyan-700' },
-              { name: '민형배',  role: '시장',         region: '광주광역시',       slug: '민형배-광주시장-후보자',                bg: 'from-emerald-50 to-teal-100',   border: 'border-emerald-300', hover: 'hover:border-emerald-500 hover:shadow-emerald-200/60', badge: 'bg-emerald-500', text: 'text-emerald-700' },
-              { name: '이장우',  role: '시장',         region: '대전광역시',       slug: '이장우-대전시장-후보자',                bg: 'from-amber-50 to-orange-100',   border: 'border-amber-300',   hover: 'hover:border-amber-500 hover:shadow-amber-200/60',   badge: 'bg-amber-500',   text: 'text-amber-700' },
-            ].map((c) => (
-              <Link
-                key={c.slug}
-                href={`/proposal/${encodeURIComponent(c.slug)}`}
-                className={`group relative bg-gradient-to-br ${c.bg} border-2 ${c.border} ${c.hover} rounded-xl p-4 transition-all hover:shadow-lg hover:-translate-y-0.5`}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <span className={`px-2 py-0.5 ${c.badge} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>
-                    {c.role}
-                  </span>
-                  <svg className={`w-4 h-4 ${c.text} group-hover:translate-x-1 transition-transform`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-extrabold text-slate-900 mb-1 leading-tight">{c.name}</h3>
-                <p className={`text-xs font-bold ${c.text} mb-1`}>{c.region}</p>
-                <p className="text-[11px] text-gray-600 leading-relaxed">맞춤 GEO-AIO 마케팅 제안서</p>
-              </Link>
-            ))}
+          {/* 🏛️ 국회의원 — 상단 한 줄 (4명) */}
+          <div className="mb-5">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 text-amber-200 text-[11px] font-extrabold tracking-[0.2em] rounded-full shadow-sm">
+                🏛️ 국회의원
+              </span>
+              <span className="flex-1 h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent" />
+              <span className="text-[10px] font-bold text-slate-400 tracking-wide">4명</span>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { name: '하정우', role: '국회의원', region: '부산 북구갑', slug: '하정우-국회의원선거-후보자',       strip: 'from-indigo-500 via-violet-500 to-violet-600',     accent: 'text-indigo-700' },
+                { name: '한동훈', role: '국회의원', region: '부산 북구갑', slug: '한동훈-부산북구갑-국회의원-후보자', strip: 'from-orange-500 via-amber-500 to-red-500',         accent: 'text-orange-700' },
+                { name: '조국',   role: '국회의원', region: '경기 평택을', slug: '조국-평택을-국회의원-후보자',       strip: 'from-violet-500 via-purple-500 to-fuchsia-500',    accent: 'text-violet-700' },
+                { name: '황교안', role: '국회의원', region: '경기 평택을', slug: '황교안-평택을-국회의원-후보자',     strip: 'from-rose-500 via-pink-500 to-rose-600',           accent: 'text-rose-700' },
+              ].map((c) => (
+                <Link key={c.slug} href={`/proposal/${encodeURIComponent(c.slug)}`}
+                  className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden">
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.strip}`} />
+                  <div className="flex items-start justify-between mb-3 mt-1">
+                    <span className={`px-2.5 py-0.5 bg-gradient-to-r ${c.strip} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>{c.role}</span>
+                    <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-900 mb-1 leading-tight">{c.name}</h3>
+                  <p className={`text-xs font-bold ${c.accent} mb-1`}>{c.region}</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">맞춤 GEO-AIO 제안서</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* 🏙️ 시장 — 하단 한 줄 (3명) */}
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 text-emerald-200 text-[11px] font-extrabold tracking-[0.2em] rounded-full shadow-sm">
+                🏙️ 시장
+              </span>
+              <span className="flex-1 h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent" />
+              <span className="text-[10px] font-bold text-slate-400 tracking-wide">3명</span>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              {[
+                { name: '오세훈', role: '시장', region: '서울특별시', slug: '오세훈-서울시장-후보자',  strip: 'from-cyan-500 via-sky-500 to-blue-500',           accent: 'text-cyan-700' },
+                { name: '민형배', role: '시장', region: '광주광역시', slug: '민형배-광주시장-후보자',  strip: 'from-emerald-500 via-teal-500 to-green-500',      accent: 'text-emerald-700' },
+                { name: '이장우', role: '시장', region: '대전광역시', slug: '이장우-대전시장-후보자',  strip: 'from-amber-500 via-orange-500 to-amber-600',      accent: 'text-amber-700' },
+              ].map((c) => (
+                <Link key={c.slug} href={`/proposal/${encodeURIComponent(c.slug)}`}
+                  className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden">
+                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.strip}`} />
+                  <div className="flex items-start justify-between mb-3 mt-1">
+                    <span className={`px-2.5 py-0.5 bg-gradient-to-r ${c.strip} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>{c.role}</span>
+                    <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-900 mb-1 leading-tight">{c.name}</h3>
+                  <p className={`text-xs font-bold ${c.accent} mb-1`}>{c.region}</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">맞춤 GEO-AIO 제안서</p>
+                </Link>
+              ))}
+            </div>
           </div>
           <p className="text-[11px] text-gray-500 mt-3 leading-relaxed">
             ※ 각 제안서는 후보자 자료를 기반으로 <strong>1페이지 자동 생성</strong>된 시안이며, 실제 캠프 도입 시 후보자별 맞춤 데이터로 재구성됩니다.
@@ -162,7 +195,7 @@ export default function ElectionProposalPage() {
         </section>
 
         {/* ── Section 4. 시간 압박 (Urgency) ── */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 mb-6 shadow-sm">
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">3</span>
             <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">3주 캠페인 — 일반 SEO는 선거 끝나고 효과</h2>
@@ -227,7 +260,7 @@ export default function ElectionProposalPage() {
         </section>
 
         {/* ── Section 4. ROI 실증 사례 ── */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 mb-6 shadow-sm">
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">4</span>
             <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">선거 당선 가능성을 높이는 부가 서비스</h2>
@@ -383,7 +416,7 @@ export default function ElectionProposalPage() {
         </section>
 
         {/* ── Section 6. 풋터 / 법적 정보 ── */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 mb-6 text-xs text-gray-500 leading-relaxed">
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 mb-6 text-xs text-slate-500 leading-relaxed shadow-[0_8px_32px_-12px_rgba(15,23,42,0.06)]">
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
               <p className="font-bold text-gray-700 mb-1">출처·근거</p>
