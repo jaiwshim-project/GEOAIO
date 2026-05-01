@@ -125,21 +125,22 @@ export default function ElectionProposalPage() {
             GEO-AIO 플랫폼에서 이미 작성된 <strong>후보자 7명 맞춤 제안서</strong>입니다. 각 후보의 지역구·직책에 맞춰
             자동 생성된 1페이지 제안서를 클릭해 직접 확인하세요.
           </p>
-          {/* 🏛️ 국회의원 — 상단 한 줄 (4명) */}
+          {/* 🏛️ 국회의원 — 상단 한 줄 (5명) */}
           <div className="mb-5">
             <div className="flex items-center gap-3 mb-3">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 text-amber-200 text-[11px] font-extrabold tracking-[0.2em] rounded-full shadow-sm">
                 🏛️ 국회의원
               </span>
               <span className="flex-1 h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent" />
-              <span className="text-[10px] font-bold text-slate-400 tracking-wide">4명</span>
+              <span className="text-[10px] font-bold text-slate-400 tracking-wide">5명</span>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {[
                 { name: '하정우', role: '국회의원', region: '부산 북구갑', slug: '하정우-국회의원선거-후보자',       strip: 'from-indigo-500 via-violet-500 to-violet-600',     accent: 'text-indigo-700' },
                 { name: '한동훈', role: '국회의원', region: '부산 북구갑', slug: '한동훈-부산북구갑-국회의원-후보자', strip: 'from-orange-500 via-amber-500 to-red-500',         accent: 'text-orange-700' },
                 { name: '조국',   role: '국회의원', region: '경기 평택을', slug: '조국-평택을-국회의원-후보자',       strip: 'from-violet-500 via-purple-500 to-fuchsia-500',    accent: 'text-violet-700' },
                 { name: '황교안', role: '국회의원', region: '경기 평택을', slug: '황교안-평택을-국회의원-후보자',     strip: 'from-rose-500 via-pink-500 to-rose-600',           accent: 'text-rose-700' },
+                { name: '송영길', role: '국회의원', region: '인천 연수갑', slug: '송영길-연수갑-국회의원-후보자',     strip: 'from-lime-500 via-green-500 to-emerald-500',       accent: 'text-lime-700' },
               ].map((c) => (
                 <Link key={c.slug} href={`/proposal/${encodeURIComponent(c.slug)}`}
                   className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden">
