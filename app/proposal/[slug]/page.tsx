@@ -460,7 +460,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       </div>
                     </div>
                     <p className="text-[10px] font-semibold text-gray-700">AI 검색 점유율</p>
-                    <p className="text-[9px] text-gray-700">전체 검색 트래픽</p>
+                    <p className="text-[11px] sm:text-[9px] text-gray-700">전체 검색 트래픽</p>
                   </div>
                   <div className="text-center bg-white rounded-xl p-3 border border-rose-100">
                     <div className="relative w-16 h-16 mx-auto mb-1.5">
@@ -470,7 +470,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       </div>
                     </div>
                     <p className="text-[10px] font-semibold text-gray-700">AI 인용 가능성</p>
-                    <p className="text-[9px] text-gray-700">일반 SEO 기준</p>
+                    <p className="text-[11px] sm:text-[9px] text-gray-700">일반 SEO 기준</p>
                   </div>
                   <div className="text-center bg-white rounded-xl p-3 border border-rose-100">
                     <div className="relative w-16 h-16 mx-auto mb-1.5">
@@ -480,7 +480,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       </div>
                     </div>
                     <p className="text-[10px] font-semibold text-gray-700">미인용 콘텐츠</p>
-                    <p className="text-[9px] text-gray-700">기존 SEO 방식</p>
+                    <p className="text-[11px] sm:text-[9px] text-gray-700">기존 SEO 방식</p>
                   </div>
                 </div>
 
@@ -1118,7 +1118,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     </div>
                     <div className="text-center">
                       <div className="text-amber-400 text-2xl">→</div>
-                      <p className="text-[9px] text-amber-300/80 -mt-1">매핑</p>
+                      <p className="text-[11px] sm:text-[9px] text-amber-300/80 -mt-1">매핑</p>
                     </div>
                     <div className="text-center">
                       <div className="bg-gradient-to-br from-amber-400/20 to-yellow-500/10 backdrop-blur-sm border border-amber-400/40 rounded-xl p-3">
@@ -1265,7 +1265,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <span className="text-[10px] font-bold text-rose-600">(20% 할인)</span>
                     </div>
                     <p className="text-[11px] font-bold text-rose-600">월 120만원 상당 · 연 20% 절감</p>
-                    <p className="text-[9px] text-gray-600 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
+                    <p className="text-[11px] sm:text-[9px] text-gray-600 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 150건</strong> (연 1,800건)</span></li>
@@ -1283,7 +1283,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div className="flex-1">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-100 border border-sky-200 mb-1">
                       <span className="w-1 h-1 rounded-full bg-sky-500" />
-                      <p className="text-[9px] font-bold tracking-wider text-sky-700">NEW · 다국어</p>
+                      <p className="text-[11px] sm:text-[9px] font-bold tracking-wider text-sky-700">NEW · 다국어</p>
                     </div>
                     <h4 className="text-sm font-bold text-slate-900">외국어 콘텐츠 옵션 (영어 · 중국어 · 일본어)</h4>
                     <p className="text-[11px] text-slate-600 mt-0.5">글로벌 AI 검색 인용을 위한 다국어 콘텐츠 생성/포스팅</p>

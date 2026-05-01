@@ -25,6 +25,45 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* === 모바일 최적화 안전망 === */
+html, body {
+  overflow-x: hidden;        /* 가로 스크롤 발생 차단 (예방) */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 모바일 탭 하이라이트 비활성화 (커스텀 hover/active 사용) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS 자동 확대 방지 — input/textarea/select 최소 16px */
+input:not([type='checkbox']):not([type='radio']),
+textarea, select {
+  font-size: 16px;
+}
+
+/* 모바일에서 한글 가독성 향상 */
+@media (max-width: 640px) {
+  body { line-height: 1.65; }
+  /* 모바일에서 hover scale 등 transform 효과 비활성화 (터치 환경) */
+  .group:hover .group-hover\:translate-x-1,
+  .group:hover .group-hover\:translate-x-1\.5,
+  .hover\:scale-\[1\.02\]:hover,
+  .hover\:-translate-y-0\.5:hover {
+    transform: none !important;
+  }
+}
+
+/* 접근성 — 저전력/모션 감소 모드 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @page {
   margin: 15mm 10mm 20mm 10mm;
   @bottom-right {
