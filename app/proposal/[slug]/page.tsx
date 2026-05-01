@@ -326,31 +326,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
           </div>
         </section>
 
-        {/* 다른 카테고리 탭 — 글래스모피즘 + 골드 액센트 */}
-        {allCategories.length > 1 && (
-          <div className="flex flex-wrap gap-2 mb-6 sticky top-16 z-20 bg-slate-950/80 backdrop-blur-md py-2 -mx-2 px-2 rounded-xl">
-            {allCategories.map((cat) => {
-              const isActive = cat.slug === slug;
-              return (
-                <Link
-                  key={cat.slug}
-                  href={`/proposal/${encodeURIComponent(cat.slug)}`}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                    isActive
-                      ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 shadow-[0_4px_20px_-2px_rgba(251,191,36,0.5)] ring-1 ring-amber-300'
-                      : 'bg-white/5 text-white/95 border border-white/10 backdrop-blur-sm hover:bg-white/10 hover:border-amber-400/30 hover:text-amber-200'
-                  }`}
-                >
-                  <span>{cat.label}</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-slate-900/20 text-slate-900' : 'bg-white/10 text-white/85'
-                  }`}>{cat.count}</span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-
         {/* 제안서 본문 — 프리미엄 카드 (라이트 본문 + 골드 ring) */}
         <article className="bg-white rounded-2xl ring-1 ring-amber-200/40 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.5)] overflow-hidden">
           {/* 골드 메탈릭 상단 바 */}
