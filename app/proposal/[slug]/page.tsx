@@ -186,7 +186,14 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const weaknessData = WEAKNESS_DATA[slug];
   const hasWeakness = !!weaknessData;
   const isSeonmyeong = slug === '선명회계법인'; // AX 분석·개선 전략 전용
-  const sectionNum = (base: number) => base + (hasWeakness ? 1 : 0);
+  // 후보자(국회의원·시장 등) 제안서 — 가격 섹션 숨김
+  const isCandidate = slug.includes('후보자');
+  const sectionNum = (base: number) => {
+    let n = base + (hasWeakness ? 1 : 0);
+    // 가격 섹션(7)을 후보자에서 숨길 때 8번 이후는 -1 시프트
+    if (isCandidate && base > 7) n -= 1;
+    return n;
+  };
 
   // FAQ 데이터 (모든 제안서 공통, 카테고리 라벨 동적 치환)
   const FAQS = [
@@ -1191,7 +1198,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
-            {/* 7. 가격표 */}
+            {/* 7. 가격표 — 후보자(국회의원·시장) 제안서에서는 숨김 */}
+            {!isCandidate && (
             <section>
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(7)}</span>
@@ -1356,6 +1364,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </span>
               </div>
             </section>
+            )}
 
             {/* 8. 도입 절차 (4단계 타임라인) */}
             <section>
