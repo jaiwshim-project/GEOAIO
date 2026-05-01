@@ -415,7 +415,37 @@ export default function ElectionProposalPage() {
           </div>
         </section>
 
-        {/* ── Section 6. 풋터 / 법적 정보 ── */}
+        {/* ── Section 6. AI Election Command Center 12장 가이드 ── */}
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-sm font-bold shadow-md">6</span>
+            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">AI Election Command Center — 전체 운영 가이드 <span className="text-slate-500">(12장)</span></h2>
+          </div>
+          <p className="text-sm text-gray-700 mb-5 leading-relaxed">
+            선거 캠페인 전 과정에 GEO-AIO를 적용하는 <strong className="text-slate-900">12단계 운영 가이드</strong>입니다. 페이지를 순서대로 확인해 캠프 운영의 큰 그림을 먼저 잡아보세요.
+          </p>
+          <div className="space-y-4">
+            {Array.from({ length: 12 }, (_, i) => {
+              const n = String(i + 1).padStart(2, '0');
+              return (
+                <div key={n} className="relative bg-white rounded-2xl border border-slate-200/80 ring-1 ring-slate-100 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.18)] overflow-hidden">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-amber-300 text-[10px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
+                    {n} / 12
+                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/images/election-2026/page-${n}.jpg`}
+                    alt={`AI Election Command Center 가이드 ${i + 1}장`}
+                    className="w-full block"
+                    loading="lazy"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── Section 7. 풋터 / 법적 정보 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 mb-6 text-xs text-slate-500 leading-relaxed shadow-[0_8px_32px_-12px_rgba(15,23,42,0.06)]">
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
