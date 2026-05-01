@@ -115,10 +115,54 @@ export default function ElectionProposalPage() {
           </div>
         </section>
 
-        {/* ── Section 3. 시간 압박 (Urgency) ── */}
+        {/* ── Section 3. 후보자별 맞춤 제안서 7건 사례 ── */}
         <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 mb-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">2</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-100 to-violet-200 text-violet-700 ring-2 ring-violet-300/50 flex items-center justify-center text-sm font-bold shadow-md">2</span>
+            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">후보자별 맞춤 제안서 — 7건 사례</h2>
+          </div>
+          <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+            GEO-AIO 플랫폼에서 이미 작성된 <strong>후보자 7명 맞춤 제안서</strong>입니다. 각 후보의 지역구·직책에 맞춰
+            자동 생성된 1페이지 제안서를 클릭해 직접 확인하세요.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[
+              { name: '하정우',  role: '국회의원',     region: '부산 북구갑',     slug: '하정우-국회의원선거-후보자',           bg: 'from-indigo-50 to-violet-100',  border: 'border-indigo-300',  hover: 'hover:border-indigo-500 hover:shadow-indigo-200/60',  badge: 'bg-indigo-500',  text: 'text-indigo-700' },
+              { name: '이장우',  role: '시장',         region: '대전광역시',       slug: '이장우-대전시장-후보자',                bg: 'from-amber-50 to-orange-100',   border: 'border-amber-300',   hover: 'hover:border-amber-500 hover:shadow-amber-200/60',   badge: 'bg-amber-500',   text: 'text-amber-700' },
+              { name: '민형배',  role: '시장',         region: '광주광역시',       slug: '민형배-광주시장-후보자',                bg: 'from-emerald-50 to-teal-100',   border: 'border-emerald-300', hover: 'hover:border-emerald-500 hover:shadow-emerald-200/60', badge: 'bg-emerald-500', text: 'text-emerald-700' },
+              { name: '황교안',  role: '국회의원',     region: '경기 평택을',       slug: '황교안-평택을-국회의원-후보자',         bg: 'from-rose-50 to-pink-100',      border: 'border-rose-300',    hover: 'hover:border-rose-500 hover:shadow-rose-200/60',    badge: 'bg-rose-500',    text: 'text-rose-700' },
+              { name: '오세훈',  role: '시장',         region: '서울특별시',       slug: '오세훈-서울시장-후보자',                bg: 'from-cyan-50 to-sky-100',       border: 'border-cyan-300',    hover: 'hover:border-cyan-500 hover:shadow-cyan-200/60',    badge: 'bg-cyan-500',    text: 'text-cyan-700' },
+              { name: '조국',    role: '국회의원',     region: '경기 평택을',       slug: '조국-평택을-국회의원-후보자',           bg: 'from-violet-50 to-fuchsia-100', border: 'border-violet-300',  hover: 'hover:border-violet-500 hover:shadow-violet-200/60',  badge: 'bg-violet-500',  text: 'text-violet-700' },
+              { name: '한동훈',  role: '국회의원',     region: '부산 북구갑',       slug: '한동훈-부산북구갑-국회의원-후보자',     bg: 'from-orange-50 to-red-100',     border: 'border-orange-300',  hover: 'hover:border-orange-500 hover:shadow-orange-200/60', badge: 'bg-orange-500',  text: 'text-orange-700' },
+            ].map((c) => (
+              <Link
+                key={c.slug}
+                href={`/proposal/${encodeURIComponent(c.slug)}`}
+                className={`group relative bg-gradient-to-br ${c.bg} border-2 ${c.border} ${c.hover} rounded-xl p-4 transition-all hover:shadow-lg hover:-translate-y-0.5`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <span className={`px-2 py-0.5 ${c.badge} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>
+                    {c.role}
+                  </span>
+                  <svg className={`w-4 h-4 ${c.text} group-hover:translate-x-1 transition-transform`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-extrabold text-slate-900 mb-1 leading-tight">{c.name}</h3>
+                <p className={`text-xs font-bold ${c.text} mb-1`}>{c.region}</p>
+                <p className="text-[11px] text-gray-600 leading-relaxed">맞춤 GEO-AIO 마케팅 제안서</p>
+              </Link>
+            ))}
+          </div>
+          <p className="text-[11px] text-gray-500 mt-3 leading-relaxed">
+            ※ 각 제안서는 후보자 자료를 기반으로 <strong>1페이지 자동 생성</strong>된 시안이며, 실제 캠프 도입 시 후보자별 맞춤 데이터로 재구성됩니다.
+          </p>
+        </section>
+
+        {/* ── Section 4. 시간 압박 (Urgency) ── */}
+        <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 mb-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">3</span>
             <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">3주 캠페인 — 일반 SEO는 선거 끝나고 효과</h2>
           </div>
 
@@ -183,7 +227,7 @@ export default function ElectionProposalPage() {
         {/* ── Section 4. ROI 실증 사례 ── */}
         <section className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 mb-6 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">3</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">4</span>
             <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">선거 당선 가능성을 높이는 부가 서비스</h2>
           </div>
           <p className="text-sm text-gray-700 mb-4 leading-relaxed">
@@ -253,7 +297,7 @@ export default function ElectionProposalPage() {
 
           <div className="relative">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-7 h-7 rounded-full bg-amber-500/20 ring-2 ring-amber-400/50 text-amber-300 flex items-center justify-center text-sm font-bold">4</span>
+              <span className="w-7 h-7 rounded-full bg-amber-500/20 ring-2 ring-amber-400/50 text-amber-300 flex items-center justify-center text-sm font-bold">5</span>
               <h2 className="text-xl sm:text-2xl font-extrabold">지금 채택하면 받는 것</h2>
             </div>
 
