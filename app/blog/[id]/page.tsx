@@ -109,7 +109,9 @@ function markdownToHtml(text: string) {
   }).join('');
 }
 
-export const dynamic = 'force-dynamic';
+// SEO/AI 색인 친화: ISR로 정적 생성 후 1시간마다 백그라운드 갱신.
+// 'force-dynamic' 사용 시 Cache-Control: no-store 응답이 나와 Google·Perplexity 색인이 거부됨.
+export const revalidate = 3600;
 
 export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
