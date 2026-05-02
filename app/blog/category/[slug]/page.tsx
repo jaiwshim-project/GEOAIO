@@ -128,10 +128,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
   const meta = await getCategoryMeta(slug);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.geo-aio.com';
+  const slugPath = `/blog/category/${rawSlug}`;
+  const url = `${baseUrl}${slugPath}`;
   return {
     title: `${meta.label} — GEO-AIO 블로그`,
     description: meta.description || `${meta.label} 카테고리의 AI 최적화 콘텐츠`,
-    openGraph: { title: `${meta.label} — GEO-AIO 블로그`, type: 'website' },
+    openGraph: { title: `${meta.label} — GEO-AIO 블로그`, type: 'website', url, locale: 'ko_KR' },
+    // hreflang: ?lang= 파라미터로 언어별 변형 노출 — Google·AI 검색이 사용자 언어에 맞는 변형 제공
+    alternates: {
+      canonical: url,
+      languages: {
+        'ko': url,
+        'en': `${url}?lang=en`,
+        'zh': `${url}?lang=zh`,
+        'ja': `${url}?lang=ja`,
+        'x-default': url,
+      },
+    },
   };
 }
 

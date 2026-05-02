@@ -42,6 +42,70 @@ async function getPost(id: string): Promise<BlogRow | null> {
   return rows[0] || null;
 }
 
+interface RelatedPost {
+  id: string;
+  title: string;
+  category: string;
+  created_at: string;
+  author: string | null;
+  tags: string[] | null;
+}
+
+// 관련 글 자동 링크 — Pillar/Spoke 시리즈 인식 + 같은 카테고리 보강
+// 우선순위:
+//   1) 같은 target_keyword + ±2일 이내 (10톤 시리즈 — 같은 주제로 한 번에 생성됨)
+//   2) 같은 category 최근 5편 (시리즈 글이 부족하면 보강)
+async function getRelatedPosts(current: BlogRow): Promise<RelatedPost[]> {
+  if (!supabaseUrl || !supabaseKey) return [];
+  const meta = parseMeta(current.author);
+  const targetKeyword = (meta.targetKeyword as string) || '';
+  const created = new Date(current.created_at);
+  const fromIso = new Date(created.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString();
+  const toIso = new Date(created.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString();
+
+  const seriesPosts: RelatedPost[] = [];
+  // 1) 같은 시리즈: target_keyword가 author JSON 안에 들어있어 PostgREST에서 직접 매칭이 까다로움.
+  //    같은 카테고리·근접 날짜로 후보를 가져와 클라이언트에서 author JSON을 파싱해 필터링.
+  if (targetKeyword) {
+    const sUrl = `${supabaseUrl}/rest/v1/blog_articles?category=eq.${encodeURIComponent(current.category)}&id=neq.${current.id}&created_at=gte.${fromIso}&created_at=lte.${toIso}&select=id,title,category,created_at,author,tags&order=created_at.desc&limit=20`;
+    try {
+      const r = await fetch(sUrl, {
+        headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+        next: { revalidate: 3600, tags: ['blog-articles'] },
+      });
+      if (r.ok) {
+        const rows: RelatedPost[] = await r.json();
+        for (const row of rows) {
+          try {
+            const m = JSON.parse(row.author || '{}');
+            if (m.targetKeyword === targetKeyword) seriesPosts.push(row);
+          } catch {}
+          if (seriesPosts.length >= 5) break;
+        }
+      }
+    } catch {}
+  }
+
+  // 2) 같은 카테고리 최근 5편으로 보강 (시리즈 글 + 보강 = 최대 6편)
+  const need = Math.max(0, 6 - seriesPosts.length);
+  const seriesIds = new Set([current.id, ...seriesPosts.map(p => p.id)]);
+  let recent: RelatedPost[] = [];
+  if (need > 0) {
+    const rUrl = `${supabaseUrl}/rest/v1/blog_articles?category=eq.${encodeURIComponent(current.category)}&id=neq.${current.id}&select=id,title,category,created_at,author,tags&order=created_at.desc&limit=${need + 5}`;
+    try {
+      const r = await fetch(rUrl, {
+        headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+        next: { revalidate: 3600, tags: ['blog-articles'] },
+      });
+      if (r.ok) {
+        const rows: RelatedPost[] = await r.json();
+        recent = rows.filter(p => !seriesIds.has(p.id)).slice(0, need);
+      }
+    } catch {}
+  }
+  return [...seriesPosts, ...recent];
+}
+
 // 동적 메타데이터
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -129,6 +193,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const post = await getPost(id);
   if (!post) notFound();
+  const relatedPosts = await getRelatedPosts(post);
 
   const meta = parseMeta(post.author);
   const hashtags: string[] = Array.isArray(post.tags) ? post.tags : [];
@@ -184,6 +249,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
   const faqEntities = extractFaq(post.content);
   const stepEntities = extractSteps(post.content);
 
+  // 콘텐츠 언어 자동 감지 — Article schema의 inLanguage용
+  // metadata.lang(발행 시 명시) 우선, 없으면 본문 첫 1500자로 휴리스틱.
+  const detectInLanguage = (): string => {
+    const explicit = (meta as { lang?: string }).lang;
+    const map: Record<string, string> = { ko: 'ko-KR', en: 'en-US', zh: 'zh-CN', ja: 'ja-JP' };
+    if (explicit && map[explicit]) return map[explicit];
+    const sample = (post.title + ' ' + post.content).slice(0, 1500);
+    const ko = (sample.match(/[가-힣]/g) || []).length;
+    const ja = (sample.match(/[぀-ゟ゠-ヿ]/g) || []).length;
+    const zh = (sample.match(/[一-鿿]/g) || []).length;
+    const en = (sample.match(/[a-zA-Z]/g) || []).length;
+    if (ja >= 10) return 'ja-JP';
+    const top = [['ko', ko], ['en', en], ['zh', zh]].sort((a, b) => (b[1] as number) - (a[1] as number))[0];
+    if (top[0] === 'zh' && ja >= 5) return 'ja-JP';
+    return map[top[0] as string] || 'ko-KR';
+  };
+  const articleLang = detectInLanguage();
+
   // Article (메인)
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -212,7 +295,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
     },
     keywords: hashtags.map((t: string) => t.replace('#', '')).join(', '),
     articleSection: post.category,
-    inLanguage: 'ko-KR',
+    inLanguage: articleLang,
     wordCount: post.content.length,
   };
 
@@ -323,6 +406,47 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
             )}
           </div>
         </article>
+
+        {/* 관련 글 — Pillar/Spoke 시리즈 + 같은 카테고리 내부 링크
+            검색엔진·AI 봇이 글 간 관계 그래프를 인식하도록 도와 색인·인용에 유리.
+            우선순위: 같은 target_keyword + 근접 날짜(같은 시리즈) → 같은 카테고리 최근 보강. */}
+        {relatedPosts.length > 0 && (
+          <section className="mt-8" aria-labelledby="related-posts-heading">
+            <div className="flex items-baseline justify-between mb-3 px-1">
+              <h2 id="related-posts-heading" className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+                관련 글 · 같은 시리즈
+              </h2>
+              <span className="text-[10px] tracking-[0.2em] uppercase text-amber-700 font-semibold">More from this series</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {relatedPosts.map((rp) => {
+                let rpMeta: { tag?: string; targetKeyword?: string } = {};
+                try { rpMeta = JSON.parse(rp.author || '{}'); } catch {}
+                const rpDate = new Date(rp.created_at);
+                const dateStr = `${rpDate.getFullYear()}-${String(rpDate.getMonth() + 1).padStart(2, '0')}-${String(rpDate.getDate()).padStart(2, '0')}`;
+                return (
+                  <Link
+                    key={rp.id}
+                    href={`/blog/${rp.id}`}
+                    className="group block bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-all duration-200 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 p-3"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                      {rpMeta.tag && (
+                        <span className="px-1.5 py-0 text-[9px] font-semibold tracking-wider uppercase rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                          {rpMeta.tag}
+                        </span>
+                      )}
+                      <span className="text-[10px] tracking-wide text-slate-700">{dateStr}</span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-2" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+                      {rp.title}
+                    </h3>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </main>
 
       <Footer />
