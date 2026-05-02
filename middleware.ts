@@ -47,9 +47,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // /blog, /sitemap, /robots.txt는 매처 차원에서 제외 — 미들웨어 자체가 호출되지 않게
-  // 하여 ISR 응답이 public Cache-Control로 송출되도록.
+  // 공개 페이지(인증 불필요)는 매처 차원에서 제외 — supabase.auth.getUser() 호출 제거로
+  // 페이지 전환 속도 200~500ms 단축 + ISR 캐시 응답 가능 (public Cache-Control).
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|blog|sitemap|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|blog|sitemap|robots\\.txt|report\\.html|landing|introduction|manual|pricing|community|resources|make-guide|make-integration|proposal|images|_next/data|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js|woff2?|ttf|ico|map)$).*)',
   ],
 };

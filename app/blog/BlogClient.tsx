@@ -105,11 +105,44 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
   }, { ko: 0, en: 0, zh: 0, ja: 0 });
   const langTotal = langCounts.ko + langCounts.en + langCounts.zh + langCounts.ja;
 
-  // 마운트 시 실시간 fetch — 페이지가 ISR(1시간 캐시)이라 새 글 발행 직후
-  // 카운트가 갱신되지 않는 문제 해결. 초기 렌더는 ISR 캐시(빠름), 그 다음 5초 이내에
-  // 최신 데이터로 덮어씌움. 카운트 + 리스트 모두 동기화.
+  // 마운트 시 sessionStorage 캐시 우선 → 없으면 fetch.
+  // 카운트만 필요한 경우는 가벼운 /api/blog/category-counts (수 KB) 호출로 빠른 갱신.
+  // 전체 posts는 페이지 진입 후 백그라운드로 lazy fetch (UI 차단 없음).
+  const SS_KEY = 'blog:posts-cache:v2';
+  const SS_TTL_MS = 5 * 60 * 1000; // 5분
+
+  // 1) 카테고리 카운트 빠른 갱신 (가벼운 endpoint)
+  const [liveCounts, setLiveCounts] = useState<Record<string, number> | null>(null);
   useEffect(() => {
     let cancelled = false;
+    fetch('/api/blog/category-counts', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (cancelled || !data) return;
+        if (data.counts) setLiveCounts(data.counts as Record<string, number>);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  // 2) 전체 posts lazy refresh (sessionStorage 캐시 활용)
+  useEffect(() => {
+    let cancelled = false;
+
+    // sessionStorage 캐시 시도 (5분 이내라면 즉시 사용)
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = sessionStorage.getItem(SS_KEY);
+        if (raw) {
+          const cached = JSON.parse(raw);
+          if (cached?.savedAt && Date.now() - cached.savedAt < SS_TTL_MS && Array.isArray(cached.posts)) {
+            setPosts(cached.posts);
+            return; // 캐시로 충분, 추가 fetch 안 함
+          }
+        }
+      } catch {}
+    }
+
     const refresh = async () => {
       try {
         const res = await fetch('/api/blog/posts', { cache: 'no-store' });
@@ -122,7 +155,6 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
           published?: boolean; created_at: string; updated_at: string;
           author?: string | null;
         }>;
-        // BlogPost 형태로 정규화 — author JSON에서 metadata 파싱 (lang 등 보존)
         const normalized: BlogPost[] = fresh.map(r => {
           let parsedMeta: Record<string, unknown> = {};
           if (r.author) {
@@ -134,7 +166,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
           return {
             id: r.id,
             title: r.title,
-            content: '',  // 리스트는 content 미필요 (카드 표시용 메타만)
+            content: '',
             summary: r.summary || '',
             category: r.category || '',
             tag: r.tag || '',
@@ -147,17 +179,19 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
             updatedAt: r.updated_at,
           };
         });
-        // 기존 initialPosts와 병합 — 새 데이터가 있으면 교체, 없는 항목은 유지
-        // (실시간 fetch가 실패한 항목 보존을 위해 두 set을 합집합으로)
         const map = new Map<string, BlogPost>();
-        // 기존 우선 → 새 데이터로 덮어씌움
         initialPosts.forEach(p => map.set(p.id, p));
         normalized.forEach(p => map.set(p.id, p));
-        setPosts(Array.from(map.values()).sort((a, b) =>
+        const merged = Array.from(map.values()).sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        ));
+        );
+        setPosts(merged);
+        // sessionStorage에 저장
+        try {
+          sessionStorage.setItem(SS_KEY, JSON.stringify({ posts: merged, savedAt: Date.now() }));
+        } catch {}
       } catch {
-        // 무시 — 네트워크 실패 시 ISR 캐시 데이터로 그대로 사용
+        // 무시
       }
     };
     refresh();
@@ -295,7 +329,8 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
             <div className="flex flex-wrap gap-1">
               {categories.map((cat) => {
                 const isActive = activeTab === cat.slug;
-                const postCount = posts.filter(p => p.category === cat.slug).length;
+                // liveCounts(빠른 endpoint) 우선, 없으면 posts에서 계산
+                const postCount = liveCounts?.[cat.slug] ?? posts.filter(p => p.category === cat.slug).length;
                 return (
                   <button
                     key={cat.slug}
