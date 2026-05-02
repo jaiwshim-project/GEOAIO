@@ -54,6 +54,22 @@ export const INDEXING_SITES: IndexingSiteConfig[] = [
     color: 'emerald',
     emoji: '🦷',
   },
+  {
+    id: 'geo-aio-blog',
+    label: 'GEO-AIO 블로그',
+    domain: 'www.geo-aio.com/blog',
+    description: '심재우 대표 운영. GEO-AIO·리젠메드·대전맥주장·치과병원 등 4 카테고리, 501편(다국어 ko/en/zh/ja) 운영',
+    siteUrl: 'sc-domain:geo-aio.com',
+    sitemapUrl: 'https://www.geo-aio.com/sitemap.xml',
+    categoryMap: {
+      'GEO-AIO': ['/blog/category/geo-aio'],
+      '리젠메드컨설팅': ['/blog/category/regenmed'],
+      '대전맥주장 수제맥주': ['/blog/category/brewery'],
+      '치과병원': ['/blog/category/dental'],
+    },
+    color: 'amber',
+    emoji: '🌐',
+  },
 ];
 
 export function getSiteConfig(id: string): IndexingSiteConfig | null {
