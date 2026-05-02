@@ -251,7 +251,7 @@ export default async function BlogCategoryPage({
                     {meta.label}
                   </h1>
                   {meta.description && (
-                    <p className="text-slate-600 text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
+                    <p className="text-slate-700 text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
                       {meta.description}
                     </p>
                   )}
@@ -273,7 +273,7 @@ export default async function BlogCategoryPage({
                       >
                         <span className="text-[10px]">{LANG_LABELS[lang].flag}</span>
                         {LANG_LABELS[lang].label}
-                        <span className={isActive ? 'text-amber-700 font-semibold' : 'text-slate-500'}>{count}</span>
+                        <span className={isActive ? 'text-amber-700 font-semibold' : 'text-slate-700'}>{count}</span>
                       </span>
                     );
                   })}
@@ -328,7 +328,7 @@ export default async function BlogCategoryPage({
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
               <p className="text-[9px] tracking-[0.2em] uppercase text-amber-700 font-semibold">Articles</p>
-              <p className="text-[10px] text-slate-600">
+              <p className="text-[10px] text-slate-700">
                 <span className="text-amber-700 font-semibold">{posts.length}</span> of {allPosts.length}
               </p>
             </div>
@@ -347,7 +347,7 @@ export default async function BlogCategoryPage({
                             {post.tag}
                           </span>
                         )}
-                        <span className="text-[10px] tracking-wide text-slate-500">
+                        <span className="text-[10px] tracking-wide text-slate-700">
                           {formatDate(post.createdAt)}
                         </span>
                         {post.targetKeyword && (
@@ -363,7 +363,7 @@ export default async function BlogCategoryPage({
                         {post.title}
                       </h2>
                       {post.summary && (
-                        <p className="text-[12px] text-slate-600 line-clamp-1 leading-snug mt-0.5">
+                        <p className="text-[12px] text-slate-700 line-clamp-1 leading-snug mt-0.5">
                           {post.summary}
                         </p>
                       )}

@@ -103,15 +103,15 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
         return `<div style="margin:28px 0 12px;padding:10px 16px;background:${c.bg};border-left:4px solid ${c.border};border-radius:0 10px 10px 0"><h2 style="font-size:1.1em;font-weight:700;color:${c.accent};margin:0">${title}</h2></div>`;
       });
       html = html
-        .replace(/^### (.*$)/gm, '<h3 style="font-size:1em;font-weight:700;color:#374151;margin:20px 0 6px;padding-left:12px;border-left:3px solid #c7d2fe">$1</h3>')
+        .replace(/^### (.*$)/gm, '<h3 style="font-size:1em;font-weight:700;color:#1f2937;margin:20px 0 6px;padding-left:12px;border-left:3px solid #c7d2fe">$1</h3>')
         .replace(/^# (.*$)/gm, '<h1 style="font-size:1.3em;font-weight:800;color:#4f46e5;margin:24px 0 12px">$1</h1>')
         .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#1e293b">$1</strong>')
         .replace(/^\- (.*$)/gm, '<li style="margin-left:20px;list-style:none;margin-bottom:4px;padding-left:8px;position:relative"><span style="position:absolute;left:-14px;color:#6366f1;font-weight:bold">&#8226;</span>$1</li>')
-        .replace(/^\d+\. (.*$)/gm, '<li style="margin-left:20px;list-style:decimal;margin-bottom:4px;color:#374151">$1</li>')
-        .replace(/^> (.*$)/gm, '<blockquote style="border-left:4px solid #818cf8;padding:10px 16px;margin:12px 0;background:#eef2ff;border-radius:0 10px 10px 0;color:#374151;font-style:italic">$1</blockquote>');
+        .replace(/^\d+\. (.*$)/gm, '<li style="margin-left:20px;list-style:decimal;margin-bottom:4px;color:#1f2937">$1</li>')
+        .replace(/^> (.*$)/gm, '<blockquote style="border-left:4px solid #818cf8;padding:10px 16px;margin:12px 0;background:#eef2ff;border-radius:0 10px 10px 0;color:#1f2937;font-style:italic">$1</blockquote>');
       const trimmed = html.trim();
       if (/^<(h[1-6]|li|blockquote|div|table)/.test(trimmed)) return html;
-      return `<p style="margin-bottom:0.8em;line-height:1.8;color:#374151">${html.replace(/\n/g, '<br>')}</p>`;
+      return `<p style="margin-bottom:0.8em;line-height:1.8;color:#1f2937">${html.replace(/\n/g, '<br>')}</p>`;
     }).join('');
   };
 
@@ -147,7 +147,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-none text-slate-900" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
                 블로그 · 기사 · 방송
               </h1>
-              <p className="text-slate-600 text-[12px] sm:text-[13px] leading-snug mt-1.5 max-w-2xl">
+              <p className="text-slate-700 text-[12px] sm:text-[13px] leading-snug mt-1.5 max-w-2xl">
                 다양한 업종의 블로그·언론 기사·방송 콘텐츠를 한곳에서. AI 검색엔진에 최적화된 실제 운영 사례.
               </p>
               <div className="flex items-center flex-wrap gap-1.5 mt-3">
@@ -217,7 +217,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
             {currentCategory?.label}
           </h2>
           {currentCategory?.description && (
-            <p className="text-[11px] text-slate-600 mt-0.5">{currentCategory.description}</p>
+            <p className="text-[11px] text-slate-700 mt-0.5">{currentCategory.description}</p>
           )}
         </div>
 
@@ -271,7 +271,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
               <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-amber-700">Articles</p>
-              <p className="text-[10px] text-slate-600">
+              <p className="text-[10px] text-slate-700">
                 <span className="text-amber-700 font-semibold">{filteredPosts.length}</span> of {posts.length}
               </p>
             </div>
@@ -295,7 +295,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                               {post.tag}
                             </span>
                           )}
-                          <span className="text-[10px] tracking-wide text-slate-500">
+                          <span className="text-[10px] tracking-wide text-slate-700">
                             {formatDate(post.createdAt)}
                           </span>
                           {post.targetKeyword && (
@@ -311,7 +311,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                           {post.title}
                         </h3>
                         {post.summary && (
-                          <p className="text-[12px] text-slate-600 line-clamp-1 leading-snug mt-0.5">
+                          <p className="text-[12px] text-slate-700 line-clamp-1 leading-snug mt-0.5">
                             {post.summary}
                           </p>
                         )}
@@ -347,7 +347,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
                   <p className="text-xs text-slate-800 font-medium tracking-wider">이 카테고리에 포스트가 없습니다</p>
-                  <p className="text-[11px] text-slate-500 mt-1 mb-3">콘텐츠를 생성한 후 블로그에 게시해보세요.</p>
+                  <p className="text-[11px] text-slate-700 mt-1 mb-3">콘텐츠를 생성한 후 블로그에 게시해보세요.</p>
                   <button
                     onClick={() => router.push('/generate')}
                     className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/30"

@@ -100,17 +100,17 @@ function markdownToHtml(text: string) {
       return `<div style="margin:28px 0 12px;padding:10px 16px;background:${c.bg};border-left:4px solid ${c.border};border-radius:0 10px 10px 0"><h2 style="font-size:1.1em;font-weight:700;color:${c.accent};margin:0">${title}</h2></div>`;
     });
     html = html
-      .replace(/^### (.*$)/gm, '<h3 style="font-size:1em;font-weight:700;color:#374151;margin:20px 0 6px;padding-left:12px;border-left:3px solid #c7d2fe">$1</h3>')
+      .replace(/^### (.*$)/gm, '<h3 style="font-size:1em;font-weight:700;color:#1f2937;margin:20px 0 6px;padding-left:12px;border-left:3px solid #c7d2fe">$1</h3>')
       .replace(/^# (.*$)/gm, '<h1 style="font-size:1.3em;font-weight:800;color:#4f46e5;margin:24px 0 12px">$1</h1>')
       // 마크다운 링크 [text](url) → <a> (이미지 ![]() 패턴은 제외)
       .replace(/(^|[^!])\[([^\]]+)\]\(([^)\s]+)\)/g, '$1<a href="$3" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;text-decoration:underline;font-weight:500;word-break:break-all">$2</a>')
       .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#1e293b">$1</strong>')
       .replace(/^\- (.*$)/gm, '<li style="margin-left:20px;list-style:none;margin-bottom:4px;padding-left:8px;position:relative"><span style="position:absolute;left:-14px;color:#6366f1;font-weight:bold">&#8226;</span>$1</li>')
-      .replace(/^\d+\. (.*$)/gm, '<li style="margin-left:20px;list-style:decimal;margin-bottom:4px;color:#374151">$1</li>')
-      .replace(/^> (.*$)/gm, '<blockquote style="border-left:4px solid #818cf8;padding:10px 16px;margin:12px 0;background:#eef2ff;border-radius:0 10px 10px 0;color:#374151;font-style:italic">$1</blockquote>');
+      .replace(/^\d+\. (.*$)/gm, '<li style="margin-left:20px;list-style:decimal;margin-bottom:4px;color:#1f2937">$1</li>')
+      .replace(/^> (.*$)/gm, '<blockquote style="border-left:4px solid #818cf8;padding:10px 16px;margin:12px 0;background:#eef2ff;border-radius:0 10px 10px 0;color:#1f2937;font-style:italic">$1</blockquote>');
     const trimmed = html.trim();
     if (/^<(h[1-6]|li|blockquote|div|table)/.test(trimmed)) return html;
-    return `<p style="margin-bottom:0.8em;line-height:1.8;color:#374151">${html.replace(/\n/g, '<br>')}</p>`;
+    return `<p style="margin-bottom:0.8em;line-height:1.8;color:#1f2937">${html.replace(/\n/g, '<br>')}</p>`;
   }).join('');
 }
 
@@ -262,7 +262,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
         {/* 뒤로가기 */}
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 mb-6 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 mb-6 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -283,7 +283,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                   {tag}
                 </span>
               )}
-              <time className="text-xs text-gray-400" dateTime={post.created_at}>
+              <time className="text-xs text-gray-700 font-medium" dateTime={post.created_at}>
                 {formatDate(post.created_at)}
               </time>
               {targetKeyword && (
@@ -301,7 +301,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
             {/* 요약 */}
             {summary && (
               <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <p className="text-sm text-gray-600 leading-relaxed">{summary}</p>
+                <p className="text-sm text-gray-800 leading-relaxed">{summary}</p>
               </div>
             )}
 
