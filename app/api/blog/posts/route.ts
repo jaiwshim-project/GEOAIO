@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
   let query = getSupabase()
     .from('blog_articles')
-    .select('id, title, summary, category, tag, hashtags, target_keyword, published, created_at, updated_at')
+    .select('id, title, summary, category, tag, hashtags, target_keyword, published, created_at, updated_at, author')
     .eq('published', true)
     .order('created_at', { ascending: false });
 

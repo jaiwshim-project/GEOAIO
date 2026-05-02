@@ -36,6 +36,31 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   ),
 };
 
+// 콘텐츠 언어 자동 감지 — 카테고리 페이지와 동일 휴리스틱
+type DetectedLang = 'ko' | 'en' | 'zh' | 'ja';
+function detectLanguage(text: string): DetectedLang {
+  if (!text) return 'ko';
+  const sample = text.slice(0, 1500);
+  const ko = (sample.match(/[가-힣]/g) || []).length;
+  const ja = (sample.match(/[぀-ゟ゠-ヿ]/g) || []).length;
+  const zh = (sample.match(/[一-鿿]/g) || []).length;
+  const en = (sample.match(/[a-zA-Z]/g) || []).length;
+  if (ja >= 5) return 'ja';
+  const candidates: Array<[DetectedLang, number]> = [['ko', ko], ['en', en], ['zh', zh]];
+  candidates.sort((a, b) => b[1] - a[1]);
+  const [topLang, topCount] = candidates[0];
+  if (topCount === 0) return 'ko';
+  if (topLang === 'zh' && ja >= 2) return 'ja';
+  return topLang;
+}
+
+const LANG_BADGE: Record<DetectedLang, { flag: string; label: string }> = {
+  ko: { flag: '🇰🇷', label: '한국어' },
+  en: { flag: '🇺🇸', label: 'English' },
+  zh: { flag: '🇨🇳', label: '中文' },
+  ja: { flag: '🇯🇵', label: '日本語' },
+};
+
 // 화이트 프리미엄 테마용 태그 컬러 — 라이트 배경 + 진한 텍스트 + 미세 보더
 const TAG_COLORS: Record<string, string> = {
   '가이드':   'bg-blue-50 text-blue-700 border border-blue-200',
@@ -67,6 +92,19 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
   const currentCategory = categories.find((c) => c.slug === activeTab) || categories[0];
   const filteredPosts = posts.filter((p) => p.category === activeTab);
 
+  // 언어별 카운트 — metadata.lang 우선(발행 시 박힌 명시 태그), 없으면 title 휴리스틱
+  // 총 글 수 = ko + en + zh + ja 합산
+  const langCounts = posts.reduce<Record<DetectedLang, number>>((acc, p) => {
+    const explicit = (p.metadata as { lang?: string } | undefined)?.lang as DetectedLang | undefined;
+    const validLangs: DetectedLang[] = ['ko', 'en', 'zh', 'ja'];
+    const lang: DetectedLang = (explicit && validLangs.includes(explicit))
+      ? explicit
+      : detectLanguage(`${p.title || ''} ${p.summary || ''}`);
+    acc[lang] = (acc[lang] || 0) + 1;
+    return acc;
+  }, { ko: 0, en: 0, zh: 0, ja: 0 });
+  const langTotal = langCounts.ko + langCounts.en + langCounts.zh + langCounts.ja;
+
   // 마운트 시 실시간 fetch — 페이지가 ISR(1시간 캐시)이라 새 글 발행 직후
   // 카운트가 갱신되지 않는 문제 해결. 초기 렌더는 ISR 캐시(빠름), 그 다음 5초 이내에
   // 최신 데이터로 덮어씌움. 카운트 + 리스트 모두 동기화.
@@ -82,23 +120,33 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
           id: string; title: string; summary?: string; category: string;
           tag?: string; hashtags?: string[]; target_keyword?: string;
           published?: boolean; created_at: string; updated_at: string;
+          author?: string | null;
         }>;
-        // BlogPost 형태로 정규화
-        const normalized: BlogPost[] = fresh.map(r => ({
-          id: r.id,
-          title: r.title,
-          content: '',  // 리스트는 content 미필요 (카드 표시용 메타만)
-          summary: r.summary || '',
-          category: r.category || '',
-          tag: r.tag || '',
-          hashtags: Array.isArray(r.hashtags) ? r.hashtags : [],
-          metadata: {},
-          targetKeyword: r.target_keyword || '',
-          historyId: '',
-          published: r.published ?? true,
-          createdAt: r.created_at,
-          updatedAt: r.updated_at,
-        }));
+        // BlogPost 형태로 정규화 — author JSON에서 metadata 파싱 (lang 등 보존)
+        const normalized: BlogPost[] = fresh.map(r => {
+          let parsedMeta: Record<string, unknown> = {};
+          if (r.author) {
+            try {
+              const m = JSON.parse(r.author);
+              parsedMeta = (m?.metadata as Record<string, unknown>) || m || {};
+            } catch {}
+          }
+          return {
+            id: r.id,
+            title: r.title,
+            content: '',  // 리스트는 content 미필요 (카드 표시용 메타만)
+            summary: r.summary || '',
+            category: r.category || '',
+            tag: r.tag || '',
+            hashtags: Array.isArray(r.hashtags) ? r.hashtags : [],
+            metadata: parsedMeta,
+            targetKeyword: r.target_keyword || '',
+            historyId: '',
+            published: r.published ?? true,
+            createdAt: r.created_at,
+            updatedAt: r.updated_at,
+          };
+        });
         // 기존 initialPosts와 병합 — 새 데이터가 있으면 교체, 없는 항목은 유지
         // (실시간 fetch가 실패한 항목 보존을 위해 두 set을 합집합으로)
         const map = new Map<string, BlogPost>();
@@ -205,11 +253,24 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
               <BlogHeroCallout />
 
               <div className="flex items-center flex-wrap gap-1.5 mt-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-medium tracking-wider text-slate-700 shadow-sm">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-bold tracking-wider text-slate-900 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse" />
-                  TOTAL · {posts.length}
+                  TOTAL · {langTotal}
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-medium tracking-wider text-slate-700 shadow-sm">
+                {/* 언어별 분해 — 한·영·중·일 합이 TOTAL과 동일 */}
+                {(['ko', 'en', 'zh', 'ja'] as DetectedLang[]).map((lng) => (
+                  langCounts[lng] > 0 && (
+                    <span
+                      key={lng}
+                      className="inline-flex items-center gap-1 px-2 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-bold tracking-wide text-slate-900 shadow-sm"
+                      title={`${LANG_BADGE[lng].label} ${langCounts[lng]}편`}
+                    >
+                      <span className="text-[12px] leading-none">{LANG_BADGE[lng].flag}</span>
+                      {langCounts[lng]}
+                    </span>
+                  )
+                ))}
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-bold tracking-wider text-slate-900 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse" />
                   {categories.length} CATEGORIES
                 </span>
