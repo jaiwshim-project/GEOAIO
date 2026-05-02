@@ -458,18 +458,18 @@ export default async function BlogCategoryPage({
               {pagedPosts.map((post) => (
                 <article
                   key={post.id}
-                  className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30"
+                  className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 active:border-amber-400 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 active:bg-amber-50/50"
                 >
-                  <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                  <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-2.5">
+                  <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-400 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200" />
+                  <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-3 sm:py-2.5 min-h-[64px] sm:min-h-0">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         {post.tag && (
-                          <span className={`px-1.5 py-0 text-[9px] tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-slate-100 text-slate-800 border border-slate-200'}`}>
+                          <span className={`px-1.5 py-0.5 text-[10px] sm:text-[9px] tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-slate-100 text-slate-800 border border-slate-200'}`}>
                             {post.tag}
                           </span>
                         )}
-                        <span className="text-[10px] tracking-wide text-slate-800">
+                        <span className="text-[11px] sm:text-[10px] tracking-wide text-slate-700 font-medium">
                           {formatDate(post.createdAt)}
                         </span>
                         {post.targetKeyword && (
@@ -479,7 +479,7 @@ export default async function BlogCategoryPage({
                         )}
                       </div>
                       <h2
-                        className="text-sm sm:text-[15px] font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-1"
+                        className="text-[14px] sm:text-[15px] font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-2 sm:line-clamp-1 break-keep"
                         style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                       >
                         {post.title}
@@ -526,8 +526,13 @@ export default async function BlogCategoryPage({
                   </span>
                 )}
 
-                {/* 페이지 번호 (현재 페이지 기준 ±2) */}
-                <div className="flex items-center gap-1 mx-1">
+                {/* 모바일: 'N / M' 컴팩트 표시 */}
+                <span className="sm:hidden inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md shadow-amber-500/40">
+                  {currentPage} / {totalPages}
+                </span>
+
+                {/* 데스크탑: 페이지 번호 (현재 페이지 기준 ±2) */}
+                <div className="hidden sm:flex items-center gap-1 mx-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter(n => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 2)
                     .map((n, idx, arr) => (
@@ -536,13 +541,13 @@ export default async function BlogCategoryPage({
                           <span className="px-1 text-slate-400 font-bold">…</span>
                         )}
                         {n === currentPage ? (
-                          <span className="inline-flex items-center justify-center min-w-[36px] h-9 px-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md shadow-amber-500/40">
+                          <span className="inline-flex items-center justify-center min-w-[44px] h-11 px-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md shadow-amber-500/40">
                             {n}
                           </span>
                         ) : (
                           <Link
                             href={buildPageHref(n)}
-                            className="inline-flex items-center justify-center min-w-[36px] h-9 px-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm"
+                            className="inline-flex items-center justify-center min-w-[44px] h-11 px-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 active:bg-amber-100 transition-all shadow-sm"
                           >
                             {n}
                           </Link>
