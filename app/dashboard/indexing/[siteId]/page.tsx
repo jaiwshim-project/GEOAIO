@@ -110,9 +110,36 @@ export default function IndexingDashboardPage({ params }: { params: Promise<{ si
         )}
 
         {data && !data.gscConfigured && (
-          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-            ⚠️ Google Search Console OAuth 환경변수(GSC_CLIENT_ID, GSC_CLIENT_SECRET, GSC_REFRESH_TOKEN)가 설정되지 않아 mock 데이터가 표시됩니다.
-            실데이터를 보려면 <a href="/docs/gsc-oauth-setup.md" target="_blank" rel="noopener noreferrer" className="underline font-semibold">설정 가이드</a>를 참고하세요.
+          <div className="mb-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl shadow-sm">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl shrink-0">⚠️</span>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-amber-900 mb-1">Google Search Console 연동 필요 — 현재 mock 데이터 표시 중</p>
+                <p className="text-xs text-slate-800 leading-relaxed mb-3">
+                  실데이터(색인 추이·미색인 사유·카테고리별 색인율)를 보려면 <strong>GSC_REFRESH_TOKEN</strong> 발급이 필요합니다.
+                  아래 버튼을 누르면 Google 동의 화면으로 이동 → 동의 후 표시되는 토큰을 채팅창에 알려주시면 자동 등록·재배포까지 진행합니다.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href="/api/indexing/oauth-start"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-lg shadow-md transition-all"
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M21.35 11.1H12v3.2h5.35c-.5 2.5-2.7 4.3-5.35 4.3a5.6 5.6 0 110-11.2c1.5 0 2.85.55 3.9 1.55l2.4-2.4A8.85 8.85 0 0012 3a9 9 0 100 18c5.2 0 8.95-3.65 8.95-8.8 0-.6-.05-1.05-.15-1.55z" />
+                    </svg>
+                    Google 인증 시작 (1분)
+                  </a>
+                  <a
+                    href="/docs/gsc-oauth-setup.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-amber-700 bg-white border border-amber-300 hover:bg-amber-50 rounded-lg transition-all"
+                  >
+                    📖 상세 가이드
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
