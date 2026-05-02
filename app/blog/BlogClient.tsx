@@ -150,6 +150,18 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
               <p className="text-slate-700 text-[12px] sm:text-[13px] leading-snug mt-1.5 max-w-2xl">
                 다양한 업종의 블로그·언론 기사·방송 콘텐츠를 한곳에서. AI 검색엔진에 최적화된 실제 운영 사례.
               </p>
+
+              {/* 강조 문장 — 색인·인용 최적화 메시지 */}
+              <div className="relative mt-3 max-w-3xl">
+                <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-amber-400/40 via-amber-500/25 to-amber-400/40 blur-[1px] opacity-70" />
+                <div className="relative flex items-start gap-2.5 px-3 py-2.5 bg-gradient-to-r from-amber-50 via-white to-amber-50 border border-amber-300 rounded-lg shadow-sm">
+                  <span className="shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 text-white text-[11px] font-bold mt-0.5">✓</span>
+                  <p className="text-[13px] sm:text-[14px] font-bold text-slate-900 leading-snug">
+                    본 블로그 사이트는 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-700 to-amber-600">구글 검색과 색인</span>, <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-700 to-indigo-700">AI 인용과 추천</span>에 최적화되어 <span className="underline decoration-amber-400 decoration-2 underline-offset-2">최대의 홍보와 마케팅 효과</span>를 제공합니다!
+                  </p>
+                </div>
+              </div>
+
               <div className="flex items-center flex-wrap gap-1.5 mt-3">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-full text-[10px] font-medium tracking-wider text-slate-700 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)] animate-pulse" />
