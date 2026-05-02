@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>디지털스마일치과 — 12개월 AI 검색 마케팅 로드맵 | GEO-AIO</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", "Malgun Gothic", sans-serif;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #fffbeb 100%);
+    color: #1f2937;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 60px 32px; }
+
+  /* Cover */
+  .cover {
+    text-align: center;
+    padding: 56px 32px;
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #f5f3ff 100%);
+    border: 1px solid #fcd34d;
+    border-radius: 20px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 40px -16px rgba(245, 158, 11, 0.25);
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, transparent, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%, transparent);
+  }
+  .cover .doc-type {
+    display: inline-block;
+    padding: 6px 16px;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .cover .recipient {
+    font-size: 13px;
+    color: #92400e;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cover h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+    line-height: 1.2;
+    font-family: ui-serif, Georgia, serif;
+  }
+  .cover .subtitle {
+    font-size: 17px;
+    color: #475569;
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+  .cover .clinic {
+    display: inline-block;
+    padding: 14px 28px;
+    background: white;
+    border: 2px solid #fcd34d;
+    border-radius: 14px;
+    margin-bottom: 24px;
+  }
+  .cover .clinic .name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    font-family: ui-serif, Georgia, serif;
+    margin-bottom: 4px;
+  }
+  .cover .clinic .doctor {
+    font-size: 13px;
+    color: #475569;
+    font-weight: 600;
+  }
+  .cover .meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    font-size: 12px;
+    color: #64748b;
+    border-top: 1px dashed #fcd34d;
+    padding-top: 20px;
+    margin-top: 12px;
+    justify-content: center;
+  }
+
+  /* Section */
+  .section {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 20px -8px rgba(15, 23, 42, 0.05);
+  }
+  .section.highlight-section {
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 50%, #f5f3ff 100%);
+    border: 2px solid #fbbf24;
+    box-shadow: 0 8px 32px -12px rgba(245, 158, 11, 0.25);
+  }
+  .section .section-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    font-weight: 800;
+    font-size: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.4);
+  }
+  .section h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+    font-family: ui-serif, Georgia, serif;
+  }
+  .section .lead {
+    font-size: 15px;
+    color: #475569;
+    margin-bottom: 28px;
+    border-left: 3px solid #fbbf24;
+    padding-left: 14px;
+  }
+  .section h3 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 28px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #fef3c7;
+  }
+  .section h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #475569;
+    margin: 18px 0 8px;
+  }
+  .section p { margin-bottom: 14px; color: #1f2937; }
+  .section ul, .section ol { margin: 12px 0 16px 22px; }
+  .section li { margin-bottom: 6px; color: #1f2937; }
+  .section strong { color: #92400e; font-weight: 700; }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .kpi-card {
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .kpi-card .label {
+    font-size: 11px;
+    color: #92400e;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .kpi-card .value {
+    font-size: 30px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    font-family: ui-serif, Georgia, serif;
+  }
+  .kpi-card .delta {
+    font-size: 12px;
+    color: #059669;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .kpi-card.violet { background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 100%); border-color: #c4b5fd; }
+  .kpi-card.violet .label { color: #5b21b6; }
+  .kpi-card.emerald { background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%); border-color: #6ee7b7; }
+  .kpi-card.emerald .label { color: #059669; }
+  .kpi-card.rose { background: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%); border-color: #fda4af; }
+  .kpi-card.rose .label { color: #be123c; }
+
+  /* Comparison Table - special styling */
+  .compare-table { margin: 20px 0; }
+  .compare-table th { background: #1f2937; color: white; }
+  .compare-table th.tistory { background: #ec4899; }
+  .compare-table th.geo { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .compare-table .winner-tistory td.geo-col { background: #fff7ed; }
+  .compare-table .winner-geo td.geo-col { background: #ecfdf5; font-weight: 700; }
+  .compare-table .winner-geo td.tistory-col { background: #fff1f2; color: #94a3b8; }
+  .compare-table td.icon-col { text-align: center; font-size: 18px; width: 50px; }
+
+  /* Standard Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  th {
+    background: #fffbeb;
+    color: #92400e;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-bottom: 2px solid #fbbf24;
+  }
+  tr:hover td { background: #fefce8; }
+  td.num { font-variant-numeric: tabular-nums; font-weight: 600; color: #0f172a; }
+
+  /* Highlight box */
+  .highlight {
+    background: linear-gradient(135deg, #fefce8 0%, #fffbeb 100%);
+    border: 2px solid #fbbf24;
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin: 22px 0;
+    position: relative;
+  }
+  .highlight::before {
+    content: '💡';
+    position: absolute;
+    top: -10px; left: 16px;
+    background: white;
+    padding: 0 8px;
+    font-size: 18px;
+  }
+  .highlight strong { color: #92400e; }
+
+  /* Quarter cards */
+  .quarter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .quarter {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .quarter.q1 { border-top: 4px solid #10b981; }
+  .quarter.q2 { border-top: 4px solid #f59e0b; }
+  .quarter.q3 { border-top: 4px solid #ec4899; }
+  .quarter.q4 { border-top: 4px solid #8b5cf6; }
+  .quarter .q-num {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+  }
+  .quarter.q1 .q-num { color: #059669; }
+  .quarter.q2 .q-num { color: #d97706; }
+  .quarter.q3 .q-num { color: #be185d; }
+  .quarter.q4 .q-num { color: #6d28d9; }
+  .quarter h5 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+    font-family: ui-serif, Georgia, serif;
+  }
+  .quarter .q-period {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .quarter ul { margin: 0 0 0 18px; padding: 0; }
+  .quarter li { font-size: 12px; color: #334155; line-height: 1.5; margin-bottom: 4px; }
+
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 13px;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #fcd34d;
+  }
+  .tag.success { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+  .tag.purple { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+  .tag.rose { background: #ffe4e6; color: #be123c; border-color: #fda4af; }
+
+  /* Bonus banner */
+  .bonus-banner {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 2px solid #10b981;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin: 24px 0;
+    position: relative;
+  }
+  .bonus-banner::before {
+    content: '🎁';
+    position: absolute;
+    top: -14px; left: 20px;
+    background: white;
+    padding: 4px 8px;
+    font-size: 24px;
+    border-radius: 8px;
+  }
+  .bonus-banner h4 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #065f46;
+    margin-bottom: 8px;
+    margin-top: 4px;
+  }
+  .bonus-banner p { color: #047857; margin-bottom: 0; }
+  .bonus-banner strong { color: #065f46; }
+
+  /* Service items */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .service {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+  }
+  .service .icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .service h6 { font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+  .service p { font-size: 12px; color: #64748b; margin: 0; line-height: 1.55; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 36px;
+    margin-top: 40px;
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+    border: 1px solid #fcd34d;
+    border-radius: 16px;
+    color: #475569;
+    font-size: 13px;
+  }
+  .footer .signature {
+    font-size: 16px;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 6px;
+    font-family: ui-serif, Georgia, serif;
+  }
+  .footer a { color: #92400e; text-decoration: none; font-weight: 600; }
+
+  /* Print */
+  @media print {
+    body { background: white; }
+    .section { break-inside: avoid; box-shadow: none; }
+    .cover { break-after: avoid; }
+  }
+
+  @media (max-width: 720px) {
+    .container { padding: 32px 16px; }
+    .cover { padding: 36px 20px; }
+    .cover h1 { font-size: 26px; }
+    .section { padding: 24px 20px; }
+    .section h2 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- COVER -->
+  <header class="cover">
+    <span class="doc-type">Annual Marketing Roadmap</span>
+    <p class="recipient">For · 디지털스마일치과</p>
+    <h1>AI 검색 시대의 12개월<br>치과 마케팅 로드맵</h1>
+    <p class="subtitle">자체 티스토리 월 150편 게시 계약을 GEO-AIO 통합 블로그로 운영하며<br>1분기(5~7월) 동안 한·영·중·일 4개 언어 1,800편을 보너스로 제공합니다</p>
+    <div class="clinic">
+      <div class="name">디지털스마일치과</div>
+      <div class="doctor">박찬익 원장 · 오민석 원장 · 대전시 서구</div>
+    </div>
+    <div class="meta">
+      <span>📅 보고일 2026-05-02</span>
+      <span>⏱ 캠페인 2026.05 ~ 2027.04 (12개월)</span>
+      <span>👤 운영 GEO-AIO · 심재우 대표</span>
+    </div>
+  </header>
+
+  <!-- 0. EXECUTIVE SUMMARY -->
+  <section class="section">
+    <div class="section-num">0</div>
+    <h2>핵심 요약 (Executive Summary)</h2>
+    <p class="lead">계약된 월 150편 게시는 자체 티스토리가 아닌 GEO-AIO 통합 블로그(www.geo-aio.com/blog)에서 운영합니다. 1분기(5~7월) 동안 한·영·중·일 4개 언어 자동 번역으로 <strong>외국인 환자 유치용 다국어 자산 1,350편을 보너스로 제공</strong>하며, 이 자산은 영구히 도메인에 누적됩니다.</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card emerald">
+        <div class="label">계약 기준</div>
+        <div class="value">150</div>
+        <div class="delta">편/월 한국어 (12개월)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Q1 보너스 (영·중·일)</div>
+        <div class="value">1,350</div>
+        <div class="delta">3개 언어 × 450편 무료</div>
+      </div>
+      <div class="kpi-card violet">
+        <div class="label">12개월 자산</div>
+        <div class="value">3,150</div>
+        <div class="delta">편 (한 1,800 + 외국어 1,350)</div>
+      </div>
+      <div class="kpi-card rose">
+        <div class="label">월 신규 환자 문의</div>
+        <div class="value">+100~200</div>
+        <div class="delta">12개월차 도달 (적극적 추정)</div>
+      </div>
+    </div>
+
+    <div class="bonus-banner">
+      <h4>1분기 한정 보너스 — 한·영·중·일 4개 언어 자동 번역 (3개월 동안 1,350편 무료)</h4>
+      <p>5~7월 3개월 동안 <strong>모든 한국어 글을 영어·중국어·일본어로 자동 번역해 동시 발행</strong>합니다. 3개 외국어 각 450편 = <strong>총 1,350편의 다국어 콘텐츠가 영구 자산으로 누적</strong>되어, Q2 이후에도 외국인 환자 검색 노출에 12개월 내내 활용됩니다. 별도 번역 외주 1,350편 = 약 6,750~13,500만원 가치를 무상 제공합니다.</p>
+    </div>
+  </section>
+
+  <!-- 1. WHY GEO-AIO BLOG (가장 중요한 섹션) -->
+  <section class="section highlight-section">
+    <div class="section-num">1</div>
+    <h2>왜 자체 티스토리가 아닌 GEO-AIO 블로그인가?</h2>
+    <p class="lead">계약서에는 "월 150편 게시"가 명시되어 있으나, 게시 위치를 자체 티스토리 → GEO-AIO 통합 블로그로 변경하는 것이 디지털스마일치과에 4가지 측면에서 압도적으로 유리합니다.</p>
+
+    <h3>1.1 핵심 차이 — 한눈에 비교</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="tistory">자체 티스토리 (계약 원안)</th>
+          <th class="geo">GEO-AIO 블로그 (실제 운영)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="winner-geo">
+          <td><strong>월 발행량</strong></td>
+          <td class="tistory-col">150편 (한국어 only, 12개월)</td>
+          <td class="geo-col">한국어 150편/월 × 12개월 + <strong>영·중·일 450편/월 × 3개월(Q1)</strong> = 12개월 누적 3,150편</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>외국인 환자 노출</strong></td>
+          <td class="tistory-col">불가 (한국어만)</td>
+          <td class="geo-col">Q1에 영·중·일 1,350편 누적 → <strong>이후 12개월 내내 검색 노출</strong> (대덕연구단지·세종 외국인·의료관광객)</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>AI 검색 인용 친화</strong></td>
+          <td class="tistory-col">티스토리 기본 — JSON-LD 미지원</td>
+          <td class="geo-col">JSON-LD 4종 (Article·FAQ·HowTo·Breadcrumb) 자동 적용</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>AI 봇 명시 허용</strong></td>
+          <td class="tistory-col">티스토리 정책 의존 (개별 차단 불가)</td>
+          <td class="geo-col">GPTBot·ClaudeBot·Google-Extended·PerplexityBot 5종 명시 허용</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>도메인 권위</strong></td>
+          <td class="tistory-col">티스토리 5,400만 블로거와 공유 — 분산</td>
+          <td class="geo-col">디지털스마일치과 카테고리에 집중 누적</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>구조화 데이터 시각화</strong></td>
+          <td class="tistory-col">티스토리 기본 템플릿</td>
+          <td class="geo-col">화이트 프리미엄 테마 + 카테고리별 대표·연락처 자동 표시</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>관련 글 자동 링크</strong></td>
+          <td class="tistory-col">단순 카테고리 매칭</td>
+          <td class="geo-col">Pillar/Spoke 시리즈 인식 + 같은 target_keyword 매칭</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>og:image 동적 생성</strong></td>
+          <td class="tistory-col">고정 썸네일</td>
+          <td class="geo-col">글마다 1200×630 자동 생성 (제목·카테고리 포함)</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>색인 캐시 (ISR)</strong></td>
+          <td class="tistory-col">티스토리 정책 (Cache-Control 미제어)</td>
+          <td class="geo-col">Vercel ISR 1시간 캐시 — Googlebot·AI 봇 친화</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>hreflang 다국어 신호</strong></td>
+          <td class="tistory-col">미지원</td>
+          <td class="geo-col">ko·en·zh·ja 4개 언어 alternates 자동 송출</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>색인·인용 자동 측정</strong></td>
+          <td class="tistory-col">미제공</td>
+          <td class="geo-col">매일 GSC + ChatGPT/Perplexity 인용 자동 측정</td>
+        </tr>
+        <tr class="winner-geo">
+          <td><strong>분석 대시보드</strong></td>
+          <td class="tistory-col">티스토리 통계 (방문수만)</td>
+          <td class="geo-col">색인 추이·미색인 사유·카테고리별 색인율 시각화</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>1.2 4가지 핵심 우위 상세 설명</h3>
+
+    <h4>① 4개 언어 자동 번역 — 같은 글이 4개 시장에 동시 진입</h4>
+    <p>박찬익 원장님이 작성한 한국어 콘텐츠 1편이 GEO-AIO에서는 자동으로 영어·중국어·일본어로 번역되어 동시 발행됩니다. 이는 단순한 양적 확장이 아닙니다:</p>
+    <ul>
+      <li><strong>대덕연구단지 외국인 연구원·교수</strong>: 영어 검색 → 영어 글이 검색됨</li>
+      <li><strong>세종시 외국 정부기관 관계자</strong>: 영어 검색</li>
+      <li><strong>중국·일본 의료관광 환자</strong>: 자국어로 검색 → 자국어 글이 검색됨</li>
+      <li><strong>AI 검색 다국어 인용</strong>: ChatGPT·Perplexity는 사용자 언어에 맞는 출처를 우선 인용</li>
+    </ul>
+    <p>티스토리에 한국어로만 게시하면 위 채널은 모두 닫혀 있습니다. 별도 번역 외주는 1편당 5~10만원 → 월 150편 = 1,500만원 추가 비용. <strong>GEO-AIO에서는 이 1,500만원이 자동 포함됩니다.</strong></p>
+
+    <h4>② AI 검색 인용 — JSON-LD 4종 자동 적용</h4>
+    <p>ChatGPT·Perplexity·Google AI Overview는 글에 다음 신호가 있는지를 보고 인용을 결정합니다:</p>
+    <ul>
+      <li><strong>Article schema</strong>: 작성자·발행일·언어·키워드 메타데이터</li>
+      <li><strong>FAQPage schema</strong>: Q&A 형식 → AI가 가장 우선 인용</li>
+      <li><strong>HowTo schema</strong>: 단계별 가이드 → 시술 절차 인용에 직접 사용</li>
+      <li><strong>BreadcrumbList schema</strong>: 사이트 내 위치·전문 영역 신호</li>
+    </ul>
+    <p>티스토리는 위 4가지를 자동 삽입하지 않습니다. 글이 잘 쓰여도 AI 검색이 인식할 메타데이터가 없으니 인용 후보에서 제외됩니다. GEO-AIO 블로그는 모든 글에 4종을 자동으로 삽입합니다.</p>
+
+    <h4>③ 도메인 권위 집중 — 분산 vs 누적</h4>
+    <p>티스토리는 5,400만 블로거가 공유하는 도메인이라 디지털스마일치과만의 권위가 형성되지 않습니다. 게시한 글은 검색 노출에서 다른 무관한 글들과 경쟁합니다.</p>
+    <p>GEO-AIO 블로그의 <code>/blog/category/디지털스마일치과</code> 카테고리는 디지털스마일치과 전용 영역이며, 발행하는 모든 콘텐츠가 이 카테고리에 누적됩니다. 시간이 갈수록 Google·AI 검색이 "디지털스마일치과 = 대전 디지털 정밀 진단의 권위 도메인"으로 인식하게 됩니다.</p>
+
+    <h4>④ AI 봇 명시 허용 — 검색 워커 진입 보장</h4>
+    <p>2026년부터 OpenAI(GPTBot)·Anthropic(ClaudeBot)·Google(Google-Extended)·Perplexity(PerplexityBot)·Amazon(Amazonbot)는 자체 크롤러로 콘텐츠를 학습·인용합니다. 이들의 진입을 robots.txt에 명시 허용해야 인용 후보가 됩니다.</p>
+    <p>티스토리 전체 정책상 이를 사이트 운영자가 제어할 수 없습니다. GEO-AIO 블로그는 5종 모두 명시 허용 상태입니다.</p>
+
+    <div class="highlight">
+      <strong>결론</strong>: 같은 150편을 작성하더라도 발행 위치에 따라 효과는 4~10배 차이가 발생합니다. GEO-AIO 통합 블로그 운영은 <strong>"콘텐츠가 진짜 자산이 되는가, 묻혀버리는가"</strong>의 분기점입니다.
+    </div>
+  </section>
+
+  <!-- 2. WHAT YOU GET -->
+  <section class="section">
+    <div class="section-num">2</div>
+    <h2>제공 서비스 — 계약 + α</h2>
+    <p class="lead">계약된 월 150편 게시에 추가되는 9개 서비스. 별도 비용 없음.</p>
+
+    <div class="services">
+      <div class="service">
+        <div class="icon">📝</div>
+        <div>
+          <h6>1. 월 150편 한국어 자동 발행 <span style="color:#10b981;">[계약]</span></h6>
+          <p>박찬익 원장 진료 사례·시술 정보를 15가지 톤으로 자동 생성. AX 프로젝트의 디지털 정밀 진단 노하우 강조.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">🌐</div>
+        <div>
+          <h6>2. 영·중·일 자동 번역 (1분기 한정, 1,350편 무료) <span style="color:#ec4899;">[Q1 보너스]</span></h6>
+          <p>5~7월 3개월간 모든 한국어 글을 영·중·일로 자동 번역 발행. 3개월에 누적되는 1,350편 다국어 콘텐츠는 영구 자산으로 누적되어 12개월 내내 외국인 환자 검색 노출에 활용. 별도 번역 외주 가치 약 6,750~13,500만원 무상.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">🎯</div>
+        <div>
+          <h6>3. JSON-LD 4종 자동 삽입 <span style="color:#10b981;">[보너스]</span></h6>
+          <p>Article·FAQ·HowTo·Breadcrumb 자동 적용. AI 검색 인용 신호 100% 적용.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">🏥</div>
+        <div>
+          <h6>4. 디지털스마일치과 전용 카테고리 <span style="color:#10b981;">[보너스]</span></h6>
+          <p>박찬익 원장·연락처·홈페이지 자동 노출. 한·영·중·일 언어 탭 전환.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">📊</div>
+        <div>
+          <h6>5. GSC 색인 모니터링 <span style="color:#10b981;">[보너스]</span></h6>
+          <p>매일 자동 색인 측정 + 카테고리별 색인율 시각화 대시보드.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">🔍</div>
+        <div>
+          <h6>6. AI 인용률 자동 측정 <span style="color:#10b981;">[보너스]</span></h6>
+          <p>매일 ChatGPT·Perplexity 검색에서 디지털스마일치과 인용 발생 자동 추적.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">🔗</div>
+        <div>
+          <h6>7. 외부 백링크 캠페인 <span style="color:#10b981;">[보너스]</span></h6>
+          <p>Tistory metabiz101(5,400편)·LinkedIn에서 디지털스마일치과 카테고리로 백링크 누적.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">📱</div>
+        <div>
+          <h6>8. SNS 공유 버튼 자동 <span style="color:#10b981;">[보너스]</span></h6>
+          <p>Facebook·LinkedIn·카카오톡 공유 버튼 + 동적 og:image 1200×630.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div class="icon">📈</div>
+        <div>
+          <h6>9. 분기별 성과 보고서 <span style="color:#10b981;">[보너스]</span></h6>
+          <p>3개월마다 색인·트래픽·AI 인용·환자 문의 추이 + 다음 분기 전략 제안.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>2.1 의료광고법 준수 운영</h3>
+    <ul>
+      <li>모든 콘텐츠는 <strong>정보 제공 형식</strong>으로 작성 (시술 결과 보장 표현 금지)</li>
+      <li>수술 전후 비교 사진은 사용하지 않음 (의료법 27조 준수)</li>
+      <li>치료 효과는 <strong>"환자 상태에 따라 다름"</strong> 명시</li>
+      <li>환자 후기는 본인 동의·실명 기준만 게시</li>
+      <li>가격 정보는 <strong>범위 표기</strong>로 제공</li>
+    </ul>
+  </section>
+
+  <!-- 3. CLINIC PROFILE -->
+  <section class="section">
+    <div class="section-num">3</div>
+    <h2>디지털스마일치과 핵심 자산</h2>
+    <p class="lead">15년 임상 + AX 프로젝트(디지털 정밀 진단 시스템). AI 검색이 인용할 만한 강력한 권위 신호.</p>
+
+    <table>
+      <tbody>
+        <tr><td><strong>위치</strong></td><td>대전광역시 서구</td></tr>
+        <tr><td><strong>대표 원장</strong></td><td>박찬익 원장 / 오민석 원장</td></tr>
+        <tr><td><strong>임상 경력</strong></td><td>박찬익 원장 15년+</td></tr>
+        <tr><td><strong>핵심 시스템</strong></td><td>AX 프로젝트 (3D CT + 디지털 시뮬레이션 + 가이드 시술 + 데이터 평생 보존)</td></tr>
+        <tr><td><strong>진료 영역</strong></td><td>디지털 임플란트 · 성인 교정 · 라미네이트 · 보철 · 틀니 · 사후관리</td></tr>
+        <tr><td><strong>차별점</strong></td><td>±0.1mm 정확도 가이드 시술, 환자 데이터 평생 보존</td></tr>
+        <tr><td><strong>연락처</strong></td><td>042-721-2820 · digitalsmiledc@naver.com</td></tr>
+        <tr><td><strong>홈페이지</strong></td><td>digitalsmiledc.com</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4. ROADMAP -->
+  <section class="section">
+    <div class="section-num">4</div>
+    <h2>12개월 로드맵</h2>
+    <p class="lead">Q1(5~7월) 동안 한·영·중·일 4개 언어로 1,800편 폭발 발행 → 외국인 환자 시드 자산 확보. Q2 이후는 한국어 콘텐츠 + Q1 다국어 자산을 활용해 환자 전환·자동화 단계 진행.</p>
+
+    <div class="quarter-grid">
+      <div class="quarter q1">
+        <div class="q-num">Q1 · 다국어 폭발 발행</div>
+        <h5>외국어 시드 + 색인 가속</h5>
+        <div class="q-period">2026.05 ~ 07</div>
+        <ul>
+          <li>월 600편 (한 150 + 영중일 450)</li>
+          <li>3개월 누적 1,800편 (외국어 1,350 포함)</li>
+          <li>4개 언어 카테고리 페이지 안정화</li>
+          <li>외부 백링크 9편</li>
+          <li>샘플 색인 5 → 35+</li>
+          <li><strong>외국어 시드 자산 12개월간 활용 시작</strong></li>
+        </ul>
+      </div>
+      <div class="quarter q2">
+        <div class="q-num">Q2 · 권위 확장</div>
+        <h5>AI 인용 임계점</h5>
+        <div class="q-period">2026.08 ~ 10</div>
+        <ul>
+          <li>한국어 월 150편 (계약 유지)</li>
+          <li>박찬익 원장 인터뷰 시리즈</li>
+          <li>환자 케이스 스터디 (동의 기준)</li>
+          <li>누적 2,250편 (한 + Q1 외국어)</li>
+          <li>AI 검색 인용 첫 발생</li>
+        </ul>
+      </div>
+      <div class="quarter q3">
+        <div class="q-num">Q3 · 환자 전환</div>
+        <h5>지역·시술 키워드 점유</h5>
+        <div class="q-period">2026.11 ~ 2027.01</div>
+        <ul>
+          <li>한국어 월 150편 (계약 유지)</li>
+          <li>"대전 + 시술" 키워드 점유</li>
+          <li>예약 페이지 전환 추적</li>
+          <li>누적 2,700편</li>
+          <li>월 환자 문의 50~100건</li>
+        </ul>
+      </div>
+      <div class="quarter q4">
+        <div class="q-num">Q4 · 자동화 완성</div>
+        <h5>외국인 환자 + 자동 운영</h5>
+        <div class="q-period">2027.02 ~ 04</div>
+        <ul>
+          <li>한국어 월 150편 (계약 유지)</li>
+          <li>Q1 외국어 자산이 외국인 환자 유입 본격화</li>
+          <li>누적 3,150편</li>
+          <li>월 환자 문의 100~200건 (외국인 60~110)</li>
+          <li>2년차 전략 수립</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>4.1 월별 세부 일정</h3>
+    <table>
+      <thead>
+        <tr><th>월</th><th>핵심 과업</th><th>월 발행</th><th>누적</th><th>측정 지표</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>5월</strong></td><td>플랫폼 셋업 · 4개 언어 동시 발행 시작 (Q1 보너스)</td><td class="num">600 (한 150 + 외 450)</td><td class="num">600</td><td>색인 5 → 25</td></tr>
+        <tr><td><strong>6월</strong></td><td>라미네이트·보철 4개 언어 발행 + 백링크</td><td class="num">600 (한 150 + 외 450)</td><td class="num">1,200</td><td>색인 25 → 50</td></tr>
+        <tr><td><strong>7월</strong></td><td>틀니·사후관리 4개 언어 발행 · Q1 보너스 종료</td><td class="num">600 (한 150 + 외 450)</td><td class="num">1,800</td><td>외국어 시드 1,350편 완료</td></tr>
+        <tr><td><strong>8월</strong></td><td>한국어 전환 · 박찬익 원장 인터뷰 시리즈</td><td class="num">150 (한국어)</td><td class="num">1,950</td><td>AI 인용 첫 발생</td></tr>
+        <tr><td><strong>9월</strong></td><td>환자 케이스 스터디 (의료법 준수)</td><td class="num">150 (한국어)</td><td class="num">2,100</td><td>월 트래픽 1,500+</td></tr>
+        <tr><td><strong>10월</strong></td><td>지역·시술 키워드 점유 강화</td><td class="num">150 (한국어)</td><td class="num">2,250</td><td>대전 검색 상위 진입</td></tr>
+        <tr><td><strong>11월</strong></td><td>예약 추적 설치 · 전환 측정 시작</td><td class="num">150 (한국어)</td><td class="num">2,400</td><td>환자 문의 측정 시작</td></tr>
+        <tr><td><strong>12월</strong></td><td>연말 시즌 콘텐츠 (교정 시작)</td><td class="num">150 (한국어)</td><td class="num">2,550</td><td>월 문의 15~30건</td></tr>
+        <tr><td><strong>1월</strong></td><td>1년차 중간 점검 · 외국어 자산 효과 검증</td><td class="num">150 (한국어)</td><td class="num">2,700</td><td>월 문의 30~60건</td></tr>
+        <tr><td><strong>2월</strong></td><td>외국인 환자 유입 본격화 (Q1 외국어 자산 활용)</td><td class="num">150 (한국어)</td><td class="num">2,850</td><td>외국인 검색 노출 +30%</td></tr>
+        <tr><td><strong>3월</strong></td><td>2년차 전략 수립</td><td class="num">150 (한국어)</td><td class="num">3,000</td><td>월 문의 60~120건</td></tr>
+        <tr><td><strong>4월</strong></td><td>최종 보고 · 자동화 완성</td><td class="num">150 (한국어)</td><td class="num">3,150</td><td>월 문의 100~200건</td></tr>
+      </tbody>
+    </table>
+
+    <div class="highlight">
+      <strong>Q1(5~7월) 핵심</strong>: 3개월 동안 외국어 1,350편(영 450 + 중 450 + 일 450)을 누적해 도메인에 영구 자산화. Q2 이후 외국어 추가 발행 없이도, Q1 누적 외국어 자산만으로 외국인 환자 검색 노출이 12개월 내내 효과를 발휘합니다. <strong>외국어 콘텐츠는 시간이 지나도 유효</strong>하며, AI 검색이 자국어 검색자에게 우선 인용합니다.
+    </div>
+  </section>
+
+  <!-- 5. KPI -->
+  <section class="section">
+    <div class="section-num">5</div>
+    <h2>측정 지표 (KPI)</h2>
+    <p class="lead">"환자 행동으로 이어지는 신호"를 측정. 4개 영역 12개 지표.</p>
+
+    <h3>5.1 색인·노출 지표 (분기)</h3>
+    <table>
+      <thead><tr><th>지표</th><th>현재</th><th>3개월</th><th>6개월</th><th>12개월</th></tr></thead>
+      <tbody>
+        <tr><td>샘플 색인율</td><td class="num">8%</td><td class="num">60%</td><td class="num">85%</td><td class="num">95%+</td></tr>
+        <tr><td>Google site: 결과</td><td class="num">0</td><td class="num">200+</td><td class="num">500+</td><td class="num">1,000+</td></tr>
+        <tr><td>대전+시술 키워드 노출</td><td class="num">0</td><td class="num">50+</td><td class="num">200+</td><td class="num">500+</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.2 AI 검색 인용 지표 (월)</h3>
+    <table>
+      <thead><tr><th>지표</th><th>현재</th><th>3개월</th><th>6개월</th><th>12개월</th></tr></thead>
+      <tbody>
+        <tr><td>ChatGPT 검색 인용</td><td class="num">0</td><td class="num">5+</td><td class="num">30+</td><td class="num">100+</td></tr>
+        <tr><td>Perplexity 인용</td><td class="num">0</td><td class="num">3+</td><td class="num">20+</td><td class="num">80+</td></tr>
+        <tr><td>Google AI Overview</td><td class="num">0</td><td class="num">2+</td><td class="num">10+</td><td class="num">30+</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.3 환자 행동 지표 (월)</h3>
+    <table>
+      <thead><tr><th>지표</th><th>현재</th><th>3개월</th><th>6개월</th><th>12개월</th></tr></thead>
+      <tbody>
+        <tr><td>월 자연 트래픽</td><td class="num">0</td><td class="num">2,500+</td><td class="num">8,000+</td><td class="num">15,000+</td></tr>
+        <tr><td>예약·문의 클릭 (총)</td><td class="num">0</td><td class="num">15~30</td><td class="num">50~100</td><td class="num">100~200</td></tr>
+        <tr><td>· 그 중 외국인 채널</td><td class="num">0</td><td class="num">5~15</td><td class="num">25~60</td><td class="num">60~110</td></tr>
+        <tr><td>외국인 검색 유입 (트래픽)</td><td class="num">0</td><td class="num">100+</td><td class="num">500+</td><td class="num">1,500+</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.4 콘텐츠 자산 지표 (분기)</h3>
+    <table>
+      <thead><tr><th>지표</th><th>현재</th><th>3개월 (Q1 종료)</th><th>6개월</th><th>12개월</th></tr></thead>
+      <tbody>
+        <tr><td>발행 콘텐츠 (한국어)</td><td class="num">60</td><td class="num">450</td><td class="num">900</td><td class="num">1,800</td></tr>
+        <tr><td>발행 콘텐츠 (영·중·일 누적)</td><td class="num">0</td><td class="num">1,350</td><td class="num">1,350</td><td class="num">1,350</td></tr>
+        <tr><td>총 콘텐츠 자산</td><td class="num">60</td><td class="num">1,800</td><td class="num">2,250</td><td class="num">3,150</td></tr>
+        <tr><td>JSON-LD 4종 적용률</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:#64748b;">※ 영·중·일 콘텐츠는 Q1(3개월)에만 1,350편 누적. Q2 이후는 한국어만 발행하나, 외국어 자산은 도메인에 영구 누적되어 12개월 내내 활용.</p>
+  </section>
+
+  <!-- 6. EXPECTED IMPACT -->
+  <section class="section">
+    <div class="section-num">6</div>
+    <h2>예상 효과 (Expected Impact)</h2>
+    <p class="lead">매출·환자·브랜드 3축 임팩트.</p>
+
+    <h3>6.1 매출 임팩트 (적극적 추정)</h3>
+    <p>가정: 월 환자 문의 1건당 평균 시술 매출 80만원 (임플란트·교정 평균치)</p>
+    <table>
+      <thead><tr><th>구간</th><th>월 문의</th><th>내원율</th><th>시술 전환</th><th>월 매출 추정</th></tr></thead>
+      <tbody>
+        <tr><td>1~3개월</td><td class="num">15~30</td><td class="num">40%</td><td class="num">6~12</td><td class="num">480~960만원</td></tr>
+        <tr><td>4~6개월</td><td class="num">50~100</td><td class="num">45%</td><td class="num">22~45</td><td class="num">1,800~3,600만원</td></tr>
+        <tr><td>7~12개월</td><td class="num">100~200</td><td class="num">50%</td><td class="num">50~100</td><td class="num">4,000~8,000만원</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:#64748b;margin-top:8px;">※ 위 수치는 <strong>적극적 추정 시나리오</strong>입니다. AI 검색 인용·외국어 자산 효과·도메인 권위 누적이 모두 정상 진행되었을 때의 상한 기댓값. 실제는 외부 변수(경쟁 치과·계절·환율 등)에 따라 변동 가능하며, 보수적 시나리오 기준으로는 위 수치의 30~50% 수준에서 형성될 수 있습니다.</p>
+
+    <h3>6.2 외국인 환자 채널 — Q1 1,350편이면 충분한 이유</h3>
+    <p>1분기(5~7월)에만 외국어 1,350편(각 언어 450편)을 누적합니다. 이 자산만으로 12개월 내내 외국인 환자 유치에 충분한 이유:</p>
+    <ul>
+      <li><strong>외국어 콘텐츠는 시간이 지나도 유효</strong> — 영어 임플란트 정보, 중국어 라미네이트 가격대, 일본어 교정 기간 등은 신선도가 중요하지 않은 정보형 콘텐츠. 한 번 색인되면 반영구적으로 검색에 노출됩니다.</li>
+      <li><strong>각 언어 450편 = 시술별 모든 검색 의도 커버</strong> — 6개 진료 영역(임플란트·교정·라미네이트·보철·틀니·사후관리) × 시술별 핵심 의도 75개 = 450편이면 외국인 환자가 자국어로 검색하는 거의 모든 키워드 패턴 점유 가능</li>
+      <li><strong>외국어 검색량 자체가 작음</strong> — 대전·충청 지역 외국어 치과 검색 절대량은 한국어의 5~10% 수준. 1,350편이면 시장 포화 도달 가능</li>
+      <li><strong>AI 검색이 자국어 출처 우선 인용</strong> — ChatGPT·Perplexity는 사용자 언어와 일치하는 출처를 1순위 인용. 영어 검색자에게는 영어 콘텐츠가, 中文 검색자에게는 中文 콘텐츠가 인용됩니다</li>
+    </ul>
+
+    <h4>도달 가능 시장 (Q1 외국어 1,350편 자산)</h4>
+    <table>
+      <thead><tr><th>시장</th><th>규모</th><th>도달 채널</th><th>예상 월 문의 (12개월차)</th></tr></thead>
+      <tbody>
+        <tr><td>대덕연구단지·KAIST 외국인 연구원</td><td class="num">~3,000명</td><td>영어 검색</td><td class="num">20~40건</td></tr>
+        <tr><td>세종시 외국 정부기관 관계자·가족</td><td class="num">~1,500명</td><td>영어 검색</td><td class="num">10~20건</td></tr>
+        <tr><td>중국 의료관광 환자 (인천공항 1시간)</td><td class="num">월 100~500명</td><td>中文 검색 + AI</td><td class="num">20~30건</td></tr>
+        <tr><td>일본 의료관광 환자 (저가 진료 선호)</td><td class="num">월 50~200명</td><td>日本語 검색 + AI</td><td class="num">10~20건</td></tr>
+        <tr><td><strong>합계 (외국인 신규 채널)</strong></td><td>—</td><td>—</td><td class="num"><strong>월 60~110건</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px;color:#64748b;margin-top:8px;">※ 위 수치는 보수적 추정이 아닌 <strong>적극적 추정</strong>입니다. AI 검색이 자국어 출처를 우선 인용하는 패턴이 안정화되고, GEO-AIO 다국어 자산 1,350편이 시장 키워드를 충분히 점유했을 때의 상한 시나리오. 실제는 외부 변수(경쟁 치과 진입·환율·의료관광 정책 등)에 따라 변동 가능. Q1 1,350편 발행 종료 후에도 이 자산은 영구히 도메인에 누적되어 12개월 내내 외국인 환자 유입에 활용됩니다.</p>
+
+    <div class="bonus-banner" style="margin-top:24px;">
+      <h4>Q1 한정 보너스의 진짜 가치 — 1,350편 = 영구 자산</h4>
+      <p>외국어 번역 외주 시장 가격: 1편당 5~10만원. 1,350편 = <strong>약 6,750~13,500만원 가치</strong>. GEO-AIO는 자체 AI 번역 시스템(한국어 → 영·중·일 자동)으로 이를 무상 제공하며, 결과물은 <strong>디지털스마일치과 도메인의 영구 자산</strong>으로 누적됩니다.</p>
+    </div>
+
+    <h3>6.3 브랜드 인지도</h3>
+    <ul>
+      <li>박찬익 원장의 <strong>"AX 프로젝트"</strong>가 대전 디지털 정밀 진료 분야의 시그니처 키워드로 자리잡음</li>
+      <li>"대전 임플란트", "디지털 정밀 진단", "성인 교정 디지털"에서 디지털스마일치과가 첫 답변 후보</li>
+      <li>외국인 환자 진료 시 자국어 사전 정보 제공 → 진료 신뢰도 ↑</li>
+    </ul>
+
+    <h3>6.4 12개월 후 자산 가치</h3>
+    <div class="highlight">
+      <strong>1년 후 자산</strong>: 한국어 1,800편 + 영·중·일 1,350편 = <strong>총 3,150편 콘텐츠 자산 누적</strong>.<br><br>
+      <strong>외국어 자산은 시간이 지나도 가치 유지</strong> — 영어 임플란트 정보, 중국어 라미네이트 가격대, 일본어 교정 기간 같은 정보형 콘텐츠는 신선도가 중요하지 않아 한 번 발행되면 반영구적 검색 노출. Q1에 집중 발행 후 Q2~Q4에 추가 번역 없이도 외국인 환자 유입 채널이 12개월 내내 작동합니다.<br><br>
+      <strong>2년차 운영 비용 점진 감소</strong> — 도메인 권위가 누적되어 신규 콘텐츠 1편당 색인 시간이 며칠로 단축. 한국어 신규 발행만으로도 검색 노출이 보장됩니다.
+    </div>
+  </section>
+
+  <!-- 7. RISKS -->
+  <section class="section">
+    <div class="section-num">7</div>
+    <h2>리스크 및 대응</h2>
+    <table>
+      <thead><tr><th>리스크</th><th>영향</th><th>확률</th><th>대응</th></tr></thead>
+      <tbody>
+        <tr><td>의료광고법 위반 의심</td><td>강</td><td>낮음</td><td>발행 전 자동 검사 · 가격 범위·결과 표현 자동 필터</td></tr>
+        <tr><td>Google 색인 지연</td><td>중</td><td>낮음</td><td>외부 백링크 추가 · GSC 강제 인덱싱 일일 한도 100% 활용</td></tr>
+        <tr><td>경쟁 치과 동일 전략 도입</td><td>중</td><td>중</td><td>박찬익 원장 AX 프로젝트는 모방 어려움 · 콘텐츠 깊이로 우위</td></tr>
+        <tr><td>AI 검색 알고리즘 변화</td><td>중</td><td>중</td><td>JSON-LD·E-E-A-T는 OpenAI·Anthropic·Google 공통 신호 → 안정</td></tr>
+        <tr><td>4개 언어 번역 품질</td><td>약</td><td>낮음</td><td>의학 용어 번역 사전 적용 · 분기별 원어민 검수</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 8. REPORTING -->
+  <section class="section">
+    <div class="section-num">8</div>
+    <h2>정기 보고 일정</h2>
+    <table>
+      <thead><tr><th>주기</th><th>내용</th><th>형태</th></tr></thead>
+      <tbody>
+        <tr><td><strong>월간</strong> (1일)</td><td>전월 색인·트래픽·AI 인용·문의 수치</td><td>이메일 1페이지 요약</td></tr>
+        <tr><td><strong>분기</strong> (3·6·9·12개월)</td><td>분기 성과 + 다음 분기 전략</td><td>HTML 보고서</td></tr>
+        <tr><td><strong>대면 미팅</strong></td><td>분기 1회 (대전 방문 또는 화상)</td><td>박찬익 원장 직접 논의</td></tr>
+        <tr><td><strong>긴급 알림</strong></td><td>색인 급변·AI 인용 첫 발생·이상 트래픽</td><td>실시간 메시지</td></tr>
+      </tbody>
+    </table>
+
+    <h3>8.1 박찬익 원장께 요청드리는 사항</h3>
+    <ul>
+      <li><strong>월 1회 인터뷰</strong> (30분): 진료 케이스·환자 질문 공유</li>
+      <li><strong>케이스 스터디 동의 받기</strong>: 환자 동의 가능 사례 공유 (Q2 시작)</li>
+      <li><strong>신규 시술·장비 소식</strong>: 도입 시 즉시 공유</li>
+      <li><strong>분기 미팅 참석</strong>: 데이터 검토 + 다음 분기 방향 협의</li>
+    </ul>
+  </section>
+
+  <!-- 9. NEXT STEPS -->
+  <section class="section">
+    <div class="section-num">9</div>
+    <h2>당장의 다음 단계 (Next 30 Days)</h2>
+    <ol style="font-size:15px;line-height:2;">
+      <li><strong>5월 1주차</strong>: GSC 색인 측정 자동화 가동 (이미 완료)</li>
+      <li><strong>5월 2주차</strong>: Tistory metabiz101에 디지털스마일치과 첫 백링크 게시 (5/4)</li>
+      <li><strong>5월 3주차</strong>: 임플란트·교정 시술별 추가 콘텐츠 발행 (한·영·중·일)</li>
+      <li><strong>5월 4주차</strong>: 1차 자동 측정 보고 → 박찬익 원장께 이메일 1페이지 요약</li>
+      <li><strong>6월 1주차</strong>: 박찬익 원장 첫 월간 인터뷰 (30분)</li>
+      <li><strong>6월 2~4주차</strong>: 라미네이트·보철 콘텐츠 + LinkedIn 백링크 추가</li>
+    </ol>
+
+    <div class="highlight">
+      <strong>박찬익 원장께 부탁드릴 것 (5월 안)</strong>: ① 월 1회 인터뷰 일정(30분) ② AX 프로젝트 진행 사례 1~2개 공유 ③ 디지털스마일치과 홈페이지(digitalsmiledc.com)에서 GEO-AIO 블로그 카테고리로 링크 1개 추가 (백링크 가속)
+    </div>
+
+    <h3>9.1 6주간 백링크 실행 로드맵 (총 9회)</h3>
+    <p>신규 도메인 색인 가속을 위해 GEO-AIO 운영진이 직접 외부 채널(Tistory metabiz101 + LinkedIn)에 게시하는 백링크 캠페인. 본 일정은 추가 비용 없이 GEO-AIO 측에서 전부 작성·게시합니다.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>날짜</th>
+          <th>요일</th>
+          <th>채널</th>
+          <th>주제</th>
+          <th>대상 백링크 페이지</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="num">1</td>
+          <td><strong>2026-05-04</strong></td>
+          <td>월</td>
+          <td><span class="tag" style="background:#fef3c7;color:#92400e;">Tistory</span></td>
+          <td>대전 디지털스마일치과, AI 검색이 인용하는 치과 콘텐츠 만든 방법</td>
+          <td>/blog/category/디지털스마일치과</td>
+        </tr>
+        <tr>
+          <td class="num">2</td>
+          <td><strong>2026-05-05</strong></td>
+          <td>화</td>
+          <td><span class="tag purple">LinkedIn</span></td>
+          <td>ChatGPT·Perplexity가 인용하는 치과 정보, 어떻게 만드는가</td>
+          <td>/blog/category/디지털스마일치과</td>
+        </tr>
+        <tr>
+          <td class="num">3</td>
+          <td><strong>2026-05-11</strong></td>
+          <td>월</td>
+          <td><span class="tag" style="background:#fef3c7;color:#92400e;">Tistory</span></td>
+          <td>디지털 임플란트 vs 기존 임플란트 — AI 검색이 답하는 비교 가이드</td>
+          <td>/blog/category/디지털스마일치과 + 임플란트 글</td>
+        </tr>
+        <tr>
+          <td class="num">4</td>
+          <td><strong>2026-05-18</strong></td>
+          <td>월</td>
+          <td><span class="tag" style="background:#fef3c7;color:#92400e;">Tistory</span></td>
+          <td>병원이 직접 운영하는 AI 마케팅 플랫폼을 만들었습니다 — GEO-AIO 후기</td>
+          <td>/blog/category/geo-aio</td>
+        </tr>
+        <tr>
+          <td class="num">5</td>
+          <td><strong>2026-05-19</strong></td>
+          <td>화</td>
+          <td><span class="tag purple">LinkedIn</span></td>
+          <td>AI 검색 시대, 콘텐츠 마케팅 자동화 플랫폼을 만든 이야기</td>
+          <td>/blog/category/geo-aio</td>
+        </tr>
+        <tr>
+          <td class="num">6</td>
+          <td><strong>2026-05-25</strong></td>
+          <td>월</td>
+          <td><span class="tag" style="background:#fef3c7;color:#92400e;">Tistory</span></td>
+          <td>디지털 교정·라미네이트 시술의 AI 검색 최적화 — 대전 디지털스마일치과 사례</td>
+          <td>/blog/category/디지털스마일치과</td>
+        </tr>
+        <tr>
+          <td class="num">7</td>
+          <td><strong>2026-06-01</strong></td>
+          <td>월</td>
+          <td><span class="tag" style="background:#fef3c7;color:#92400e;">Tistory</span></td>
+          <td>한 번에 15톤 콘텐츠를 자동 생성하는 방법 — GEO-AIO 시리즈 엔진</td>
+          <td>/blog/category/geo-aio</td>
+        </tr>
+        <tr>
+          <td class="num">8</td>
+          <td><strong>2026-06-02</strong></td>
+          <td>화</td>
+          <td><span class="tag purple">LinkedIn</span></td>
+          <td>콘텐츠 자동 생성, 한 번에 15가지 톤이라면?</td>
+          <td>/blog/category/geo-aio</td>
+        </tr>
+        <tr>
+          <td class="num">9</td>
+          <td><strong>2026-06-08</strong></td>
+          <td>월</td>
+          <td><span class="tag" style="background:#fef3c7;color:#92400e;">Tistory</span></td>
+          <td>박찬익 원장의 AX 프로젝트 — 진단부터 사후관리까지 디지털 정밀 시스템</td>
+          <td>/blog/category/디지털스마일치과</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>9.1.1 채널·주제 분배 전략</h4>
+    <table>
+      <thead><tr><th>구분</th><th>건수</th><th>비중</th><th>이유</th></tr></thead>
+      <tbody>
+        <tr><td>Tistory (metabiz101.tistory.com)</td><td class="num">6편</td><td class="num">67%</td><td>5,400편 운영 권위 도메인 → 백링크 SEO 효과 ⭐⭐⭐⭐⭐</td></tr>
+        <tr><td>LinkedIn (개인 계정)</td><td class="num">3편</td><td class="num">33%</td><td>전문가 네트워크 노출 + 24시간 followed 링크 ⭐⭐⭐</td></tr>
+        <tr><td><strong>주제: 디지털스마일치과</strong></td><td class="num">5편</td><td class="num">56%</td><td>실제 클라이언트 → 자연스러운 톤, 토픽 권위 누적</td></tr>
+        <tr><td>주제: GEO-AIO 플랫폼</td><td class="num">4편</td><td class="num">44%</td><td>중간에 끼워 같은 도메인 반복 패턴 회피</td></tr>
+      </tbody>
+    </table>
+
+    <h4>9.1.2 게시 시각·운영 원칙</h4>
+    <ul>
+      <li><strong>Tistory</strong>: 매주 <strong>월요일 09:00 KST</strong> 게시 (검색엔진 크롤링·주간 트래픽 사이클 친화)</li>
+      <li><strong>LinkedIn</strong>: 매주 <strong>화요일 10:00 KST</strong> 게시 (LinkedIn 알고리즘 도달률 최적 시간)</li>
+      <li>Tistory 본문 내 디지털스마일치과 카테고리 외부 링크 1~2개 (rel="follow" 기본)</li>
+      <li>LinkedIn 본문에 디지털스마일치과 카테고리 직접 링크 (첫 24시간 followed)</li>
+      <li>각 글 게시 후 24시간 내 GSC URL 검사로 카테고리 페이지 색인 강제 요청 (1일 10편 한도 내)</li>
+      <li>해시태그 7개 (#디지털스마일치과 #박찬익원장 #대전임플란트 #AI검색최적화 #GEO #AIO 등)</li>
+    </ul>
+
+    <h4>9.1.3 6주 후 예상 효과 (캠페인 종료 시점 6/14)</h4>
+    <div class="kpi-grid">
+      <div class="kpi-card emerald">
+        <div class="label">샘플 색인</div>
+        <div class="value">35~50</div>
+        <div class="delta">/ 60 (베이스라인 5)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Google site: 결과</div>
+        <div class="value">150~400</div>
+        <div class="delta">건 (베이스라인 0)</div>
+      </div>
+      <div class="kpi-card violet">
+        <div class="label">AI 인용 첫 발생</div>
+        <div class="value">2~5</div>
+        <div class="delta">건 (Perplexity·ChatGPT)</div>
+      </div>
+    </div>
+
+    <h4>9.1.4 캠페인 종료 후 (Q2 이후)</h4>
+    <p>6주 동안 9편 백링크로 <strong>도메인 권위 임계점 돌파</strong> 후, 추가 백링크 캠페인은 진행하지 않습니다. 이유:</p>
+    <ul>
+      <li>임계점 돌파 후 신규 콘텐츠가 <strong>자체적으로 색인·인용</strong>됨</li>
+      <li>더 많은 외부 링크는 효과 체감 한계 (diminishing return)</li>
+      <li>운영진 시간을 박찬익 원장 인터뷰·케이스 스터디 등 콘텐츠 깊이 강화에 재배분</li>
+    </ul>
+    <p>다만 Q3·Q4에 시즌 이슈(연말 교정 시즌, 봄 환절기 시술 시즌)에 맞춰 추가 백링크 1~2편 게시 가능. 별도 합의 시 진행.</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p class="signature">GEO-AIO · 심재우 대표</p>
+    <p>AI 검색 시대의 의료기관 콘텐츠 마케팅 자동화 플랫폼<br>
+    <a href="mailto:jaiwshim@gmail.com">jaiwshim@gmail.com</a> · 010-2397-5734 · <a href="https://www.geo-aio.com">www.geo-aio.com</a></p>
+    <p style="margin-top:16px;font-size:11px;color:#94a3b8;">
+      본 보고서는 디지털스마일치과를 위한 비공개 전략 문서입니다 · 2026-05-02 작성 · 다음 보고 2026-08-02 (분기)
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
