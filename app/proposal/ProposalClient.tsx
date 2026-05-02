@@ -40,7 +40,7 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 히어로 */}
-        <section className="relative overflow-hidden rounded-xl bg-gradient-to-br from-rose-600 via-orange-600 to-amber-600 text-white px-6 sm:px-10 py-8 mb-4">
+        <section className="relative overflow-hidden rounded-xl bg-gradient-to-br from-rose-600 via-orange-600 to-amber-600 text-white px-6 sm:px-10 py-8 mb-6">
           <div className="relative">
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">맞춤형 솔루션 제안서</h1>
             <p className="text-white/90 text-sm sm:text-base leading-relaxed">
@@ -54,10 +54,12 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
         </section>
 
         {/* 강조 콜아웃 — 색인·AI 인용 최적화 메시지 */}
-        <BlogHeroCallout />
+        <div className="mb-8">
+          <BlogHeroCallout />
+        </div>
 
         {/* ⭐ 6·3 지방선거 후보자용 1페이지 제안서 — 강조 진입 카드 */}
-        <div className="relative mb-6 mt-1">
+        <div className="relative mb-6 mt-2">
           <span className="absolute -top-3 left-5 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-20 ring-2 ring-white/60 whitespace-nowrap">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80" />
