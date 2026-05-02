@@ -196,7 +196,7 @@ export default async function BlogCategoryPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  searchParams: Promise<{ lang?: string; page?: string }>;
 }) {
   const { slug: rawSlug } = await params;
   const sp = await searchParams;
@@ -236,6 +236,20 @@ export default async function BlogCategoryPage({
     en: { label: 'English', flag: '🇺🇸' },
     zh: { label: '中文', flag: '🇨🇳' },
     ja: { label: '日本語', flag: '🇯🇵' },
+  };
+
+  // 페이지네이션 — 50개씩, ?page=N으로 네비게이션
+  const PAGE_SIZE = 50;
+  const totalPages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
+  const requestedPage = parseInt(sp.page || '1', 10);
+  const currentPage = Number.isFinite(requestedPage) && requestedPage >= 1 && requestedPage <= totalPages ? requestedPage : 1;
+  const pagedPosts = posts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const buildPageHref = (n: number) => {
+    const params = new URLSearchParams();
+    if (activeLang !== 'ko') params.set('lang', activeLang);
+    if (n > 1) params.set('page', String(n));
+    const qs = params.toString();
+    return `/blog/category/${rawSlug}${qs ? `?${qs}` : ''}`;
   };
 
   // 동적 카테고리도 허용 — 포스트가 없으면 빈 페이지로 표시
@@ -294,12 +308,12 @@ export default async function BlogCategoryPage({
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(252,211,77,0.18),transparent_55%)] pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent" />
             <div className="relative">
-              <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-[9px] tracking-[0.25em] uppercase text-amber-700 font-semibold">Collection</p>
-                <span className="text-[9px] text-slate-400">·</span>
-                <span className="inline-flex items-center gap-1 text-[10px] text-slate-800">
-                  <span className="w-1 h-1 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]" />
-                  {allPosts.length}
+              <div className="flex items-baseline gap-2 mb-1.5">
+                <p className="text-[12px] tracking-[0.25em] uppercase text-amber-700 font-extrabold">Collection</p>
+                <span className="text-[12px] text-slate-500 font-bold">·</span>
+                <span className="inline-flex items-center gap-1.5 text-[13px] text-slate-900 font-extrabold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.7)]" />
+                  총 {allPosts.length}개
                 </span>
               </div>
               <div className="flex flex-wrap items-end justify-between gap-3">
@@ -430,17 +444,18 @@ export default async function BlogCategoryPage({
           </div>
         </div>
 
-        {/* 포스트 목록 — 프리미엄 다크 글래스 카드 */}
+        {/* 포스트 목록 — 50개씩 페이지네이션 */}
         {posts.length > 0 ? (
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
-              <p className="text-[9px] tracking-[0.2em] uppercase text-amber-700 font-semibold">Articles</p>
-              <p className="text-[10px] text-slate-800">
-                <span className="text-amber-700 font-semibold">{posts.length}</span> of {allPosts.length}
+              <p className="text-[10px] tracking-[0.2em] uppercase text-amber-700 font-extrabold">Articles</p>
+              <p className="text-[11px] text-slate-800 font-bold">
+                <span className="text-amber-700">{(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, posts.length)}</span> / {posts.length}
+                {totalPages > 1 && <span className="text-slate-500 ml-1.5 font-medium">(페이지 {currentPage}/{totalPages})</span>}
               </p>
             </div>
             <div className="space-y-1.5">
-              {posts.map((post) => (
+              {pagedPosts.map((post) => (
                 <article
                   key={post.id}
                   className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30"
@@ -486,6 +501,78 @@ export default async function BlogCategoryPage({
                 </article>
               ))}
             </div>
+
+            {/* 페이지네이션 — 50개 초과 시 좌우 화살표 + 페이지 번호 */}
+            {totalPages > 1 && (
+              <nav className="flex items-center justify-center gap-1 mt-6 px-1" aria-label="페이지 네비게이션">
+                {/* 이전 페이지 */}
+                {currentPage > 1 ? (
+                  <Link
+                    href={buildPageHref(currentPage - 1)}
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm"
+                    aria-label="이전 페이지"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span className="hidden sm:inline">이전</span>
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 font-bold text-sm cursor-not-allowed">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span className="hidden sm:inline">이전</span>
+                  </span>
+                )}
+
+                {/* 페이지 번호 (현재 페이지 기준 ±2) */}
+                <div className="flex items-center gap-1 mx-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(n => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 2)
+                    .map((n, idx, arr) => (
+                      <span key={n} className="flex items-center">
+                        {idx > 0 && arr[idx - 1] !== n - 1 && (
+                          <span className="px-1 text-slate-400 font-bold">…</span>
+                        )}
+                        {n === currentPage ? (
+                          <span className="inline-flex items-center justify-center min-w-[36px] h-9 px-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md shadow-amber-500/40">
+                            {n}
+                          </span>
+                        ) : (
+                          <Link
+                            href={buildPageHref(n)}
+                            className="inline-flex items-center justify-center min-w-[36px] h-9 px-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm"
+                          >
+                            {n}
+                          </Link>
+                        )}
+                      </span>
+                    ))}
+                </div>
+
+                {/* 다음 페이지 */}
+                {currentPage < totalPages ? (
+                  <Link
+                    href={buildPageHref(currentPage + 1)}
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm"
+                    aria-label="다음 페이지"
+                  >
+                    <span className="hidden sm:inline">다음</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 font-bold text-sm cursor-not-allowed">
+                    <span className="hidden sm:inline">다음</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                )}
+              </nav>
+            )}
           </>
         ) : (
           <div className="text-center py-10 bg-amber-50/50 rounded-xl border border-dashed border-amber-300">
