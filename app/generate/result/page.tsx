@@ -1195,13 +1195,35 @@ export default function GenerateResultPage() {
       return;
     }
 
-    // 카테고리 자동 결정 — 프로젝트 기준 매칭
-    // 우선순위: 사용자 모달 선택값 > 프로젝트 이름 매칭(blogCategories) > 프로젝트 이름에서 추출 > 폴백
+    // 카테고리 자동 결정 — 프로젝트 기준 매칭 + 폴백 다단계
     let cats = blogCategories;
     if (cats.length === 0) {
       try { cats = await getBlogCategories(); } catch {}
     }
-    const projectName = selectedProject?.name || '';
+
+    // 프로젝트 이름 다중 소스에서 수집 (selectedProject 컨텍스트 미로드 시 sessionStorage 폴백)
+    let projectName = selectedProject?.name || '';
+    if (!projectName && typeof window !== 'undefined') {
+      // 1) sessionStorage에서 직접 읽기
+      try {
+        const raw = sessionStorage.getItem('selected_project');
+        if (raw) {
+          const p = JSON.parse(raw);
+          projectName = p?.name || '';
+        }
+      } catch {}
+    }
+    if (!projectName && typeof window !== 'undefined') {
+      // 2) localStorage에서 읽기 (다른 키 가능성)
+      try {
+        const raw = localStorage.getItem('selectedProject') || localStorage.getItem('selected_project');
+        if (raw) {
+          const p = JSON.parse(raw);
+          projectName = p?.name || '';
+        }
+      } catch {}
+    }
+
     const computeCategory = (): string => {
       if (selectedBlogCategory) return selectedBlogCategory;
       if (projectName) {
@@ -1217,10 +1239,25 @@ export default function GenerateResultPage() {
           return firstWord;
         }
       }
-      return selectedCategory || 'geo-aio';
+      // 4) 프로젝트명 못 찾으면 'geo-aio' 대신 사용자에게 카테고리 선택 강제
+      return selectedCategory || '';
     };
-    const category = computeCategory();
-    console.log('[autopilot] 카테고리 자동 결정:', { projectName, category, selectedBlogCategory });
+    let category = computeCategory();
+    console.log('[autopilot] 카테고리 자동 결정:', { projectName, category, selectedBlogCategory, catsCount: cats.length });
+
+    // 카테고리 결정 실패 시 사용자에게 prompt — 'geo-aio' 자동 폴백 차단
+    if (!category) {
+      const userInput = window.prompt(
+        '발행할 카테고리를 입력하세요.\n\n프로젝트 이름이 자동 인식되지 않았습니다.\n예: 디지털스마일치과',
+        '디지털스마일치과'
+      );
+      if (!userInput) {
+        alert('카테고리 미선택 — 자동 발행 취소');
+        setAutoPilotPhase('idle');
+        return;
+      }
+      category = userInput.trim();
+    }
 
     setAutoPilotResult(null);
     setAutoPilotProgress({ ko: 0, en: 0, zh: 0, ja: 0 });
