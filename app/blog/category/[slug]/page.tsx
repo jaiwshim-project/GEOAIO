@@ -27,6 +27,35 @@ const EXTRA_COLORS = [
   'from-orange-500 to-red-600',
 ];
 
+// 카테고리별 대표/연락처/주소 표기 — 히어로 섹션에 노출
+// 신뢰 신호(E-E-A-T)·로컬 검색 색인·AI 검색 인용에 모두 도움.
+// 데이터 없는 카테고리는 자동으로 비표시.
+interface CategoryContact {
+  representative?: string;  // 대표자명·직함
+  phone?: string;
+  email?: string;
+  address?: string;
+  website?: string;
+}
+const CATEGORY_CONTACTS: Record<string, CategoryContact> = {
+  '디지털스마일치과': {
+    representative: '박찬익 원장',
+    address: '대전광역시 중구',
+    website: 'https://digitalsmile.tistory.com',
+  },
+  'dental': {
+    representative: '박찬익 원장',
+    address: '대전광역시 중구',
+    website: 'https://digitalsmile.tistory.com',
+  },
+  'geo-aio': {
+    representative: '심재우 대표 · AI선거솔루션',
+    email: 'jaiwshim@gmail.com',
+    phone: '010-2397-5734',
+    website: 'https://www.geo-aio.com',
+  },
+};
+
 function getSupabase() {
   // Server-side: service role 우선 (Supabase max-rows 우회 + RLS 우회로 전체 글 fetch).
   // 없으면 anon key 폴백.
@@ -270,6 +299,52 @@ export default async function BlogCategoryPage({
                       {meta.description}
                     </p>
                   )}
+
+                  {/* 대표·연락처·주소 — E-E-A-T·로컬 검색·AI 인용 신뢰 신호 */}
+                  {CATEGORY_CONTACTS[slug] && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+                      {CATEGORY_CONTACTS[slug].representative && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold">
+                          <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.866 0-9 1.95-9 5.834V22h18v-2.166C21 15.95 15.866 14 12 14z" />
+                          </svg>
+                          {CATEGORY_CONTACTS[slug].representative}
+                        </span>
+                      )}
+                      {CATEGORY_CONTACTS[slug].address && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold">
+                          <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2C7.589 2 4 5.589 4 9.995 4 16.394 11.111 21.78 11.398 22a1 1 0 001.205-.001C12.889 21.779 20 16.394 20 10c0-4.411-3.589-8-8-8zm0 12a4 4 0 110-8 4 4 0 010 8z" />
+                          </svg>
+                          {CATEGORY_CONTACTS[slug].address}
+                        </span>
+                      )}
+                      {CATEGORY_CONTACTS[slug].phone && (
+                        <a href={`tel:${CATEGORY_CONTACTS[slug].phone?.replace(/[^0-9+]/g, '')}`} className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold hover:text-amber-800 transition-colors">
+                          <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 00-1.02.24l-2.2 2.2a15.05 15.05 0 01-6.59-6.58l2.2-2.21c.27-.27.35-.65.24-1A11.36 11.36 0 018.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z" />
+                          </svg>
+                          {CATEGORY_CONTACTS[slug].phone}
+                        </a>
+                      )}
+                      {CATEGORY_CONTACTS[slug].email && (
+                        <a href={`mailto:${CATEGORY_CONTACTS[slug].email}`} className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold hover:text-amber-800 transition-colors">
+                          <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4.236l-8 5.333-8-5.333V6l8 5.333L20 6v2.236z" />
+                          </svg>
+                          {CATEGORY_CONTACTS[slug].email}
+                        </a>
+                      )}
+                      {CATEGORY_CONTACTS[slug].website && (
+                        <a href={CATEGORY_CONTACTS[slug].website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-amber-800 font-semibold hover:text-amber-900 transition-colors">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          홈페이지
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-1">
                   {validLangs.map((lang) => {
@@ -301,7 +376,7 @@ export default async function BlogCategoryPage({
           </div>
         </section>
 
-        {/* 언어 탭 — 프리미엄 화이트 세그먼트 (골드 글로우) */}
+        {/* 언어 탭 — 프리미엄 화이트 세그먼트 (골드 글로우) — 가독성 최대화·볼드체 */}
         <div className="relative mb-4">
           <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-300/40 via-amber-400/20 to-amber-300/40 blur-[2px] opacity-50" />
           <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-amber-100/30 p-1">
@@ -315,22 +390,22 @@ export default async function BlogCategoryPage({
                   <Link
                     key={lang}
                     href={isEmpty ? '#' : href}
-                    className={`relative flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-300 ${
+                    className={`relative flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition-all duration-300 font-bold ${
                       isActive
                         ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/40'
                         : isEmpty
-                        ? 'text-slate-300 cursor-not-allowed pointer-events-none bg-slate-50'
-                        : 'text-slate-800 hover:bg-amber-50 hover:text-amber-800'
+                        ? 'text-slate-500 cursor-not-allowed pointer-events-none bg-slate-50'
+                        : 'text-slate-900 hover:bg-amber-50 hover:text-amber-900'
                     }`}
                     aria-disabled={isEmpty}
                   >
                     {isActive && (
                       <span className="absolute -top-px left-1/2 -translate-x-1/2 w-10 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
                     )}
-                    <span className="text-sm leading-none">{LANG_LABELS[lang].flag}</span>
-                    <span className="text-[11px] tracking-wide">{LANG_LABELS[lang].label}</span>
-                    <span className={`text-[9px] tracking-[0.1em] ${
-                      isActive ? 'text-white' : isEmpty ? 'text-slate-300' : 'text-amber-700'
+                    <span className="text-base leading-none">{LANG_LABELS[lang].flag}</span>
+                    <span className="text-[12px] sm:text-[13px] tracking-wide font-bold">{LANG_LABELS[lang].label}</span>
+                    <span className={`text-[11px] tracking-[0.05em] font-extrabold ${
+                      isActive ? 'text-white' : isEmpty ? 'text-slate-500' : 'text-amber-800'
                     }`}>
                       {count}
                     </span>
