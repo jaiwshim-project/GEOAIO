@@ -131,6 +131,17 @@ export default function GenerateResultPage() {
     window.history.replaceState({}, '', url.toString());
   }, [activeLang]);
 
+  // 톤이 모두 로드되면 전체 자동 선택 — 한국어는 즉시 15/15, 비한국어는 번역 완료된 톤이
+  // translateOne 안에서 추가 선택돼 결국 모든 번역이 끝나면 전체 선택 상태가 됨.
+  // length만 의존해 사용자의 수동 선택/해제 후 재선택 덮어쓰기 방지.
+  const initialSelectedAppliedRef = useRef(false);
+  useEffect(() => {
+    if (initialSelectedAppliedRef.current) return;
+    if (abVersions.length === 0) return;
+    setSelectedVersions(new Set(abVersions.map((_, i) => i)));
+    initialSelectedAppliedRef.current = true;
+  }, [abVersions.length]);
+
   // 새로고침 시 URL ?lang=en 등 비한국어이면 자동 번역 시작 (cache 부족할 때만)
   // abVersions가 로드된 후에 1회만 트리거
   const autoTranslateTriggeredRef = useRef(false);
@@ -404,6 +415,13 @@ export default function GenerateResultPage() {
           ...prev,
           [lang]: { ...(prev[lang] || {}), [idx]: entry! },
         }));
+        // 번역 성공 시 해당 톤 자동 선택 — 15개 모두 끝나면 전체 선택 상태가 됨
+        setSelectedVersions(prev => {
+          if (prev.has(idx)) return prev;
+          const next = new Set(prev);
+          next.add(idx);
+          return next;
+        });
         // 이전에 실패로 마크됐다면 해제
         setTranslationFailed(prev => {
           if (!prev[lang]?.has(idx)) return prev;
