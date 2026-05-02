@@ -88,8 +88,11 @@ export default function GenerateResultPage() {
   const [eeatAutoStatus, setEeatAutoStatus] = useState<Record<number, 'idle' | 'processing' | 'done' | 'failed'>>({});
   const [eeatAutoStarted, setEeatAutoStarted] = useState(false);
 
-  // 🚀 논스톱 자동 발행 — MD 생성 → EEAT → 번역(en·zh·ja) → 60편 발행 → 팝업 → /generate
-  const [autoPilotPhase, setAutoPilotPhase] = useState<'idle' | 'translating' | 'publishing' | 'done'>('idle');
+  // 🚀 논스톱 자동 발행 — 순차 처리 (한국어 발행 → 영어 번역·발행 → 중국어 번역·발행 → 일본어 번역·발행 → 팝업)
+  // 순차 처리로 API 과부하·rate limit 회피.
+  type AutoPilotPhase = 'idle' | 'publishing-ko' | 'translating-en' | 'publishing-en' | 'translating-zh' | 'publishing-zh' | 'translating-ja' | 'publishing-ja' | 'done';
+  const [autoPilotPhase, setAutoPilotPhase] = useState<AutoPilotPhase>('idle');
+  const [autoPilotProgress, setAutoPilotProgress] = useState<{ ko: number; en: number; zh: number; ja: number }>({ ko: 0, en: 0, zh: 0, ja: 0 });
   const [autoPilotResult, setAutoPilotResult] = useState<{ ko: number; en: number; zh: number; ja: number; total: number; category: string } | null>(null);
 
   // ⭐ 언어 탭 (한국어 기본, 영/중/일 번역은 클릭 시 1회 번역 + 캐시)
@@ -125,6 +128,10 @@ export default function GenerateResultPage() {
   const activeLangRef = useRef<Lang>(initialLang);
   useEffect(() => { activeAbTabRef.current = activeAbTab; }, [activeAbTab]);
   useEffect(() => { activeLangRef.current = activeLang; }, [activeLang]);
+
+  // 자동 발행에서 stale closure 회피용 — 최신 번역 캐시 참조
+  const translatedVersionsRef = useRef(translatedVersions);
+  useEffect(() => { translatedVersionsRef.current = translatedVersions; }, [translatedVersions]);
 
   // 활성 언어 변경 시 URL ?lang= 동기화 (새로고침해도 유지)
   useEffect(() => {
@@ -1179,51 +1186,36 @@ export default function GenerateResultPage() {
 
   const [categoryError, setCategoryError] = useState<string | null>(null);
 
-  // 🚀 논스톱 자동 발행 — 번역(en·zh·ja) 병렬 → 60편 일괄 발행 → 팝업
+  // 🚀 논스톱 자동 발행 — 한국어 → 영어 → 중국어 → 일본어 순차 처리 (API 과부하 회피)
+  // 흐름: 한국어 발행 → 영어 번역·발행 → 중국어 번역·발행 → 일본어 번역·발행 → 팝업
   const runAutoPilotPublish = async () => {
     if (autoPilotPhase !== 'idle' && autoPilotPhase !== 'done') return;
     if (abVersions.length === 0) {
       alert('발행할 콘텐츠가 없습니다.');
       return;
     }
-    // 카테고리 결정 — 사용자 선택값 우선, 없으면 selectedCategory, 없으면 'geo-aio'
     const category = selectedBlogCategory || selectedCategory || 'geo-aio';
 
-    setAutoPilotPhase('translating');
     setAutoPilotResult(null);
-
-    // 1) 영·중·일 병렬 번역 (캐시 있는 톤은 자동 skip)
-    try {
-      await Promise.all([
-        startTranslation('en'),
-        startTranslation('zh'),
-        startTranslation('ja'),
-      ]);
-    } catch (e) {
-      console.error('autopilot translation error:', e);
-      // 번역 실패해도 ko + 가능한 언어로 발행 진행
-    }
-
-    setAutoPilotPhase('publishing');
-
-    // 2) 4개 언어 × 15편 = 최대 60편 빌드
+    setAutoPilotProgress({ ko: 0, en: 0, zh: 0, ja: 0 });
     const counts = { ko: 0, en: 0, zh: 0, ja: 0 };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const allPosts: any[] = [];
 
-    (['ko', 'en', 'zh', 'ja'] as Lang[]).forEach(lang => {
+    // 한 언어를 발행하는 헬퍼 — abVersions 또는 translatedVersionsRef.current에서 빌드
+    const publishLanguage = async (lang: Lang): Promise<number> => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const posts: any[] = [];
       abVersions.forEach((v, i) => {
         let title = v.title;
         let content = v.content;
         if (lang !== 'ko') {
-          const trans = translatedVersions[lang]?.[i];
+          const trans = translatedVersionsRef.current[lang]?.[i];
           if (!trans) return; // 번역 없는 톤은 skip
           title = trans.title;
           content = trans.content;
         }
         if (!content || content.length < 200) return;
         const plain = content.replace(/[#*>\-|`]/g, '').replace(/\n+/g, ' ').trim();
-        allPosts.push({
+        posts.push({
           title,
           content,
           summary: plain.slice(0, 150) + (plain.length > 150 ? '...' : ''),
@@ -1240,25 +1232,51 @@ export default function GenerateResultPage() {
           targetKeyword: targetKeyword,
           historyId: currentHistoryId || '',
         });
-        counts[lang]++;
       });
-    });
+      if (posts.length === 0) return 0;
+      await saveBlogPostsBatch(posts);
+      return posts.length;
+    };
 
-    if (allPosts.length === 0) {
-      setAutoPilotPhase('idle');
-      alert('자동 발행 실패 — 발행할 콘텐츠가 없습니다.');
-      return;
-    }
-
-    // 3) 일괄 저장
     try {
-      await saveBlogPostsBatch(allPosts);
+      // 1) 한국어 발행 (즉시 — 번역 불필요)
+      setAutoPilotPhase('publishing-ko');
+      counts.ko = await publishLanguage('ko');
+      setAutoPilotProgress(prev => ({ ...prev, ko: counts.ko }));
+
+      // 2) 영어 번역 → 발행
+      setAutoPilotPhase('translating-en');
+      await startTranslation('en');
+      // state propagation 대기 (한 틱)
+      await new Promise(r => setTimeout(r, 200));
+      setAutoPilotPhase('publishing-en');
+      counts.en = await publishLanguage('en');
+      setAutoPilotProgress(prev => ({ ...prev, en: counts.en }));
+
+      // 3) 중국어 번역 → 발행
+      setAutoPilotPhase('translating-zh');
+      await startTranslation('zh');
+      await new Promise(r => setTimeout(r, 200));
+      setAutoPilotPhase('publishing-zh');
+      counts.zh = await publishLanguage('zh');
+      setAutoPilotProgress(prev => ({ ...prev, zh: counts.zh }));
+
+      // 4) 일본어 번역 → 발행
+      setAutoPilotPhase('translating-ja');
+      await startTranslation('ja');
+      await new Promise(r => setTimeout(r, 200));
+      setAutoPilotPhase('publishing-ja');
+      counts.ja = await publishLanguage('ja');
+      setAutoPilotProgress(prev => ({ ...prev, ja: counts.ja }));
+
+      // 5) 완료
       const total = counts.ko + counts.en + counts.zh + counts.ja;
       setAutoPilotResult({ ...counts, total, category });
       setAutoPilotPhase('done');
     } catch (err) {
       console.error('autopilot publish error:', err);
-      alert('자동 발행 실패: ' + (err instanceof Error ? err.message : String(err)));
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`자동 발행 실패 (단계: ${autoPilotPhase}): ${msg}\n현재까지 발행된 편: 한 ${counts.ko} · 영 ${counts.en} · 중 ${counts.zh} · 일 ${counts.ja}`);
       setAutoPilotPhase('idle');
     }
   };
@@ -2649,30 +2667,85 @@ export default function GenerateResultPage() {
         </button>
       )}
 
-      {/* 🚀 자동 발행 진행 중 — 풀스크린 오버레이 */}
-      {(autoPilotPhase === 'translating' || autoPilotPhase === 'publishing') && (
+      {/* 🚀 자동 발행 진행 중 — 풀스크린 오버레이 (순차 단계 표시) */}
+      {autoPilotPhase !== 'idle' && autoPilotPhase !== 'done' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
-            <div className="w-16 h-16 mx-auto mb-4 relative">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 animate-pulse" />
-              <svg className="absolute inset-0 m-auto w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full">
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 mx-auto mb-3 relative">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 animate-pulse" />
+                <svg className="absolute inset-0 m-auto w-7 h-7 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-1">논스톱 자동 발행 중</h3>
+              <p className="text-xs text-slate-600">한국어 → 영어 → 중국어 → 일본어 순차 처리 (API 과부하 회피)</p>
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
-              {autoPilotPhase === 'translating' ? '🌐 영·중·일 번역 중...' : '📤 4개 언어 발행 중...'}
-            </h3>
-            <p className="text-sm text-slate-700">
-              {autoPilotPhase === 'translating'
-                ? '톤별 영어·중국어·일본어 번역을 동시 처리 중입니다 (1~3분 소요)'
-                : '한·영·중·일 콘텐츠를 카테고리에 발행 중입니다'}
+
+            {/* 4개 언어 단계별 상태 */}
+            {(() => {
+              const langOrder: { lang: Lang; flag: string; label: string }[] = [
+                { lang: 'ko', flag: '🇰🇷', label: '한국어' },
+                { lang: 'en', flag: '🇺🇸', label: 'English' },
+                { lang: 'zh', flag: '🇨🇳', label: '中文' },
+                { lang: 'ja', flag: '🇯🇵', label: '日本語' },
+              ];
+              const phase = autoPilotPhase;
+              const phaseLang = phase.split('-')[1];
+              const phaseAction = phase.split('-')[0]; // 'publishing' or 'translating'
+
+              return (
+                <div className="space-y-2">
+                  {langOrder.map(({ lang, flag, label }) => {
+                    const count = autoPilotProgress[lang];
+                    const isCurrent = phaseLang === lang;
+                    const isDone = count > 0 || (phaseLang === lang && phaseAction === 'publishing' && count === 0 && false);
+                    // 단계 인덱스로 완료/진행중/대기 판정
+                    const phaseIdx = ['ko', 'en', 'zh', 'ja'].indexOf(phaseLang);
+                    const myIdx = ['ko', 'en', 'zh', 'ja'].indexOf(lang);
+                    const status = myIdx < phaseIdx ? 'done' : isCurrent ? phaseAction : 'pending';
+
+                    return (
+                      <div
+                        key={lang}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${
+                          status === 'done'
+                            ? 'bg-emerald-50 border-emerald-200'
+                            : status === 'translating' || status === 'publishing'
+                            ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-200'
+                            : 'bg-slate-50 border-slate-200'
+                        }`}
+                      >
+                        <span className="text-xl">{flag}</span>
+                        <span className={`flex-1 text-sm font-bold ${status === 'pending' ? 'text-slate-400' : 'text-slate-900'}`}>
+                          {label}
+                        </span>
+                        {status === 'done' && (
+                          <span className="text-emerald-700 text-sm font-extrabold">✓ {count}편</span>
+                        )}
+                        {(status === 'translating' || status === 'publishing') && (
+                          <span className="inline-flex items-center gap-1.5 text-amber-700 text-xs font-bold">
+                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            {status === 'translating' ? '번역 중' : '발행 중'}
+                          </span>
+                        )}
+                        {status === 'pending' && (
+                          <span className="text-slate-400 text-xs">대기</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
+            <p className="text-[11px] text-slate-500 text-center mt-4">
+              총 소요 시간: 약 5~10분 (콘텐츠 양에 따라)
             </p>
-            <div className="mt-4 flex items-center justify-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-            </div>
           </div>
         </div>
       )}
