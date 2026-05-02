@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -66,6 +66,55 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
 
   const currentCategory = categories.find((c) => c.slug === activeTab) || categories[0];
   const filteredPosts = posts.filter((p) => p.category === activeTab);
+
+  // 마운트 시 실시간 fetch — 페이지가 ISR(1시간 캐시)이라 새 글 발행 직후
+  // 카운트가 갱신되지 않는 문제 해결. 초기 렌더는 ISR 캐시(빠름), 그 다음 5초 이내에
+  // 최신 데이터로 덮어씌움. 카운트 + 리스트 모두 동기화.
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = async () => {
+      try {
+        const res = await fetch('/api/blog/posts', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+        const fresh = (data.posts || []) as Array<{
+          id: string; title: string; summary?: string; category: string;
+          tag?: string; hashtags?: string[]; target_keyword?: string;
+          published?: boolean; created_at: string; updated_at: string;
+        }>;
+        // BlogPost 형태로 정규화
+        const normalized: BlogPost[] = fresh.map(r => ({
+          id: r.id,
+          title: r.title,
+          content: '',  // 리스트는 content 미필요 (카드 표시용 메타만)
+          summary: r.summary || '',
+          category: r.category || '',
+          tag: r.tag || '',
+          hashtags: Array.isArray(r.hashtags) ? r.hashtags : [],
+          metadata: {},
+          targetKeyword: r.target_keyword || '',
+          historyId: '',
+          published: r.published ?? true,
+          createdAt: r.created_at,
+          updatedAt: r.updated_at,
+        }));
+        // 기존 initialPosts와 병합 — 새 데이터가 있으면 교체, 없는 항목은 유지
+        // (실시간 fetch가 실패한 항목 보존을 위해 두 set을 합집합으로)
+        const map = new Map<string, BlogPost>();
+        // 기존 우선 → 새 데이터로 덮어씌움
+        initialPosts.forEach(p => map.set(p.id, p));
+        normalized.forEach(p => map.set(p.id, p));
+        setPosts(Array.from(map.values()).sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        ));
+      } catch {
+        // 무시 — 네트워크 실패 시 ISR 캐시 데이터로 그대로 사용
+      }
+    };
+    refresh();
+    return () => { cancelled = true; };
+  }, [initialPosts]);
 
   const handleDeletePost = async (id: string) => {
     if (!confirm('이 포스트를 삭제하시겠습니까?')) return;
