@@ -73,7 +73,7 @@ export default function ElectionProposalPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 max-w-3xl">
               {[
                 { label: '단가 절감', value: '80%' },
-                { label: '동시 톤 생성', value: '10가지' },
+                { label: '동시 톤 생성', value: '15가지' },
                 { label: '색인 도달', value: '24~72h' },
                 { label: 'AI 인용 점유', value: '3배' },
               ].map((s) => (
@@ -345,7 +345,7 @@ export default function ElectionProposalPage() {
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 {[
-                  { icon: '🎭', title: '10가지 톤 동시 발행', desc: '전문·친근·감성·스토리·뉴스 등 — SNS 채널별 최적화 콘텐츠 자동 생성' },
+                  { icon: '🎭', title: '15가지 톤 동시 발행', desc: '전문·친근·감성·스토리·뉴스 등 — SNS 채널별 최적화 콘텐츠 자동 생성' },
                   { icon: '🚀', title: '티스토리·블로그 자동 업로드', desc: 'GSC 색인 모니터링 대시보드 포함 · 24~72h 내 색인 도달' },
                   { icon: '📚', title: 'RAG 기반 정확성', desc: '후보자 자료 PDF 1건 업로드 → 실제 데이터·수치만 본문에 인용' },
                   { icon: '⚡', title: 'E-E-A-T 자동 구조화', desc: '도입부 → H2 7개 → FAQ → 비교표 → CTA 구조 자동 적용 · AI 인용 가능성 4배' },

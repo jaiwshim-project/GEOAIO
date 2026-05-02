@@ -1771,10 +1771,10 @@ export default function GeneratePage() {
         await saveHistoryItem({
           id: historyId, type: 'generation',
           title: results[0]?.title || topic.trim(),
-          summary: `10가지 톤 버전 | ${topic.trim()}`,
+          summary: `15가지 톤 버전 | ${topic.trim()}`,
           date: dateStr, category: selectedCategory || undefined,
           targetKeyword: targetKeyword.trim() || undefined,
-          generateResult: results[0], topic: topic.trim(), tone: '10가지 톤', revisions: [],
+          generateResult: results[0], topic: topic.trim(), tone: '15가지 톤', revisions: [],
         });
       } catch { /* 히스토리 저장 실패는 무시하고 계속 진행 */ }
       // ⭐ Phase b: 활성 그룹 결과만 추출 (비활성 그룹의 null 슬롯 제외)
@@ -1794,7 +1794,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         topic: topic.trim(),
         targetKeyword: targetKeyword.trim(),
-        tone: '10가지 톤',
+        tone: '15가지 톤',
         historyId,
         project_id: selectedProject?.id,
         // Pillar 카탈로그 — 결과 페이지에서 이어쓰기·재구성 시 angle 유지용
@@ -3224,7 +3224,7 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* 톤/스타일 - 10가지 모두 자동 생성 */}
+                  {/* 톤/스타일 - 15가지 모두 자동 생성 */}
                   {(() => {
                     const TONE_STYLES = [
                       { bg: 'bg-indigo-50', border: 'border-indigo-300', text: 'text-indigo-700', dot: 'bg-indigo-400' },

@@ -53,7 +53,7 @@ export default function ManualPage() {
           <p className="text-[11px] text-gray-800 leading-relaxed">
             GEO-AIO는 AI 검색엔진(AI Overview, Generative Engine)에 최적화된 콘텐츠를 작성할 수 있도록
             도와주는 종합 콘텐츠 플랫폼입니다. Google Gemini API를 활용하여 콘텐츠 분석, 생성, 키워드 경쟁 분석, 시리즈 기획,
-            SNS 채널별 변환, <strong>10가지 톤</strong>의 콘텐츠 동시 생성, 프로젝트별 콘텐츠 관리 등 다양한 기능을 제공하며, Make.com 연동을 통한 자동화도 지원합니다.
+            SNS 채널별 변환, <strong>15가지 톤</strong>의 콘텐츠 동시 생성, 프로젝트별 콘텐츠 관리 등 다양한 기능을 제공하며, Make.com 연동을 통한 자동화도 지원합니다.
           </p>
         </section>
 
@@ -239,7 +239,7 @@ export default function ManualPage() {
             <span className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-green-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shadow-sm">4</span>
             <span className="bg-gradient-to-r from-emerald-700 to-green-600 bg-clip-text text-transparent">콘텐츠 생성</span>
           </h2>
-          <p className="text-[11px] text-gray-800 mb-3">Gemini AI가 GEO/AIO에 최적화된 콘텐츠를 자동으로 생성합니다. 프로젝트 선택 후 사업 정보 → 콘텐츠 유형 → 생성 순서로 진행됩니다. 생성 시 <strong>10가지 톤</strong>이 동시 생성되며 결과 페이지에서 원하는 버전을 탭으로 선택합니다.</p>
+          <p className="text-[11px] text-gray-800 mb-3">Gemini AI가 GEO/AIO에 최적화된 콘텐츠를 자동으로 생성합니다. 프로젝트 선택 후 사업 정보 → 콘텐츠 유형 → 생성 순서로 진행됩니다. 생성 시 <strong>15가지 톤</strong>이 동시 생성되며 결과 페이지에서 원하는 버전을 탭으로 선택합니다.</p>
           <div className="space-y-3">
             <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
               <h3 className="text-[13pt] font-semibold text-emerald-800 mb-2">Step 1: 사업 정보 입력</h3>
@@ -262,7 +262,7 @@ export default function ManualPage() {
               <ul className="space-y-2 text-[11px] text-gray-800">
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>콘텐츠 유형:</strong> 블로그, 제품 설명, FAQ, How-to 가이드, 랜딩 페이지, 기술 문서, SNS 포스트, 이메일</li>
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>타겟 키워드:</strong> SEO에 활용할 핵심 키워드를 지정합니다</li>
-                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>10가지 톤 동시 생성:</strong> 전문적 / 친근한 / 설득적 / 간결한 / 스토리텔링 / 뉴스형 / 교육형 / 비교분석형 / 사례연구형 / 감성형 — 생성 완료 후 결과 페이지에서 탭으로 선택</li>
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>15가지 톤 동시 생성:</strong> 전문적 / 친근한 / 설득적 / 간결한 / 스토리텔링 / 뉴스형 / 교육형 / 비교분석형 / 사례연구형 / 감성형 / FAQ형 / 체크리스트형 / 비용분석형 / 위험·금기형 / 오해깨기형 — 생성 완료 후 결과 페이지에서 탭으로 선택</li>
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>톤별 맞춤 제목·내용:</strong> 동일한 주제라도 톤마다 제목 형식·도입부·문체·구조가 완전히 다르게 생성됩니다</li>
                 <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold">&#8226;</span> <strong>하단 API 키 패널:</strong> 생성 버튼 아래에 API 키 설정 카드가 상시 표시 — 키 오류 시 페이지 이동 없이 즉시 교체 가능</li>
               </ul>
@@ -289,7 +289,7 @@ export default function ManualPage() {
                 </ul>
               </div>
               <div className="bg-amber-50 rounded-lg p-2.5 border border-amber-200">
-                <p className="text-[10px] text-amber-800"><strong>⚠️ 사용 팁:</strong> 위저드 패널은 기본 접힘 상태입니다. 카테고리 선택 후 패널 헤더의 &quot;🎯 CEP 장면 발굴&quot;을 클릭해 펼치세요. 입력한 장면 문장은 10가지 톤 생성에 일괄 적용됩니다. CEP 적용 vs 미적용의 비교 데모는 프로젝트 루트 <code className="bg-purple-100 px-1 py-0.5 rounded text-purple-700">cep-comparison-demo.html</code>에서 확인할 수 있습니다.</p>
+                <p className="text-[10px] text-amber-800"><strong>⚠️ 사용 팁:</strong> 위저드 패널은 기본 접힘 상태입니다. 카테고리 선택 후 패널 헤더의 &quot;🎯 CEP 장면 발굴&quot;을 클릭해 펼치세요. 입력한 장면 문장은 15가지 톤 생성에 일괄 적용됩니다. CEP 적용 vs 미적용의 비교 데모는 프로젝트 루트 <code className="bg-purple-100 px-1 py-0.5 rounded text-purple-700">cep-comparison-demo.html</code>에서 확인할 수 있습니다.</p>
               </div>
             </div>
             <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
@@ -316,8 +316,8 @@ export default function ManualPage() {
               <p className="text-[11px] text-gray-800 mb-3">콘텐츠 생성이 완료되면 결과 페이지에서 다양한 후속 작업을 수행할 수 있습니다.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="bg-white rounded-lg p-3 border border-emerald-200">
-                  <p className="text-[11px] font-medium text-emerald-700 mb-1">톤/스타일 탭 (10가지 컬러 카드)</p>
-                  <p className="text-[11px] text-gray-700">결과 페이지 상단에 10가지 톤이 컬러 카드 그리드로 표시됩니다. 각 탭은 고유 배경색·테두리색을 가지며, 활성 탭에는 체크 뱃지가 표시됩니다. 클릭하면 해당 톤의 제목·내용으로 전환됩니다.</p>
+                  <p className="text-[11px] font-medium text-emerald-700 mb-1">톤/스타일 탭 (15가지 컬러 카드)</p>
+                  <p className="text-[11px] text-gray-700">결과 페이지 상단에 15가지 톤이 컬러 카드 그리드로 표시됩니다. 각 탭은 고유 배경색·테두리색을 가지며, 활성 탭에는 체크 뱃지가 표시됩니다. 클릭하면 해당 톤의 제목·내용으로 전환됩니다.</p>
                 </div>
                 <div className="bg-white rounded-lg p-3 border border-emerald-200">
                   <p className="text-[11px] font-medium text-emerald-700 mb-1">콘텐츠 헤더</p>
@@ -1291,7 +1291,7 @@ export default function ManualPage() {
                 <span className="text-base">🔗</span> 콘텐츠에 회사 링크 자동 삽입
               </h3>
               <p className="text-[11px] text-gray-700 mb-2">
-                10가지 톤 일괄 생성·재생성·E-E-A-T 변환·이어쓰기 모두 적용. 출력 형식:
+                15가지 톤 일괄 생성·재생성·E-E-A-T 변환·이어쓰기 모두 적용. 출력 형식:
               </p>
               <pre className="text-[10px] bg-gray-50 border border-gray-200 rounded p-2 overflow-x-auto leading-relaxed">{`---
 📍 {회사명} 더 알아보기

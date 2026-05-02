@@ -2033,7 +2033,7 @@ export default function GenerateResultPage() {
                 {categories.find(c => c.id === selectedCategory)?.label}
               </span>
               <span className="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-purple-100 text-purple-700">
-                {(result as GenerateResponse & { toneName?: string }).toneName || tone || '10가지 톤'}
+                {(result as GenerateResponse & { toneName?: string }).toneName || tone || '15가지 톤'}
               </span>
               <span className="text-xs text-gray-400">{result.metadata.wordCount.toLocaleString()}자 · {result.metadata.estimatedReadTime}</span>
               {topic && <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{topic}</span>}
