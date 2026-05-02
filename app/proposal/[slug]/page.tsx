@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import PdfDownloadButton from '@/components/PdfDownloadButton';
+import BlogHeroCallout from '@/components/BlogHeroCallout';
 
 export const dynamic = 'force-dynamic';
 
@@ -332,6 +333,11 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             </p>
           </div>
         </section>
+
+        {/* 강조 콜아웃 — 색인·AI 인용 최적화 메시지 */}
+        <div className="mb-8">
+          <BlogHeroCallout />
+        </div>
 
         {/* 제안서 본문 — 프리미엄 카드 (라이트 본문 + 골드 ring) */}
         <article className="bg-white rounded-2xl ring-1 ring-amber-200/40 shadow-[0_30px_80px_-20px_rgba(15,23,42,0.5)] overflow-hidden">
