@@ -346,24 +346,24 @@ export default async function BlogCategoryPage({
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1.5">
                   {validLangs.map((lang) => {
                     const count = langCounts[lang];
                     const isActive = lang === activeLang;
                     return (
                       <span
                         key={lang}
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] tracking-wide border transition-all ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] tracking-wide border font-bold transition-all ${
                           isActive
-                            ? 'bg-amber-50 border-amber-400 text-amber-800 shadow-[0_0_10px_-2px_rgba(245,158,11,0.4)]'
+                            ? 'bg-amber-50 border-amber-400 text-amber-900 shadow-[0_0_10px_-2px_rgba(245,158,11,0.5)]'
                             : count > 0
-                            ? 'bg-white border-slate-200 text-slate-800'
-                            : 'bg-slate-50 border-slate-200 text-slate-400'
+                            ? 'bg-white border-slate-300 text-slate-900'
+                            : 'bg-slate-50 border-slate-300 text-slate-700'
                         }`}
                       >
-                        <span className="text-[10px]">{LANG_LABELS[lang].flag}</span>
+                        <span className="text-[14px] leading-none">{LANG_LABELS[lang].flag}</span>
                         {LANG_LABELS[lang].label}
-                        <span className={isActive ? 'text-amber-700 font-semibold' : 'text-slate-800'}>{count}</span>
+                        <span className={isActive ? 'text-amber-800 font-extrabold' : 'text-slate-900 font-extrabold'}>{count}</span>
                       </span>
                     );
                   })}
