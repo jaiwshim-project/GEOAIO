@@ -3242,7 +3242,7 @@ export default function GeneratePage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           톤/스타일
-                          <span className="text-xs text-indigo-500 font-normal ml-1.5">(10가지 버전 동시 생성)</span>
+                          <span className="text-xs text-indigo-500 font-normal ml-1.5">({toneOptions.length}가지 버전 동시 생성)</span>
                         </label>
                         <div className="flex flex-wrap gap-2">
                           {toneOptions.map((opt, i) => {
@@ -3401,7 +3401,7 @@ export default function GeneratePage() {
                         </svg>
                         {ragAugmentMsg
                           ? ragAugmentMsg
-                          : (toneProgress > 0 ? `콘텐츠 생성 중... ${toneProgress}/10` : '10가지 톤 콘텐츠 생성 중...')}
+                          : (toneProgress > 0 ? `콘텐츠 생성 중... ${toneProgress}/${toneOptions.length}` : `${toneOptions.length}가지 톤 콘텐츠 생성 중...`)}
                       </>
                     ) : (
                       <>
