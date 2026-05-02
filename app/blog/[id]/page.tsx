@@ -118,6 +118,13 @@ function markdownToHtml(text: string) {
 // 'force-dynamic' 사용 시 Cache-Control: no-store 응답이 나와 Google·Perplexity 색인이 거부됨.
 export const revalidate = 3600;
 
+// ⭐ 동적 라우트를 ISR로 분류시키는 핵심 시그널 — 빈 배열 + dynamicParams=true(기본).
+// 빈 배열이면 빌드 시 prerender 안 함, 첫 요청에 생성·이후 캐시 응답 (X-Vercel-Cache: HIT).
+// 이게 없으면 Next.js가 [id] 라우트를 ƒ(Dynamic)으로 분류해 ISR 무력화.
+export async function generateStaticParams() {
+  return [];
+}
+
 export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const post = await getPost(id);

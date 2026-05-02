@@ -9,6 +9,11 @@ import type { BlogPost } from '@/lib/supabase-storage';
 // SEO/AI 색인 친화: ISR로 1시간마다 갱신 (force-dynamic은 no-store 헤더로 색인 거부됨)
 export const revalidate = 3600;
 
+// 동적 라우트를 ISR로 분류시키는 핵심 시그널 (없으면 ƒ Dynamic으로 분류됨)
+export async function generateStaticParams() {
+  return [];
+}
+
 const DEFAULT_CATEGORIES: Record<string, { label: string; description: string; color: string }> = {
   'geo-aio':  { label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600' },
   'regenmed': { label: '리젠메드컨설팅', description: '컨설팅 관련 콘텐츠', color: 'from-emerald-500 to-teal-600' },
