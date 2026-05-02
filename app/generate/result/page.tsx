@@ -1210,19 +1210,9 @@ export default function GenerateResultPage() {
     // 프로젝트 이름 다중 소스에서 수집 (selectedProject 컨텍스트 미로드 시 sessionStorage 폴백)
     let projectName = selectedProject?.name || '';
     if (!projectName && typeof window !== 'undefined') {
-      // 1) sessionStorage에서 직접 읽기
+      // sessionStorage 'geoaio_project' (UserProvider가 사용하는 정확한 키)
       try {
-        const raw = sessionStorage.getItem('selected_project');
-        if (raw) {
-          const p = JSON.parse(raw);
-          projectName = p?.name || '';
-        }
-      } catch {}
-    }
-    if (!projectName && typeof window !== 'undefined') {
-      // 2) localStorage에서 읽기 (다른 키 가능성)
-      try {
-        const raw = localStorage.getItem('selectedProject') || localStorage.getItem('selected_project');
+        const raw = sessionStorage.getItem('geoaio_project');
         if (raw) {
           const p = JSON.parse(raw);
           projectName = p?.name || '';
