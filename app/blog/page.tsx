@@ -40,13 +40,28 @@ async function getServerBlogData() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
 
-    const { data: postsData } = await supabase
-      .from('blog_articles')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(10000);
+    // Supabase max-rows 1000 cap을 우회하기 위한 페이지네이션 (전체 글 정확히 수집).
+    const PAGE_SIZE = 1000;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const postsData: any[] = [];
+    for (let page = 0; page < 50; page++) { // 최대 50,000건 안전 가드
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      const { data, error } = await supabase
+        .from('blog_articles')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(from, to);
+      if (error) {
+        console.error('[blog] page', page, '에러:', error.message);
+        break;
+      }
+      if (!data || data.length === 0) break;
+      postsData.push(...data);
+      if (data.length < PAGE_SIZE) break;
+    }
 
-    const posts: BlogPost[] = (postsData || []).map(row => {
+    const posts: BlogPost[] = postsData.map(row => {
       let meta: Record<string, unknown> = {};
       if (row.author) {
         try { meta = JSON.parse(row.author); } catch { /* ignore */ }

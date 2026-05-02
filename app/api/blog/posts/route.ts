@@ -52,27 +52,50 @@ async function enqueueCepMeasurement(post: {
 }
 
 // GET: 블로그 포스트 목록 조회
+// 주의: Supabase는 max-rows 1000 기본값이라 단일 limit() 호출로는 1,001번째 글부터 빠짐.
+// 또한 'published' 컬럼이 DB에 없어 .eq('published', true) 필터를 걸면 0건 반환.
+// → 페이지네이션 + published 필터 제거로 모든 글 정확히 수집.
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
 
-  let query = getSupabase()
-    .from('blog_articles')
-    .select('id, title, summary, category, tag, hashtags, target_keyword, published, created_at, updated_at, author')
-    .eq('published', true)
-    .order('created_at', { ascending: false });
-
-  if (category) {
-    query = query.eq('category', category);
+  const PAGE_SIZE = 1000;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const all: any[] = [];
+  for (let page = 0; page < 50; page++) { // 최대 50,000건 안전 가드
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    let query = getSupabase()
+      .from('blog_articles')
+      .select('id, title, content, category, tag, hashtags, target_keyword, created_at, updated_at, author')
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    if (category) query = query.eq('category', category);
+    const { data, error } = await query;
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (!data || data.length === 0) break;
+    all.push(...data);
+    if (data.length < PAGE_SIZE) break;
   }
 
-  const { data, error } = await query.limit(10000);
+  // 클라이언트 호환을 위해 summary·published 가상 필드 추가 (DB에는 없음)
+  const posts = all.map(r => ({
+    id: r.id,
+    title: r.title,
+    summary: '', // metadata에 있을 수 있으나 list에는 불필요
+    category: r.category,
+    tag: r.tag,
+    hashtags: r.hashtags,
+    target_keyword: r.target_keyword,
+    published: true,
+    created_at: r.created_at,
+    updated_at: r.updated_at,
+    author: r.author,
+  }));
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ posts: data || [] });
+  return NextResponse.json({ posts });
 }
 
 // POST: 블로그 포스트 생성 (단건/복수)
