@@ -5,7 +5,7 @@ import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib
 import type { GenerateRequest } from '@/lib/types';
 import { injectProjectLinks } from '@/lib/inject-project-links';
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 export const runtime = 'nodejs';
 
 export async function OPTIONS() {
@@ -358,15 +358,19 @@ export async function POST(request: NextRequest) {
       return withCors(NextResponse.json({ error: '콘텐츠 유형을 선택해주세요.' }, { status: 400 }));
     }
 
-    // 기본: Gemini Flash. body.provider === 'claude' 면 Claude Haiku 4.5 폴백 사용.
+    // 기본: Gemini Flash. body.provider === 'claude' 또는 X-API-Provider: claude 또는
+    // Gemini 키 부재 시 Claude Haiku 4.5 사용. 프론트가 명시 안 해도 자동 라우팅.
     const claudeKey = getClaudeKey(request);
     const geminiKey = getGeminiKey(request);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const useClaude = (body as any).provider === 'claude';
+    const useClaude =
+      (body as any).provider === 'claude' ||
+      request.headers.get('X-API-Provider') === 'claude' ||
+      !geminiKey;
 
     if (useClaude && !claudeKey) {
       return withCors(NextResponse.json(
-        { error: 'Claude API 키가 필요합니다 (폴백 호출).' },
+        { error: 'Claude API 키가 필요합니다.' },
         { status: 401 }
       ));
     }

@@ -1443,9 +1443,10 @@ export default function GeneratePage() {
         // 단일 fetch 호출 — 재시도용 inner 함수
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const fetchOnce = async (): Promise<{ ok: boolean; data: any; status: number }> => {
-          // 60초 타임아웃 — API가 hang 걸리거나 서버가 응답 안 해도 무한 대기 방지
+          // 120초 타임아웃 — Claude Haiku는 RAG 컨텍스트 무거울 때 50~80초까지 걸림.
+          // (이전 60초는 Gemini Flash 기준이었음. 2026-05-02 Claude 단일 운영 전환)
           const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), 60000);
+          const timer = setTimeout(() => ctrl.abort(), 120000);
           try {
             const res = await fetch('/api/generate', {
               method: 'POST',
