@@ -88,6 +88,10 @@ export default function GenerateResultPage() {
   const [eeatAutoStatus, setEeatAutoStatus] = useState<Record<number, 'idle' | 'processing' | 'done' | 'failed'>>({});
   const [eeatAutoStarted, setEeatAutoStarted] = useState(false);
 
+  // 🚀 논스톱 자동 발행 — MD 생성 → EEAT → 번역(en·zh·ja) → 60편 발행 → 팝업 → /generate
+  const [autoPilotPhase, setAutoPilotPhase] = useState<'idle' | 'translating' | 'publishing' | 'done'>('idle');
+  const [autoPilotResult, setAutoPilotResult] = useState<{ ko: number; en: number; zh: number; ja: number; total: number; category: string } | null>(null);
+
   // ⭐ 언어 탭 (한국어 기본, 영/중/일 번역은 클릭 시 1회 번역 + 캐시)
   type Lang = 'ko' | 'en' | 'zh' | 'ja';
   const VALID_LANGS: Lang[] = ['ko', 'en', 'zh', 'ja'];
@@ -1174,6 +1178,90 @@ export default function GenerateResultPage() {
   };
 
   const [categoryError, setCategoryError] = useState<string | null>(null);
+
+  // 🚀 논스톱 자동 발행 — 번역(en·zh·ja) 병렬 → 60편 일괄 발행 → 팝업
+  const runAutoPilotPublish = async () => {
+    if (autoPilotPhase !== 'idle' && autoPilotPhase !== 'done') return;
+    if (abVersions.length === 0) {
+      alert('발행할 콘텐츠가 없습니다.');
+      return;
+    }
+    // 카테고리 결정 — 사용자 선택값 우선, 없으면 selectedCategory, 없으면 'geo-aio'
+    const category = selectedBlogCategory || selectedCategory || 'geo-aio';
+
+    setAutoPilotPhase('translating');
+    setAutoPilotResult(null);
+
+    // 1) 영·중·일 병렬 번역 (캐시 있는 톤은 자동 skip)
+    try {
+      await Promise.all([
+        startTranslation('en'),
+        startTranslation('zh'),
+        startTranslation('ja'),
+      ]);
+    } catch (e) {
+      console.error('autopilot translation error:', e);
+      // 번역 실패해도 ko + 가능한 언어로 발행 진행
+    }
+
+    setAutoPilotPhase('publishing');
+
+    // 2) 4개 언어 × 15편 = 최대 60편 빌드
+    const counts = { ko: 0, en: 0, zh: 0, ja: 0 };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const allPosts: any[] = [];
+
+    (['ko', 'en', 'zh', 'ja'] as Lang[]).forEach(lang => {
+      abVersions.forEach((v, i) => {
+        let title = v.title;
+        let content = v.content;
+        if (lang !== 'ko') {
+          const trans = translatedVersions[lang]?.[i];
+          if (!trans) return; // 번역 없는 톤은 skip
+          title = trans.title;
+          content = trans.content;
+        }
+        if (!content || content.length < 200) return;
+        const plain = content.replace(/[#*>\-|`]/g, '').replace(/\n+/g, ' ').trim();
+        allPosts.push({
+          title,
+          content,
+          summary: plain.slice(0, 150) + (plain.length > 150 ? '...' : ''),
+          category,
+          tag: blogTag || (v as { toneName?: string }).toneName || '',
+          hashtags: v.hashtags || [],
+          metadata: {
+            ...((v.metadata as unknown as Record<string, unknown>) || {}),
+            lang,
+            seriesRole: (v as { seriesRole?: string }).seriesRole,
+            seriesIntent: (v as { seriesIntent?: string }).seriesIntent,
+            seriesAngle: (v as { seriesAngle?: string }).seriesAngle,
+          },
+          targetKeyword: targetKeyword,
+          historyId: currentHistoryId || '',
+        });
+        counts[lang]++;
+      });
+    });
+
+    if (allPosts.length === 0) {
+      setAutoPilotPhase('idle');
+      alert('자동 발행 실패 — 발행할 콘텐츠가 없습니다.');
+      return;
+    }
+
+    // 3) 일괄 저장
+    try {
+      await saveBlogPostsBatch(allPosts);
+      const total = counts.ko + counts.en + counts.zh + counts.ja;
+      setAutoPilotResult({ ...counts, total, category });
+      setAutoPilotPhase('done');
+    } catch (err) {
+      console.error('autopilot publish error:', err);
+      alert('자동 발행 실패: ' + (err instanceof Error ? err.message : String(err)));
+      setAutoPilotPhase('idle');
+    }
+  };
 
   const labelToSlug = (label: string) => {
     return label.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9가-힣\-]/g, '') || `cat-${Date.now()}`;
@@ -2545,6 +2633,103 @@ export default function GenerateResultPage() {
                 style={{ lineHeight: '1.8' }}
                 dangerouslySetInnerHTML={{ __html: finalContentHtml }}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 논스톱 자동 발행 — 플로팅 트리거 버튼 (EEAT 완료 후 우하단 노출) */}
+      {eeatDone && autoPilotPhase === 'idle' && abVersions.length > 0 && (
+        <button
+          onClick={runAutoPilotPublish}
+          className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-bold rounded-full shadow-2xl shadow-amber-500/40 hover:shadow-amber-500/60 hover:scale-105 active:scale-95 transition-all"
+        >
+          <span className="text-xl">🚀</span>
+          <span className="text-sm">논스톱 자동 발행 (4개 언어)</span>
+        </button>
+      )}
+
+      {/* 🚀 자동 발행 진행 중 — 풀스크린 오버레이 */}
+      {(autoPilotPhase === 'translating' || autoPilotPhase === 'publishing') && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+            <div className="w-16 h-16 mx-auto mb-4 relative">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 animate-pulse" />
+              <svg className="absolute inset-0 m-auto w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
+              {autoPilotPhase === 'translating' ? '🌐 영·중·일 번역 중...' : '📤 4개 언어 발행 중...'}
+            </h3>
+            <p className="text-sm text-slate-700">
+              {autoPilotPhase === 'translating'
+                ? '톤별 영어·중국어·일본어 번역을 동시 처리 중입니다 (1~3분 소요)'
+                : '한·영·중·일 콘텐츠를 카테고리에 발행 중입니다'}
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ 자동 발행 완료 팝업 */}
+      {autoPilotPhase === 'done' && autoPilotResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            {/* 상단 헤더 */}
+            <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-6 py-5 text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center text-2xl">✅</div>
+                <div>
+                  <h3 className="text-lg font-bold">발행 완료</h3>
+                  <p className="text-xs text-white/90 mt-0.5">
+                    카테고리: <strong>{autoPilotResult.category}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+            {/* 본문 */}
+            <div className="p-6">
+              <p className="text-sm text-slate-700 mb-4 text-center">
+                <strong className="text-emerald-700">{autoPilotResult.total}편</strong>이 4개 언어 카테고리에 업로드되었습니다.
+              </p>
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">🇰🇷</div>
+                  <div className="text-xs text-slate-700 font-medium">한국어</div>
+                  <div className="text-xl font-extrabold text-amber-800 mt-1">{autoPilotResult.ko}편</div>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">🇺🇸</div>
+                  <div className="text-xs text-slate-700 font-medium">English</div>
+                  <div className="text-xl font-extrabold text-blue-800 mt-1">{autoPilotResult.en}편</div>
+                </div>
+                <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">🇨🇳</div>
+                  <div className="text-xs text-slate-700 font-medium">中文</div>
+                  <div className="text-xl font-extrabold text-rose-800 mt-1">{autoPilotResult.zh}편</div>
+                </div>
+                <div className="bg-violet-50 border border-violet-200 rounded-lg p-3 text-center">
+                  <div className="text-2xl mb-1">🇯🇵</div>
+                  <div className="text-xs text-slate-700 font-medium">日本語</div>
+                  <div className="text-xl font-extrabold text-violet-800 mt-1">{autoPilotResult.ja}편</div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setAutoPilotPhase('idle');
+                  setAutoPilotResult(null);
+                  router.push('/generate');
+                }}
+                className="w-full px-6 py-3 min-h-[48px] bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:from-amber-700 active:to-orange-700 text-white font-bold rounded-xl shadow-md transition-all"
+              >
+                확인 — 새 주제 선정
+              </button>
             </div>
           </div>
         </div>
