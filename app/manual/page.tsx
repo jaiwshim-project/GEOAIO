@@ -1341,15 +1341,15 @@ export default function ManualPage() {
               <div className="grid grid-cols-3 gap-2 mt-2">
                 <div className="bg-blue-50 border border-blue-200 rounded p-2">
                   <p className="text-[11px] font-bold text-blue-800">프로 (Pro)</p>
-                  <p className="text-[10px] text-gray-700 mt-0.5">200만원/월 · 월 100건 · 1년 계약</p>
+                  <p className="text-[10px] text-gray-700 mt-0.5">200만원/월 · 월 70건 · 1년 계약</p>
                 </div>
                 <div className="bg-indigo-50 border border-indigo-200 rounded p-2">
                   <p className="text-[11px] font-bold text-indigo-800">프리미엄</p>
-                  <p className="text-[10px] text-gray-700 mt-0.5">540/분기 · 연 2,160 · 월 120건</p>
+                  <p className="text-[10px] text-gray-700 mt-0.5">540/분기 · 연 2,160 · 월 80건</p>
                 </div>
                 <div className="bg-amber-50 border border-amber-300 rounded p-2">
                   <p className="text-[11px] font-bold text-amber-800">맥스 (Max) ⭐</p>
-                  <p className="text-[10px] text-gray-700 mt-0.5">1,440만원/연 (20% 할인) · 월 150건 + 브랜드뉴스/유튜브</p>
+                  <p className="text-[10px] text-gray-700 mt-0.5">1,440만원/연 (20% 할인) · 월 100건 + 브랜드뉴스/유튜브</p>
                 </div>
               </div>
               <p className="text-[10px] text-gray-500 mt-2">맥스가 가장 좋은 혜택 + 가장 저렴 (연간 일시불 20% 할인). 프리미엄은 가운데 위치.</p>

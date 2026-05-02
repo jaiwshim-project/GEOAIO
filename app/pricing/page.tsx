@@ -99,7 +99,7 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-0.5">●</span>
-                  <span className="font-bold text-blue-700">월 최대 100건 (연 1,200건) 콘텐츠 생성</span>
+                  <span className="font-bold text-blue-700">월 최대 70건 (연 840건) 콘텐츠 생성</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-0.5">●</span>
@@ -145,7 +145,7 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-500 mt-0.5">●</span>
-                  <span className="font-bold text-indigo-700">월 최대 120건 (연 1,440건) 콘텐츠 생성</span>
+                  <span className="font-bold text-indigo-700">월 최대 80건 (연 960건) 콘텐츠 생성</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-500 mt-0.5">●</span>
@@ -198,7 +198,7 @@ export default function PricingPage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-violet-500 mt-0.5">●</span>
-                  <span className="font-bold text-violet-700">월 최대 150건 (연 1,800건) 콘텐츠 생성</span>
+                  <span className="font-bold text-violet-700">월 최대 100건 (연 1,200건) 콘텐츠 생성</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-violet-500 mt-0.5">●</span>
@@ -407,9 +407,9 @@ export default function PricingPage() {
                 {contactModal === 'pro' ? '프로 (Pro)' : contactModal === 'max' ? '맥스 (Max)' : '프리미엄 (Premium)'} 플랜 문의
               </h2>
               <p className="text-sm text-white/80 mt-1">
-                {contactModal === 'pro' ? '월 200만원 · 월 100건'
-                  : contactModal === 'max' ? '연 1,440만원 · 월 150건 + 브랜드뉴스/영상'
-                  : '540만원/분기 · 연 2,160만원 · 월 120건'}
+                {contactModal === 'pro' ? '월 200만원 · 월 70건'
+                  : contactModal === 'max' ? '연 1,440만원 · 월 100건 + 브랜드뉴스/영상'
+                  : '540만원/분기 · 연 2,160만원 · 월 80건'}
               </p>
             </div>
 

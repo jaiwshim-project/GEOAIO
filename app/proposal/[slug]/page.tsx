@@ -1084,7 +1084,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <p className="text-xs text-white/95 leading-relaxed">
                       평균 <strong className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent">2~4개월</strong> 내 회수.
                       AI 검색 노출 증가 → 신규 유입 → 매출 증대 → 추가 투자 여력 확보의 선순환 구조 진입.
-                      도입 1년 후 누적 콘텐츠 1,800편 + AI 인용 자산 영구 보유.
+                      도입 1년 후 누적 콘텐츠 1,200편 + AI 인용 자산 영구 보유.
                     </p>
                   </div>
                 </div>
@@ -1231,7 +1231,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <p className="text-[11px] text-gray-700">부가세 별도 · 연 2,400만원</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
-                    <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span><strong className="text-blue-700">월 100건</strong> (연 1,200건)</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span><strong className="text-blue-700">월 70건</strong> (연 840건)</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span>E-E-A-T 포맷 자동 적용</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span>기술 지원·상담</span></li>
                   </ul>
@@ -1251,7 +1251,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <p className="text-[10px] text-gray-600 mt-0.5">부가세 별도</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
-                    <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span><strong className="text-indigo-700">월 120건</strong> (연 1,440건)</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span><strong className="text-indigo-700">월 80건</strong> (연 960건)</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span>E-E-A-T 포맷 자동 적용</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span>기술 지원·상담</span></li>
                   </ul>
@@ -1276,7 +1276,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     <p className="text-[11px] sm:text-[9px] text-gray-600 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
-                    <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 150건</strong> (연 1,800건)</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 100건</strong> (연 1,200건)</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span>우선 기술 지원</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-rose-500 mt-0.5">★</span><span className="font-semibold text-rose-600">브랜드뉴스 기사 2회</span></li>
                     <li className="flex items-start gap-1.5"><span className="text-rose-500 mt-0.5">★</span><span className="font-semibold text-rose-600">유튜브 소개영상 2회</span></li>
