@@ -27,34 +27,46 @@ const EXTRA_COLORS = [
   'from-orange-500 to-red-600',
 ];
 
-// 카테고리별 대표/연락처/주소 표기 — 히어로 섹션에 노출
-// 신뢰 신호(E-E-A-T)·로컬 검색 색인·AI 검색 인용에 모두 도움.
-// 데이터 없는 카테고리는 자동으로 비표시.
-interface CategoryContact {
-  representative?: string;  // 대표자명·직함
-  phone?: string;
-  email?: string;
-  address?: string;
-  website?: string;
+// 카테고리별 대표/연락처/주소 표기 — user_projects 테이블에서 동적 매칭
+// 매칭 전략: 카테고리 슬러그·라벨이 프로젝트명에 포함된 후보를 모아
+// 정보 충실도(채워진 필드 수)가 가장 높은 1건을 선택.
+interface ProjectInfo {
+  name?: string;
+  description?: string;
+  company_name?: string | null;
+  representative_name?: string | null;
+  region?: string | null;
+  homepage_url?: string | null;
+  blog_url?: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
 }
-const CATEGORY_CONTACTS: Record<string, CategoryContact> = {
-  '디지털스마일치과': {
-    representative: '박찬익 원장',
-    address: '대전광역시 중구',
-    website: 'https://digitalsmile.tistory.com',
-  },
-  'dental': {
-    representative: '박찬익 원장',
-    address: '대전광역시 중구',
-    website: 'https://digitalsmile.tistory.com',
-  },
-  'geo-aio': {
-    representative: '심재우 대표 · AI선거솔루션',
-    email: 'jaiwshim@gmail.com',
-    phone: '010-2397-5734',
-    website: 'https://www.geo-aio.com',
-  },
-};
+
+async function getProjectByCategory(slug: string, label: string): Promise<ProjectInfo | null> {
+  try {
+    const supa = getSupabase();
+    // `or`에 ilike — slug 또는 label이 프로젝트명에 포함되면 매치
+    const safeSlug = slug.replace(/[%,()]/g, '');
+    const safeLabel = label.replace(/[%,()]/g, '');
+    const filters: string[] = [];
+    if (safeSlug) filters.push(`name.ilike.%${safeSlug}%`);
+    if (safeLabel && safeLabel !== safeSlug) filters.push(`name.ilike.%${safeLabel}%`);
+    if (filters.length === 0) return null;
+    const { data } = await supa
+      .from('user_projects')
+      .select('name,description,company_name,representative_name,region,homepage_url,blog_url,contact_email,contact_phone')
+      .or(filters.join(','))
+      .limit(20);
+    if (!data || data.length === 0) return null;
+    // 채워진 필드 수가 많은 프로젝트 우선
+    const score = (p: ProjectInfo) =>
+      [p.representative_name, p.region, p.contact_phone, p.contact_email, p.homepage_url, p.description].filter(Boolean).length;
+    data.sort((a, b) => score(b as ProjectInfo) - score(a as ProjectInfo));
+    return data[0] as ProjectInfo;
+  } catch {
+    return null;
+  }
+}
 
 function getSupabase() {
   // Server-side: service role 우선 (Supabase max-rows 우회 + RLS 우회로 전체 글 fetch).
@@ -191,6 +203,7 @@ export default async function BlogCategoryPage({
   // URL 인코딩된 한글 슬러그 디코딩 (예: %EB%9D%BC... → 라이프스타일)
   const slug = decodeURIComponent(rawSlug);
   const [allPosts, meta] = await Promise.all([getCategoryPosts(slug), getCategoryMeta(slug)]);
+  const project = await getProjectByCategory(slug, meta.label);
 
   // 각 포스트의 언어 결정:
   // 1순위 — metadata.lang (발행 시 박힌 명시적 언어 태그, 100% 정확)
@@ -294,51 +307,52 @@ export default async function BlogCategoryPage({
                   <h1 className={`text-xl sm:text-2xl font-bold tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r ${meta.color}`} style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
                     {meta.label}
                   </h1>
-                  {meta.description && (
-                    <p className="text-slate-800 text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
-                      {meta.description}
+                  {/* 카테고리 설명: 프로젝트의 description 우선, 없으면 카테고리 meta description */}
+                  {(project?.description || meta.description) && (
+                    <p className="text-slate-800 text-[11px] leading-snug max-w-xl mt-1 line-clamp-2">
+                      {project?.description || meta.description}
                     </p>
                   )}
 
-                  {/* 대표·연락처·주소 — E-E-A-T·로컬 검색·AI 인용 신뢰 신호 */}
-                  {CATEGORY_CONTACTS[slug] && (
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
-                      {CATEGORY_CONTACTS[slug].representative && (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold">
+                  {/* 대표·연락처·주소 — user_projects 테이블에서 동적 매칭 (E-E-A-T·로컬 검색·AI 인용 신뢰 신호) */}
+                  {project && (project.representative_name || project.region || project.contact_phone || project.contact_email || project.homepage_url) && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-2.5">
+                      {project.representative_name && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-900 font-bold">
                           <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-3.866 0-9 1.95-9 5.834V22h18v-2.166C21 15.95 15.866 14 12 14z" />
                           </svg>
-                          {CATEGORY_CONTACTS[slug].representative}
+                          {project.representative_name}
                         </span>
                       )}
-                      {CATEGORY_CONTACTS[slug].address && (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold">
+                      {project.region && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-slate-900 font-bold">
                           <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12 2C7.589 2 4 5.589 4 9.995 4 16.394 11.111 21.78 11.398 22a1 1 0 001.205-.001C12.889 21.779 20 16.394 20 10c0-4.411-3.589-8-8-8zm0 12a4 4 0 110-8 4 4 0 010 8z" />
                           </svg>
-                          {CATEGORY_CONTACTS[slug].address}
+                          {project.region}
                         </span>
                       )}
-                      {CATEGORY_CONTACTS[slug].phone && (
-                        <a href={`tel:${CATEGORY_CONTACTS[slug].phone?.replace(/[^0-9+]/g, '')}`} className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold hover:text-amber-800 transition-colors">
+                      {project.contact_phone && (
+                        <a href={`tel:${project.contact_phone.replace(/[^0-9+]/g, '')}`} className="inline-flex items-center gap-1 text-[11px] text-slate-900 font-bold hover:text-amber-800 transition-colors">
                           <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 00-1.02.24l-2.2 2.2a15.05 15.05 0 01-6.59-6.58l2.2-2.21c.27-.27.35-.65.24-1A11.36 11.36 0 018.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z" />
                           </svg>
-                          {CATEGORY_CONTACTS[slug].phone}
+                          {project.contact_phone}
                         </a>
                       )}
-                      {CATEGORY_CONTACTS[slug].email && (
-                        <a href={`mailto:${CATEGORY_CONTACTS[slug].email}`} className="inline-flex items-center gap-1 text-[11px] text-slate-800 font-semibold hover:text-amber-800 transition-colors">
+                      {project.contact_email && (
+                        <a href={`mailto:${project.contact_email}`} className="inline-flex items-center gap-1 text-[11px] text-slate-900 font-bold hover:text-amber-800 transition-colors">
                           <svg className="w-3 h-3 text-amber-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4.236l-8 5.333-8-5.333V6l8 5.333L20 6v2.236z" />
                           </svg>
-                          {CATEGORY_CONTACTS[slug].email}
+                          {project.contact_email}
                         </a>
                       )}
-                      {CATEGORY_CONTACTS[slug].website && (
-                        <a href={CATEGORY_CONTACTS[slug].website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-amber-800 font-semibold hover:text-amber-900 transition-colors">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                      {project.homepage_url && (
+                        <a href={project.homepage_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-amber-800 font-bold hover:text-amber-900 transition-colors">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
                           홈페이지
                         </a>
