@@ -1,17 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { unstable_cache } from 'next/cache';
-import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-function getSupabase() {
-  return createClient(supabaseUrl, supabaseKey);
-}
 
 interface BlogRow {
   id: string;
@@ -29,23 +23,24 @@ function parseMeta(author: string | null) {
   try { return JSON.parse(author); } catch { return { summary: '', tag: '', targetKeyword: '' }; }
 }
 
-// Supabase JS 클라이언트는 내부 fetch에 cache: 'no-store'를 설정해
-// Next.js가 이 페이지 전체를 동적으로 강제. unstable_cache로 감싸 캐시 무효화 신호 차단.
-async function getPostUncached(id: string): Promise<BlogRow | null> {
-  const { data } = await getSupabase()
-    .from('blog_articles')
-    .select('*')
-    .eq('id', id)
-    .single();
-  return data;
+// Supabase JS 클라이언트는 내부 fetch에 cache: 'no-store'를 설정해 ISR을 무력화.
+// Supabase REST API에 직접 fetch + next: { revalidate } 옵션으로 캐시 가능한 호출로 전환.
+async function getPost(id: string): Promise<BlogRow | null> {
+  // UUID 형식만 허용 — 인젝션·잘못된 요청 방지
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const url = `${supabaseUrl}/rest/v1/blog_articles?id=eq.${id}&select=*`;
+  const res = await fetch(url, {
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${supabaseKey}`,
+      Accept: 'application/json',
+    },
+    next: { revalidate: 3600, tags: ['blog-articles', `blog-${id}`] },
+  });
+  if (!res.ok) return null;
+  const rows: BlogRow[] = await res.json();
+  return rows[0] || null;
 }
-
-const getPost = (id: string) =>
-  unstable_cache(
-    async () => getPostUncached(id),
-    ['blog-post', id],
-    { revalidate: 3600, tags: ['blog-articles', `blog-${id}`] }
-  )();
 
 // 동적 메타데이터
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
