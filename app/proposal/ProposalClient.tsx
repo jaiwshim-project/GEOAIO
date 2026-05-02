@@ -46,10 +46,23 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
             <p className="text-white/90 text-sm sm:text-base leading-relaxed">
               각 업체의 콘텐츠 운영 현황과 GEO-AIO 자동화 솔루션이 가져올 변화를 정리했습니다.
             </p>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium mt-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              {categories.length}개 업체 제안서
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                {categories.length}개 업체 제안서
+              </span>
+              {/* 정치인 종합 제안서 진입 버튼 */}
+              <Link
+                href="/proposal/election-2026"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[34px] bg-white text-rose-700 hover:bg-amber-50 active:bg-amber-100 rounded-full text-xs font-extrabold shadow-md transition-all hover:scale-105"
+              >
+                <span>🗳️</span>
+                <span>정치인 종합 제안서</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 
