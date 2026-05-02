@@ -1,7 +1,16 @@
 // Supabase에 색인 snapshot을 저장·조회. 미구성 시 in-memory mock으로 대체.
 
+import { createClient } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from './supabase';
 import { mockSnapshot } from './gsc-client';
+
+// 쓰기용 service-role 클라이언트 (RLS 우회). 읽기는 anon 클라이언트 그대로 사용.
+function getServiceRoleClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.replace(/\s/g, '');
+  if (!url || !serviceKey) return null;
+  return createClient(url, serviceKey, { auth: { persistSession: false } });
+}
 
 export interface IndexingSnapshot {
   id?: string;
@@ -18,10 +27,10 @@ export interface IndexingSnapshot {
 }
 
 export async function saveSnapshot(snap: Omit<IndexingSnapshot, 'id'>): Promise<{ ok: boolean; id?: string; error?: string }> {
-  if (!isSupabaseConfigured() || !supabase) {
-    return { ok: false, error: 'supabase not configured' };
-  }
-  const { data, error } = await supabase
+  // service_role로 INSERT (RLS 우회). 없으면 anon으로 폴백 (RLS 정책에 INSERT 허용 시에만 성공).
+  const writer = getServiceRoleClient() || supabase;
+  if (!writer) return { ok: false, error: 'supabase not configured' };
+  const { data, error } = await writer
     .from('indexing_snapshots')
     .insert(snap)
     .select('id')
