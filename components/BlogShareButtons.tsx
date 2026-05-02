@@ -91,7 +91,7 @@ export default function BlogShareButtons({ title, url, description }: Props) {
   }, [title, summary, url]);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mt-6 pt-4 border-t border-gray-200">
+    <div className="flex flex-wrap items-center gap-2 px-3 py-2.5 bg-gray-50/70 rounded-lg border border-gray-200">
       <span className="text-xs font-semibold text-gray-700 mr-1">공유</span>
 
       <button

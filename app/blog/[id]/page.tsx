@@ -378,9 +378,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
             </div>
 
             {/* 제목 */}
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6 leading-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 leading-tight">
               {post.title}
             </h1>
+
+            {/* 공유 버튼 — Facebook · LinkedIn · 카카오톡 (페이지 상단으로 이동) */}
+            <div className="mb-6">
+              <BlogShareButtons
+                title={post.title}
+                url={`${siteUrl}/blog/${post.id}`}
+                description={summary}
+              />
+            </div>
 
             {/* 요약 */}
             {summary && (
@@ -405,13 +414,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 ))}
               </div>
             )}
-
-            {/* 공유 버튼 — Facebook · LinkedIn · 카카오톡 */}
-            <BlogShareButtons
-              title={post.title}
-              url={`${siteUrl}/blog/${post.id}`}
-              description={summary}
-            />
           </div>
         </article>
 
