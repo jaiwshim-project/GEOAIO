@@ -43,6 +43,7 @@ export async function GET() {
 
     const counts: Record<string, number> = {};
     const langCounts: Record<string, number> = { ko: 0, en: 0, zh: 0, ja: 0 };
+    const byCategoryLang: Record<string, Record<string, number>> = {};
     for (const r of all) {
       const cat = r.category || 'uncategorized';
       counts[cat] = (counts[cat] || 0) + 1;
@@ -58,11 +59,14 @@ export async function GET() {
         } catch {}
       }
       langCounts[lang] = (langCounts[lang] || 0) + 1;
+      // 카테고리별 언어 분포
+      if (!byCategoryLang[cat]) byCategoryLang[cat] = { ko: 0, en: 0, zh: 0, ja: 0 };
+      byCategoryLang[cat][lang] = (byCategoryLang[cat][lang] || 0) + 1;
     }
 
     const total = all.length;
     return NextResponse.json(
-      { counts, langCounts, total },
+      { counts, langCounts, byCategoryLang, total },
       {
         headers: {
           'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',

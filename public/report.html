@@ -1112,17 +1112,38 @@
       onmouseout="this.style.transform='translateY(0)'"
     >
       <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-      디지털스마일치과 카테고리 방문
+      디지털스마일치과 블로그 방문 (<span id="cta-total-count">…</span>편)
     </a>
     <p style="margin-top:16px;font-size:13px;color:#1f2937;">
       URL: <code style="background:#fef3c7;padding:4px 10px;border-radius:6px;font-size:12px;color:#92400e;">https://www.geo-aio.com/blog/category/디지털스마일치과</code>
     </p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:20px;max-width:600px;margin-left:auto;margin-right:auto;">
-      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇰🇷 한국어</a>
-      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과?lang=en" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇺🇸 English</a>
-      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과?lang=zh" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇨🇳 中文</a>
-      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과?lang=ja" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇯🇵 日本語</a>
+      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇰🇷 한국어 <span id="lang-count-ko" style="background:#fef3c7;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;">…</span></a>
+      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과?lang=en" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇺🇸 English <span id="lang-count-en" style="background:#fef3c7;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;">…</span></a>
+      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과?lang=zh" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇨🇳 中文 <span id="lang-count-zh" style="background:#fef3c7;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;">…</span></a>
+      <a href="https://www.geo-aio.com/blog/category/디지털스마일치과?lang=ja" target="_blank" rel="noopener noreferrer" style="padding:10px 14px;background:white;border:1px solid #fcd34d;border-radius:10px;text-decoration:none;color:#92400e;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;justify-content:center;">🇯🇵 日本語 <span id="lang-count-ja" style="background:#fef3c7;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;">…</span></a>
     </div>
+
+    <!-- 카운트 자동 표시 — 디지털스마일치과 카테고리의 실제 글 수를 GEO-AIO API에서 fetch -->
+    <script>
+      (function() {
+        var apiUrl = 'https://www.geo-aio.com/api/blog/category-counts?category=' + encodeURIComponent('디지털스마일치과');
+        fetch(apiUrl, { cache: 'no-store' })
+          .then(function(r) { return r.ok ? r.json() : null; })
+          .then(function(data) {
+            if (!data) return;
+            var total = (data.counts && data.counts['디지털스마일치과']) || data.total || 0;
+            var lang = (data.byCategoryLang && data.byCategoryLang['디지털스마일치과']) || data.langCounts || { ko: 0, en: 0, zh: 0, ja: 0 };
+            var t = document.getElementById('cta-total-count');
+            if (t) t.textContent = total;
+            ['ko', 'en', 'zh', 'ja'].forEach(function(l) {
+              var el = document.getElementById('lang-count-' + l);
+              if (el) el.textContent = lang[l] || 0;
+            });
+          })
+          .catch(function() { /* 무시 — 표시 없이 그대로 */ });
+      })();
+    </script>
   </section>
 
   <!-- FOOTER -->
