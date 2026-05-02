@@ -47,7 +47,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // /blog, /sitemap, /robots.txt는 매처 차원에서 제외 — 미들웨어 자체가 호출되지 않게
+  // 하여 ISR 응답이 public Cache-Control로 송출되도록.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|blog|sitemap|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
