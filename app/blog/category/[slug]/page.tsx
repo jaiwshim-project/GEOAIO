@@ -6,13 +6,10 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import type { BlogPost } from '@/lib/supabase-storage';
 
-// SEO/AI 색인 친화: ISR로 1시간마다 갱신 (force-dynamic은 no-store 헤더로 색인 거부됨)
-export const revalidate = 3600;
-
-// 동적 라우트를 ISR로 분류시키는 핵심 시그널 (없으면 ƒ Dynamic으로 분류됨)
-export async function generateStaticParams() {
-  return [];
-}
+// 카테고리 페이지는 ?lang= searchParams로 언어 필터링 — 본질적으로 동적.
+// 색인 우선 대상은 /blog (LIST) + /blog/[id] (SINGLE) 두 곳이며 /blog/category는 보조 네비.
+// generateStaticParams + searchParams 조합은 빌드 충돌(500)을 일으켜 dynamic 유지.
+export const dynamic = 'force-dynamic';
 
 const DEFAULT_CATEGORIES: Record<string, { label: string; description: string; color: string }> = {
   'geo-aio':  { label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600' },
