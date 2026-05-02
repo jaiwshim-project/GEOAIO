@@ -117,7 +117,8 @@ const subKeywordsByCategory: Record<ContentCategory, string[]> = {
 // → 분석 결과 "톤만 바꾸고 정보 90% 동일" 함정 회피.
 type SeriesIntent =
   | 'overview' | 'pain-point' | 'urgency' | 'howto' | 'case-deep'
-  | 'trend' | 'theory' | 'compare' | 'roi' | 'critique';
+  | 'trend' | 'theory' | 'compare' | 'roi' | 'critique'
+  | 'faq' | 'checklist' | 'cost' | 'risks' | 'myth';
 
 type ToneOption = {
   value: string;
@@ -235,6 +236,41 @@ const toneOptions: ToneOption[] = [
     seriesRole: 'spoke', intent: 'critique',
     angle: '솔직한 한계·실패 케이스·이 방법이 안 통하는 상황 — 균형 잡힌 시각',
     exclude: [...SPOKE_EXCLUDE_COMMON, '과장된 성공 사례·일방적 찬양'],
+    group: 'extended',
+  },
+  {
+    value: '질문답변 중심의', label: 'FAQ형',
+    seriesRole: 'spoke', intent: 'faq',
+    angle: '자주 묻는 질문 7개를 Q–A 구조로 — 각 답변 80~150자, AI Overview·Perplexity 발췌 친화',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '서술형 단락 위주 진행 (Q&A 형식 유지)'],
+    group: 'extended',
+  },
+  {
+    value: '체크리스트 중심의', label: '체크리스트형',
+    seriesRole: 'spoke', intent: 'checklist',
+    angle: '시작 전·진행 중·마무리 후 점검 항목 N개 — 행동형 ☐ 목록, 누락 방지 관점',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '단계별 깊이 있는 가이드형 진행 (HowTo 글과 분리)'],
+    group: 'core',
+  },
+  {
+    value: '비용분석 중심의', label: '비용분석형',
+    seriesRole: 'spoke', intent: 'cost',
+    angle: '항목별 가격대·총 투자비·숨은 비용·절약 팁 — 표·수치·범위 중심',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '단일 사례 ROI 비교 (사례연구형과 분리)'],
+    group: 'core',
+  },
+  {
+    value: '주의·금기 중심의', label: '위험·금기형',
+    seriesRole: 'spoke', intent: 'risks',
+    angle: '부작용·금기 사항·하면 안 되는 상황 N개 — 구체적 케이스 중심, 균형 잡힌 경고',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '한계 전반·실패 회고 (감성형 critique과 분리)'],
+    group: 'core',
+  },
+  {
+    value: '오해깨기 중심의', label: '오해깨기형',
+    seriesRole: 'spoke', intent: 'myth',
+    angle: '흔한 미신·통념 N개 → 사실로 정정 (Myth: ... / Fact: ... 구조)',
+    exclude: [...SPOKE_EXCLUDE_COMMON, '입문자 오해 5가지 비유형 (친근한 pain-point과 분리)'],
     group: 'extended',
   },
 ];
@@ -1431,7 +1467,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 10; // 전부 병렬 (Pillar 1 + Spoke 9). Claude Haiku 동시 처리. 429 시 톤별 재시도 1회.
+      const AGENT_BATCH = 15; // 전부 병렬 (Pillar 1 + Spoke 14). Claude Haiku 동시 처리. 429 시 톤별 재시도 1회.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
@@ -1699,7 +1735,7 @@ export default function GeneratePage() {
           }
         };
 
-        const CLAUDE_BATCH = 10; // 전부 병렬 (Claude 단일 운영 전환에 맞춰 통일)
+        const CLAUDE_BATCH = 15; // 전부 병렬 (Claude 단일 운영 전환에 맞춰 통일)
         for (let k = 0; k < failedIdxs.length; k += CLAUDE_BATCH) {
           const groupIdxs = failedIdxs.slice(k, k + CLAUDE_BATCH);
           const groupTones = groupIdxs.map(i => toneOptions[i]);
