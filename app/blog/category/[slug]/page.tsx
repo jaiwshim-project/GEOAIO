@@ -188,32 +188,38 @@ export default async function BlogCategoryPage({
   };
 
   const TAG_COLORS: Record<string, string> = {
-    '가이드': 'bg-blue-100 text-blue-700', '전략': 'bg-purple-100 text-purple-700',
-    '비교분석': 'bg-rose-100 text-rose-700', '입문': 'bg-green-100 text-green-700',
-    '서비스': 'bg-emerald-100 text-emerald-700', '소개': 'bg-amber-100 text-amber-700',
-    '마케팅': 'bg-sky-100 text-sky-700', '분석': 'bg-indigo-100 text-indigo-700',
+    '가이드':   'bg-blue-50 text-blue-700 border border-blue-200',
+    '전략':     'bg-purple-50 text-purple-700 border border-purple-200',
+    '비교분석': 'bg-rose-50 text-rose-700 border border-rose-200',
+    '입문':     'bg-green-50 text-green-700 border border-green-200',
+    '서비스':   'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    '소개':     'bg-amber-50 text-amber-700 border border-amber-200',
+    '마케팅':   'bg-sky-50 text-sky-700 border border-sky-200',
+    '분석':     'bg-indigo-50 text-indigo-700 border border-indigo-200',
+    '팁':       'bg-orange-50 text-orange-700 border border-orange-200',
+    '사례':     'bg-teal-50 text-teal-700 border border-teal-200',
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] relative">
-      {/* 프리미엄 배경 — 다크 그라디언트 + 미세한 광택 + 골드 텍스처 */}
+    <div className="min-h-screen bg-gradient-to-br from-white via-slate-50 to-amber-50/40 relative">
+      {/* 프리미엄 화이트 배경 — 미세 골드 도트 + 따뜻한 크림/바이올렛 블롭 */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.06]"
+        className="absolute inset-0 pointer-events-none opacity-[0.04]"
         style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(252 211 77) 1px, transparent 0)',
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(180 83 9) 1px, transparent 0)',
           backgroundSize: '32px 32px',
         }}
       />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent pointer-events-none" />
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/15 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-amber-100/50 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-violet-100/40 rounded-full blur-[120px] pointer-events-none" />
       <Header />
 
       <main className="relative max-w-5xl mx-auto px-3 sm:px-5 lg:px-6 py-4 sm:py-5">
-        {/* 뒤로가기 — 골드 캡슐 */}
+        {/* 뒤로가기 — 골드 캡슐 (화이트) */}
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-wider uppercase text-amber-100 hover:text-white mb-3 transition-all border border-amber-400/40 bg-white/5 backdrop-blur-md rounded-full hover:border-amber-300 hover:bg-amber-500/15"
+          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-wider uppercase text-amber-700 hover:text-amber-900 mb-3 transition-all border border-amber-300 bg-white rounded-full hover:border-amber-500 hover:bg-amber-50 shadow-sm"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -221,30 +227,31 @@ export default async function BlogCategoryPage({
           전체 카테고리
         </Link>
 
-        {/* 카테고리 헤더 — 프리미엄 다크 카드 (골드 보더 글로우) */}
+        {/* 카테고리 헤더 — 프리미엄 화이트 카드 + 카테고리 색상 상단 리본 */}
         <section className="relative mb-4">
-          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-amber-400/60 via-amber-500/30 to-amber-400/60 blur-[2px] opacity-80" />
-          <div className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${meta.color} text-white px-4 sm:px-6 py-4 sm:py-5 shadow-2xl shadow-black/40`}>
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.18),transparent_55%)] pointer-events-none" />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.15)_100%)] pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-br from-amber-300/50 via-amber-400/25 to-amber-300/50 blur-[2px] opacity-70" />
+          <div className="relative overflow-hidden rounded-xl bg-white border border-amber-200/70 px-4 sm:px-6 py-4 sm:py-5 shadow-xl shadow-amber-100/40">
+            {/* 카테고리 색상 상단 리본 (식별색 유지) */}
+            <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${meta.color}`} />
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-50/70 via-white to-violet-50/40 pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(252,211,77,0.18),transparent_55%)] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-300/40 to-transparent" />
             <div className="relative">
               <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-[9px] tracking-[0.25em] uppercase text-amber-200">Collection</p>
-                <span className="text-[9px] text-white/70">·</span>
-                <span className="inline-flex items-center gap-1 text-[10px] text-white">
-                  <span className="w-1 h-1 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(252,211,77,0.8)]" />
+                <p className="text-[9px] tracking-[0.25em] uppercase text-amber-700 font-semibold">Collection</p>
+                <span className="text-[9px] text-slate-400">·</span>
+                <span className="inline-flex items-center gap-1 text-[10px] text-slate-700">
+                  <span className="w-1 h-1 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]" />
                   {allPosts.length}
                 </span>
               </div>
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight leading-none text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+                  <h1 className={`text-xl sm:text-2xl font-bold tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r ${meta.color}`} style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
                     {meta.label}
                   </h1>
                   {meta.description && (
-                    <p className="text-white text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
+                    <p className="text-slate-600 text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
                       {meta.description}
                     </p>
                   )}
@@ -256,17 +263,17 @@ export default async function BlogCategoryPage({
                     return (
                       <span
                         key={lang}
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] tracking-wide border backdrop-blur-sm transition-all ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] tracking-wide border transition-all ${
                           isActive
-                            ? 'bg-white/30 border-amber-300 text-white shadow-[0_0_12px_-2px_rgba(252,211,77,0.5)]'
+                            ? 'bg-amber-50 border-amber-400 text-amber-800 shadow-[0_0_10px_-2px_rgba(245,158,11,0.4)]'
                             : count > 0
-                            ? 'bg-white/15 border-white/30 text-white'
-                            : 'bg-white/5 border-white/15 text-white/70'
+                            ? 'bg-white border-slate-200 text-slate-700'
+                            : 'bg-slate-50 border-slate-200 text-slate-400'
                         }`}
                       >
                         <span className="text-[10px]">{LANG_LABELS[lang].flag}</span>
                         {LANG_LABELS[lang].label}
-                        <span className={isActive ? 'text-amber-200' : 'text-white'}>{count}</span>
+                        <span className={isActive ? 'text-amber-700 font-semibold' : 'text-slate-500'}>{count}</span>
                       </span>
                     );
                   })}
@@ -276,10 +283,10 @@ export default async function BlogCategoryPage({
           </div>
         </section>
 
-        {/* 언어 탭 — 프리미엄 다크 세그먼트 (골드 글로우) */}
+        {/* 언어 탭 — 프리미엄 화이트 세그먼트 (골드 글로우) */}
         <div className="relative mb-4">
-          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-400/40 via-amber-500/20 to-amber-400/40 blur-[2px] opacity-60" />
-          <div className="relative bg-gradient-to-br from-slate-900/95 to-slate-950/95 backdrop-blur-xl rounded-xl border border-amber-400/20 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)] p-1">
+          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-300/40 via-amber-400/20 to-amber-300/40 blur-[2px] opacity-50" />
+          <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-amber-100/30 p-1">
             <div className="grid grid-cols-4 gap-0.5">
               {validLangs.map(lang => {
                 const isActive = lang === activeLang;
@@ -292,20 +299,20 @@ export default async function BlogCategoryPage({
                     href={isEmpty ? '#' : href}
                     className={`relative flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-300 ${
                       isActive
-                        ? 'bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-500/50'
+                        ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/40'
                         : isEmpty
-                        ? 'text-slate-500 cursor-not-allowed pointer-events-none'
-                        : 'text-white hover:bg-white/10 hover:text-amber-200'
+                        ? 'text-slate-300 cursor-not-allowed pointer-events-none bg-slate-50'
+                        : 'text-slate-700 hover:bg-amber-50 hover:text-amber-800'
                     }`}
                     aria-disabled={isEmpty}
                   >
                     {isActive && (
-                      <span className="absolute -top-px left-1/2 -translate-x-1/2 w-10 h-px bg-gradient-to-r from-transparent via-amber-100 to-transparent" />
+                      <span className="absolute -top-px left-1/2 -translate-x-1/2 w-10 h-px bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
                     )}
                     <span className="text-sm leading-none">{LANG_LABELS[lang].flag}</span>
                     <span className="text-[11px] tracking-wide">{LANG_LABELS[lang].label}</span>
                     <span className={`text-[9px] tracking-[0.1em] ${
-                      isActive ? 'text-slate-950' : isEmpty ? 'text-slate-500' : 'text-amber-200'
+                      isActive ? 'text-white' : isEmpty ? 'text-slate-300' : 'text-amber-700'
                     }`}>
                       {count}
                     </span>
@@ -320,49 +327,49 @@ export default async function BlogCategoryPage({
         {posts.length > 0 ? (
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
-              <p className="text-[9px] tracking-[0.2em] uppercase text-amber-200">Articles</p>
-              <p className="text-[10px] text-white">
-                <span className="text-amber-200">{posts.length}</span> of {allPosts.length}
+              <p className="text-[9px] tracking-[0.2em] uppercase text-amber-700 font-semibold">Articles</p>
+              <p className="text-[10px] text-slate-600">
+                <span className="text-amber-700 font-semibold">{posts.length}</span> of {allPosts.length}
               </p>
             </div>
             <div className="space-y-1.5">
               {posts.map((post) => (
                 <article
                   key={post.id}
-                  className="group relative bg-gradient-to-br from-slate-900/80 to-slate-950/80 backdrop-blur-md rounded-lg border border-amber-400/15 hover:border-amber-400/50 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_28px_-8px_rgba(252,211,77,0.25)] hover:bg-gradient-to-br hover:from-slate-800/80 hover:to-slate-900/80"
+                  className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30"
                 >
-                  <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-300 via-amber-500 to-amber-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-2.5">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         {post.tag && (
-                          <span className={`px-1.5 py-0 text-[9px] tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-white/15 text-white border border-white/20'}`}>
+                          <span className={`px-1.5 py-0 text-[9px] tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
                             {post.tag}
                           </span>
                         )}
-                        <span className="text-[10px] tracking-wide text-slate-300">
+                        <span className="text-[10px] tracking-wide text-slate-500">
                           {formatDate(post.createdAt)}
                         </span>
                         {post.targetKeyword && (
-                          <span className="text-[9px] tracking-wide text-amber-200 bg-amber-500/20 border border-amber-400/50 px-1.5 py-0 rounded-full hidden sm:inline">
+                          <span className="text-[9px] tracking-wide text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0 rounded-full hidden sm:inline">
                             {post.targetKeyword}
                           </span>
                         )}
                       </div>
                       <h2
-                        className="text-sm sm:text-[15px] text-white group-hover:text-amber-100 transition-colors leading-snug tracking-tight line-clamp-1"
+                        className="text-sm sm:text-[15px] font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-1"
                         style={{ fontFamily: 'ui-serif, Georgia, serif' }}
                       >
                         {post.title}
                       </h2>
                       {post.summary && (
-                        <p className="text-[12px] text-slate-200 line-clamp-1 leading-snug mt-0.5">
+                        <p className="text-[12px] text-slate-600 line-clamp-1 leading-snug mt-0.5">
                           {post.summary}
                         </p>
                       )}
                     </div>
                     <div
-                      className={`shrink-0 w-7 h-7 rounded-md bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 shadow-md ring-1 ring-amber-400/30`}
+                      className={`shrink-0 w-7 h-7 rounded-md bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 shadow-sm ring-1 ring-amber-200/60`}
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -374,11 +381,11 @@ export default async function BlogCategoryPage({
             </div>
           </>
         ) : (
-          <div className="text-center py-10 bg-slate-900/40 backdrop-blur-md rounded-xl border border-dashed border-amber-400/40">
-            <p className="text-xs text-white tracking-wider">No articles in this collection</p>
+          <div className="text-center py-10 bg-amber-50/50 rounded-xl border border-dashed border-amber-300">
+            <p className="text-xs text-slate-700 tracking-wider font-medium">No articles in this collection</p>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 rounded-full hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/30"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/30"
             >
               Create Content
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
