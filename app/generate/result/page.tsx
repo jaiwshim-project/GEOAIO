@@ -1194,7 +1194,33 @@ export default function GenerateResultPage() {
       alert('발행할 콘텐츠가 없습니다.');
       return;
     }
-    const category = selectedBlogCategory || selectedCategory || 'geo-aio';
+
+    // 카테고리 자동 결정 — 프로젝트 기준 매칭
+    // 우선순위: 사용자 모달 선택값 > 프로젝트 이름 매칭(blogCategories) > 프로젝트 이름에서 추출 > 폴백
+    let cats = blogCategories;
+    if (cats.length === 0) {
+      try { cats = await getBlogCategories(); } catch {}
+    }
+    const projectName = selectedProject?.name || '';
+    const computeCategory = (): string => {
+      if (selectedBlogCategory) return selectedBlogCategory;
+      if (projectName) {
+        // 1) 프로젝트명에 카테고리 슬러그/라벨이 포함되는지 (정확 매칭 우선)
+        const exact = cats.find(c => projectName.includes(c.label) || projectName.includes(c.slug));
+        if (exact) return exact.slug;
+        // 2) 프로젝트명 첫 단어가 기존 카테고리 슬러그/라벨에 포함되는지
+        const firstWord = projectName.split(/[\s·_\-/]+/)[0];
+        if (firstWord && firstWord.length >= 3) {
+          const partial = cats.find(c => c.label.includes(firstWord) || c.slug.includes(firstWord));
+          if (partial) return partial.slug;
+          // 3) 매칭 없음 — 프로젝트명 첫 단어를 카테고리로 사용 (디지털스마일치과 등)
+          return firstWord;
+        }
+      }
+      return selectedCategory || 'geo-aio';
+    };
+    const category = computeCategory();
+    console.log('[autopilot] 카테고리 자동 결정:', { projectName, category, selectedBlogCategory });
 
     setAutoPilotResult(null);
     setAutoPilotProgress({ ko: 0, en: 0, zh: 0, ja: 0 });
