@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
-import { getGeminiKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
+import Anthropic from '@anthropic-ai/sdk';
+import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 export const runtime = 'nodejs';
 
 export async function OPTIONS() { return corsOptionsResponse(); }
@@ -25,8 +26,9 @@ export async function POST(request: NextRequest) {
     }
 
     const geminiKey = getGeminiKey(request);
-    if (!geminiKey) {
-      return withCors(NextResponse.json({ error: 'Gemini API 키 필요' }, { status: 401 }));
+    const claudeKey = getClaudeKey(request);
+    if (!geminiKey && !claudeKey) {
+      return withCors(NextResponse.json({ error: 'Gemini/Claude API 키 필요' }, { status: 401 }));
     }
 
     // ⭐ JSON 출력 제거 — 마크다운 직접 출력. JSON escape 충돌이 가장 큰 실패 원인이었음.
@@ -53,23 +55,21 @@ ${title || '(no title)'}
 [Source content]
 ${content}`;
 
-    const ai = new GoogleGenAI({ apiKey: geminiKey });
-    // 안전 필터 해제
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const safetySettings: any[] = [
-      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-    ];
-
-    const callGemini = async (): Promise<{ text: string; finishReason: string }> => {
+    // Gemini 호출 함수
+    const callGemini = async (key: string): Promise<{ text: string; finishReason: string }> => {
+      const ai = new GoogleGenAI({ apiKey: key });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const safetySettings: any[] = [
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      ];
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           maxOutputTokens: 16384,
-          // responseMimeType + responseSchema 제거 → JSON escape 충돌 회피
           safetySettings,
         },
       });
@@ -79,18 +79,80 @@ ${content}`;
       return { text: response.text || '', finishReason };
     };
 
-    // 서버 1회 재시도
-    let { text, finishReason } = await callGemini();
+    // Claude 호출 함수 (Gemini 키 없거나 실패 시 폴백)
+    const callClaude = async (key: string): Promise<{ text: string; finishReason: string }> => {
+      const client = new Anthropic({ apiKey: key });
+      const message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 16384,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      const textOut = message.content[0]?.type === 'text' ? message.content[0].text : '';
+      return { text: textOut, finishReason: message.stop_reason || 'end_turn' };
+    };
+
+    // 호출 전략: Gemini 키 있으면 우선, 없으면 Claude 단독
+    let text = '';
+    let finishReason = 'UNKNOWN';
+    let provider: 'gemini' | 'claude' = 'gemini';
+
+    if (geminiKey) {
+      try {
+        const r = await callGemini(geminiKey);
+        text = r.text;
+        finishReason = r.finishReason;
+      } catch (geminiErr) {
+        console.log('[translate] Gemini 실패:', geminiErr instanceof Error ? geminiErr.message : geminiErr);
+        if (claudeKey) {
+          provider = 'claude';
+          const r = await callClaude(claudeKey);
+          text = r.text;
+          finishReason = r.finishReason;
+        } else {
+          throw geminiErr;
+        }
+      }
+    } else if (claudeKey) {
+      provider = 'claude';
+      const r = await callClaude(claudeKey);
+      text = r.text;
+      finishReason = r.finishReason;
+    }
+
+    // 짧은 응답 시 1회 재시도
     if (!text || text.length < 200) {
-      console.log(`[translate] 1차 짧은 응답 (finishReason=${finishReason}, len=${text.length}, target=${targetLang}) — 재시도`);
+      console.log(`[translate] 1차 짧은 응답 (provider=${provider}, finishReason=${finishReason}, len=${text.length}, target=${targetLang}) — 재시도`);
       await new Promise(r => setTimeout(r, 800));
-      const second = await callGemini();
-      if (second.text && second.text.length >= 200) {
-        text = second.text;
-        finishReason = second.finishReason;
-        console.log(`[translate] 재시도 성공 (finishReason=${finishReason}, len=${text.length})`);
-      } else {
-        console.error(`[translate] 재시도도 실패 (finishReason=${second.finishReason}, len=${second.text.length}) target=${targetLang}, content len=${content.length}`);
+      try {
+        const second = provider === 'claude'
+          ? await callClaude(claudeKey!)
+          : await callGemini(geminiKey!);
+        if (second.text && second.text.length >= 200) {
+          text = second.text;
+          finishReason = second.finishReason;
+          console.log(`[translate] 재시도 성공 (provider=${provider}, finishReason=${finishReason}, len=${text.length})`);
+        } else {
+          // 재시도 실패 시 다른 모델 시도 (Gemini→Claude 또는 Claude→Gemini)
+          if (provider === 'gemini' && claudeKey) {
+            console.log('[translate] Gemini 재시도 실패 → Claude 폴백');
+            const fallback = await callClaude(claudeKey);
+            if (fallback.text && fallback.text.length >= 200) {
+              text = fallback.text;
+              finishReason = fallback.finishReason;
+              provider = 'claude';
+            }
+          } else if (provider === 'claude' && geminiKey) {
+            console.log('[translate] Claude 재시도 실패 → Gemini 폴백');
+            const fallback = await callGemini(geminiKey);
+            if (fallback.text && fallback.text.length >= 200) {
+              text = fallback.text;
+              finishReason = fallback.finishReason;
+              provider = 'gemini';
+            }
+          }
+        }
+      } catch (retryErr) {
+        console.error('[translate] 재시도 예외:', retryErr instanceof Error ? retryErr.message : retryErr);
       }
     }
 
@@ -125,7 +187,7 @@ ${content}`;
 
     if (!parsedContent || parsedContent.length < 100) {
       return withCors(NextResponse.json({
-        error: `번역 실패 (finishReason=${finishReason}, output len=${text.length}, parsed len=${parsedContent.length})`,
+        error: `번역 실패 (provider=${provider}, finishReason=${finishReason}, output len=${text.length}, parsed len=${parsedContent.length})`,
       }, { status: 500 }));
     }
 
