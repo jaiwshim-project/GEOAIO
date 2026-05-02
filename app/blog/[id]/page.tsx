@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BlogShareButtons from '@/components/BlogShareButtons';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -404,6 +405,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 ))}
               </div>
             )}
+
+            {/* 공유 버튼 — Facebook · LinkedIn · 카카오톡 */}
+            <BlogShareButtons
+              title={post.title}
+              url={`${siteUrl}/blog/${post.id}`}
+              description={summary}
+            />
           </div>
         </article>
 
