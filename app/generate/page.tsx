@@ -1431,7 +1431,7 @@ export default function GeneratePage() {
         category: selectedCategory,
         tone_count: 10,
       });
-      const AGENT_BATCH = 3; // 3개 병렬 (10톤 → 4그룹). Gemini Flash 동시성 안전선. 재시도 없이 ⚠️로 노출.
+      const AGENT_BATCH = 10; // 전부 병렬 (Pillar 1 + Spoke 9). Claude Haiku 동시 처리. 429 시 톤별 재시도 1회.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const results: any[] = new Array(toneOptions.length).fill(null);
 
@@ -1505,8 +1505,19 @@ export default function GeneratePage() {
           }
         };
 
-        // 1차 시도만 — 자동 재시도 제거 (사용자 요청: '성공한 것만 사용')
-        const result = await fetchOnce();
+        // 1차 시도. 429(rate_limit)·overloaded·timeout만 1회 재시도 — 10병렬 burst 시 일시적 throttle 흡수.
+        // 그 외 실패(컨텐츠 문제 등)는 재시도 안 함(사용자 원칙: '성공한 것만 사용').
+        let result = await fetchOnce();
+        if (!result.ok) {
+          const errMsg = String(result.data?.error || '');
+          const isTransient = /429|rate.?limit|too many|throttl|overloaded|timeout|abort/i.test(errMsg);
+          if (isTransient) {
+            const wait = 2000 + Math.floor(Math.random() * 2500); // 2~4.5초 jitter
+            console.log(`[generate] 톤 "${t.label}" 일시 실패(${errMsg.slice(0, 60)}) → ${wait}ms 후 재시도`);
+            await new Promise(r => setTimeout(r, wait));
+            result = await fetchOnce();
+          }
+        }
 
         // ⭐ Phase 2: result에 series 메타도 저장 → result 페이지의 이어쓰기에서 angle 유지 가능
         const seriesMeta = {
@@ -1688,7 +1699,7 @@ export default function GeneratePage() {
           }
         };
 
-        const CLAUDE_BATCH = 2;
+        const CLAUDE_BATCH = 10; // 전부 병렬 (Claude 단일 운영 전환에 맞춰 통일)
         for (let k = 0; k < failedIdxs.length; k += CLAUDE_BATCH) {
           const groupIdxs = failedIdxs.slice(k, k + CLAUDE_BATCH);
           const groupTones = groupIdxs.map(i => toneOptions[i]);
