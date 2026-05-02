@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -28,7 +29,9 @@ function parseMeta(author: string | null) {
   try { return JSON.parse(author); } catch { return { summary: '', tag: '', targetKeyword: '' }; }
 }
 
-async function getPost(id: string): Promise<BlogRow | null> {
+// Supabase JS 클라이언트는 내부 fetch에 cache: 'no-store'를 설정해
+// Next.js가 이 페이지 전체를 동적으로 강제. unstable_cache로 감싸 캐시 무효화 신호 차단.
+async function getPostUncached(id: string): Promise<BlogRow | null> {
   const { data } = await getSupabase()
     .from('blog_articles')
     .select('*')
@@ -36,6 +39,13 @@ async function getPost(id: string): Promise<BlogRow | null> {
     .single();
   return data;
 }
+
+const getPost = (id: string) =>
+  unstable_cache(
+    async () => getPostUncached(id),
+    ['blog-post', id],
+    { revalidate: 3600, tags: ['blog-articles', `blog-${id}`] }
+  )();
 
 // 동적 메타데이터
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
