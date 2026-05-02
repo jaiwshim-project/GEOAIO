@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BlogHeroCallout from '@/components/BlogHeroCallout';
 import type { BlogPost } from '@/lib/supabase-storage';
 
 // 카테고리 페이지는 ?lang= searchParams로 언어 필터링 — 본질적으로 동적.
@@ -254,7 +255,7 @@ export default async function BlogCategoryPage({
               <div className="flex items-baseline gap-2 mb-1">
                 <p className="text-[9px] tracking-[0.25em] uppercase text-amber-700 font-semibold">Collection</p>
                 <span className="text-[9px] text-slate-400">·</span>
-                <span className="inline-flex items-center gap-1 text-[10px] text-slate-700">
+                <span className="inline-flex items-center gap-1 text-[10px] text-slate-800">
                   <span className="w-1 h-1 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]" />
                   {allPosts.length}
                 </span>
@@ -265,7 +266,7 @@ export default async function BlogCategoryPage({
                     {meta.label}
                   </h1>
                   {meta.description && (
-                    <p className="text-slate-700 text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
+                    <p className="text-slate-800 text-[11px] leading-snug max-w-xl mt-1 line-clamp-1">
                       {meta.description}
                     </p>
                   )}
@@ -281,18 +282,21 @@ export default async function BlogCategoryPage({
                           isActive
                             ? 'bg-amber-50 border-amber-400 text-amber-800 shadow-[0_0_10px_-2px_rgba(245,158,11,0.4)]'
                             : count > 0
-                            ? 'bg-white border-slate-200 text-slate-700'
+                            ? 'bg-white border-slate-200 text-slate-800'
                             : 'bg-slate-50 border-slate-200 text-slate-400'
                         }`}
                       >
                         <span className="text-[10px]">{LANG_LABELS[lang].flag}</span>
                         {LANG_LABELS[lang].label}
-                        <span className={isActive ? 'text-amber-700 font-semibold' : 'text-slate-700'}>{count}</span>
+                        <span className={isActive ? 'text-amber-700 font-semibold' : 'text-slate-800'}>{count}</span>
                       </span>
                     );
                   })}
                 </div>
               </div>
+
+              {/* 강조 문장 — 색인·인용 최적화 메시지 (공유 컴포넌트) */}
+              <BlogHeroCallout />
             </div>
           </div>
         </section>
@@ -316,7 +320,7 @@ export default async function BlogCategoryPage({
                         ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/40'
                         : isEmpty
                         ? 'text-slate-300 cursor-not-allowed pointer-events-none bg-slate-50'
-                        : 'text-slate-700 hover:bg-amber-50 hover:text-amber-800'
+                        : 'text-slate-800 hover:bg-amber-50 hover:text-amber-800'
                     }`}
                     aria-disabled={isEmpty}
                   >
@@ -342,7 +346,7 @@ export default async function BlogCategoryPage({
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
               <p className="text-[9px] tracking-[0.2em] uppercase text-amber-700 font-semibold">Articles</p>
-              <p className="text-[10px] text-slate-700">
+              <p className="text-[10px] text-slate-800">
                 <span className="text-amber-700 font-semibold">{posts.length}</span> of {allPosts.length}
               </p>
             </div>
@@ -357,11 +361,11 @@ export default async function BlogCategoryPage({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         {post.tag && (
-                          <span className={`px-1.5 py-0 text-[9px] tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-slate-100 text-slate-700 border border-slate-200'}`}>
+                          <span className={`px-1.5 py-0 text-[9px] tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-slate-100 text-slate-800 border border-slate-200'}`}>
                             {post.tag}
                           </span>
                         )}
-                        <span className="text-[10px] tracking-wide text-slate-700">
+                        <span className="text-[10px] tracking-wide text-slate-800">
                           {formatDate(post.createdAt)}
                         </span>
                         {post.targetKeyword && (
@@ -377,7 +381,7 @@ export default async function BlogCategoryPage({
                         {post.title}
                       </h2>
                       {post.summary && (
-                        <p className="text-[12px] text-slate-700 line-clamp-1 leading-snug mt-0.5">
+                        <p className="text-[12px] text-slate-800 line-clamp-1 leading-snug mt-0.5">
                           {post.summary}
                         </p>
                       )}
@@ -396,7 +400,7 @@ export default async function BlogCategoryPage({
           </>
         ) : (
           <div className="text-center py-10 bg-amber-50/50 rounded-xl border border-dashed border-amber-300">
-            <p className="text-xs text-slate-700 tracking-wider font-medium">No articles in this collection</p>
+            <p className="text-xs text-slate-800 tracking-wider font-medium">No articles in this collection</p>
             <Link
               href="/generate"
               className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/30"
