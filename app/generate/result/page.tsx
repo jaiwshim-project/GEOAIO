@@ -206,7 +206,9 @@ export default function GenerateResultPage() {
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
-  const [selectedBlogCategory, setSelectedBlogCategory] = useState('geo-aio');
+  // 초기값 빈 문자열 — 사용자가 모달에서 명시 선택해야만 채워짐.
+  // 자동 발행은 프로젝트 기반 매칭으로 별도 결정 (선택 없이 'geo-aio' 폴백 방지).
+  const [selectedBlogCategory, setSelectedBlogCategory] = useState('');
   const [blogTag, setBlogTag] = useState('');
   const [blogSummary, setBlogSummary] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
@@ -1070,6 +1072,10 @@ export default function GenerateResultPage() {
 
   const handlePublishToBlog = async () => {
     if (!result) return;
+    if (!selectedBlogCategory) {
+      alert('카테고리를 선택해주세요.');
+      return;
+    }
     setIsPublishing(true);
     try {
       // 발행 시 활성 언어를 metadata.lang에 박아 블로그 카테고리 페이지에서 언어 탭 자동 분류 가능
