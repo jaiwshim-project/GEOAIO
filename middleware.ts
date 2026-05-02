@@ -20,6 +20,16 @@ function isProtected(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // 색인·AI 인용 친화 경로는 미들웨어 우회 — supabase 쿠키 읽기로 인한
+  // 강제 동적 렌더링 + Cache-Control: no-store 응답을 막아 ISR이 살아 있도록.
+  if (
+    pathname.startsWith('/blog') ||
+    pathname.startsWith('/sitemap') ||
+    pathname === '/robots.txt'
+  ) {
+    return NextResponse.next();
+  }
+
   // 사이트 비밀번호 게이트 — 보호 경로에만 적용
   if (isProtected(pathname)) {
     const auth = request.cookies.get(SITE_AUTH_COOKIE)?.value;
