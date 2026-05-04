@@ -1219,33 +1219,58 @@ export default function GenerateResultPage() {
         }
       } catch {}
     }
+    // 그래도 없으면 user_projects에서 직접 조회 — 컨텍스트 늦게 로드되는 케이스 대비
+    if (!projectName && typeof window !== 'undefined') {
+      try {
+        const r = await fetch('/api/user-projects', { cache: 'no-store' });
+        if (r.ok) {
+          const j = await r.json();
+          const list = (j?.projects || []) as Array<{ name?: string; selected?: boolean }>;
+          const sel = list.find(p => p.selected) || list[0];
+          if (sel?.name) projectName = sel.name;
+        }
+      } catch {}
+    }
+
+    // ContentCategory enum (콘텐츠 형식) — 카테고리로 들어가면 안 됨. 폴백 버그 차단.
+    const CONTENT_FORMAT_TYPES = new Set(['blog','product','faq','howto','landing','technical','social','email','case','video']);
 
     const computeCategory = (): string => {
-      if (selectedBlogCategory) return selectedBlogCategory;
+      // 1순위: 사용자가 명시적으로 선택한 카테고리
+      if (selectedBlogCategory && !CONTENT_FORMAT_TYPES.has(selectedBlogCategory)) return selectedBlogCategory;
+      // 2순위: 프로젝트명 기반 매칭
       if (projectName) {
-        // 1) 프로젝트명에 카테고리 슬러그/라벨이 포함되는지 (정확 매칭 우선)
+        // 2-1) 프로젝트명에 카테고리 슬러그/라벨이 포함되는지 (정확 매칭 우선)
         const exact = cats.find(c => projectName.includes(c.label) || projectName.includes(c.slug));
         if (exact) return exact.slug;
-        // 2) 프로젝트명 첫 단어가 기존 카테고리 슬러그/라벨에 포함되는지
+        // 2-2) 프로젝트명 첫 단어가 기존 카테고리 슬러그/라벨에 포함되는지
         const firstWord = projectName.split(/[\s·_\-/]+/)[0];
         if (firstWord && firstWord.length >= 3) {
           const partial = cats.find(c => c.label.includes(firstWord) || c.slug.includes(firstWord));
           if (partial) return partial.slug;
-          // 3) 매칭 없음 — 프로젝트명 첫 단어를 카테고리로 사용 (디지털스마일치과 등)
-          return firstWord;
         }
+        // 2-3) 매칭 없음 — 프로젝트명 그대로 슬러그화 (공백 → '-')
+        const slugified = projectName.trim().replace(/\s+/g, '-');
+        if (slugified && slugified.length >= 2 && !CONTENT_FORMAT_TYPES.has(slugified)) return slugified;
       }
-      // 4) 프로젝트명 못 찾으면 'geo-aio' 대신 사용자에게 카테고리 선택 강제
-      return selectedCategory || '';
+      // 3순위: 빈 문자열 — 도메인 카테고리(selectedCategory)로 폴백하면 60건 오저장 사고 재발
+      // → 빈 값 반환 시 아래 prompt 또는 차단 동작
+      return '';
     };
     let category = computeCategory();
-    console.log('[autopilot] 카테고리 자동 결정:', { projectName, category, selectedBlogCategory, catsCount: cats.length });
+    console.log('[autopilot] 카테고리 자동 결정:', {
+      projectName,
+      category,
+      selectedBlogCategory,
+      selectedProjectName: selectedProject?.name,
+      catsCount: cats.length,
+    });
 
-    // 카테고리 결정 실패 시 사용자에게 prompt — 'geo-aio' 자동 폴백 차단
+    // 카테고리 결정 실패 시 사용자에게 prompt — 도메인 카테고리 자동 폴백 차단
     if (!category) {
       const userInput = window.prompt(
-        '발행할 카테고리를 입력하세요.\n\n프로젝트 이름이 자동 인식되지 않았습니다.\n예: 디지털스마일치과',
-        '디지털스마일치과'
+        '발행할 카테고리를 입력하세요.\n\n프로젝트 이름이 자동 인식되지 않았습니다.\n예: 허태정-대전시장-후보자',
+        projectName || ''
       );
       if (!userInput) {
         alert('카테고리 미선택 — 자동 발행 취소');
@@ -1253,6 +1278,12 @@ export default function GenerateResultPage() {
         return;
       }
       category = userInput.trim();
+    }
+    // 최종 안전장치 — 콘텐츠 형식이 카테고리로 박히는 폴백 사고 차단
+    if (CONTENT_FORMAT_TYPES.has(category)) {
+      alert(`카테고리 "${category}"는 콘텐츠 형식 식별자입니다. 프로젝트명/카테고리명으로 다시 선택하세요.`);
+      setAutoPilotPhase('idle');
+      return;
     }
 
     setAutoPilotResult(null);
