@@ -60,6 +60,13 @@ const T: Record<Lang, {
   s2RoleMayor: string;
   s2CardSub: string;
   s2Footer: string;
+  // 양자 대결 + 단독 계약 독점권
+  s2ExclusiveBadge: string;
+  s2ExclusiveTitle: string;
+  s2ExclusiveDesc: string;
+  s2VsLabel: string;
+  s2TbdName: string;
+  s2TbdSub: string;
 
   s3Title: string;
   s3ColMethod: string;
@@ -145,16 +152,22 @@ const T: Record<Lang, {
     s1NewDesc: '결정 단계 유권자의 73%가 AI 답변에서 인용된 후보를 신뢰. 즉시 전환.',
     s1NewBadge: '정답',
 
-    s2Title: '후보자별 맞춤 제안서 — 7건 사례',
-    s2Lead: 'GEO-AIO 플랫폼에서 이미 작성된 후보자 7명 맞춤 제안서입니다. 각 후보의 지역구·직책에 맞춰 자동 생성된 1페이지 제안서를 클릭해 직접 확인하세요.',
+    s2Title: '후보자별 맞춤 제안서 — 양자 대결 구도',
+    s2Lead: '동일 선거구의 양 후보 GEO-AIO 제안서를 좌우로 비교해보세요. 각 후보의 지역구·직책에 맞춰 자동 생성된 1페이지 제안서를 클릭해 직접 확인할 수 있습니다.',
     s2GroupMP: '🏛️ 국회의원',
     s2GroupMayor: '🏙️ 시장',
-    s2MPCount: '5명',
-    s2MayorCount: '3명',
+    s2MPCount: '3개 선거구',
+    s2MayorCount: '3개 광역시',
     s2RoleMP: '국회의원',
     s2RoleMayor: '시장',
     s2CardSub: '맞춤 GEO-AIO 제안서',
     s2Footer: '※ 각 제안서는 후보자 자료를 기반으로 1페이지 자동 생성된 시안이며, 실제 캠프 도입 시 후보자별 맞춤 데이터로 재구성됩니다.',
+    s2ExclusiveBadge: '⚡ 지역구당 단 1명 · 단독 계약 독점권',
+    s2ExclusiveTitle: '먼저 계약하는 후보가 선거 승리에 유리한 입장에 섭니다',
+    s2ExclusiveDesc: '본 솔루션은 각 지역구·광역시에서 가장 먼저 계약하는 후보 1명에게만 단독 계약 독점권이 주어집니다. 동일 선거구 경쟁 후보는 솔루션을 이용할 수 없으며, 먼저 계약한 후보만 AI 검색·인용 점유에서 독보적 우위를 가집니다.',
+    s2VsLabel: 'VS',
+    s2TbdName: '후보 영입중',
+    s2TbdSub: '지역 선두 계약 가능',
 
     s3Title: '3주 캠페인 — 일반 SEO는 선거 끝나고 효과',
     s3ColMethod: '방식',
@@ -234,8 +247,10 @@ const T: Record<Lang, {
       hwangkyoahn: '황교안',
       songyounggil: '송영길',
       ohsehoon: '오세훈',
+      jeongwonwoo: '정원우',
       minhyungbae: '민형배',
       leejangwoo: '이장우',
+      heotaejung: '허태정',
     },
   },
 
@@ -269,16 +284,22 @@ const T: Record<Lang, {
     s1NewDesc: '73% of decision-stage voters trust candidates cited in AI answers. Immediate conversion.',
     s1NewBadge: 'Right Answer',
 
-    s2Title: 'Tailored Proposals by Candidate — 7 Live Cases',
-    s2Lead: 'These are 7 real candidate proposals already produced on the GEO-AIO platform. Click each to view the auto-generated 1-page proposal tailored to that candidate\'s district and office.',
+    s2Title: 'Tailored Proposals by Candidate — Head-to-Head Matchups',
+    s2Lead: 'Compare both candidates of the same district side by side. Click each card to view the auto-generated 1-page proposal tailored to that candidate\'s district and office.',
     s2GroupMP: '🏛️ National Assembly',
     s2GroupMayor: '🏙️ Mayor',
-    s2MPCount: '5 candidates',
-    s2MayorCount: '3 candidates',
+    s2MPCount: '3 districts',
+    s2MayorCount: '3 metro cities',
     s2RoleMP: 'Lawmaker',
     s2RoleMayor: 'Mayor',
     s2CardSub: 'Tailored GEO-AIO proposal',
     s2Footer: '※ Each proposal is a 1-page auto-generated draft based on candidate materials. Real campaign deployment uses customized data per candidate.',
+    s2ExclusiveBadge: '⚡ One per district · Exclusive contract right',
+    s2ExclusiveTitle: 'The first to sign holds the winning advantage',
+    s2ExclusiveDesc: 'Only one candidate per district / metro city can sign this solution — exclusively. Competing candidates in the same district cannot use it. The first signer secures a decisive lead in AI search citation share.',
+    s2VsLabel: 'VS',
+    s2TbdName: 'Candidate slot open',
+    s2TbdSub: 'Lead contract available',
 
     s3Title: '3-Week Campaign — Standard SEO Only Pays Off After Election Day',
     s3ColMethod: 'Channel',
@@ -358,8 +379,10 @@ const T: Record<Lang, {
       hwangkyoahn: 'Hwang Kyo-ahn',
       songyounggil: 'Song Young-gil',
       ohsehoon: 'Oh Se-hoon',
+      jeongwonwoo: 'Jeong Won-woo',
       minhyungbae: 'Min Hyung-bae',
       leejangwoo: 'Lee Jang-woo',
+      heotaejung: 'Heo Tae-jung',
     },
   },
 
@@ -393,16 +416,22 @@ const T: Record<Lang, {
     s1NewDesc: '73%的決策階段選民信任在AI回答中被引用的候選人。即時轉化。',
     s1NewBadge: '正確答案',
 
-    s2Title: '候選人定製方案 — 7個案例',
-    s2Lead: '這些是已經在GEO-AIO平臺上完成的7位候選人定製方案。點選可直接檢視為各候選人的選區與職位自動生成的1頁方案。',
+    s2Title: '候選人定製方案 — 兩雄對決',
+    s2Lead: '同一選區的兩位候選人GEO-AIO方案左右並排比較。點選任一卡片可檢視為該候選人的選區與職位自動生成的1頁方案。',
     s2GroupMP: '🏛️ 國會議員',
     s2GroupMayor: '🏙️ 市長',
-    s2MPCount: '5位',
-    s2MayorCount: '3位',
+    s2MPCount: '3個選區',
+    s2MayorCount: '3個直轄市',
     s2RoleMP: '國會議員',
     s2RoleMayor: '市長',
     s2CardSub: '定製GEO-AIO方案',
     s2Footer: '※ 各方案是基於候選人資料自動生成的1頁草案。實際競選部署時將根據每位候選人的定製資料重新構建。',
+    s2ExclusiveBadge: '⚡ 每個選區僅1位 · 獨家簽約權',
+    s2ExclusiveTitle: '率先簽約的候選人在選舉中將佔據有利地位',
+    s2ExclusiveDesc: '本方案在每個選區/直轄市僅授予最先簽約的1位候選人獨家簽約權。同選區的競爭對手無法使用該方案，率先簽約者將在AI搜尋·引用佔有率上獲得決定性領先。',
+    s2VsLabel: 'VS',
+    s2TbdName: '候選人席位空缺',
+    s2TbdSub: '可率先簽約',
 
     s3Title: '3周競選 — 普通SEO要等到選舉結束後才出效果',
     s3ColMethod: '方式',
@@ -482,8 +511,10 @@ const T: Record<Lang, {
       hwangkyoahn: '黃教安',
       songyounggil: '宋永吉',
       ohsehoon: '吳世勳',
+      jeongwonwoo: '鄭元雨',
       minhyungbae: '閔炯培',
       leejangwoo: '李莊雨',
+      heotaejung: '許泰正',
     },
   },
 
@@ -517,16 +548,22 @@ const T: Record<Lang, {
     s1NewDesc: '決定段階の有権者の73%がAI回答で引用された候補者を信頼。即時転換。',
     s1NewBadge: '正解',
 
-    s2Title: '候補者別カスタム提案書 — 7件の事例',
-    s2Lead: 'GEO-AIOプラットフォームで既に作成された候補者7名のカスタム提案書です。各候補の選挙区·職に合わせて自動生成された1ページ提案書をクリックして直接ご確認ください。',
+    s2Title: '候補者別カスタム提案書 — 一騎打ち構図',
+    s2Lead: '同一選挙区の両候補者のGEO-AIO提案書を左右で比較できます。各カードをクリックして、候補者の選挙区·職務に合わせて自動生成された1ページ提案書をご確認ください。',
     s2GroupMP: '🏛️ 国会議員',
     s2GroupMayor: '🏙️ 市長',
-    s2MPCount: '5名',
-    s2MayorCount: '3名',
+    s2MPCount: '3選挙区',
+    s2MayorCount: '3直轄市',
     s2RoleMP: '国会議員',
     s2RoleMayor: '市長',
     s2CardSub: 'カスタムGEO-AIO提案書',
     s2Footer: '※ 各提案書は候補者資料に基づき1ページで自動生成された試案であり、実際の陣営導入時には候補者ごとのカスタムデータで再構成されます。',
+    s2ExclusiveBadge: '⚡ 選挙区につき1名のみ · 独占契約権',
+    s2ExclusiveTitle: '先に契約した候補者が選挙勝利の優位な立場に立ちます',
+    s2ExclusiveDesc: '本ソリューションは各選挙区·直轄市で最初に契約する1名の候補者にのみ独占契約権が付与されます。同じ選挙区の競合候補者は本ソリューションを利用できず、先に契約した候補者がAI検索·引用シェアで決定的な優位を獲得します。',
+    s2VsLabel: 'VS',
+    s2TbdName: '候補者枠 募集中',
+    s2TbdSub: '地域先行契約 可能',
 
     s3Title: '3週間キャンペーン — 通常のSEOは選挙が終わってから効果',
     s3ColMethod: '方式',
@@ -606,24 +643,86 @@ const T: Record<Lang, {
       hwangkyoahn: 'ファン·ギョアン',
       songyounggil: 'ソン·ヨンギル',
       ohsehoon: 'オ·セフン',
+      jeongwonwoo: 'チョン·ウォンウ',
       minhyungbae: 'ミン·ヒョンベ',
       leejangwoo: 'イ·ジャンウ',
+      heotaejung: 'ホ·テジョン',
     },
   },
 };
 
-const MP_CANDIDATES = [
-  { key: 'hajeongwoo', regionKey: '부산-북구갑', slug: '하정우-국회의원선거-후보자', strip: 'from-indigo-500 via-violet-500 to-violet-600', accent: 'text-indigo-700' },
-  { key: 'handonghoon', regionKey: '부산-북구갑', slug: '한동훈-부산북구갑-국회의원-후보자', strip: 'from-orange-500 via-amber-500 to-red-500', accent: 'text-orange-700' },
-  { key: 'chokuk', regionKey: '경기-평택을', slug: '조국-평택을-국회의원-후보자', strip: 'from-violet-500 via-purple-500 to-fuchsia-500', accent: 'text-violet-700' },
-  { key: 'hwangkyoahn', regionKey: '경기-평택을', slug: '황교안-평택을-국회의원-후보자', strip: 'from-rose-500 via-pink-500 to-rose-600', accent: 'text-rose-700' },
-  { key: 'songyounggil', regionKey: '인천-연수갑', slug: '송영길-연수갑-국회의원-후보자', strip: 'from-lime-500 via-green-500 to-emerald-500', accent: 'text-lime-700' },
+// 양자 대결 페어 — left vs right (각 선거구당 1쌍)
+// tbd: true면 "후보 영입중" placeholder 카드로 표시 (단독 계약 가능 안내)
+type Side = { key?: string; slug?: string; strip: string; accent: string; tbd?: boolean };
+type Pair = { group: 'mp' | 'mayor'; regionKey: string; left: Side; right: Side };
+const PAIRS: Pair[] = [
+  { group: 'mp', regionKey: '부산-북구갑',
+    left:  { key: 'hajeongwoo',  slug: '하정우-국회의원선거-후보자', strip: 'from-indigo-500 via-violet-500 to-violet-600', accent: 'text-indigo-700' },
+    right: { key: 'handonghoon', slug: '한동훈-부산북구갑-국회의원-후보자', strip: 'from-orange-500 via-amber-500 to-red-500', accent: 'text-orange-700' } },
+  { group: 'mp', regionKey: '경기-평택을',
+    left:  { key: 'chokuk',      slug: '조국-평택을-국회의원-후보자', strip: 'from-violet-500 via-purple-500 to-fuchsia-500', accent: 'text-violet-700' },
+    right: { key: 'hwangkyoahn', slug: '황교안-평택을-국회의원-후보자', strip: 'from-rose-500 via-pink-500 to-rose-600', accent: 'text-rose-700' } },
+  { group: 'mp', regionKey: '인천-연수갑',
+    left:  { key: 'songyounggil', slug: '송영길-연수갑-국회의원-후보자', strip: 'from-lime-500 via-green-500 to-emerald-500', accent: 'text-lime-700' },
+    right: { tbd: true, strip: 'from-slate-300 via-slate-400 to-slate-300', accent: 'text-slate-500' } },
+  { group: 'mayor', regionKey: '서울특별시',
+    left:  { key: 'ohsehoon',     slug: '오세훈-서울시장-후보자', strip: 'from-cyan-500 via-sky-500 to-blue-500', accent: 'text-cyan-700' },
+    right: { key: 'jeongwonwoo',  slug: '정원우-서울시장-후보자', strip: 'from-blue-500 via-indigo-500 to-blue-600', accent: 'text-blue-700' } },
+  { group: 'mayor', regionKey: '광주광역시',
+    left:  { key: 'minhyungbae',  slug: '민형배-광주시장-후보자', strip: 'from-emerald-500 via-teal-500 to-green-500', accent: 'text-emerald-700' },
+    right: { tbd: true, strip: 'from-slate-300 via-slate-400 to-slate-300', accent: 'text-slate-500' } },
+  { group: 'mayor', regionKey: '대전광역시',
+    left:  { key: 'leejangwoo',   slug: '이장우-대전시장-후보자', strip: 'from-amber-500 via-orange-500 to-amber-600', accent: 'text-amber-700' },
+    right: { key: 'heotaejung',   slug: '허태정-대전시장-후보자', strip: 'from-fuchsia-500 via-pink-500 to-rose-500', accent: 'text-fuchsia-700' } },
 ];
-const MAYOR_CANDIDATES = [
-  { key: 'ohsehoon', regionKey: '서울특별시', slug: '오세훈-서울시장-후보자', strip: 'from-cyan-500 via-sky-500 to-blue-500', accent: 'text-cyan-700' },
-  { key: 'minhyungbae', regionKey: '광주광역시', slug: '민형배-광주시장-후보자', strip: 'from-emerald-500 via-teal-500 to-green-500', accent: 'text-emerald-700' },
-  { key: 'leejangwoo', regionKey: '대전광역시', slug: '이장우-대전시장-후보자', strip: 'from-amber-500 via-orange-500 to-amber-600', accent: 'text-amber-700' },
-];
+
+// 양자 대결의 한쪽 후보 카드 — tbd면 placeholder 카드 표시
+type CandidateCardProps = {
+  side: Side;
+  role: string;
+  regionKey: string;
+  t: (typeof T)[Lang];
+  candidateHref: (slug: string) => string;
+};
+function CandidateCard({ side, role, regionKey, t, candidateHref }: CandidateCardProps) {
+  if (side.tbd) {
+    return (
+      <div className="relative bg-gradient-to-br from-slate-50 via-white to-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
+        <div className="text-2xl mb-1.5 opacity-60">🤝</div>
+        <div className="text-sm font-extrabold text-slate-700 mb-1">{t.s2TbdName}</div>
+        <div className={`text-[11px] font-bold ${side.accent}`}>{t.candidateRegions[regionKey]}</div>
+        <div className="text-[10px] text-amber-700 font-semibold mt-1.5 px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200">
+          ⚡ {t.s2TbdSub}
+        </div>
+      </div>
+    );
+  }
+  const slug = side.slug || '';
+  const nameKey = side.key || '';
+  return (
+    <Link
+      href={candidateHref(slug)}
+      className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden"
+    >
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${side.strip}`} />
+      <div className="flex items-start justify-between mb-2 mt-1">
+        <span className={`px-2.5 py-0.5 bg-gradient-to-r ${side.strip} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>
+          {role}
+        </span>
+        <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </div>
+      <h3 className="text-base sm:text-lg font-extrabold text-slate-900 mb-1 leading-tight">
+        {t.candidateNames[nameKey]}
+      </h3>
+      <p className={`text-[11px] sm:text-xs font-bold ${side.accent} mb-1`}>
+        {t.candidateRegions[regionKey]}
+      </p>
+      <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed">{t.s2CardSub}</p>
+    </Link>
+  );
+}
 
 export default function ElectionProposalPage() {
   const [dDay, setDDay] = useState<number | null>(null);
@@ -771,7 +870,7 @@ export default function ElectionProposalPage() {
           </div>
         </section>
 
-        {/* ── Section 3. 후보자별 맞춤 제안서 ── */}
+        {/* ── Section 3. 후보자별 양자 대결 + 단독 계약 독점권 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
             <span className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-100 to-violet-200 text-violet-700 ring-2 ring-violet-300/50 flex items-center justify-center text-sm font-bold shadow-md">2</span>
@@ -779,62 +878,65 @@ export default function ElectionProposalPage() {
           </div>
           <p className="text-sm text-gray-700 mb-4 leading-relaxed">{t.s2Lead}</p>
 
-          {/* 국회의원 */}
-          <div className="mb-5">
-            <div className="flex items-center gap-3 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 text-amber-200 text-[11px] font-extrabold tracking-[0.2em] rounded-full shadow-sm">
-                {t.s2GroupMP}
-              </span>
-              <span className="flex-1 h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent" />
-              <span className="text-[10px] font-bold text-slate-400 tracking-wide">{t.s2MPCount}</span>
-            </div>
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              {MP_CANDIDATES.map((c) => (
-                <Link key={c.slug} href={candidateHref(c.slug)}
-                  className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden">
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.strip}`} />
-                  <div className="flex items-start justify-between mb-3 mt-1">
-                    <span className={`px-2.5 py-0.5 bg-gradient-to-r ${c.strip} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>{t.s2RoleMP}</span>
-                    <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-extrabold text-slate-900 mb-1 leading-tight">{t.candidateNames[c.key]}</h3>
-                  <p className={`text-xs font-bold ${c.accent} mb-1`}>{t.candidateRegions[c.regionKey]}</p>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">{t.s2CardSub}</p>
-                </Link>
-              ))}
+          {/* 단독 계약 독점권 강조 배너 */}
+          <div className="relative mb-6">
+            <span className="absolute -top-3 left-5 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-20 ring-2 ring-white/50 whitespace-nowrap">
+              {t.s2ExclusiveBadge}
+            </span>
+            <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 rounded-2xl p-5 sm:p-6 border-2 border-amber-300 ring-2 ring-amber-200/70 shadow-[0_12px_40px_-8px_rgba(245,158,11,0.4)] overflow-hidden">
+              <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-300/30 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-rose-300/30 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative">
+                <h3 className="text-base sm:text-lg font-extrabold text-amber-900 mb-2 flex items-center gap-2 leading-snug">
+                  <span className="text-xl">🏆</span>
+                  <span>{t.s2ExclusiveTitle}</span>
+                </h3>
+                <p className="text-sm text-slate-800 leading-relaxed">{t.s2ExclusiveDesc}</p>
+              </div>
             </div>
           </div>
 
-          {/* 시장 */}
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 text-emerald-200 text-[11px] font-extrabold tracking-[0.2em] rounded-full shadow-sm">
-                {t.s2GroupMayor}
-              </span>
-              <span className="flex-1 h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent" />
-              <span className="text-[10px] font-bold text-slate-400 tracking-wide">{t.s2MayorCount}</span>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-3">
-              {MAYOR_CANDIDATES.map((c) => (
-                <Link key={c.slug} href={candidateHref(c.slug)}
-                  className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden">
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.strip}`} />
-                  <div className="flex items-start justify-between mb-3 mt-1">
-                    <span className={`px-2.5 py-0.5 bg-gradient-to-r ${c.strip} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>{t.s2RoleMayor}</span>
-                    <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-extrabold text-slate-900 mb-1 leading-tight">{t.candidateNames[c.key]}</h3>
-                  <p className={`text-xs font-bold ${c.accent} mb-1`}>{t.candidateRegions[c.regionKey]}</p>
-                  <p className="text-[11px] text-slate-500 leading-relaxed">{t.s2CardSub}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-          <p className="text-[11px] text-gray-500 mt-3 leading-relaxed">{t.s2Footer}</p>
+          {/* 그룹 헤더 + 페어 그리드 */}
+          {(['mp', 'mayor'] as const).map((group) => {
+            const groupPairs = PAIRS.filter(p => p.group === group);
+            const groupLabel = group === 'mp' ? t.s2GroupMP : t.s2GroupMayor;
+            const groupCount = group === 'mp' ? t.s2MPCount : t.s2MayorCount;
+            const role = group === 'mp' ? t.s2RoleMP : t.s2RoleMayor;
+            return (
+              <div key={group} className="mb-6 last:mb-0">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 ${group === 'mp' ? 'text-amber-200' : 'text-emerald-200'} text-[11px] font-extrabold tracking-[0.2em] rounded-full shadow-sm`}>
+                    {groupLabel}
+                  </span>
+                  <span className="flex-1 h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent" />
+                  <span className="text-[10px] font-bold text-slate-400 tracking-wide">{groupCount}</span>
+                </div>
+
+                <div className="space-y-4">
+                  {groupPairs.map((pair, idx) => (
+                    <div key={`${group}-${idx}`} className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_120px_1fr] items-center gap-2 sm:gap-3">
+                      {/* 좌측 후보 카드 */}
+                      <CandidateCard side={pair.left} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} />
+                      {/* 가운데 글러브 vs */}
+                      <div className="flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/images/election-2026/glove-vs.png"
+                          alt={t.s2VsLabel}
+                          className="w-full max-w-[120px] sm:max-w-[120px] h-auto object-contain select-none pointer-events-none drop-shadow-md"
+                          loading="lazy"
+                        />
+                      </div>
+                      {/* 우측 후보 카드 */}
+                      <CandidateCard side={pair.right} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          <p className="text-[11px] text-gray-500 mt-4 leading-relaxed">{t.s2Footer}</p>
         </section>
 
         {/* ── Section 4. 시간 압박 ── */}
