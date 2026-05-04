@@ -123,6 +123,7 @@ const T: Record<Lang, {
   candidateNames: Record<string, string>;
   candidateSlogans: Record<string, string>;
   s2BlogBadge: string;
+  pdfBtn: string;
 }> = {
   // ============ 한국어 (원본) ============
   ko: {
@@ -267,6 +268,7 @@ const T: Record<Lang, {
       heotaejung: '함께 만드는 충청 메가시티',
     },
     s2BlogBadge: '블로그 자세히 보기',
+    pdfBtn: 'PDF 다운로드',
   },
 
   // ============ 영어 (English) ============
@@ -412,6 +414,7 @@ const T: Record<Lang, {
       heotaejung: 'Building the Chungcheong Megacity Together',
     },
     s2BlogBadge: 'Read full blog',
+    pdfBtn: 'Download PDF',
   },
 
   // ============ 중국어 (번체, 대만식 s2twp) ============
@@ -557,6 +560,7 @@ const T: Record<Lang, {
       heotaejung: '共同打造忠清大都會',
     },
     s2BlogBadge: '檢視完整部落格',
+    pdfBtn: 'PDF下載',
   },
 
   // ============ 일본어 ============
@@ -702,6 +706,7 @@ const T: Record<Lang, {
       heotaejung: '共に築く忠清メガシティ',
     },
     s2BlogBadge: 'ブログを詳しく見る',
+    pdfBtn: 'PDFダウンロード',
   },
 };
 
@@ -774,7 +779,7 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
   return (
     <Link
       href={candidateHref(slug)}
-      className={`group relative bg-white border border-slate-200 rounded-xl py-3 px-3 sm:px-4 min-h-[140px] sm:min-h-[152px] flex flex-col justify-between hover:border-slate-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 overflow-hidden ${corner.glow}`}
+      className={`group relative bg-white border border-slate-200 rounded-xl py-3 px-3 sm:px-4 min-h-[140px] sm:min-h-[152px] flex flex-col justify-between hover:border-slate-400 hover:-translate-y-0.5 transition-transform duration-150 overflow-hidden shadow-md ${corner.glow}`}
     >
       {/* 카드 배경 그라디언트 */}
       <div className={`absolute inset-0 bg-gradient-to-br ${side.strip} opacity-[0.07] pointer-events-none`} />
@@ -812,14 +817,14 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
 
       {/* 하단: 블로그 자세히 보기 뱃지 */}
       <div className="relative mt-2 flex items-center justify-between">
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r ${side.strip} text-white text-[10px] sm:text-[11px] font-extrabold rounded-full shadow-sm group-hover:scale-105 transition-transform`}>
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r ${side.strip} text-white text-[10px] sm:text-[11px] font-extrabold rounded-full shadow-sm transition-none`}>
           <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           {t.s2BlogBadge}
         </span>
         <svg
-          className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all shrink-0"
+          className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-transform shrink-0"
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -876,28 +881,64 @@ export default function ElectionProposalPage() {
       <Header />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 print:py-2">
-        {/* ── 언어 탭 ── */}
-        <nav aria-label="Language" className="sticky top-0 z-40 mb-5 -mx-4 sm:mx-0 px-4 sm:px-0 py-2 bg-slate-50/90 backdrop-blur-sm">
-          <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-full p-1 shadow-sm overflow-x-auto">
-            {(Object.keys(LANG_LABELS) as Lang[]).map((code) => {
-              const isActive = code === lang;
-              return (
-                <button
-                  key={code}
-                  type="button"
-                  onClick={() => handleLangChange(code)}
-                  aria-pressed={isActive}
-                  className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                    isActive
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/40'
-                      : 'text-slate-600 hover:bg-amber-50 hover:text-amber-800'
-                  }`}
-                >
-                  <span className="text-base leading-none">{LANG_LABELS[code].flag}</span>
-                  {LANG_LABELS[code].label}
-                </button>
-              );
-            })}
+        {/* 인쇄/PDF 저장 시 nav, header, footer, 버튼 자체 숨김 */}
+        <style jsx global>{`
+          @media print {
+            body { background: white !important; }
+            header, footer, nav, .pdf-btn-wrap { display: none !important; }
+            main { padding: 0 !important; max-width: none !important; }
+            section { page-break-inside: avoid; break-inside: avoid; }
+            h1, h2, h3, h4 { page-break-after: avoid; }
+            table { page-break-inside: avoid; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            a { color: inherit !important; text-decoration: none !important; }
+          }
+        `}</style>
+
+        {/* ── 언어 탭 + PDF 다운로드 ── */}
+        <nav aria-label="Language" className="sticky top-0 z-40 mb-5 -mx-4 sm:mx-0 px-4 sm:px-0 py-2 bg-slate-50">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-full p-1 shadow-sm overflow-x-auto flex-1 min-w-0">
+              {(Object.keys(LANG_LABELS) as Lang[]).map((code) => {
+                const isActive = code === lang;
+                return (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => handleLangChange(code)}
+                    aria-pressed={isActive}
+                    className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${
+                      isActive
+                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/40'
+                        : 'text-slate-600 hover:bg-amber-50 hover:text-amber-800'
+                    }`}
+                  >
+                    <span className="text-base leading-none">{LANG_LABELS[code].flag}</span>
+                    {LANG_LABELS[code].label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* PDF 다운로드 — 브라우저 인쇄 다이얼로그 → "PDF로 저장" 선택 */}
+            <div className="pdf-btn-wrap shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  const prev = document.title;
+                  document.title = `GEO-AIO_election-2026_${lang}_${new Date().toISOString().slice(0, 10)}`;
+                  window.print();
+                  setTimeout(() => { document.title = prev; }, 1000);
+                }}
+                aria-label={t.pdfBtn}
+                className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition-colors whitespace-nowrap bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md hover:from-emerald-400 hover:to-emerald-500 border border-emerald-400"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                </svg>
+                {t.pdfBtn}
+              </button>
+            </div>
           </div>
         </nav>
 
