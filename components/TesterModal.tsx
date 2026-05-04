@@ -162,10 +162,16 @@ export default function TesterModal({ show, onClose }: TesterModalProps) {
   );
 }
 
-export function TesterFloatingButton({ onClick }: { onClick: () => void }) {
+export function TesterFloatingButton(_props: { onClick: () => void }) {
+  // 사용자 요구: 테스터 모집 중 배너 삭제 — 모든 페이지에서 일괄 hide
+  // (각 페이지에서 import·렌더는 그대로 두되 컴포넌트가 null 반환)
+  return null;
+  // 아래 원본 마크업 보존 (필요 시 부활 가능)
+  /* eslint-disable */
+  // @ts-ignore
   return (
     <button
-      onClick={onClick}
+      onClick={_props.onClick}
       className="fixed top-20 left-4 sm:left-6 z-40 w-20 h-20 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white rounded-2xl shadow-xl shadow-orange-500/40 hover:shadow-orange-500/60 hover:scale-110 transition-colors flex flex-col items-center justify-center gap-1 group"
     >
       <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping" />
