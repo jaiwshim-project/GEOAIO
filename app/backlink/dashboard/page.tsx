@@ -40,16 +40,19 @@ interface DashboardPost extends RoadmapPost {
 
 const STORAGE_KEY = 'geoaio_backlink_roadmaps';
 
+// 로컬 날짜 기준 YYYY-MM-DD (toISOString은 UTC라 한국 시간대에서 전날이 나옴 — 사용 금지)
+function localISO(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function todayISO() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString().slice(0, 10);
+  return localISO(new Date());
 }
 
 function addDays(iso: string, days: number) {
   const d = new Date(iso + 'T00:00:00');
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return localISO(d);
 }
 
 function getEndOfWeek(iso: string) {
@@ -58,7 +61,7 @@ function getEndOfWeek(iso: string) {
   const day = d.getDay(); // 0=일, 1=월, ..., 6=토
   const offsetToSunday = (7 - day) % 7;
   d.setDate(d.getDate() + offsetToSunday);
-  return d.toISOString().slice(0, 10);
+  return localISO(d);
 }
 
 function dateLabel(iso: string) {
@@ -67,19 +70,11 @@ function dateLabel(iso: string) {
   return `${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
 }
 
-interface Bucket {
-  key: string;
-  label: string;
-  emoji: string;
-  posts: DashboardPost[];
-  highlight?: 'today' | 'tomorrow' | 'week' | 'next-week' | 'future' | 'past';
-}
-
 export default function BacklinkDashboardPage() {
   const [roadmaps, setRoadmaps] = useState<Record<string, RoadmapResponse>>({});
   const [loaded, setLoaded] = useState(false);
   const [copiedId, setCopiedId] = useState('');
-  const [showPast, setShowPast] = useState(false);
+  const [showPast, setShowPast] = useState(true);
   const [showFuture, setShowFuture] = useState(true);
 
   useEffect(() => {
@@ -108,14 +103,11 @@ export default function BacklinkDashboardPage() {
     return flat;
   }, [roadmaps]);
 
-  // 일자별 그룹화 (날짜 → posts[])
-  const postsByDate = useMemo(() => {
-    const m: Record<string, DashboardPost[]> = {};
-    allPosts.forEach(p => {
-      if (!m[p.date]) m[p.date] = [];
-      m[p.date].push(p);
-    });
-    return m;
+  // 카테고리별 포스트 수 (디버그·요약용 — /backlink 저장 탭과 일치 여부 확인 가능)
+  const countsByCategory = useMemo(() => {
+    const m: Record<string, number> = {};
+    allPosts.forEach(p => { m[p.categorySlug] = (m[p.categorySlug] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
   }, [allPosts]);
 
   // 버킷 분류 (오늘 / 내일 / 이번 주 / 다음 주 / 이후 / 지난)
@@ -286,7 +278,7 @@ export default function BacklinkDashboardPage() {
         </section>
 
         {/* 통계 */}
-        <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           {[
             { label: '저장 카테고리', val: stats.roadmaps, color: 'from-violet-500 to-purple-500' },
             { label: '전체 포스트', val: stats.posts, color: 'from-amber-500 to-orange-500' },
@@ -299,6 +291,24 @@ export default function BacklinkDashboardPage() {
             </div>
           ))}
         </section>
+
+        {/* 카테고리별 포스트 수 — /backlink 저장 탭과 1:1 일치 검증용 */}
+        {countsByCategory.length > 0 && (
+          <section className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">
+            <h3 className="text-xs font-extrabold text-slate-700 mb-2 tracking-wider uppercase">📂 카테고리별 포스트 수 (총 {stats.posts}개)</h3>
+            <div className="flex flex-wrap gap-2">
+              {countsByCategory.map(([slug, count]) => (
+                <span key={slug} className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+                  <span className="truncate max-w-[180px]" title={slug}>{slug}</span>
+                  <span className="px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px]">{count}</span>
+                </span>
+              ))}
+            </div>
+            <p className="text-[10px] text-slate-500 mt-2">
+              💡 /backlink 페이지의 저장 탭에 표시된 카테고리·포스트 수와 동일하게 일치해야 합니다. 다르면 새 로고침 또는 시크릿 창 사용 (브라우저 다른 점 확인).
+            </p>
+          </section>
+        )}
 
         {!loaded ? (
           <div className="text-center py-20 text-slate-500 text-sm">로딩 중…</div>
