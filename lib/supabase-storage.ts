@@ -51,9 +51,42 @@ function assertValidCategory(raw: unknown, ctx: string): string {
   }
   if (v.length < 2 || v.length > 80) throw new Error(`[${ctx}] category 길이는 2~80자여야 합니다 (got ${v.length}: "${v}")`);
   // 허용: 글자(한글·영문·한자), 숫자, 일반 문장 부호 (-_.,·:()/?! 공백)
-  // 카테고리명을 프로젝트명에서 슬러그화하면 다양한 문자가 들어올 수 있어 관대하게 허용.
   if (!/^[\p{L}\p{N}\-_·.,:()?!\s/]+$/u.test(v)) throw new Error(`[${ctx}] category에 허용되지 않는 문자가 포함되었습니다: "${v}"`);
   return v;
+}
+
+// === 발행 직전 Fuzzy 자동 보정 ===
+// blog_articles의 기존 카테고리 슬러그 캐시 (60초 TTL)
+let categoryCacheList: string[] = [];
+let categoryCacheAt = 0;
+async function getExistingCategorySlugs(): Promise<string[]> {
+  const now = Date.now();
+  if (now - categoryCacheAt < 60_000 && categoryCacheList.length > 0) return categoryCacheList;
+  try {
+    const { data } = await getSupabase().from('blog_articles').select('category');
+    const slugs = Array.from(new Set((data || []).map(r => r.category as string).filter(Boolean)));
+    categoryCacheList = slugs;
+    categoryCacheAt = now;
+    return slugs;
+  } catch {
+    return [];
+  }
+}
+
+// 발행 직전 보정 — 신규 슬러그가 기존 슬러그 중 70% 이상 유사하면 기존 슬러그로 매핑
+// 동적 import로 lib/category-match.ts와 순환 참조 회피
+async function autoCorrectCategory(slug: string): Promise<string> {
+  const existing = await getExistingCategorySlugs();
+  if (existing.includes(slug)) return slug; // 정확 일치
+  try {
+    const { findSimilarCategory } = await import('./category-match');
+    const similar = findSimilarCategory(slug, existing, 0.7);
+    if (similar) {
+      console.log(`[autoCorrectCategory] "${slug}" → "${similar}" (Fuzzy 매칭)`);
+      return similar;
+    }
+  } catch {}
+  return slug; // 매치 없으면 신규로 진행
 }
 
 async function getUserId(): Promise<string> {
@@ -463,7 +496,9 @@ export async function saveBlogPost(post: {
   masterId?: string;
 }): Promise<string> {
   try {
-    const validCategory = assertValidCategory(post.category, 'saveBlogPost');
+    const validCategory0 = assertValidCategory(post.category, 'saveBlogPost');
+    // Fuzzy 자동 보정 — 비슷한 기존 카테고리 있으면 그것 재사용
+    const validCategory = await autoCorrectCategory(validCategory0);
     const meta = JSON.stringify({
       tag: post.tag || '',
       summary: post.summary || '',
@@ -518,10 +553,15 @@ export async function saveBlogPostsBatch(posts: {
 }[]): Promise<string[]> {
   // 모든 글의 카테고리를 사전 검증 — 1건이라도 폴백 의심값이면 전체 중단
   posts.forEach((post, idx) => assertValidCategory(post.category, `saveBlogPostsBatch[${idx}]`));
+  // Fuzzy 자동 보정 — 카테고리 1번만 보정 (배치는 모두 같은 카테고리)
+  const correctedCategory = await autoCorrectCategory(posts[0].category.trim());
+  if (correctedCategory !== posts[0].category.trim()) {
+    console.log(`[saveBlogPostsBatch] 카테고리 보정: "${posts[0].category.trim()}" → "${correctedCategory}"`);
+  }
   const rows = posts.map(post => ({
     title: post.title,
     content: post.content,
-    category: post.category.trim(),
+    category: correctedCategory,
     tags: post.hashtags || [],
     author: JSON.stringify({
       tag: post.tag || '',

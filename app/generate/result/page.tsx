@@ -1268,6 +1268,12 @@ export default function GenerateResultPage() {
     const CONTENT_FORMAT_TYPES = new Set(['blog','product','faq','howto','landing','technical','social','email','case','video']);
 
     const computeCategory = (): string => {
+      // 0순위 (최우선): AutopilotRun이 진행 중이면 시작 시 고정한 category 사용
+      // — 회차마다 재계산으로 슬러그 차이가 생기는 것을 차단.
+      const apRun = readAutopilotRun();
+      if (apRun.isRunning && apRun.category && !CONTENT_FORMAT_TYPES.has(apRun.category)) {
+        return apRun.category;
+      }
       // 0순위: generate 페이지에서 사용자가 명시한 categoryChoice
       // - 수동 선택 + manualSlug 있으면 그대로 사용 (예: 'AI선거솔루션' 프로젝트로 작업하지만 '허태정-대전시장-후보자'로 저장)
       // - 자동 매칭이면 projectName으로부터 매칭 (아래 2순위 로직과 동일하지만 명시적 의도 표시)

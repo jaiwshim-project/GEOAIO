@@ -86,7 +86,20 @@ interface BlogClientProps {
 export default function BlogClient({ initialPosts, initialCategories, page = 1, totalPages = 1, total = 0 }: BlogClientProps) {
   const router = useRouter();
   const [categories] = useState<BlogCategory[]>(initialCategories);
-  const [activeTab, setActiveTab] = useState(initialCategories[0]?.slug || 'geo-aio');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem('geoaio_blog_active_tab');
+        if (saved) return saved;
+      } catch {}
+    }
+    return initialCategories[0]?.slug || 'geo-aio';
+  });
+  // activeTab 변경 시 sessionStorage에 저장 — 페이지 이동·새로고침 후 유지
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try { sessionStorage.setItem('geoaio_blog_active_tab', activeTab); } catch {}
+  }, [activeTab]);
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [showTesterModal, setShowTesterModal] = useState(false);
@@ -593,7 +606,7 @@ export default function BlogClient({ initialPosts, initialCategories, page = 1, 
             {total > 0 && (
               <p className="text-center text-xs text-slate-600 mt-3">
                 전체 <span className="font-extrabold text-amber-700">{total.toLocaleString()}</span>편 ·
-                현재 페이지 <span className="font-bold text-slate-900">{(page - 1) * 100 + 1}–{Math.min(page * 100, total)}</span>편
+                현재 페이지 <span className="font-bold text-slate-900">{(page - 1) * 20 + 1}–{Math.min(page * 20, total)}</span>편
               </p>
             )}
           </>

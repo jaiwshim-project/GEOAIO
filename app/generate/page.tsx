@@ -11,7 +11,7 @@ import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
 import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, getBlogCategories, type Profile, type ProfileData, type BlogCategory } from '@/lib/supabase-storage';
 import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
-import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, AUTOPILOT_RUN_KEY, readAutopilotRun, writeAutopilotRun, clearAutopilotRun, updateAutopilotPhase } from '@/lib/category-match';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory, normalizeSlug, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, AUTOPILOT_RUN_KEY, readAutopilotRun, writeAutopilotRun, clearAutopilotRun, updateAutopilotPhase } from '@/lib/category-match';
 // canUseFeature, incrementUsage는 커스텀 사용자 시스템에서 API 방식으로 대체
 import { useUser, type UserProject } from '@/lib/user-context';
 import { track } from '@vercel/analytics';
@@ -524,16 +524,23 @@ export default function GeneratePage() {
       alert('주제를 입력하거나 추천 주제를 받아주세요.');
       return;
     }
-    const categoryHint = categoryChoice.mode === 'manual' && categoryChoice.manualSlug
-      ? categoryChoice.manualSlug
-      : (selectedProject?.name || '');
+    // 카테고리 결정 — 시작 시 1회 고정. 모든 회차가 동일 슬러그 사용 보장.
+    // 우선순위: 사용자 명시 manualSlug > autoMatchCategory(projectName, cats) + fuzzy
+    let categoryHint = '';
+    if (categoryChoice.mode === 'manual' && categoryChoice.manualSlug) {
+      categoryHint = categoryChoice.manualSlug;
+    } else if (selectedProject?.name) {
+      const auto = autoMatchCategory(selectedProject.name, blogCategories);
+      categoryHint = auto || normalizeSlug(selectedProject.name);
+    }
+
     const run = {
       isRunning: true,
       totalRepeats: publishOptions.repeatCount,
       currentRepeat: 1,
       topicQueue: queue,
       translationLangs: publishOptions.translationLangs,
-      category: categoryHint,
+      category: categoryHint, // 회차 동안 고정 — result 페이지에서 우선 사용
       startedAt: Date.now(),
       publishedTotal: 0,
       currentPhase: 'starting' as const,

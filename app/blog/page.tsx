@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 // 카테고리별 정확한 카운트는 /api/blog/category-counts에서 BlogClient가 별도 fetch.
 export const revalidate = 3600;
 
-const POSTS_PER_PAGE = 100; // 메인 페이지 1번에 보여주는 글 수
+const POSTS_PER_PAGE = 20; // 메인 페이지 1번에 보여주는 글 수 (사용자 요구)
 
 const DEFAULT_CATEGORIES: BlogCategory[] = [
   { id: '1', slug: 'geo-aio', label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600', icon: 'search', sortOrder: 0 },
