@@ -915,11 +915,11 @@ const CANDIDATE_LANGS: Record<string, ('ko' | 'en' | 'zh' | 'ja')[]> = {
   leejangwoo: ['ko'],
   heotaejung: ['ko', 'en', 'zh', 'ja'],
 };
-const LANG_FLAG: Record<'ko' | 'en' | 'zh' | 'ja', string> = {
-  ko: '🇰🇷',
-  en: '🇺🇸',
-  zh: '🇨🇳',
-  ja: '🇯🇵',
+const LANG_FLAG_IMG: Record<'ko' | 'en' | 'zh' | 'ja', { src: string; label: string }> = {
+  ko: { src: 'https://flagcdn.com/w40/kr.png', label: '한국어' },
+  en: { src: 'https://flagcdn.com/w40/us.png', label: 'English' },
+  zh: { src: 'https://flagcdn.com/w40/cn.png', label: '中文' },
+  ja: { src: 'https://flagcdn.com/w40/jp.png', label: '日本語' },
 };
 const PAIRS: Pair[] = [
   { group: 'mp', regionKey: '부산-북구갑',
@@ -1021,10 +1021,18 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
             &ldquo;{slogan}&rdquo;
           </p>
         )}
-        {/* 발행 언어 국기 — ko만 있으면 태극기 1개, 4개 모두 발행 시 4개 표시 */}
+        {/* 발행 언어 국기 (flagcdn 이미지) — ko만 있으면 태극기 1개, 4개 발행 시 4개 표시 */}
         <div className="mt-1.5 flex items-center gap-1" aria-label="published languages">
           {langs.map(l => (
-            <span key={l} className="text-sm sm:text-base leading-none" title={l}>{LANG_FLAG[l]}</span>
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={l}
+              src={LANG_FLAG_IMG[l].src}
+              alt={LANG_FLAG_IMG[l].label}
+              title={LANG_FLAG_IMG[l].label}
+              className="w-5 h-3.5 sm:w-6 sm:h-4 rounded-[2px] shadow-sm object-cover"
+              loading="lazy"
+            />
           ))}
         </div>
       </div>
