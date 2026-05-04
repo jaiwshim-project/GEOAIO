@@ -121,6 +121,8 @@ const T: Record<Lang, {
 
   candidateRegions: Record<string, string>;
   candidateNames: Record<string, string>;
+  candidateSlogans: Record<string, string>;
+  s2BlogBadge: string;
 }> = {
   // ============ 한국어 (원본) ============
   ko: {
@@ -247,11 +249,24 @@ const T: Record<Lang, {
       hwangkyoahn: '황교안',
       songyounggil: '송영길',
       ohsehoon: '오세훈',
-      jeongwonwoo: '정원우',
+      jeongwonoh: '정원오',
       minhyungbae: '민형배',
       leejangwoo: '이장우',
       heotaejung: '허태정',
     },
+    candidateSlogans: {
+      hajeongwoo: '변화를 이끄는 새로운 정치',
+      handonghoon: '원칙과 신뢰의 보수 정치',
+      chokuk: '정의로운 사회를 향한 한 걸음',
+      hwangkyoahn: '안정된 미래, 검증된 리더십',
+      songyounggil: '민생을 위한 진보의 길',
+      ohsehoon: '혁신하는 서울, 시민과 함께',
+      jeongwonoh: '더 나은 서울을 위한 도전',
+      minhyungbae: '광주의 새로운 도약',
+      leejangwoo: '대전, 미래과학 도시로',
+      heotaejung: '함께 만드는 충청 메가시티',
+    },
+    s2BlogBadge: '블로그 자세히 보기',
   },
 
   // ============ 영어 (English) ============
@@ -379,11 +394,24 @@ const T: Record<Lang, {
       hwangkyoahn: 'Hwang Kyo-ahn',
       songyounggil: 'Song Young-gil',
       ohsehoon: 'Oh Se-hoon',
-      jeongwonwoo: 'Jeong Won-woo',
+      jeongwonoh: 'Jeong Won-oh',
       minhyungbae: 'Min Hyung-bae',
       leejangwoo: 'Lee Jang-woo',
       heotaejung: 'Heo Tae-jung',
     },
+    candidateSlogans: {
+      hajeongwoo: 'New Politics Leading Change',
+      handonghoon: 'Conservative Politics of Principle and Trust',
+      chokuk: 'A Step Toward a Just Society',
+      hwangkyoahn: 'Stable Future, Proven Leadership',
+      songyounggil: 'A Progressive Path for the People',
+      ohsehoon: 'Innovating Seoul, with the Citizens',
+      jeongwonoh: 'A Challenge for a Better Seoul',
+      minhyungbae: 'A New Leap for Gwangju',
+      leejangwoo: 'Daejeon as a City of Future Science',
+      heotaejung: 'Building the Chungcheong Megacity Together',
+    },
+    s2BlogBadge: 'Read full blog',
   },
 
   // ============ 중국어 (번체, 대만식 s2twp) ============
@@ -511,11 +539,24 @@ const T: Record<Lang, {
       hwangkyoahn: '黃教安',
       songyounggil: '宋永吉',
       ohsehoon: '吳世勳',
-      jeongwonwoo: '鄭元雨',
+      jeongwonoh: '鄭元五',
       minhyungbae: '閔炯培',
       leejangwoo: '李莊雨',
       heotaejung: '許泰正',
     },
+    candidateSlogans: {
+      hajeongwoo: '引領變革的新政治',
+      handonghoon: '原則與信任的保守政治',
+      chokuk: '邁向正義社會的一步',
+      hwangkyoahn: '穩定的未來，經驗證的領導力',
+      songyounggil: '為民生而進步',
+      ohsehoon: '革新的首爾，與市民同行',
+      jeongwonoh: '為更好的首爾而挑戰',
+      minhyungbae: '光州的全新飛躍',
+      leejangwoo: '大田，邁向未來科學城市',
+      heotaejung: '共同打造忠清大都會',
+    },
+    s2BlogBadge: '檢視完整部落格',
   },
 
   // ============ 일본어 ============
@@ -643,11 +684,24 @@ const T: Record<Lang, {
       hwangkyoahn: 'ファン·ギョアン',
       songyounggil: 'ソン·ヨンギル',
       ohsehoon: 'オ·セフン',
-      jeongwonwoo: 'チョン·ウォンウ',
+      jeongwonoh: 'チョン·ウォンオ',
       minhyungbae: 'ミン·ヒョンベ',
       leejangwoo: 'イ·ジャンウ',
       heotaejung: 'ホ·テジョン',
     },
+    candidateSlogans: {
+      hajeongwoo: '変革を導く新しい政治',
+      handonghoon: '原則と信頼の保守政治',
+      chokuk: '正義ある社会への一歩',
+      hwangkyoahn: '安定した未来、実証されたリーダーシップ',
+      songyounggil: '民生のための進歩の道',
+      ohsehoon: '革新するソウル、市民と共に',
+      jeongwonoh: 'より良いソウルへの挑戦',
+      minhyungbae: '光州の新たな飛躍',
+      leejangwoo: '大田、未来科学都市へ',
+      heotaejung: '共に築く忠清メガシティ',
+    },
+    s2BlogBadge: 'ブログを詳しく見る',
   },
 };
 
@@ -667,7 +721,7 @@ const PAIRS: Pair[] = [
     right: { tbd: true, strip: 'from-slate-300 via-slate-400 to-slate-300', accent: 'text-slate-500' } },
   { group: 'mayor', regionKey: '서울특별시',
     left:  { key: 'ohsehoon',     slug: '오세훈-서울시장-후보자', strip: 'from-cyan-500 via-sky-500 to-blue-500', accent: 'text-cyan-700' },
-    right: { key: 'jeongwonwoo',  slug: '정원우-서울시장-후보자', strip: 'from-blue-500 via-indigo-500 to-blue-600', accent: 'text-blue-700' } },
+    right: { key: 'jeongwonoh',  slug: '정원오-서울시장-후보자', strip: 'from-blue-500 via-indigo-500 to-blue-600', accent: 'text-blue-700' } },
   { group: 'mayor', regionKey: '광주광역시',
     left:  { key: 'minhyungbae',  slug: '민형배-광주시장-후보자', strip: 'from-emerald-500 via-teal-500 to-green-500', accent: 'text-emerald-700' },
     right: { tbd: true, strip: 'from-slate-300 via-slate-400 to-slate-300', accent: 'text-slate-500' } },
@@ -694,7 +748,7 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
 
   if (side.tbd) {
     return (
-      <div className={`relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-2 border-dashed border-slate-300 rounded-xl py-3 px-3 sm:px-4 min-h-[88px] sm:min-h-[96px] flex flex-col justify-between ${corner.glow}`}>
+      <div className={`relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-2 border-dashed border-slate-300 rounded-xl py-3 px-3 sm:px-4 min-h-[140px] sm:min-h-[152px] flex flex-col justify-between ${corner.glow}`}>
         {cornerLabel && (
           <div className={`text-[9px] sm:text-[10px] font-black tracking-[0.2em] ${corner.labelColor}`}>
             {corner.label}
@@ -716,18 +770,20 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
 
   const slug = side.slug || '';
   const nameKey = side.key || '';
+  const slogan = t.candidateSlogans[nameKey] || '';
   return (
     <Link
       href={candidateHref(slug)}
-      className={`group relative bg-white border border-slate-200 rounded-xl py-3 px-3 sm:px-4 min-h-[88px] sm:min-h-[96px] flex flex-col justify-between hover:border-slate-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 overflow-hidden ${corner.glow}`}
+      className={`group relative bg-white border border-slate-200 rounded-xl py-3 px-3 sm:px-4 min-h-[140px] sm:min-h-[152px] flex flex-col justify-between hover:border-slate-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 overflow-hidden ${corner.glow}`}
     >
-      {/* 카드 배경 그라디언트 — 후보자 strip 색상 옅게 */}
+      {/* 카드 배경 그라디언트 */}
       <div className={`absolute inset-0 bg-gradient-to-br ${side.strip} opacity-[0.07] pointer-events-none`} />
       {/* 상단 strip */}
       <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${side.strip}`} />
-      {/* 우측 하단 색상 액센트 (블롭) */}
+      {/* 우측 하단 색상 액센트 */}
       <div className={`absolute -bottom-10 -right-10 w-28 h-28 bg-gradient-to-br ${side.strip} opacity-25 rounded-full blur-2xl pointer-events-none`} />
 
+      {/* 상단: 코너 라벨 + 역할 뱃지 */}
       <div className="relative flex items-center justify-between gap-2">
         {cornerLabel && (
           <span className={`text-[9px] sm:text-[10px] font-black tracking-[0.2em] ${corner.labelColor}`}>
@@ -739,22 +795,36 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
         </span>
       </div>
 
+      {/* 중앙: 이름 + 지역 + 슬로건 */}
       <div className="relative">
         <h3 className="text-2xl sm:text-3xl font-black text-slate-900 leading-none mb-1 tracking-tight">
           {t.candidateNames[nameKey]}
         </h3>
-        <p className={`text-xs sm:text-sm font-bold ${side.accent}`}>
+        <p className={`text-xs sm:text-sm font-bold ${side.accent} mb-1.5`}>
           {t.candidateRegions[regionKey]}
         </p>
+        {slogan && (
+          <p className="text-[11px] sm:text-xs text-slate-700 leading-snug italic line-clamp-2">
+            &ldquo;{slogan}&rdquo;
+          </p>
+        )}
       </div>
 
-      {/* 호버 시 화살표 */}
-      <svg
-        className="absolute bottom-2 right-2 w-4 h-4 text-slate-300 group-hover:text-slate-800 group-hover:translate-x-1 transition-all"
-        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-      </svg>
+      {/* 하단: 블로그 자세히 보기 뱃지 */}
+      <div className="relative mt-2 flex items-center justify-between">
+        <span className={`inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r ${side.strip} text-white text-[10px] sm:text-[11px] font-extrabold rounded-full shadow-sm group-hover:scale-105 transition-transform`}>
+          <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          {t.s2BlogBadge}
+        </span>
+        <svg
+          className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all shrink-0"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </div>
     </Link>
   );
 }
