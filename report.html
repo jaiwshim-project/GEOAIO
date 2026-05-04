@@ -497,25 +497,74 @@
   }
   .report-page { display: none; }
   .report-page.active { display: block; }
+
+  /* PDF 다운로드 버튼 — nav 우측 */
+  .report-nav-spacer { flex: 1; }
+  .pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid #d97706;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #92400e;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    font-family: inherit;
+  }
+  .pdf-btn:hover {
+    background: linear-gradient(135deg, #fde68a, #fbbf24);
+    color: #78350f;
+    box-shadow: 0 4px 10px -2px rgba(217, 119, 6, 0.4);
+  }
+  .pdf-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* 인쇄 / PDF 저장 시: 네비·버튼 숨김 + 활성 기획서만 출력 */
+  @media print {
+    body { background: white !important; }
+    .container { max-width: none !important; padding: 0 !important; }
+    .report-nav { display: none !important; }
+    .pdf-btn { display: none !important; }
+    .report-page { display: none !important; }
+    .report-page.active { display: block !important; }
+    .section { page-break-inside: avoid; }
+    h1, h2, h3, h4 { page-break-after: avoid; }
+    table { page-break-inside: avoid; }
+    a { color: #1d4ed8 !important; text-decoration: underline; }
+    /* 배경 그라디언트 인쇄 보장 (Chrome) */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  }
   @media (max-width: 720px) {
     .report-nav { padding: 10px 12px; gap: 6px; }
     .report-nav-label { font-size: 10px; }
     .report-nav-btn { padding: 6px 12px; font-size: 12px; }
+    .pdf-btn { padding: 6px 12px; font-size: 11px; }
   }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- ====================================================
-       기획서 서브페이지 네비게이션
-       새 기획서 추가 방법:
-       1) 아래 .report-nav 안에 <button data-report="키" class="report-nav-btn">제목</button> 추가
-       2) </div><!-- /report-page--> 다음에 새 <div class="report-page" data-report="키" id="report-키">...</div> 추가
-       ==================================================== -->
+  <!--
+    기획서 서브페이지 네비게이션
+    새 기획서 추가 방법:
+    1) 아래 report-nav 안에 button.report-nav-btn[data-report="키"][제목] 추가
+    2) report-page 닫는 div 다음에 새 div.report-page[data-report="키"][id="report-키"] 추가
+  -->
   <nav class="report-nav" aria-label="기획서 목록">
     <span class="report-nav-label">기획서</span>
     <button type="button" class="report-nav-btn active" data-report="digitalsmile">디지털스마일치과</button>
+    <span class="report-nav-spacer"></span>
+    <button type="button" class="pdf-btn" id="pdf-download-btn" aria-label="PDF로 다운로드">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"/>
+      </svg>
+      PDF 다운로드
+    </button>
   </nav>
 
   <!-- ============ 디지털스마일치과 기획서 ============ -->
@@ -1290,6 +1339,22 @@
     var initial = (location.hash || '').replace('#', '');
     if (initial && document.querySelector('.report-page[data-report="' + initial + '"]')) {
       show(initial);
+    }
+
+    // PDF 다운로드 — 브라우저 인쇄 다이얼로그 → "PDF로 저장" 선택
+    // @media print CSS가 nav·버튼 숨기고 활성 기획서만 출력하도록 처리됨
+    var pdfBtn = document.getElementById('pdf-download-btn');
+    if (pdfBtn) {
+      pdfBtn.addEventListener('click', function () {
+        // 활성 기획서 이름을 파일명 힌트로 (Chrome은 document.title 기준)
+        var active = document.querySelector('.report-page.active');
+        var reportName = active ? (active.getAttribute('data-report') || '기획서') : '기획서';
+        var prevTitle = document.title;
+        document.title = 'GEO-AIO_전략기획서_' + reportName + '_' + new Date().toISOString().slice(0, 10);
+        window.print();
+        // 다이얼로그 후 원래 제목으로 복원
+        setTimeout(function () { document.title = prevTitle; }, 1000);
+      });
     }
   })();
 </script>
