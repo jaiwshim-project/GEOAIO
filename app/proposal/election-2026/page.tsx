@@ -676,80 +676,85 @@ const PAIRS: Pair[] = [
     right: { key: 'heotaejung',   slug: '허태정-대전시장-후보자', strip: 'from-fuchsia-500 via-pink-500 to-rose-500', accent: 'text-fuchsia-700' } },
 ];
 
-// 양자 대결의 한쪽 후보 카드 — tbd면 placeholder 카드 표시
+// 양자 대결의 한쪽 후보 카드 — 복싱 링 모티프 (BLUE/RED 코너), 가로형 직사각형
 type CandidateCardProps = {
   side: Side;
   role: string;
   regionKey: string;
   t: (typeof T)[Lang];
   candidateHref: (slug: string) => string;
-  compact?: boolean;
+  cornerLabel?: 'BLUE' | 'RED';
 };
-function CandidateCard({ side, role, regionKey, t, candidateHref, compact }: CandidateCardProps) {
-  // compact: 카드를 글러브와 같은 정사각형 영역에 맞춰 컴팩트하게 표시
+function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }: CandidateCardProps) {
+  const corner = cornerLabel === 'BLUE'
+    ? { label: 'BLUE CORNER', labelColor: 'text-blue-700', glow: 'shadow-[0_8px_28px_-8px_rgba(37,99,235,0.35)]' }
+    : cornerLabel === 'RED'
+    ? { label: 'RED CORNER', labelColor: 'text-rose-700', glow: 'shadow-[0_8px_28px_-8px_rgba(244,63,94,0.35)]' }
+    : { label: '', labelColor: 'text-slate-500', glow: 'shadow-md' };
+
   if (side.tbd) {
     return (
-      <div className={`relative bg-gradient-to-br from-slate-50 via-white to-slate-50 border-2 border-dashed border-slate-300 rounded-xl text-center flex flex-col items-center justify-center ${
-        compact ? 'aspect-square p-2' : 'p-4 min-h-[140px]'
-      }`}>
-        <div className={`opacity-60 ${compact ? 'text-lg' : 'text-2xl mb-1.5'}`}>🤝</div>
-        <div className={`font-extrabold text-slate-700 ${compact ? 'text-[11px]' : 'text-sm mb-1'}`}>{t.s2TbdName}</div>
-        <div className={`font-bold ${side.accent} ${compact ? 'text-[9px]' : 'text-[11px]'}`}>{t.candidateRegions[regionKey]}</div>
-        <div className={`text-amber-700 font-semibold rounded-full bg-amber-100 border border-amber-200 ${compact ? 'text-[8px] px-1.5 mt-1' : 'text-[10px] px-2 py-0.5 mt-1.5'}`}>
-          ⚡ {t.s2TbdSub}
+      <div className={`relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-2 border-dashed border-slate-300 rounded-xl py-3 px-3 sm:px-4 min-h-[110px] sm:min-h-[120px] flex flex-col justify-between ${corner.glow}`}>
+        {cornerLabel && (
+          <div className={`text-[9px] sm:text-[10px] font-black tracking-[0.2em] ${corner.labelColor}`}>
+            {corner.label}
+          </div>
+        )}
+        <div className="flex flex-col items-center justify-center flex-1 my-1">
+          <div className="text-2xl sm:text-3xl opacity-50 mb-1">🤝</div>
+          <div className="text-sm sm:text-base font-extrabold text-slate-700 leading-tight">{t.s2TbdName}</div>
+          <div className={`text-[10px] sm:text-xs font-bold ${side.accent} mt-0.5`}>{t.candidateRegions[regionKey]}</div>
+        </div>
+        <div className="text-center">
+          <span className="inline-block text-[9px] sm:text-[10px] text-amber-800 font-bold rounded-full bg-amber-100 border border-amber-300 px-2 py-0.5">
+            ⚡ {t.s2TbdSub}
+          </span>
         </div>
       </div>
     );
   }
+
   const slug = side.slug || '';
   const nameKey = side.key || '';
-  if (compact) {
-    return (
-      <Link
-        href={candidateHref(slug)}
-        className="group relative aspect-square bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-xl p-2.5 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_8px_24px_-8px_rgba(15,23,42,0.2)] hover:-translate-y-0.5 transition-all overflow-hidden flex flex-col justify-between"
-      >
-        <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${side.strip}`} />
-        <div className="flex items-start justify-between mt-0.5">
-          <span className={`px-1.5 py-0.5 bg-gradient-to-r ${side.strip} text-white text-[9px] font-extrabold rounded-full shadow-sm`}>
-            {role}
-          </span>
-          <svg className="w-3 h-3 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
-        </div>
-        <div>
-          <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">
-            {t.candidateNames[nameKey]}
-          </h3>
-          <p className={`text-[10px] font-bold ${side.accent} leading-tight`}>
-            {t.candidateRegions[regionKey]}
-          </p>
-        </div>
-      </Link>
-    );
-  }
   return (
     <Link
       href={candidateHref(slug)}
-      className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden"
+      className={`group relative bg-white border border-slate-200 rounded-xl py-3 px-3 sm:px-4 min-h-[110px] sm:min-h-[120px] flex flex-col justify-between hover:border-slate-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 overflow-hidden ${corner.glow}`}
     >
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${side.strip}`} />
-      <div className="flex items-start justify-between mb-2 mt-1">
-        <span className={`px-2.5 py-0.5 bg-gradient-to-r ${side.strip} text-white text-[10px] font-extrabold rounded-full tracking-wide shadow-sm`}>
+      {/* 카드 배경 그라디언트 — 후보자 strip 색상 옅게 */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${side.strip} opacity-[0.07] pointer-events-none`} />
+      {/* 상단 strip */}
+      <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${side.strip}`} />
+      {/* 우측 하단 색상 액센트 (블롭) */}
+      <div className={`absolute -bottom-10 -right-10 w-28 h-28 bg-gradient-to-br ${side.strip} opacity-25 rounded-full blur-2xl pointer-events-none`} />
+
+      <div className="relative flex items-center justify-between gap-2">
+        {cornerLabel && (
+          <span className={`text-[9px] sm:text-[10px] font-black tracking-[0.2em] ${corner.labelColor}`}>
+            {corner.label}
+          </span>
+        )}
+        <span className={`ml-auto px-2 py-0.5 bg-gradient-to-r ${side.strip} text-white text-[9px] sm:text-[10px] font-extrabold rounded-full shadow-sm`}>
           {role}
         </span>
-        <svg className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
       </div>
-      <h3 className="text-base sm:text-lg font-extrabold text-slate-900 mb-1 leading-tight">
-        {t.candidateNames[nameKey]}
-      </h3>
-      <p className={`text-[11px] sm:text-xs font-bold ${side.accent} mb-1`}>
-        {t.candidateRegions[regionKey]}
-      </p>
-      <p className="text-[10px] sm:text-[11px] text-slate-500 leading-relaxed">{t.s2CardSub}</p>
+
+      <div className="relative">
+        <h3 className="text-2xl sm:text-3xl font-black text-slate-900 leading-none mb-1 tracking-tight">
+          {t.candidateNames[nameKey]}
+        </h3>
+        <p className={`text-xs sm:text-sm font-bold ${side.accent}`}>
+          {t.candidateRegions[regionKey]}
+        </p>
+      </div>
+
+      {/* 호버 시 화살표 */}
+      <svg
+        className="absolute bottom-2 right-2 w-4 h-4 text-slate-300 group-hover:text-slate-800 group-hover:translate-x-1 transition-all"
+        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+      </svg>
     </Link>
   );
 }
@@ -942,23 +947,27 @@ export default function ElectionProposalPage() {
                   <span className="text-[11px] font-bold text-slate-400 tracking-wide">{groupCount}</span>
                 </div>
 
-                <div className="space-y-3 max-w-3xl mx-auto">
+                <div className="space-y-5 max-w-4xl mx-auto">
                   {groupPairs.map((pair, idx) => (
-                    <div key={`${group}-${idx}`} className="grid grid-cols-3 items-center gap-2">
-                      {/* 좌측 후보 카드 */}
-                      <CandidateCard side={pair.left} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} compact />
-                      {/* 가운데 글러브 vs — 카드와 동일한 정사각형 영역 */}
-                      <div className="flex items-center justify-center aspect-square">
+                    <div key={`${group}-${idx}`} className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
+                      {/* 좌측 후보 카드 — BLUE CORNER */}
+                      <CandidateCard side={pair.left} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} cornerLabel="BLUE" />
+
+                      {/* 가운데 글러브 — 카드 사이로 약간 비집고 들어가는 부유 느낌 */}
+                      <div className="relative w-[80px] sm:w-[120px] md:w-[140px] flex items-center justify-center">
+                        {/* 황금 빛 후광 */}
+                        <div className="absolute inset-0 rounded-full bg-amber-300/25 blur-2xl" />
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/images/election-2026/glove-vs.png"
                           alt={t.s2VsLabel}
-                          className="w-full h-full object-contain select-none pointer-events-none drop-shadow-md"
+                          className="relative w-full h-auto object-contain select-none pointer-events-none drop-shadow-[0_8px_16px_rgba(217,119,6,0.4)]"
                           loading="lazy"
                         />
                       </div>
-                      {/* 우측 후보 카드 */}
-                      <CandidateCard side={pair.right} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} compact />
+
+                      {/* 우측 후보 카드 — RED CORNER */}
+                      <CandidateCard side={pair.right} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} cornerLabel="RED" />
                     </div>
                   ))}
                 </div>
