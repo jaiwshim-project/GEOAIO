@@ -131,7 +131,12 @@ export function readAutopilotRun(): AutopilotRun {
 }
 export function writeAutopilotRun(run: AutopilotRun): void {
   if (typeof window === 'undefined') return;
-  try { sessionStorage.setItem(AUTOPILOT_RUN_KEY, JSON.stringify(run)); } catch {}
+  try {
+    sessionStorage.setItem(AUTOPILOT_RUN_KEY, JSON.stringify(run));
+    // 같은 탭 내 storage event는 트리거되지 않으므로 커스텀 이벤트로 즉시 알림
+    // (publishedTotal·currentPhase 변경 시 모든 구독자가 즉시 갱신)
+    window.dispatchEvent(new CustomEvent('autopilot-phase-update', { detail: { type: 'run-update' } }));
+  } catch {}
 }
 export function clearAutopilotRun(): void {
   if (typeof window === 'undefined') return;
