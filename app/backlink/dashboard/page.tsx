@@ -190,9 +190,10 @@ export default function BacklinkDashboardPage() {
           <button
             type="button"
             onClick={() => handleCopy(post)}
-            className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded transition-colors ${
+            className={`shrink-0 text-lg font-bold px-3 py-1.5 rounded-md transition-colors ${
               isCopied ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
             }`}
+            title="복사"
           >
             {isCopied ? '✓' : '📋'}
           </button>
