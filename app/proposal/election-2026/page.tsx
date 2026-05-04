@@ -876,26 +876,26 @@ export default function ElectionProposalPage() {
         {/* ── Section 2. 패러다임 전환 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-sm font-bold shadow-md">1</span>
-            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">{t.s1Title}</h2>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-base font-bold shadow-md">1</span>
+            <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s1Title}</h2>
           </div>
-          <p className="text-sm text-gray-700 mb-4 leading-relaxed">{t.s1Lead}</p>
+          <p className="text-base text-gray-700 mb-4 leading-relaxed">{t.s1Lead}</p>
           <div className="grid sm:grid-cols-3 gap-3">
             <div className="bg-gradient-to-br from-gray-50 to-slate-100 border border-gray-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-gray-500 mb-1 tracking-wide">{t.s1OldEra}</div>
-              <h4 className="text-sm font-extrabold text-gray-900 mb-2">{t.s1OldTitle}</h4>
-              <p className="text-xs text-gray-600 leading-relaxed">{t.s1OldDesc}</p>
+              <div className="text-sm font-bold text-gray-700 mb-1 tracking-wide">{t.s1OldEra}</div>
+              <h4 className="text-base font-extrabold text-gray-900 mb-2">{t.s1OldTitle}</h4>
+              <p className="text-sm text-gray-800 leading-relaxed">{t.s1OldDesc}</p>
             </div>
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-amber-700 mb-1 tracking-wide">{t.s1MidEra}</div>
-              <h4 className="text-sm font-extrabold text-gray-900 mb-2">{t.s1MidTitle}</h4>
-              <p className="text-xs text-gray-700 leading-relaxed">{t.s1MidDesc}</p>
+              <div className="text-sm font-bold text-amber-700 mb-1 tracking-wide">{t.s1MidEra}</div>
+              <h4 className="text-base font-extrabold text-gray-900 mb-2">{t.s1MidTitle}</h4>
+              <p className="text-sm text-gray-700 leading-relaxed">{t.s1MidDesc}</p>
             </div>
             <div className="relative bg-gradient-to-br from-emerald-50 via-cyan-50 to-emerald-50 border-2 border-emerald-300 ring-2 ring-emerald-200/60 rounded-xl p-4 shadow-md">
-              <span className="absolute -top-2 right-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow">{t.s1NewBadge}</span>
-              <div className="text-xs font-bold text-emerald-700 mb-1 tracking-wide">{t.s1NewEra}</div>
-              <h4 className="text-sm font-extrabold text-emerald-900 mb-2">{t.s1NewTitle}</h4>
-              <p className="text-xs text-gray-800 leading-relaxed">{t.s1NewDesc}</p>
+              <span className="absolute -top-2 right-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shadow">{t.s1NewBadge}</span>
+              <div className="text-sm font-bold text-emerald-700 mb-1 tracking-wide">{t.s1NewEra}</div>
+              <h4 className="text-base font-extrabold text-emerald-900 mb-2">{t.s1NewTitle}</h4>
+              <p className="text-sm text-gray-800 leading-relaxed">{t.s1NewDesc}</p>
             </div>
           </div>
         </section>
@@ -903,25 +903,25 @@ export default function ElectionProposalPage() {
         {/* ── Section 3. 후보자별 양자 대결 + 단독 계약 독점권 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-100 to-violet-200 text-violet-700 ring-2 ring-violet-300/50 flex items-center justify-center text-sm font-bold shadow-md">2</span>
-            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">{t.s2Title}</h2>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-100 to-violet-200 text-violet-700 ring-2 ring-violet-300/50 flex items-center justify-center text-base font-bold shadow-md">2</span>
+            <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s2Title}</h2>
           </div>
-          <p className="text-sm text-gray-700 mb-4 leading-relaxed">{t.s2Lead}</p>
+          <p className="text-base text-gray-700 mb-4 leading-relaxed">{t.s2Lead}</p>
 
           {/* 단독 계약 독점권 강조 배너 */}
           <div className="relative mb-6">
-            <span className="absolute -top-3 left-5 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-20 ring-2 ring-white/50 whitespace-nowrap">
+            <span className="absolute -top-3 left-5 bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-20 ring-2 ring-white/50 whitespace-nowrap">
               {t.s2ExclusiveBadge}
             </span>
             <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 rounded-2xl p-5 sm:p-6 border-2 border-amber-300 ring-2 ring-amber-200/70 shadow-[0_12px_40px_-8px_rgba(245,158,11,0.4)] overflow-hidden">
               <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-300/30 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute -bottom-12 -left-12 w-40 h-40 bg-rose-300/30 rounded-full blur-3xl pointer-events-none" />
               <div className="relative">
-                <h3 className="text-base sm:text-lg font-extrabold text-amber-900 mb-2 flex items-center gap-2 leading-snug">
+                <h3 className="text-lg sm:text-xl font-extrabold text-amber-900 mb-2 flex items-center gap-2 leading-snug">
                   <span className="text-xl">🏆</span>
                   <span>{t.s2ExclusiveTitle}</span>
                 </h3>
-                <p className="text-sm text-slate-800 leading-relaxed">{t.s2ExclusiveDesc}</p>
+                <p className="text-base text-slate-800 leading-relaxed">{t.s2ExclusiveDesc}</p>
               </div>
             </div>
           </div>
@@ -935,11 +935,11 @@ export default function ElectionProposalPage() {
             return (
               <div key={group} className="mb-6 last:mb-0">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 ${group === 'mp' ? 'text-amber-200' : 'text-emerald-200'} text-[11px] font-extrabold tracking-[0.2em] rounded-full shadow-sm`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-slate-800 to-slate-700 ${group === 'mp' ? 'text-amber-200' : 'text-emerald-200'} text-xs font-extrabold tracking-[0.2em] rounded-full shadow-sm`}>
                     {groupLabel}
                   </span>
                   <span className="flex-1 h-px bg-gradient-to-r from-slate-300 via-slate-200 to-transparent" />
-                  <span className="text-[10px] font-bold text-slate-400 tracking-wide">{groupCount}</span>
+                  <span className="text-[11px] font-bold text-slate-400 tracking-wide">{groupCount}</span>
                 </div>
 
                 <div className="space-y-3 max-w-3xl mx-auto">
@@ -966,18 +966,18 @@ export default function ElectionProposalPage() {
             );
           })}
 
-          <p className="text-[11px] text-gray-500 mt-4 leading-relaxed">{t.s2Footer}</p>
+          <p className="text-xs text-gray-700 mt-4 leading-relaxed">{t.s2Footer}</p>
         </section>
 
         {/* ── Section 4. 시간 압박 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">3</span>
-            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">{t.s3Title}</h2>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-base font-bold shadow-md">3</span>
+            <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s3Title}</h2>
           </div>
 
           <div className="overflow-x-auto -mx-1 px-1 mb-4">
-            <table className="w-full text-sm border-collapse">
+            <table className="w-full text-base border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b-2 border-slate-200">
                   <th className="text-left p-3 font-bold text-slate-700">{t.s3ColMethod}</th>
@@ -989,15 +989,15 @@ export default function ElectionProposalPage() {
               <tbody>
                 <tr className="border-b border-gray-100">
                   <td className="p-3 text-gray-700">{t.s3RowSeoMethod}</td>
-                  <td className="p-3 text-center text-gray-600">{t.s3RowSeoIndex}</td>
-                  <td className="p-3 text-center text-gray-600">{t.s3RowSeoEffect}</td>
+                  <td className="p-3 text-center text-gray-800">{t.s3RowSeoIndex}</td>
+                  <td className="p-3 text-center text-gray-800">{t.s3RowSeoEffect}</td>
                   <td className="p-3 text-center"><span className="text-rose-600 font-bold">❌</span></td>
                 </tr>
                 <tr className="border-b border-gray-100">
                   <td className="p-3 text-gray-700">{t.s3RowSnsMethod}</td>
-                  <td className="p-3 text-center text-gray-600">{t.s3RowSnsIndex}</td>
-                  <td className="p-3 text-center text-gray-600">{t.s3RowSnsEffect}</td>
-                  <td className="p-3 text-center"><span className="text-amber-600 font-bold">△</span><span className="block text-[10px] text-gray-500">{t.s3RowSnsCost}</span></td>
+                  <td className="p-3 text-center text-gray-800">{t.s3RowSnsIndex}</td>
+                  <td className="p-3 text-center text-gray-800">{t.s3RowSnsEffect}</td>
+                  <td className="p-3 text-center"><span className="text-amber-600 font-bold">△</span><span className="block text-[11px] text-gray-700">{t.s3RowSnsCost}</span></td>
                 </tr>
                 <tr className="bg-emerald-50/50 border-b-2 border-emerald-300">
                   <td className="p-3 font-extrabold text-emerald-900">{t.s3RowGeoMethod}</td>
@@ -1010,18 +1010,18 @@ export default function ElectionProposalPage() {
           </div>
 
           <div className="relative mt-2">
-            <span className="absolute -top-3 left-5 bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-20 ring-2 ring-white/50 whitespace-nowrap">
+            <span className="absolute -top-3 left-5 bg-gradient-to-r from-yellow-400 via-orange-500 to-rose-500 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-20 ring-2 ring-white/50 whitespace-nowrap">
               {t.s3InstantBadge}
             </span>
             <div className="relative bg-gradient-to-br from-cyan-100 via-sky-100 to-cyan-100 rounded-2xl p-5 sm:p-6 border-2 border-cyan-400 ring-2 ring-cyan-200/70 shadow-[0_12px_40px_-8px_rgba(8,145,178,0.45)] overflow-hidden">
               <div className="absolute -top-16 -right-16 w-44 h-44 bg-cyan-300/40 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-sky-300/40 rounded-full blur-3xl pointer-events-none" />
               <div className="relative">
-                <h4 className="text-base sm:text-lg font-extrabold text-cyan-900 mb-3 flex items-center gap-2 leading-snug">
+                <h4 className="text-lg sm:text-xl font-extrabold text-cyan-900 mb-3 flex items-center gap-2 leading-snug">
                   <span className="text-2xl">🚀</span>
                   <span>{t.s3InstantTitle}</span>
                 </h4>
-                <p className="text-sm text-gray-800 leading-relaxed">{t.s3InstantDesc}</p>
+                <p className="text-base text-gray-800 leading-relaxed">{t.s3InstantDesc}</p>
               </div>
             </div>
           </div>
@@ -1030,14 +1030,14 @@ export default function ElectionProposalPage() {
         {/* ── Section 5. ROI 실증 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">4</span>
-            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">{t.s4Title}</h2>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-base font-bold shadow-md">4</span>
+            <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s4Title}</h2>
           </div>
-          <p className="text-sm text-gray-700 mb-4 leading-relaxed">{t.s4Lead}</p>
+          <p className="text-base text-gray-700 mb-4 leading-relaxed">{t.s4Lead}</p>
 
           <div className="space-y-5">
             <div className="relative">
-              <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
+              <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
@@ -1052,8 +1052,8 @@ export default function ElectionProposalPage() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold text-amber-700 mb-1 tracking-wide uppercase">{t.s4Case1Tag}</p>
-                  <p className="text-base font-extrabold text-slate-900 leading-snug">{t.s4Case1Title}</p>
+                  <p className="text-xs font-bold text-amber-700 mb-1 tracking-wide uppercase">{t.s4Case1Tag}</p>
+                  <p className="text-lg font-extrabold text-slate-900 leading-snug">{t.s4Case1Title}</p>
                 </div>
                 <svg className="w-6 h-6 text-amber-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -1062,7 +1062,7 @@ export default function ElectionProposalPage() {
             </div>
 
             <div className="relative">
-              <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
+              <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
@@ -1078,8 +1078,8 @@ export default function ElectionProposalPage() {
                   </svg>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-bold text-pink-700 mb-1 tracking-wide uppercase">{t.s4Case2Tag}</p>
-                  <p className="text-base font-extrabold text-slate-900 leading-snug">{t.s4Case2Title}</p>
+                  <p className="text-xs font-bold text-pink-700 mb-1 tracking-wide uppercase">{t.s4Case2Tag}</p>
+                  <p className="text-lg font-extrabold text-slate-900 leading-snug">{t.s4Case2Title}</p>
                 </div>
                 <svg className="w-6 h-6 text-pink-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -1096,13 +1096,13 @@ export default function ElectionProposalPage() {
 
           <div className="relative">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-7 h-7 rounded-full bg-amber-500/20 ring-2 ring-amber-400/50 text-amber-300 flex items-center justify-center text-sm font-bold">5</span>
+              <span className="w-7 h-7 rounded-full bg-amber-500/20 ring-2 ring-amber-400/50 text-amber-300 flex items-center justify-center text-base font-bold">5</span>
               <h2 className="text-xl sm:text-2xl font-extrabold">{t.s5Title}</h2>
             </div>
 
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] font-extrabold tracking-[0.2em] text-amber-300">{t.s5Group1}</span>
+                <span className="text-[11px] font-extrabold tracking-[0.2em] text-amber-300">{t.s5Group1}</span>
                 <span className="flex-1 h-px bg-amber-400/30" />
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -1110,8 +1110,8 @@ export default function ElectionProposalPage() {
                   <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 flex items-start gap-3">
                     <span className="text-xl shrink-0">{item.icon}</span>
                     <div>
-                      <div className="text-sm font-extrabold text-amber-200 mb-0.5">{item.title}</div>
-                      <div className="text-xs text-slate-300 leading-relaxed">{item.desc}</div>
+                      <div className="text-base font-extrabold text-amber-200 mb-0.5">{item.title}</div>
+                      <div className="text-sm text-slate-300 leading-relaxed">{item.desc}</div>
                     </div>
                   </div>
                 ))}
@@ -1120,7 +1120,7 @@ export default function ElectionProposalPage() {
 
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] font-extrabold tracking-[0.2em] text-emerald-300">{t.s5Group2}</span>
+                <span className="text-[11px] font-extrabold tracking-[0.2em] text-emerald-300">{t.s5Group2}</span>
                 <span className="flex-1 h-px bg-emerald-400/30" />
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -1128,32 +1128,32 @@ export default function ElectionProposalPage() {
                   <div key={i} className="bg-emerald-500/10 backdrop-blur-sm border border-emerald-400/30 ring-1 ring-emerald-400/20 rounded-xl px-4 py-3 flex items-start gap-3">
                     <span className="text-xl shrink-0">{item.icon}</span>
                     <div>
-                      <div className="text-sm font-extrabold text-emerald-200 mb-0.5">{item.title}</div>
-                      <div className="text-xs text-slate-300 leading-relaxed">{item.desc}</div>
+                      <div className="text-base font-extrabold text-emerald-200 mb-0.5">{item.title}</div>
+                      <div className="text-sm text-slate-300 leading-relaxed">{item.desc}</div>
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-[11px] text-emerald-300/80 mt-2 leading-relaxed">{t.s5GroupNote}</p>
+              <p className="text-xs text-emerald-300/80 mt-2 leading-relaxed">{t.s5GroupNote}</p>
             </div>
 
             <div className="bg-amber-500/10 border border-amber-400/40 rounded-xl p-4 sm:p-5 mb-5">
-              <div className="text-xs font-bold text-amber-300 tracking-wide mb-3">{t.s5RoadmapTitle}</div>
+              <div className="text-sm font-bold text-amber-300 tracking-wide mb-3">{t.s5RoadmapTitle}</div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {t.s5Roadmap.map((s, i) => (
                   <div key={i} className="bg-white/5 border border-white/10 rounded-lg px-3 py-3">
-                    <div className="text-[10px] font-extrabold text-amber-300 tracking-widest mb-1">STEP {i + 1} · {s.step}</div>
-                    <div className="text-sm font-bold text-white mb-0.5">{s.title}</div>
-                    <div className="text-[11px] text-slate-300 leading-snug">{s.desc}</div>
+                    <div className="text-[11px] font-extrabold text-amber-300 tracking-widest mb-1">STEP {i + 1} · {s.step}</div>
+                    <div className="text-base font-bold text-white mb-0.5">{s.title}</div>
+                    <div className="text-xs text-slate-300 leading-snug">{s.desc}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             <div className="bg-white/8 border border-white/15 rounded-xl p-4 sm:p-5">
-              <div className="text-[11px] font-bold text-amber-300 tracking-wide mb-1">{t.s5ContactLabel}</div>
-              <div className="text-base font-extrabold text-white mb-0.5">{t.s5ContactCompany}</div>
-              <div className="text-xs text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
+              <div className="text-xs font-bold text-amber-300 tracking-wide mb-1">{t.s5ContactLabel}</div>
+              <div className="text-lg font-extrabold text-white mb-0.5">{t.s5ContactCompany}</div>
+              <div className="text-sm text-slate-300 flex flex-wrap items-center gap-x-4 gap-y-1">
                 <a href="tel:010-2397-5734" className="hover:text-white">📞 010-2397-5734</a>
                 <a href="mailto:jaiwshim@gmail.com" className="hover:text-white">✉ jaiwshim@gmail.com</a>
               </div>
@@ -1164,10 +1164,10 @@ export default function ElectionProposalPage() {
         {/* ── Section 7. 영상 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-sm font-bold shadow-md">6</span>
-            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">{t.s6Title}</h2>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-base font-bold shadow-md">6</span>
+            <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s6Title}</h2>
           </div>
-          <p className="text-sm text-gray-700 mb-4 leading-relaxed">{t.s6Desc}</p>
+          <p className="text-base text-gray-700 mb-4 leading-relaxed">{t.s6Desc}</p>
           <div className="relative w-full aspect-video bg-slate-900 rounded-2xl overflow-hidden ring-1 ring-slate-200 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)]">
             <iframe
               src="https://www.youtube.com/embed/2nRsOd-EyDQ"
@@ -1183,16 +1183,16 @@ export default function ElectionProposalPage() {
         {/* ── Section 8. 12장 가이드 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-sm font-bold shadow-md">7</span>
-            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900">{t.s7Title} <span className="text-slate-500">{t.s7Sub}</span></h2>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-base font-bold shadow-md">7</span>
+            <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s7Title} <span className="text-slate-700">{t.s7Sub}</span></h2>
           </div>
-          <p className="text-sm text-gray-700 mb-5 leading-relaxed">{t.s7Desc}</p>
+          <p className="text-base text-gray-700 mb-5 leading-relaxed">{t.s7Desc}</p>
           <div className="space-y-4">
             {Array.from({ length: 12 }, (_, i) => {
               const n = String(i + 1).padStart(2, '0');
               return (
                 <div key={n} className="relative bg-white rounded-2xl border border-slate-200/80 ring-1 ring-slate-100 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.18)] overflow-hidden">
-                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-amber-300 text-[10px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-amber-300 text-[11px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
                     {n} / 12
                   </span>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1209,7 +1209,7 @@ export default function ElectionProposalPage() {
         </section>
 
         {/* ── 풋터 ── */}
-        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 mb-6 text-xs text-slate-500 leading-relaxed shadow-[0_8px_32px_-12px_rgba(15,23,42,0.06)]">
+        <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 mb-6 text-sm text-slate-700 leading-relaxed shadow-[0_8px_32px_-12px_rgba(15,23,42,0.06)]">
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
               <p className="font-bold text-gray-700 mb-1">{t.footerSourceTitle}</p>
