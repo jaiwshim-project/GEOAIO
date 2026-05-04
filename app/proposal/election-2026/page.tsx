@@ -114,6 +114,16 @@ const T: Record<Lang, {
   s7Desc: string;
   s7Alt: string;
 
+  s8Badge: string;
+  s8Title: string;
+  s8Desc: string;
+  s8BookTitle: string;
+  s8BookSubtitle: string;
+  s8Authors: string;
+  s8Publisher: string;
+  s8CTA: string;
+  s8Alt: string;
+
   footerSourceTitle: string;
   footerSourceText: string;
   footerLegalTitle: string;
@@ -229,6 +239,16 @@ const T: Record<Lang, {
     s7Sub: '(12장)',
     s7Desc: '선거 캠페인 전 과정에 GEO-AIO를 적용하는 12단계 운영 가이드입니다. 페이지를 순서대로 확인해 캠프 운영의 큰 그림을 먼저 잡아보세요.',
     s7Alt: 'AI Election Command Center 가이드',
+
+    s8Badge: '저자 · 개발자',
+    s8Title: '심재우 대표 저서',
+    s8Desc: 'GEO-AIO 선거 마케팅 솔루션의 설계자이자 본 플랫폼 개발자인 심재우 대표가 공저로 참여한 AI 선거 전략 가이드북입니다.',
+    s8BookTitle: '미래 선거 파워플랜',
+    s8BookSubtitle: 'AI 선거 솔루션 완전 가이드',
+    s8Authors: '심재우 · 정장덕 · 박대겸 공저',
+    s8Publisher: 'Bohan MOB',
+    s8CTA: 'YES24에서 자세히 보기',
+    s8Alt: '미래 선거 파워플랜 — AI 선거 솔루션 완전 가이드 (심재우·정장덕·박대겸 공저)',
 
     footerSourceTitle: '출처·근거',
     footerSourceText: 'BuzzLab 후보자 시뮬레이션 (n=1,000) · 특허 출원번호 10-2026-0073485 (다중 LLM 에이전트 예측 시스템) · 작성일 2026-05-01',
@@ -378,6 +398,16 @@ const T: Record<Lang, {
     s7Desc: 'A 12-step operations guide for applying GEO-AIO across the entire campaign. Walk through the pages in order to grasp the big picture first.',
     s7Alt: 'AI Election Command Center guide',
 
+    s8Badge: 'Author · Developer',
+    s8Title: 'Book by CEO Jaiwoo Shim',
+    s8Desc: 'A strategy guide on AI-driven election campaigns, co-authored by Jaiwoo Shim — the architect of the GEO-AIO election marketing solution and lead developer of this platform.',
+    s8BookTitle: 'Future Election Power Plan',
+    s8BookSubtitle: 'The Complete Guide to AI Election Solutions',
+    s8Authors: 'Co-authored by Jaiwoo Shim · Jangduk Jeong · Daegyeom Park',
+    s8Publisher: 'Bohan MOB',
+    s8CTA: 'View on YES24',
+    s8Alt: 'Future Election Power Plan — The Complete Guide to AI Election Solutions (co-authored by Jaiwoo Shim, Jangduk Jeong, Daegyeom Park)',
+
     footerSourceTitle: 'Sources · Evidence',
     footerSourceText: 'BuzzLab candidate simulation (n=1,000) · Patent application no. 10-2026-0073485 (multi-LLM agent prediction system) · Published 2026-05-01',
     footerLegalTitle: 'Legal Notice',
@@ -526,6 +556,16 @@ const T: Record<Lang, {
     s7Desc: '將GEO-AIO應用於整個選舉競選流程的12步運營指南。請按順序瀏覽頁面，先把握競選運營的整體框架。',
     s7Alt: 'AI選舉指揮中心指南',
 
+    s8Badge: '作者 · 開發者',
+    s8Title: '沈在祐代表著作',
+    s8Desc: 'GEO-AIO選舉行銷解決方案的設計者、本平台開發者沈在祐代表共同撰寫的AI選舉策略指南。',
+    s8BookTitle: '未來選舉力量計劃',
+    s8BookSubtitle: 'AI選舉解決方案完整指南',
+    s8Authors: '沈在祐 · 鄭章德 · 朴大兼 共同著作',
+    s8Publisher: 'Bohan MOB',
+    s8CTA: '在YES24查看詳情',
+    s8Alt: '未來選舉力量計劃 — AI選舉解決方案完整指南（沈在祐·鄭章德·朴大兼共著）',
+
     footerSourceTitle: '出處·依據',
     footerSourceText: 'BuzzLab候選人模擬 (n=1,000) · 專利申請號 10-2026-0073485 (多LLM智慧體預測系統) · 撰寫日期 2026-05-01',
     footerLegalTitle: '法務說明',
@@ -673,6 +713,16 @@ const T: Record<Lang, {
     s7Sub: '(12章)',
     s7Desc: '選挙キャンペーン全工程にGEO-AIOを適用する12ステップ運営ガイドです。ページを順番に確認して陣営運営の全体像を先につかんでください。',
     s7Alt: 'AI Election Command Centerガイド',
+
+    s8Badge: '著者 · 開発者',
+    s8Title: 'シム・ジェウ代表 著書',
+    s8Desc: 'GEO-AIO選挙マーケティングソリューションの設計者であり、本プラットフォームの開発者であるシム・ジェウ代表が共著として参加したAI選挙戦略ガイドブックです。',
+    s8BookTitle: '未来選挙パワープラン',
+    s8BookSubtitle: 'AI選挙ソリューション完全ガイド',
+    s8Authors: 'シム・ジェウ · チョン・ジャンドク · パク・デギョム 共著',
+    s8Publisher: 'Bohan MOB',
+    s8CTA: 'YES24で詳細を見る',
+    s8Alt: '未来選挙パワープラン — AI選挙ソリューション完全ガイド（シム・ジェウ・チョン・ジャンドク・パク・デギョム共著）',
 
     footerSourceTitle: '出典·根拠',
     footerSourceText: 'BuzzLab候補者シミュレーション (n=1,000) · 特許出願番号 10-2026-0073485 (多重LLMエージェント予測システム) · 作成日 2026-05-01',
@@ -1333,6 +1383,55 @@ export default function ElectionProposalPage() {
                 </div>
               );
             })}
+          </div>
+        </section>
+
+        {/* ── Section 9. 저자/개발자 저서 ── */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white px-6 sm:px-10 py-8 sm:py-10 mb-6 shadow-[0_24px_60px_-20px_rgba(15,23,42,0.5)]">
+          <div className="absolute -top-16 -right-16 w-60 h-60 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-60 h-60 bg-sky-500/20 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2.5 py-1 rounded-full bg-amber-500/15 ring-1 ring-amber-400/40 text-amber-300 text-[11px] font-extrabold tracking-[0.2em] uppercase">
+                {t.s8Badge}
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-extrabold mb-2">{t.s8Title}</h2>
+            <p className="text-sm sm:text-base text-slate-300 leading-relaxed mb-5 max-w-3xl">{t.s8Desc}</p>
+
+            <a
+              href="https://www.yes24.com/product/goods/167254666"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block bg-white/5 border border-white/15 ring-1 ring-white/10 rounded-2xl p-5 sm:p-6 hover:bg-white/10 hover:border-amber-400/50 transition-colors"
+            >
+              <div className="flex flex-col sm:flex-row gap-5 sm:gap-6 items-center sm:items-stretch">
+                <div className="shrink-0 w-44 sm:w-48 rounded-xl overflow-hidden ring-2 ring-amber-400/30 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.6)] bg-slate-950">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/election-2026/book-ai-election.png"
+                    alt={t.s8Alt}
+                    className="w-full h-auto block"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0 flex flex-col justify-center text-center sm:text-left">
+                  <div className="text-[11px] font-bold text-amber-300 tracking-[0.2em] uppercase mb-1">Bohan MOB · 2025</div>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight mb-1">{t.s8BookTitle}</h3>
+                  <p className="text-base sm:text-lg font-bold text-amber-200 mb-3">{t.s8BookSubtitle}</p>
+                  <p className="text-sm text-slate-300 mb-1">{t.s8Authors}</p>
+                  <p className="text-xs text-slate-400 mb-4">{t.s8Publisher}</p>
+                  <div className="inline-flex items-center justify-center sm:justify-start gap-2 self-center sm:self-start px-4 py-2.5 rounded-xl bg-amber-500 text-slate-900 font-extrabold text-sm shadow-[0_8px_24px_-8px_rgba(245,158,11,0.6)] ring-2 ring-amber-300/40 group-hover:bg-amber-400 transition-colors">
+                    <span>{t.s8CTA}</span>
+                    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </a>
           </div>
         </section>
 
