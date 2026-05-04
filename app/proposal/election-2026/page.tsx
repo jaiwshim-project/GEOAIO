@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -362,126 +363,126 @@ const T: Record<Lang, {
     },
   },
 
-  // ============ 중국어 (간체) ============
+  // ============ 중국어 (번체, 대만식 s2twp) ============
   zh: {
-    badge: 'ELECTION 2026 · 6·3 地方选举候选人',
+    badge: 'ELECTION 2026 · 6·3 地方選舉候選人',
     dDayPrefix: '⏳ D-',
-    dDaySuffix: ' · 竞选黄金时段',
-    heroLine1: '3周黄金期，',
-    heroLine2: 'AI搜索时代的选举营销',
-    heroDesc: '选民现在不再问Naver，而是问AI。即使在Naver上有曝光，如果ChatGPT·Gemini·Perplexity的回答中没有引用您的名字，选票就不会动。',
-    urgencyAlert: '在3周竞选期内，要让AI引用并推荐候选人的政策与差异化，必须在第一周内大规模曝光1,000篇内容(地毯式投放)。',
-    urgencyTail: '必须迅速行动。',
+    dDaySuffix: ' · 競選黃金時段',
+    heroLine1: '3周黃金期，',
+    heroLine2: 'AI搜尋時代的選舉營銷',
+    heroDesc: '選民現在不再問Naver，而是問AI。即使在Naver上有曝光，如果ChatGPT·Gemini·Perplexity的回答中沒有引用您的名字，選票就不會動。',
+    urgencyAlert: '在3周競選期內，要讓AI引用並推薦候選人的政策與差異化，必須在第一週內大規模曝光1,000篇內容(地毯式投放)。',
+    urgencyTail: '必須迅速行動。',
     stats: [
       { label: '成本下降', value: '80%' },
-      { label: '同时生成语调', value: '15种' },
-      { label: '索引到达', value: '24~72h' },
-      { label: 'AI引用占有率', value: '3倍' },
+      { label: '同時生成語調', value: '15種' },
+      { label: '索引到達', value: '24~72h' },
+      { label: 'AI引用佔有率', value: '3倍' },
     ],
 
-    s1Title: '范式转变 — 选民信息探索渠道已经改变',
-    s1Lead: '即使在Naver上有曝光，如果AI的回答中没有引用您，决策阶段的选民就无法认知该候选人。',
-    s1OldEra: '📰 旧时代',
-    s1OldTitle: '名片·横幅·短信',
-    s1OldDesc: '触达率低，频繁被屏蔽和垃圾过滤。单向信息，难以建立信任。',
-    s1MidEra: '🔍 过渡期',
-    s1MidTitle: 'Naver SEO·搜索广告',
-    s1MidDesc: '索引需要2~4周 — 选举结束后才会出效果。曝光与广告费成正比。',
-    s1NewEra: '🤖 AI时代',
+    s1Title: '正規化轉變 — 選民資訊探索渠道已經改變',
+    s1Lead: '即使在Naver上有曝光，如果AI的回答中沒有引用您，決策階段的選民就無法認知該候選人。',
+    s1OldEra: '📰 舊時代',
+    s1OldTitle: '名片·橫幅·簡訊',
+    s1OldDesc: '觸達率低，頻繁被遮蔽和垃圾過濾。單向資訊，難以建立信任。',
+    s1MidEra: '🔍 過渡期',
+    s1MidTitle: 'Naver SEO·搜尋廣告',
+    s1MidDesc: '索引需要2~4周 — 選舉結束後才會出效果。曝光與廣告費成正比。',
+    s1NewEra: '🤖 AI時代',
     s1NewTitle: '在ChatGPT·Gemini·Perplexity的回答中被引用',
-    s1NewDesc: '73%的决策阶段选民信任在AI回答中被引用的候选人。即时转化。',
-    s1NewBadge: '正确答案',
+    s1NewDesc: '73%的決策階段選民信任在AI回答中被引用的候選人。即時轉化。',
+    s1NewBadge: '正確答案',
 
-    s2Title: '候选人定制方案 — 7个案例',
-    s2Lead: '这些是已经在GEO-AIO平台上完成的7位候选人定制方案。点击可直接查看为各候选人的选区与职位自动生成的1页方案。',
-    s2GroupMP: '🏛️ 国会议员',
-    s2GroupMayor: '🏙️ 市长',
+    s2Title: '候選人定製方案 — 7個案例',
+    s2Lead: '這些是已經在GEO-AIO平臺上完成的7位候選人定製方案。點選可直接檢視為各候選人的選區與職位自動生成的1頁方案。',
+    s2GroupMP: '🏛️ 國會議員',
+    s2GroupMayor: '🏙️ 市長',
     s2MPCount: '5位',
     s2MayorCount: '3位',
-    s2RoleMP: '国会议员',
-    s2RoleMayor: '市长',
-    s2CardSub: '定制GEO-AIO方案',
-    s2Footer: '※ 各方案是基于候选人资料自动生成的1页草案。实际竞选部署时将根据每位候选人的定制数据重新构建。',
+    s2RoleMP: '國會議員',
+    s2RoleMayor: '市長',
+    s2CardSub: '定製GEO-AIO方案',
+    s2Footer: '※ 各方案是基於候選人資料自動生成的1頁草案。實際競選部署時將根據每位候選人的定製資料重新構建。',
 
-    s3Title: '3周竞选 — 普通SEO要等到选举结束后才出效果',
+    s3Title: '3周競選 — 普通SEO要等到選舉結束後才出效果',
     s3ColMethod: '方式',
-    s3ColIndex: '索引·曝光开始',
-    s3ColEffect: '效果产生',
-    s3ColIn3w: '3周内可行?',
-    s3RowSeoMethod: '普通SEO·搜索广告',
+    s3ColIndex: '索引·曝光開始',
+    s3ColEffect: '效果產生',
+    s3ColIn3w: '3周內可行?',
+    s3RowSeoMethod: '普通SEO·搜尋廣告',
     s3RowSeoIndex: '2~4周',
-    s3RowSeoEffect: '1~2个月',
-    s3RowSnsMethod: '社交广告 (Facebook·Instagram)',
-    s3RowSnsIndex: '即时',
-    s3RowSnsEffect: '与广告费成正比',
+    s3RowSeoEffect: '1~2個月',
+    s3RowSnsMethod: '社交廣告 (Facebook·Instagram)',
+    s3RowSnsIndex: '即時',
+    s3RowSnsEffect: '與廣告費成正比',
     s3RowSnsCost: '高成本',
     s3RowGeoMethod: 'GEO-AIO ⭐',
-    s3RowGeoIndex: '数日内',
-    s3RowGeoEffect: '24~72小时AI引用',
-    s3InstantBadge: '⭐ 即时见效',
-    s3InstantTitle: '发布即刻产生搜索索引 + AI引用·推荐效果',
-    s3InstantDesc: '发布或上传公开内容后，谷歌搜索引擎会在数日内进行索引，之后在ChatGPT · Gemini · Perplexity等AI对话中被引用·推荐，在选举期内即可见效。',
+    s3RowGeoIndex: '數日內',
+    s3RowGeoEffect: '24~72小時AI引用',
+    s3InstantBadge: '⭐ 即時見效',
+    s3InstantTitle: '釋出即刻產生搜尋索引 + AI引用·推薦效果',
+    s3InstantDesc: '釋出或上傳公開內容後，谷歌搜尋引擎會在數日內進行索引，之後在ChatGPT · Gemini · Perplexity等AI對話中被引用·推薦，在選舉期內即可見效。',
 
-    s4Title: '提升候选人当选概率的附加服务 (2项)',
-    s4Lead: '以下两个案例是与GEO-AIO宣传营销内容生成服务一同提供的附加服务，旨在提升候选人的当选概率 — 100项政策承诺自动整理、33天竞选路线AI推荐等提升竞选决策的工具。点击查看详情。',
-    s4LiveBadge: 'LIVE · 实际运行中',
-    s4Case1Tag: '📌 案例 ① 釜山北区甲候选人 100项政策承诺方案',
-    s4Case1Title: '10个领域 × 10项 = 100项政策 · 时间·执行方案·预期效果自动结构化',
-    s4Case2Tag: '📌 案例 ② 基于AI的33天竞选路线战略报告',
-    s4Case2Title: '4阶段日程 · 48个据点分析 · 5大必胜战略自动映射',
+    s4Title: '提升候選人當選機率的附加服務 (2項)',
+    s4Lead: '以下兩個案例是與GEO-AIO宣傳營銷內容生成服務一同提供的附加服務，旨在提升候選人的當選機率 — 100項政策承諾自動整理、33天競選路線AI推薦等提升競選決策的工具。點選檢視詳情。',
+    s4LiveBadge: 'LIVE · 實際執行中',
+    s4Case1Tag: '📌 案例 ① 釜山北區甲候選人 100項政策承諾方案',
+    s4Case1Title: '10個領域 × 10項 = 100項政策 · 時間·執行方案·預期效果自動結構化',
+    s4Case2Tag: '📌 案例 ② 基於AI的33天競選路線戰略報告',
+    s4Case2Title: '4階段日程 · 48個據點分析 · 5大必勝戰略自動對映',
 
-    s5Title: '现在采用即可获得',
-    s5Group1: '🎯 GEO-AIO核心服务 · 内容自动化',
-    s5Group2: '🚀 附加服务 · 提升候选人当选概率',
+    s5Title: '現在採用即可獲得',
+    s5Group1: '🎯 GEO-AIO核心服務 · 內容自動化',
+    s5Group2: '🚀 附加服務 · 提升候選人當選機率',
     s5Items1: [
-      { icon: '🎭', title: '同时发布15种语调', desc: '专业·亲和·感性·叙事·新闻等 — 按社交渠道自动优化生成' },
-      { icon: '🚀', title: 'Tistory·博客自动上传', desc: '含GSC索引监控仪表板 · 24~72h内完成索引' },
-      { icon: '📚', title: '基于RAG的准确性', desc: '上传1份候选人PDF资料 → 仅在正文中引用真实数据和数值' },
-      { icon: '⚡', title: 'E-E-A-T自动结构化', desc: '导入 → H2 7个 → FAQ → 对比表 → CTA结构自动应用 · AI引用概率提高4倍' },
+      { icon: '🎭', title: '同時釋出15種語調', desc: '專業·親和·感性·敘事·新聞等 — 按社交渠道自動最佳化生成' },
+      { icon: '🚀', title: 'Tistory·部落格自動上傳', desc: '含GSC索引監控儀表板 · 24~72h內完成索引' },
+      { icon: '📚', title: '基於RAG的準確性', desc: '上傳1份候選人PDF資料 → 僅在正文中引用真實資料和數值' },
+      { icon: '⚡', title: 'E-E-A-T自動結構化', desc: '匯入 → H2 7個 → FAQ → 對比表 → CTA結構自動應用 · AI引用機率提高4倍' },
     ],
     s5Items2: [
-      { icon: '📝', title: '100项政策自动整理', desc: '10领域 × 10项 = 100项政策 — 时间·执行方案·预期效果自动结构化' },
-      { icon: '🗺️', title: '33天竞选路线AI推荐', desc: '4阶段日程·48据点·5大必胜战略自动映射 (基于BuzzLab模拟)' },
+      { icon: '📝', title: '100項政策自動整理', desc: '10領域 × 10項 = 100項政策 — 時間·執行方案·預期效果自動結構化' },
+      { icon: '🗺️', title: '33天競選路線AI推薦', desc: '4階段日程·48據點·5大必勝戰略自動對映 (基於BuzzLab模擬)' },
     ],
-    s5GroupNote: '※ 附加服务与GEO-AIO内容自动化打包提供，是提升候选人当选概率的竞选决策工具。',
-    s5RoadmapTitle: '⚡ 48小时部署路线',
+    s5GroupNote: '※ 附加服務與GEO-AIO內容自動化打包提供，是提升候選人當選機率的競選決策工具。',
+    s5RoadmapTitle: '⚡ 48小時部署路線',
     s5Roadmap: [
-      { step: '今天', title: '申请免费演示', desc: '只需上传1份候选人资料' },
-      { step: '24小时', title: '审核首5篇内容', desc: '确认实际语调与结构' },
-      { step: '48小时', title: '正式部署决定', desc: '竞选立即启动' },
+      { step: '今天', title: '申請免費演示', desc: '只需上傳1份候選人資料' },
+      { step: '24小時', title: '稽核首5篇內容', desc: '確認實際語調與結構' },
+      { step: '48小時', title: '正式部署決定', desc: '競選立即啟動' },
     ],
-    s5ContactLabel: '咨询·演示申请',
+    s5ContactLabel: '諮詢·演示申請',
     s5ContactCompany: 'AX Biz Group · 沈在宇 代表',
 
-    s6Title: '一支视频看懂GEO-AIO选举营销解决方案',
-    s6Desc: '通过一支视频了解GEO-AIO平台如何在候选人竞选中运作。',
+    s6Title: '一支影片看懂GEO-AIO選舉營銷解決方案',
+    s6Desc: '透過一支影片瞭解GEO-AIO平臺如何在候選人競選中運作。',
 
-    s7Title: 'AI选举指挥中心 — 完整运营指南',
+    s7Title: 'AI選舉指揮中心 — 完整運營指南',
     s7Sub: '(12章)',
-    s7Desc: '将GEO-AIO应用于整个选举竞选流程的12步运营指南。请按顺序浏览页面，先把握竞选运营的整体框架。',
-    s7Alt: 'AI选举指挥中心指南',
+    s7Desc: '將GEO-AIO應用於整個選舉競選流程的12步運營指南。請按順序瀏覽頁面，先把握競選運營的整體框架。',
+    s7Alt: 'AI選舉指揮中心指南',
 
-    footerSourceTitle: '出处·依据',
-    footerSourceText: 'BuzzLab候选人模拟 (n=1,000) · 专利申请号 10-2026-0073485 (多LLM智能体预测系统) · 撰写日期 2026-05-01',
-    footerLegalTitle: '法务说明',
-    footerLegalText: '本提案是GEO-AIO营销解决方案的部署介绍，竞选信息·发文是否符合公职选举法，建议由竞选阵营的法律顾问另行审查。',
+    footerSourceTitle: '出處·依據',
+    footerSourceText: 'BuzzLab候選人模擬 (n=1,000) · 專利申請號 10-2026-0073485 (多LLM智慧體預測系統) · 撰寫日期 2026-05-01',
+    footerLegalTitle: '法務說明',
+    footerLegalText: '本提案是GEO-AIO營銷解決方案的部署介紹，競選資訊·發文是否符合公職選舉法，建議由競選陣營的法律顧問另行審查。',
 
     candidateRegions: {
-      '부산-북구갑': '釜山北区甲',
-      '경기-평택을': '京畿平泽乙',
-      '인천-연수갑': '仁川延寿甲',
-      '서울특별시': '首尔特别市',
-      '광주광역시': '光州广域市',
-      '대전광역시': '大田广域市',
+      '부산-북구갑': '釜山北區甲',
+      '경기-평택을': '京畿平澤乙',
+      '인천-연수갑': '仁川延壽甲',
+      '서울특별시': '首爾特別市',
+      '광주광역시': '光州廣域市',
+      '대전광역시': '大田廣域市',
     },
     candidateNames: {
       hajeongwoo: '河正佑',
-      handonghoon: '韩东勋',
-      chokuk: '曺国',
-      hwangkyoahn: '黄教安',
+      handonghoon: '韓東勳',
+      chokuk: '曺國',
+      hwangkyoahn: '黃教安',
       songyounggil: '宋永吉',
-      ohsehoon: '吴世勋',
-      minhyungbae: '闵炯培',
+      ohsehoon: '吳世勳',
+      minhyungbae: '閔炯培',
       leejangwoo: '李莊雨',
     },
   },
@@ -627,20 +628,39 @@ const MAYOR_CANDIDATES = [
 export default function ElectionProposalPage() {
   const [dDay, setDDay] = useState<number | null>(null);
   const [lang, setLang] = useState<Lang>('ko');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
+  // URL ?lang= 우선 → localStorage 폴백 → 기본 ko
   useEffect(() => {
     setDDay(calcDDay());
-    try {
-      const saved = localStorage.getItem('election2026_lang');
-      if (saved && ['ko', 'en', 'zh', 'ja'].includes(saved)) setLang(saved as Lang);
-    } catch {}
+    const urlLang = searchParams.get('lang');
+    if (urlLang && ['ko', 'en', 'zh', 'ja'].includes(urlLang)) {
+      setLang(urlLang as Lang);
+    } else {
+      try {
+        const saved = localStorage.getItem('election2026_lang');
+        if (saved && ['ko', 'en', 'zh', 'ja'].includes(saved)) setLang(saved as Lang);
+      } catch {}
+    }
     const id = setInterval(() => setDDay(calcDDay()), 60_000);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 언어 변경 시: state + localStorage + URL ?lang= 동기화 (ko는 query 없음)
   const handleLangChange = (next: Lang) => {
     setLang(next);
     try { localStorage.setItem('election2026_lang', next); } catch {}
+    const url = next === 'ko' ? pathname : `${pathname}?lang=${next}`;
+    router.replace(url, { scroll: false });
+  };
+
+  // 후보자 카드 Link href에 현재 언어 query 추가 (ko는 그대로)
+  const candidateHref = (slug: string): string => {
+    const base = `/proposal/${encodeURIComponent(slug)}`;
+    return lang === 'ko' ? base : `${base}?lang=${lang}`;
   };
 
   const t = T[lang];
@@ -768,7 +788,7 @@ export default function ElectionProposalPage() {
             </div>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {MP_CANDIDATES.map((c) => (
-                <Link key={c.slug} href={`/proposal/${encodeURIComponent(c.slug)}`}
+                <Link key={c.slug} href={candidateHref(c.slug)}
                   className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden">
                   <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.strip}`} />
                   <div className="flex items-start justify-between mb-3 mt-1">
@@ -796,7 +816,7 @@ export default function ElectionProposalPage() {
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
               {MAYOR_CANDIDATES.map((c) => (
-                <Link key={c.slug} href={`/proposal/${encodeURIComponent(c.slug)}`}
+                <Link key={c.slug} href={candidateHref(c.slug)}
                   className="group relative bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-2xl p-4 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.18)] hover:-translate-y-0.5 transition-all overflow-hidden">
                   <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.strip}`} />
                   <div className="flex items-start justify-between mb-3 mt-1">
