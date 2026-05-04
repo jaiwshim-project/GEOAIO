@@ -420,14 +420,19 @@ export default function GeneratePage() {
   }, [categoryChoice]);
 
   // ==================== 반복 횟수 + 번역 언어 선택 (NEW) ====================
+  // 번역 언어는 매 페이지 진입 시 항상 '해제' 상태로 시작 (사용자 명시 요구).
+  // 반복 횟수만 sessionStorage에서 복원, 외국어 선택은 매번 새로 설정해야 함.
   const [publishOptions, setPublishOptions] = useState<PublishOptions>(() => {
     if (typeof window === 'undefined') return DEFAULT_PUBLISH_OPTIONS;
     try {
       const raw = sessionStorage.getItem(PUBLISH_OPTIONS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (typeof parsed?.repeatCount === 'number' && Array.isArray(parsed?.translationLangs)) {
-          return parsed;
+        if (typeof parsed?.repeatCount === 'number') {
+          return {
+            repeatCount: parsed.repeatCount,
+            translationLangs: [], // 항상 해제 상태로 시작
+          };
         }
       }
     } catch {}
