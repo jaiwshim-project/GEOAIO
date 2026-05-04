@@ -4,8 +4,10 @@
 // Tistory와 LinkedIn 채널을 매주 번갈아 발행
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { DIGITALSMILE_DOCX_ROADMAP } from '@/lib/digitalsmile-docx-roadmap';
 
 interface CategoryItem { slug: string; count: number }
 
@@ -15,6 +17,9 @@ interface RoadmapPost {
   channel: 'Tistory' | 'LinkedIn';
   date: string;
   weekday: string;
+  role?: string;
+  intent?: string;
+  signals?: string;
   title: string;
   body: string;
   tags: string[];
@@ -39,7 +44,9 @@ export default function BacklinkPage() {
     d.setDate(d.getDate() + 1); // 내일부터
     return d.toISOString().slice(0, 10);
   });
-  const [weeks, setWeeks] = useState(10);
+  // backlink.md 스펙 확장: 8주 12포스트 Pillar-First 고정
+  const TOTAL_WEEKS = 8;
+  const TOTAL_POSTS = 12;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copiedPost, setCopiedPost] = useState<number | null>(null);
@@ -89,18 +96,16 @@ export default function BacklinkPage() {
     setLoading(true);
     setError('');
     try {
-      // 재생성 시 기존 startDate·weeks 우선 활용 (저장된 로드맵의 originals)
+      // 재생성 시 기존 startDate 우선 활용 (weeks는 6주 고정)
       let useStartDate = startDate;
-      let useWeeks = weeks;
       if (overrideSlug && savedRoadmaps[overrideSlug]) {
         const saved = savedRoadmaps[overrideSlug];
         useStartDate = saved.posts[0]?.date || startDate;
-        useWeeks = saved.totalWeeks;
       }
       const res = await fetch('/api/backlink', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ categorySlug: slugToUse, startDate: useStartDate, weeks: useWeeks }),
+        body: JSON.stringify({ categorySlug: slugToUse, startDate: useStartDate }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '생성 실패'); return; }
@@ -145,6 +150,15 @@ export default function BacklinkPage() {
     if (!confirm('모든 로드맵을 삭제하시겠습니까?')) return;
     setSavedRoadmaps({});
     setActiveSlug('');
+  };
+
+  // docx 원본 사례 (디지털스마일치과 9포스트) 즉시 임포트
+  const handleImportDocxSample = () => {
+    const slug = DIGITALSMILE_DOCX_ROADMAP.categorySlug;
+    if (savedRoadmaps[slug] && !confirm(`이미 "${slug}" 로드맵이 있습니다. docx 원본으로 덮어쓸까요?`)) return;
+    setSavedRoadmaps(prev => ({ ...prev, [slug]: DIGITALSMILE_DOCX_ROADMAP as RoadmapResponse }));
+    setActiveSlug(slug);
+    setError('');
   };
 
   const handleCopy = async (post: RoadmapPost) => {
@@ -192,12 +206,43 @@ export default function BacklinkPage() {
               🔗 BACKLINK ROADMAP
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold leading-tight mb-2">
-              <span className="block">10주 백링크 실행 로드맵 자동 생성</span>
+              <span className="block">8주 백링크 실행 로드맵 (Pillar-First 12포스트)</span>
             </h1>
             <p className="text-sm sm:text-base text-slate-200/95 leading-relaxed max-w-3xl">
-              카테고리 1개를 선택하면 <strong className="text-amber-300">Tistory + LinkedIn에 매주 2개씩 총 20개 포스트</strong>를
-              자동 작성합니다. 각 포스트는 카테고리 페이지로 백링크를 향하는 자연스러운 보조 콘텐츠입니다.
+              카테고리 1개를 선택하면 <strong className="text-amber-300">Pillar 2 + Spoke 5 + Echo 4 + Summary 1 = 총 12개 포스트</strong>를
+              E-E-A-T 7단계 구조로 자동 작성합니다. Tistory 8편 + LinkedIn 4편이 8주에 걸쳐 카테고리 페이지로 백링크가 향하는 보조 콘텐츠를 형성합니다.
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href="/backlink/dashboard"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-xs sm:text-sm font-extrabold transition-colors shadow-md"
+              >
+                📊 발행 대시보드 — 오늘 무엇을 올려야 하나요?
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* docx 원본 사례 — 디지털스마일치과 즉시 로드 */}
+        <section className="print-hide bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl border-2 border-emerald-300 p-5 sm:p-6 mb-6 shadow-md">
+          <div className="flex items-start gap-3 flex-wrap">
+            <div className="text-2xl">📄</div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm sm:text-base font-extrabold text-emerald-900 mb-1">
+                docx 원본 사례 — 디지털스마일치과 9포스트 즉시 불러오기
+              </h3>
+              <p className="text-xs sm:text-[13px] text-emerald-800 leading-relaxed mb-3">
+                <code className="bg-white/60 px-1.5 py-0.5 rounded">백링크 실행 로드맵.docx</code>의 본문(5월 4일~6월 8일, 6주, 9개 포스트)을
+                <strong> 동일한 포맷·양식·분량</strong>으로 디지털스마일치과 카테고리에 즉시 등록합니다. AI 생성 없이 원본 그대로 로드.
+              </p>
+              <button
+                type="button"
+                onClick={handleImportDocxSample}
+                className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-bold rounded-lg hover:from-emerald-400 hover:to-teal-400 transition-colors shadow-sm"
+              >
+                📄 docx 원본 9포스트 불러오기 (디지털스마일치과)
+              </button>
+            </div>
           </div>
         </section>
 
@@ -242,30 +287,27 @@ export default function BacklinkPage() {
 
           <div className="grid sm:grid-cols-2 gap-3 mb-4">
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1.5">시작일</label>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1.5">시작일 (월요일 권장)</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={e => setStartDate(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
+              <p className="text-[10px] text-slate-500 mt-1">월요일이 아니면 자동으로 다음 월요일로 정렬됩니다.</p>
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1.5">진행 주 수 (기본 10주)</label>
-              <input
-                type="number"
-                min={1}
-                max={20}
-                value={weeks}
-                onChange={e => setWeeks(parseInt(e.target.value, 10) || 10)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
-              />
+              <label className="block text-[11px] font-bold text-slate-700 mb-1.5">캠페인 구조 (고정)</label>
+              <div className="w-full px-3 py-2 border border-slate-200 bg-slate-50 rounded-lg text-sm text-slate-700">
+                {TOTAL_WEEKS}주 / {TOTAL_POSTS}포스트 (Pillar-First)
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1">Pillar 2 + Spoke 5 + Echo 4 + Summary 1</p>
             </div>
           </div>
 
           {selectedSlug && (
             <div className="mb-3 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-slate-800">
-              ✅ 선택된 카테고리: <strong className="text-amber-800">{selectedSlug}</strong> · 매주 화(LinkedIn) + 목(Tistory) = <strong>총 {weeks * 2}개 포스트</strong>
+              ✅ 선택된 카테고리: <strong className="text-amber-800">{selectedSlug}</strong> · {TOTAL_WEEKS}주에 걸쳐 <strong>총 {TOTAL_POSTS}개 포스트</strong> (Tistory 8 + LinkedIn 4)
             </div>
           )}
 
@@ -287,10 +329,10 @@ export default function BacklinkPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                AI 생성 중… (약 30~90초)
+                AI 생성 중… (약 60~120초)
               </>
             ) : (
-              <>🔗 10주 백링크 로드맵 생성</>
+              <>🔗 8주 Pillar-First 로드맵 생성 (12포스트)</>
             )}
           </button>
         </section>
@@ -325,7 +367,7 @@ export default function BacklinkPage() {
           {savedSlugs.length === 0 ? (
             <div className="text-center py-6 bg-slate-50 border border-dashed border-slate-300 rounded-lg">
               <p className="text-sm text-slate-700 font-bold mb-1">아직 생성된 로드맵이 없습니다</p>
-              <p className="text-xs text-slate-500">위에서 카테고리를 선택하고 <strong className="text-amber-700">🔗 10주 백링크 로드맵 생성</strong> 버튼을 클릭하세요.</p>
+              <p className="text-xs text-slate-500">위에서 카테고리를 선택하고 <strong className="text-amber-700">🔗 8주 Pillar-First 로드맵 생성</strong> 버튼을 클릭하세요.</p>
               <p className="text-[10px] text-slate-400 mt-1">생성 후 이 영역에 카테고리별 탭이 추가됩니다.</p>
             </div>
           ) : (
@@ -425,7 +467,7 @@ export default function BacklinkPage() {
                         } border-2 rounded-xl p-4 shadow-sm`}
                       >
                         <div className="flex items-baseline justify-between mb-2 gap-2 flex-wrap">
-                          <div className="flex items-baseline gap-2">
+                          <div className="flex items-baseline gap-2 flex-wrap">
                             <span className={`text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full ${
                               post.channel === 'Tistory'
                                 ? 'bg-orange-500 text-white'
@@ -433,6 +475,19 @@ export default function BacklinkPage() {
                             }`}>
                               {post.channel === 'Tistory' ? '📝 Tistory' : '💼 LinkedIn'}
                             </span>
+                            {post.role && (
+                              <span className={`text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full border ${
+                                post.role.startsWith('Pillar')
+                                  ? 'bg-rose-100 text-rose-800 border-rose-300'
+                                  : post.role.startsWith('Spoke')
+                                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                    : post.role === 'Summary'
+                                      ? 'bg-violet-100 text-violet-800 border-violet-300'
+                                      : 'bg-sky-100 text-sky-800 border-sky-300'
+                              }`}>
+                                {post.role}{post.intent ? ` · ${post.intent}` : ''}
+                              </span>
+                            )}
                             <span className="text-xs text-slate-700 font-bold">Post {post.postNo} · {post.date}({post.weekday})</span>
                           </div>
                           <button

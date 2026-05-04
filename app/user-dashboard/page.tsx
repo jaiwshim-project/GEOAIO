@@ -940,7 +940,7 @@ export default function UserDashboardPage() {
                             <span className="text-indigo-300 mr-1.5 font-mono">{seq}.</span>
                             {project.name}
                           </p>
-                          {(project.company_name || project.representative_name || project.region || project.contact_email || project.contact_phone) && (
+                          {(project.company_name || project.representative_name || project.region || project.homepage_url || project.blog_url || project.contact_email || project.contact_phone) && (
                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                               {project.company_name && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-indigo-300 text-xs">
@@ -956,6 +956,30 @@ export default function UserDashboardPage() {
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-emerald-300 text-xs">
                                   📍 {project.region}
                                 </span>
+                              )}
+                              {project.homepage_url && (
+                                <a
+                                  href={project.homepage_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  title={project.homepage_url}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/30 rounded-full text-cyan-300 hover:text-cyan-100 hover:bg-cyan-500/30 transition-colors text-xs max-w-[220px]"
+                                >
+                                  🌐 <span className="truncate">{project.homepage_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
+                                </a>
+                              )}
+                              {project.blog_url && (
+                                <a
+                                  href={project.blog_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  title={project.blog_url}
+                                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-500/20 border border-rose-500/30 rounded-full text-rose-300 hover:text-rose-100 hover:bg-rose-500/30 transition-colors text-xs max-w-[220px]"
+                                >
+                                  📝 <span className="truncate">{project.blog_url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
+                                </a>
                               )}
                               {project.contact_email && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-500/20 border border-sky-500/30 rounded-full text-sky-300 text-xs">
