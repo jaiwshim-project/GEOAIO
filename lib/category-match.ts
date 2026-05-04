@@ -64,6 +64,20 @@ export const DEFAULT_PUBLISH_OPTIONS: PublishOptions = {
 
 // 자동 반복 실행 상태 — generate ↔ result 라운드트립 자동화
 export const AUTOPILOT_RUN_KEY = 'geoaio_autopilot_run';
+
+// 진행 단계
+export type AutopilotPhase =
+  | 'idle'
+  | 'starting'
+  | 'generating'        // 콘텐츠 생성 중 (15톤 MD)
+  | 'eeat'              // 15톤 EEAT 변환 중
+  | 'publishing-ko'
+  | 'translating-en' | 'publishing-en'
+  | 'translating-zh' | 'publishing-zh'
+  | 'translating-ja' | 'publishing-ja'
+  | 'cycle-done'        // 한 회차 종료
+  | 'all-done';         // 전체 회차 완료
+
 export interface AutopilotRun {
   isRunning: boolean;
   totalRepeats: number;        // 사용자가 선택한 횟수 (1~5)
@@ -73,6 +87,8 @@ export interface AutopilotRun {
   category: string;            // 모든 회차가 발행될 카테고리 (고정)
   startedAt: number;           // 시작 timestamp
   publishedTotal: number;      // 누적 발행 편 수 (참고용)
+  currentPhase: AutopilotPhase; // 진행 단계 (overlay 표시용)
+  phaseUpdatedAt: number;      // 마지막 phase 변경 timestamp
 }
 export const EMPTY_AUTOPILOT_RUN: AutopilotRun = {
   isRunning: false,
@@ -83,7 +99,24 @@ export const EMPTY_AUTOPILOT_RUN: AutopilotRun = {
   category: '',
   startedAt: 0,
   publishedTotal: 0,
+  currentPhase: 'idle',
+  phaseUpdatedAt: 0,
 };
+
+// phase만 업데이트하는 헬퍼 (storage event도 트리거)
+export function updateAutopilotPhase(phase: AutopilotPhase): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = sessionStorage.getItem(AUTOPILOT_RUN_KEY);
+    if (!raw) return;
+    const run = JSON.parse(raw);
+    run.currentPhase = phase;
+    run.phaseUpdatedAt = Date.now();
+    sessionStorage.setItem(AUTOPILOT_RUN_KEY, JSON.stringify(run));
+    // 같은 탭 내 storage event는 트리거되지 않으므로 커스텀 이벤트 발행
+    window.dispatchEvent(new CustomEvent('autopilot-phase-update', { detail: { phase } }));
+  } catch {}
+}
 
 // 도우미 — sessionStorage 읽기/쓰기/클리어
 export function readAutopilotRun(): AutopilotRun {

@@ -11,7 +11,7 @@ import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
 import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, getBlogCategories, type Profile, type ProfileData, type BlogCategory } from '@/lib/supabase-storage';
 import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
-import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, AUTOPILOT_RUN_KEY, readAutopilotRun, writeAutopilotRun, clearAutopilotRun } from '@/lib/category-match';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, AUTOPILOT_RUN_KEY, readAutopilotRun, writeAutopilotRun, clearAutopilotRun, updateAutopilotPhase } from '@/lib/category-match';
 // canUseFeature, incrementUsage는 커스텀 사용자 시스템에서 API 방식으로 대체
 import { useUser, type UserProject } from '@/lib/user-context';
 import { track } from '@vercel/analytics';
@@ -517,6 +517,8 @@ export default function GeneratePage() {
       category: categoryHint,
       startedAt: Date.now(),
       publishedTotal: 0,
+      currentPhase: 'starting' as const,
+      phaseUpdatedAt: Date.now(),
     };
     writeAutopilotRun(run);
     console.log(`[autopilot] 시작 — ${run.totalRepeats}회 / 외국어: ${run.translationLangs.join(',') || 'none'} / 주제: ${queue.length}개`);
@@ -1484,6 +1486,8 @@ export default function GeneratePage() {
     setIsGenerating(true);
     setError(null);
     setShowKeyRecovery(false);
+    // autopilot 진행 중이면 phase 업데이트
+    updateAutopilotPhase('generating');
     setToneProgress(0);
 
     try {

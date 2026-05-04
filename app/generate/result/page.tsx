@@ -11,7 +11,7 @@ import { stripProjectLinks } from '@/lib/inject-project-links';
 import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, saveBlogPostsBatch, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 import { useUser } from '@/lib/user-context';
 import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
-import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, readAutopilotRun, writeAutopilotRun, clearAutopilotRun } from '@/lib/category-match';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, readAutopilotRun, writeAutopilotRun, clearAutopilotRun, updateAutopilotPhase } from '@/lib/category-match';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -1387,15 +1387,18 @@ export default function GenerateResultPage() {
     try {
       // 1) 한국어 발행 (항상 발행)
       setAutoPilotPhase('publishing-ko');
+      updateAutopilotPhase('publishing-ko');
       counts.ko = await publishLanguage('ko');
       setAutoPilotProgress(prev => ({ ...prev, ko: counts.ko }));
 
       // 2) 영어 — 선택된 경우만
       if (enabledLangs.has('en')) {
         setAutoPilotPhase('translating-en');
+        updateAutopilotPhase('translating-en');
         await startTranslation('en');
         await new Promise(r => setTimeout(r, 200));
         setAutoPilotPhase('publishing-en');
+        updateAutopilotPhase('publishing-en');
         counts.en = await publishLanguage('en');
         setAutoPilotProgress(prev => ({ ...prev, en: counts.en }));
       }
@@ -1403,9 +1406,11 @@ export default function GenerateResultPage() {
       // 3) 중국어 — 선택된 경우만
       if (enabledLangs.has('zh')) {
         setAutoPilotPhase('translating-zh');
+        updateAutopilotPhase('translating-zh');
         await startTranslation('zh');
         await new Promise(r => setTimeout(r, 200));
         setAutoPilotPhase('publishing-zh');
+        updateAutopilotPhase('publishing-zh');
         counts.zh = await publishLanguage('zh');
         setAutoPilotProgress(prev => ({ ...prev, zh: counts.zh }));
       }
@@ -1413,9 +1418,11 @@ export default function GenerateResultPage() {
       // 4) 일본어 — 선택된 경우만
       if (enabledLangs.has('ja')) {
         setAutoPilotPhase('translating-ja');
+        updateAutopilotPhase('translating-ja');
         await startTranslation('ja');
         await new Promise(r => setTimeout(r, 200));
         setAutoPilotPhase('publishing-ja');
+        updateAutopilotPhase('publishing-ja');
         counts.ja = await publishLanguage('ja');
         setAutoPilotProgress(prev => ({ ...prev, ja: counts.ja }));
       }
@@ -1431,15 +1438,26 @@ export default function GenerateResultPage() {
         const newPublishedTotal = run.publishedTotal + total;
         if (run.currentRepeat < run.totalRepeats) {
           // 다음 회차 — generate 페이지로 redirect (?autoNext=true)
-          writeAutopilotRun({ ...run, currentRepeat: run.currentRepeat + 1, publishedTotal: newPublishedTotal });
+          writeAutopilotRun({
+            ...run,
+            currentRepeat: run.currentRepeat + 1,
+            publishedTotal: newPublishedTotal,
+            currentPhase: 'cycle-done',
+            phaseUpdatedAt: Date.now(),
+          });
           console.log(`[autopilot] ${run.currentRepeat}/${run.totalRepeats}회차 완료 (${total}편 발행). 다음 회차로 이동…`);
           setTimeout(() => { router.push('/generate?autoNext=true'); }, 2500);
         } else {
           // 모든 회차 완료
-          writeAutopilotRun({ ...run, isRunning: false, publishedTotal: newPublishedTotal });
+          writeAutopilotRun({
+            ...run,
+            isRunning: false,
+            publishedTotal: newPublishedTotal,
+            currentPhase: 'all-done',
+            phaseUpdatedAt: Date.now(),
+          });
           console.log(`[autopilot] 🏁 전체 ${run.totalRepeats}회차 완료. 누적 ${newPublishedTotal}편 발행.`);
-          // sessionStorage는 그대로 두고 isRunning만 false (사용자가 결과 확인 후 클리어)
-          setTimeout(() => clearAutopilotRun(), 5000);
+          // 사용자가 overlay에서 닫기 클릭하면 클리어 (자동 클리어 안 함)
         }
       }
     } catch (err) {

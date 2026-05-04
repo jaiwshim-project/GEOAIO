@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from '@vercel/analytics/next';
 import FloatingQR from "@/components/FloatingQR";
 import Providers from "@/components/Providers";
+import AutopilotProgressOverlay from "@/components/AutopilotProgressOverlay";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -61,6 +62,7 @@ export default function RootLayout({
           {children}
         </Providers>
         <FloatingQR />
+        <AutopilotProgressOverlay />
         <Analytics />
       </body>
     </html>
