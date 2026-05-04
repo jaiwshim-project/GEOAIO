@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogShareButtons from '@/components/BlogShareButtons';
+import BlogEngagement from '@/components/BlogEngagement';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -383,12 +384,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
             </h1>
 
             {/* 공유 버튼 — Facebook · LinkedIn · 카카오톡 (페이지 상단으로 이동) */}
-            <div className="mb-6">
+            <div className="mb-4">
               <BlogShareButtons
                 title={post.title}
                 url={`${siteUrl}/blog/${post.id}`}
                 description={summary}
               />
+            </div>
+
+            {/* 좋아요 + 댓글 — 공유 버튼 줄 바로 아래 (토글 시 댓글 영역 펼침) */}
+            <div className="mb-6">
+              <BlogEngagement postId={post.id} />
             </div>
 
             {/* 요약 */}
