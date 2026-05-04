@@ -134,6 +134,23 @@ const T: Record<Lang, {
   candidateSlogans: Record<string, string>;
   s2BlogBadge: string;
   pdfBtn: string;
+  // 다문화 유권자 섹션 (Section 4 신규)
+  sMultiBadge: string;
+  sMultiTitle: string;
+  sMultiLead: string;
+  sMultiStatsTitle: string;
+  sMultiStats: { region: string; count: string; label: string; accent: string }[];
+  sMultiGroupTitle: string;
+  sMultiGroupSub: string;
+  sMultiGroups: { badge: string; weight: string; legal: string; elections: string; languages: string; tone: string }[];
+  sMultiInsightTitle: string;
+  sMultiInsightDesc: string;
+  sMultiLangTitle: string;
+  sMultiLangDesc: string;
+  sMultiLangChips: string[];
+  sMultiCTA: string;
+  sMultiCTASub: string;
+  sMultiSourceNote: string;
 }> = {
   // ============ 한국어 (원본) ============
   ko: {
@@ -293,6 +310,31 @@ const T: Record<Lang, {
     },
     s2BlogBadge: '블로그 자세히 보기',
     pdfBtn: 'PDF 다운로드',
+    sMultiBadge: '⚡ 박빙 지역 결정 변수',
+    sMultiTitle: '다문화 유권자 — 표차의 결정자',
+    sMultiLead: '한국어 캠페인만으로는 닿지 않는 표가 박빙 지역의 당락을 결정합니다. 외국어 콘텐츠 → 다문화 유권자 도달 → 박빙 표차 확보 → 당선.',
+    sMultiStatsTitle: '6개 양자 대결 지역의 외국 출신 유권자 (2024-11 행정안전부)',
+    sMultiStats: [
+      { region: '서울특별시 시장', count: '86,599', label: '외국 출신 유권자 — 한 자치구 인구 규모', accent: 'from-indigo-500 to-violet-600' },
+      { region: '인천 연수갑', count: '3,294', label: '박빙 평균 표차의 2배', accent: 'from-rose-500 to-pink-600' },
+      { region: '경기 평택을', count: '2,222', label: '박빙 표차 결정 가능 규모', accent: 'from-amber-500 to-orange-600' },
+      { region: '광주광역시 시장', count: '8,513', label: '외국 출신 유권자 (지방선거)', accent: 'from-emerald-500 to-teal-600' },
+    ],
+    sMultiGroupTitle: '3개 그룹 — 각각 다른 언어, 다른 메시지',
+    sMultiGroupSub: '동일한 외국 출신 유권자라도 법적 신분에 따라 투표 가능 선거와 도달 언어가 다릅니다.',
+    sMultiGroups: [
+      { badge: '① F-5 영주 외국인', weight: '★★★', legal: '외국인 신분', elections: '지방선거만', languages: '영어·중국어·일본어', tone: '정책 정보형' },
+      { badge: '② 귀화 한국인', weight: '★★★★★', legal: '한국 국적', elections: '모든 선거', languages: '한국어 + 모국어', tone: '정체성·소속감' },
+      { badge: '③ 외국인주민자녀 성인', weight: '★★', legal: '한국 국적', elections: '모든 선거', languages: '한국어 중심', tone: '다문화 정책' },
+    ],
+    sMultiInsightTitle: '박빙 지역에서 외국인 유권자 = 결정 변수',
+    sMultiInsightDesc: '인천 연수갑 외국 출신 유권자 3,294명은 최근 박빙 당선 표차(평균 1,500표)의 2배. 외국어 콘텐츠 없이는 이 표는 잡히지 않습니다. 한국어로만 캠페인하는 후보는 시작부터 수천 표를 손해 보고 들어갑니다.',
+    sMultiLangTitle: 'GEO-AIO 다국어 캠페인 — 영·중·일 동시 발행',
+    sMultiLangDesc: '15가지 톤으로 한국어 콘텐츠 생성 후 영어·중국어·일본어로 자동 번역·발행합니다. 다문화 유권자가 모국어로 정책을 처음 만나는 후보가 첫 인상을 차지합니다.',
+    sMultiLangChips: ['🇺🇸 English', '🇨🇳 中文', '🇯🇵 日本語'],
+    sMultiCTA: '다국어 캠페인 시작하기',
+    sMultiCTASub: '5월 한정 보너스 — 영·중·일 외국어 콘텐츠 자동 발행 포함',
+    sMultiSourceNote: '※ 데이터: 행정안전부 외국인주민현황 (2024-11-01 기준) + 시군구별 추정 모델 (F-5 영주 0.13×0.80, 귀화 0.95, 자녀성인 0.10).',
   },
 
   // ============ 영어 (English) ============
@@ -453,6 +495,31 @@ const T: Record<Lang, {
     },
     s2BlogBadge: 'Read full blog',
     pdfBtn: 'Download PDF',
+    sMultiBadge: '⚡ The Tiebreaker in Close Races',
+    sMultiTitle: 'Multicultural Voters — The Tiebreaker',
+    sMultiLead: 'Votes that Korean-only campaigns cannot reach decide the outcome in close districts. Multilingual content → reach multicultural voters → secure the margin → win.',
+    sMultiStatsTitle: 'Foreign-origin voters in our 6 head-to-head districts (Nov 2024, MOIS)',
+    sMultiStats: [
+      { region: 'Seoul Mayor', count: '86,599', label: 'Foreign-origin voters — size of a full ward', accent: 'from-indigo-500 to-violet-600' },
+      { region: 'Incheon Yeonsu A', count: '3,294', label: '2× the average swing margin', accent: 'from-rose-500 to-pink-600' },
+      { region: 'Gyeonggi Pyeongtaek B', count: '2,222', label: 'Enough to flip a tight race', accent: 'from-amber-500 to-orange-600' },
+      { region: 'Gwangju Mayor', count: '8,513', label: 'Foreign-origin voters (local election)', accent: 'from-emerald-500 to-teal-600' },
+    ],
+    sMultiGroupTitle: 'Three groups — different languages, different messages',
+    sMultiGroupSub: 'Even within foreign-origin voters, eligibility and reach languages differ by legal status.',
+    sMultiGroups: [
+      { badge: '① F-5 Permanent Residents', weight: '★★★', legal: 'Foreign nationals', elections: 'Local only', languages: 'EN · ZH · JA', tone: 'Policy information' },
+      { badge: '② Naturalized Koreans', weight: '★★★★★', legal: 'Korean citizens', elections: 'All elections', languages: 'KO + native', tone: 'Identity & belonging' },
+      { badge: '③ Adult children of foreign residents', weight: '★★', legal: 'Korean citizens', elections: 'All elections', languages: 'Korean-centered', tone: 'Multicultural policy' },
+    ],
+    sMultiInsightTitle: 'In close districts, foreign-origin voters are the deciding variable',
+    sMultiInsightDesc: 'Incheon Yeonsu A has 3,294 foreign-origin voters — twice the recent average swing margin (~1,500 votes). Without multilingual content, this segment is unreachable. A Korean-only campaign starts thousands of votes behind.',
+    sMultiLangTitle: 'GEO-AIO Multilingual — Publish EN · ZH · JA simultaneously',
+    sMultiLangDesc: 'Generate 15 tones in Korean, then auto-translate and publish in English, Chinese, and Japanese. The first candidate to meet multicultural voters in their own language wins the first impression.',
+    sMultiLangChips: ['🇺🇸 English', '🇨🇳 中文', '🇯🇵 日本語'],
+    sMultiCTA: 'Start the multilingual campaign',
+    sMultiCTASub: 'May bonus — EN/ZH/JA auto-publishing included',
+    sMultiSourceNote: '※ Source: MOIS Foreign Residents Statistics (Nov 1, 2024) + district estimation model (F-5 0.13×0.80, naturalized 0.95, adult children 0.10).',
   },
 
   // ============ 중국어 (번체, 대만식 s2twp) ============
@@ -613,6 +680,31 @@ const T: Record<Lang, {
     },
     s2BlogBadge: '檢視完整部落格',
     pdfBtn: 'PDF下載',
+    sMultiBadge: '⚡ 決定勝負的關鍵變數',
+    sMultiTitle: '多元文化選民 — 票差的決定者',
+    sMultiLead: '僅以韓語競選無法觸及的選票，正是決定膠著選區勝負的關鍵。多語言內容 → 觸及多元文化選民 → 確保票差優勢 → 當選。',
+    sMultiStatsTitle: '6個兩雄對決選區的外國裔選民 (2024年11月 行政安全部)',
+    sMultiStats: [
+      { region: '首爾市長', count: '86,599', label: '外國裔選民 — 一個區的人口規模', accent: 'from-indigo-500 to-violet-600' },
+      { region: '仁川延壽甲', count: '3,294', label: '膠著平均票差的2倍', accent: 'from-rose-500 to-pink-600' },
+      { region: '京畿平澤乙', count: '2,222', label: '足以扭轉膠著選戰的規模', accent: 'from-amber-500 to-orange-600' },
+      { region: '光州市長', count: '8,513', label: '外國裔選民 (地方選舉)', accent: 'from-emerald-500 to-teal-600' },
+    ],
+    sMultiGroupTitle: '3類群體 — 不同語言，不同訊息',
+    sMultiGroupSub: '即使同為外國裔選民，依法律身分不同，可投票選舉與觸及語言也不同。',
+    sMultiGroups: [
+      { badge: '① F-5永住外國人', weight: '★★★', legal: '外國身分', elections: '僅地方選舉', languages: '英·中·日', tone: '政策資訊型' },
+      { badge: '② 入籍韓國人', weight: '★★★★★', legal: '韓國國籍', elections: '所有選舉', languages: '韓語+母語', tone: '身分認同感' },
+      { badge: '③ 多元文化家庭成年子女', weight: '★★', legal: '韓國國籍', elections: '所有選舉', languages: '以韓語為主', tone: '多元文化政策' },
+    ],
+    sMultiInsightTitle: '在膠著選區，外國裔選民就是決定變數',
+    sMultiInsightDesc: '仁川延壽甲外國裔選民3,294名，是近期膠著當選平均票差(約1,500票)的2倍。沒有多語言內容就無法觸及這些選票。僅以韓語競選的候選人，從一開始就要承擔數千票的劣勢。',
+    sMultiLangTitle: 'GEO-AIO 多語言競選 — 同步發布英·中·日',
+    sMultiLangDesc: '以15種風格生成韓語內容後，自動翻譯並發布為英文、中文、日文。最先以母語向多元文化選民傳達政策的候選人，將佔據第一印象。',
+    sMultiLangChips: ['🇺🇸 English', '🇨🇳 中文', '🇯🇵 日本語'],
+    sMultiCTA: '開始多語言競選',
+    sMultiCTASub: '5月限定獎勵 — 包含英·中·日外語內容自動發布',
+    sMultiSourceNote: '※ 資料：行政安全部外國人居民現況 (2024-11-01基準) + 行政區估算模型 (F-5 0.13×0.80、入籍0.95、成年子女0.10)。',
   },
 
   // ============ 일본어 ============
@@ -773,6 +865,31 @@ const T: Record<Lang, {
     },
     s2BlogBadge: 'ブログを詳しく見る',
     pdfBtn: 'PDFダウンロード',
+    sMultiBadge: '⚡ 接戦区を左右する決定変数',
+    sMultiTitle: '多文化有権者 — 票差を決める存在',
+    sMultiLead: '韓国語キャンペーンだけでは届かない票が、接戦区の勝敗を決定します。多言語コンテンツ → 多文化有権者へのリーチ → 票差確保 → 当選。',
+    sMultiStatsTitle: '6つの一騎打ち選挙区の外国出身有権者 (2024年11月 行政安全部)',
+    sMultiStats: [
+      { region: 'ソウル市長', count: '86,599', label: '外国出身有権者 — 一つの区の人口規模', accent: 'from-indigo-500 to-violet-600' },
+      { region: '仁川延寿甲', count: '3,294', label: '接戦平均票差の2倍', accent: 'from-rose-500 to-pink-600' },
+      { region: '京畿平沢乙', count: '2,222', label: '接戦を覆せる規模', accent: 'from-amber-500 to-orange-600' },
+      { region: '光州市長', count: '8,513', label: '外国出身有権者 (地方選挙)', accent: 'from-emerald-500 to-teal-600' },
+    ],
+    sMultiGroupTitle: '3つのグループ — それぞれ異なる言語·異なるメッセージ',
+    sMultiGroupSub: '同じ外国出身有権者でも、法的身分により投票可能な選挙とリーチ言語が異なります。',
+    sMultiGroups: [
+      { badge: '① F-5永住外国人', weight: '★★★', legal: '外国人身分', elections: '地方選挙のみ', languages: '英·中·日', tone: '政策情報型' },
+      { badge: '② 帰化韓国人', weight: '★★★★★', legal: '韓国国籍', elections: '全選挙', languages: '韓国語+母語', tone: 'アイデンティティ' },
+      { badge: '③ 外国人住民の子女(成人)', weight: '★★', legal: '韓国国籍', elections: '全選挙', languages: '韓国語中心', tone: '多文化政策' },
+    ],
+    sMultiInsightTitle: '接戦区において外国出身有権者は決定変数',
+    sMultiInsightDesc: '仁川延寿甲の外国出身有権者3,294名は、最近の接戦当選票差(平均1,500票)の2倍。多言語コンテンツなしではこの票は届きません。韓国語のみのキャンペーンは、出発点から数千票の劣勢を抱えます。',
+    sMultiLangTitle: 'GEO-AIO 多言語キャンペーン — 英·中·日 同時発行',
+    sMultiLangDesc: '15種類のトーンで韓国語コンテンツを生成後、英語·中国語·日本語に自動翻訳·発行します。多文化有権者に母語で初めて政策を届ける候補者が第一印象を獲得します。',
+    sMultiLangChips: ['🇺🇸 English', '🇨🇳 中文', '🇯🇵 日本語'],
+    sMultiCTA: '多言語キャンペーンを開始',
+    sMultiCTASub: '5月限定ボーナス — 英·中·日の外国語コンテンツ自動発行を含む',
+    sMultiSourceNote: '※ データ: 行政安全部 外国人住民現況 (2024-11-01基準) + 行政区推定モデル (F-5 0.13×0.80、帰化0.95、子女成人0.10)。',
   },
 };
 
@@ -1213,10 +1330,116 @@ export default function ElectionProposalPage() {
           </div>
         </section>
 
+        {/* ── Section 4. 다문화 유권자 — 표차의 결정자 (NEW) ── */}
+        <section className="relative overflow-hidden rounded-3xl mb-6 shadow-[0_16px_48px_-12px_rgba(15,23,42,0.18)]">
+          {/* 배경 그라디언트 — 글로벌·다문화 톤 (Indigo + Cyan + Amber) */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-indigo-50/60 to-cyan-50/40" />
+          <div className="absolute -top-24 -right-24 w-72 h-72 bg-indigo-300/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-cyan-300/20 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative p-5 sm:p-7 border border-indigo-200/70 ring-1 ring-cyan-100/70 rounded-3xl">
+            {/* 헤더 */}
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-100 to-cyan-200 text-indigo-700 ring-2 ring-indigo-300/50 flex items-center justify-center text-base font-bold shadow-md">4</span>
+              <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.sMultiTitle}</h2>
+            </div>
+            <span className="inline-block text-[11px] font-extrabold tracking-[0.15em] uppercase text-indigo-700 bg-indigo-100/70 border border-indigo-200 px-2.5 py-1 rounded-full mb-3">
+              🌍 {t.sMultiBadge}
+            </span>
+            <p className="text-base text-gray-800 mb-5 leading-relaxed">{t.sMultiLead}</p>
+
+            {/* 임팩트 카드 4개 — 큰 숫자 */}
+            <div className="mb-5">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-3">📊 {t.sMultiStatsTitle}</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                {t.sMultiStats.map((s, i) => (
+                  <div key={i} className="relative bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-md overflow-hidden">
+                    <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${s.accent}`} />
+                    <div className={`absolute -bottom-8 -right-8 w-20 h-20 bg-gradient-to-br ${s.accent} opacity-15 rounded-full blur-2xl pointer-events-none`} />
+                    <div className="relative">
+                      <div className="text-[10px] sm:text-[11px] font-bold text-slate-600 mb-0.5">{s.region}</div>
+                      <div className={`text-xl sm:text-3xl font-black bg-gradient-to-r ${s.accent} bg-clip-text text-transparent leading-none mb-1`}>
+                        {s.count}
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] text-slate-700 font-semibold leading-tight">{s.label}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 3개 그룹 분류 */}
+            <div className="mb-5">
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1">🧩 {t.sMultiGroupTitle}</h3>
+              <p className="text-xs sm:text-sm text-slate-700 mb-3">{t.sMultiGroupSub}</p>
+              <div className="grid sm:grid-cols-3 gap-2.5 sm:gap-3">
+                {t.sMultiGroups.map((g, i) => {
+                  const accents = ['from-indigo-500 to-violet-600', 'from-amber-500 to-orange-600', 'from-emerald-500 to-teal-600'];
+                  return (
+                    <div key={i} className="relative bg-white rounded-xl border border-slate-200 p-3.5 shadow-md overflow-hidden">
+                      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${accents[i]}`} />
+                      <div className="text-sm font-extrabold text-slate-900 mb-2 leading-tight">{g.badge}</div>
+                      <div className="text-xs text-amber-700 font-bold mb-2">표차 영향력 {g.weight}</div>
+                      <ul className="space-y-1 text-[11px] sm:text-xs text-slate-800">
+                        <li><span className="font-bold text-slate-600">신분:</span> {g.legal}</li>
+                        <li><span className="font-bold text-slate-600">선거:</span> {g.elections}</li>
+                        <li><span className="font-bold text-slate-600">언어:</span> {g.languages}</li>
+                        <li><span className="font-bold text-slate-600">톤:</span> {g.tone}</li>
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Insight 강조 박스 */}
+            <div className="relative mb-5">
+              <span className="absolute -top-3 left-5 bg-gradient-to-r from-rose-500 to-orange-500 text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow-lg z-10 ring-2 ring-white/50 whitespace-nowrap">
+                💡 핵심 통찰
+              </span>
+              <div className="relative bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 rounded-2xl p-5 sm:p-6 border-2 border-rose-300 ring-2 ring-rose-200/70 shadow-md overflow-hidden">
+                <div className="absolute -top-12 -right-12 w-36 h-36 bg-rose-300/30 rounded-full blur-3xl pointer-events-none" />
+                <h4 className="text-base sm:text-lg font-extrabold text-rose-900 mb-2 leading-snug pl-1">{t.sMultiInsightTitle}</h4>
+                <p className="text-sm sm:text-base text-slate-800 leading-relaxed">{t.sMultiInsightDesc}</p>
+              </div>
+            </div>
+
+            {/* 다국어 발행 강조 + CTA */}
+            <div className="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-6 overflow-hidden">
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative">
+                <h4 className="text-base sm:text-lg font-extrabold text-amber-300 mb-2">🌐 {t.sMultiLangTitle}</h4>
+                <p className="text-sm text-slate-200 mb-3 leading-relaxed">{t.sMultiLangDesc}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {t.sMultiLangChips.map((chip, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-xs font-bold text-white">
+                      {chip}
+                    </span>
+                  ))}
+                </div>
+                <a
+                  href="#contact"
+                  onClick={(e) => { e.preventDefault(); document.querySelector('[href=\"tel:010-2397-5734\"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm font-extrabold rounded-full shadow-lg hover:from-amber-400 hover:to-amber-500 transition-colors"
+                >
+                  {t.sMultiCTA}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+                <p className="text-[11px] text-amber-200/80 mt-2">{t.sMultiCTASub}</p>
+              </div>
+            </div>
+
+            <p className="text-[10px] sm:text-[11px] text-slate-600 mt-3 leading-relaxed">{t.sMultiSourceNote}</p>
+          </div>
+        </section>
+
         {/* ── Section 5. ROI 실증 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-base font-bold shadow-md">4</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-base font-bold shadow-md">5</span>
             <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s4Title}</h2>
           </div>
           <p className="text-base text-gray-700 mb-4 leading-relaxed">{t.s4Lead}</p>
@@ -1282,7 +1505,7 @@ export default function ElectionProposalPage() {
 
           <div className="relative">
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-7 h-7 rounded-full bg-amber-500/20 ring-2 ring-amber-400/50 text-amber-300 flex items-center justify-center text-base font-bold">5</span>
+              <span className="w-7 h-7 rounded-full bg-amber-500/20 ring-2 ring-amber-400/50 text-amber-300 flex items-center justify-center text-base font-bold">6</span>
               <h2 className="text-xl sm:text-2xl font-extrabold">{t.s5Title}</h2>
             </div>
 
@@ -1350,7 +1573,7 @@ export default function ElectionProposalPage() {
         {/* ── Section 7. 영상 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-base font-bold shadow-md">6</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-100 to-rose-200 text-rose-700 ring-2 ring-rose-300/50 flex items-center justify-center text-base font-bold shadow-md">7</span>
             <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s6Title}</h2>
           </div>
           <p className="text-base text-gray-700 mb-4 leading-relaxed">{t.s6Desc}</p>
@@ -1369,7 +1592,7 @@ export default function ElectionProposalPage() {
         {/* ── Section 8. 12장 가이드 ── */}
         <section className="bg-gradient-to-br from-white via-slate-50/60 to-white rounded-3xl border border-slate-200/80 ring-1 ring-slate-100/80 p-5 sm:p-7 mb-6 shadow-[0_8px_32px_-12px_rgba(15,23,42,0.08)]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-base font-bold shadow-md">7</span>
+            <span className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 text-amber-300 ring-2 ring-amber-400/40 flex items-center justify-center text-base font-bold shadow-md">8</span>
             <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.s7Title} <span className="text-slate-700">{t.s7Sub}</span></h2>
           </div>
           <p className="text-base text-gray-700 mb-5 leading-relaxed">{t.s7Desc}</p>
