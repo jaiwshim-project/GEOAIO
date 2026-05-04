@@ -10,7 +10,7 @@ const apiEndpoints = [
     method: 'POST',
     url: '/api/generate',
     webhookAction: 'generate',
-    description: 'GEO/AIO 최적화된 블로그, 제품 설명, FAQ, 가이드 등 콘텐츠 자동 생성',
+    description: 'GEO/AIO 최적화된 블로그, 제품 설명, FAQ, 가이드 등 콘텐츠 생성',
     params: [
       { name: 'topic', type: 'string', required: true, desc: '콘텐츠 주제' },
       { name: 'category', type: 'string', required: true, desc: '콘텐츠 유형 (blog, product, faq, how-to, comparison, case-study)' },
@@ -94,7 +94,7 @@ const apiEndpoints = [
     method: 'POST',
     url: '/api/generate-series',
     webhookAction: 'generate-series',
-    description: '주제에 맞는 연재 시리즈 기획안 자동 생성 (3~12편)',
+    description: '주제에 맞는 연재 시리즈 기획안 생성 (3~12편)',
     params: [
       { name: 'topic', type: 'string', required: true, desc: '시리즈 주제' },
       { name: 'industry', type: 'string', required: false, desc: '산업 분야' },
@@ -162,7 +162,7 @@ const apiEndpoints = [
 const scenarios = [
   {
     id: 1,
-    title: '키워드 → 콘텐츠 자동 생성 → Google Sheets 저장',
+    title: '키워드 → 콘텐츠 생성 → Google Sheets 저장',
     difficulty: '초급',
     time: '15분',
     icon: '📝',
@@ -284,7 +284,7 @@ const scenarios = [
       {
         step: 1,
         title: '매주 월요일 시리즈 기획',
-        detail: '월요일 09:00에 시리즈 기획안을 자동 생성합니다.',
+        detail: '월요일 09:00에 시리즈 기획안을 생성합니다.',
         config: [
           'Module: Schedule > 매주 월요일 09:00',
           'Module: HTTP > Make a request',
@@ -326,11 +326,11 @@ const scenarios = [
   },
   {
     id: 4,
-    title: '경쟁사 모니터링 → 대응 콘텐츠 자동 생성',
+    title: '경쟁사 모니터링 → 대응 콘텐츠 생성',
     difficulty: '고급',
     time: '45분',
     icon: '🔍',
-    description: 'RSS 피드나 Google Alerts로 경쟁사 새 글을 감지하고, 키워드를 분석한 후 더 나은 AIO 최적화 콘텐츠를 자동 생성합니다.',
+    description: 'RSS 피드나 Google Alerts로 경쟁사 새 글을 감지하고, 키워드를 분석한 후 더 나은 AIO 최적화 콘텐츠를 생성합니다.',
     modules: ['RSS/Google Alerts', 'HTTP (keyword-analysis)', 'HTTP (generate)', 'Filter', 'WordPress/Slack'],
     steps: [
       {
@@ -1053,7 +1053,7 @@ export default function MakeGuidePage() {
                   <ul className="space-y-2 text-sm text-gray-600">
                     <li className="flex items-start gap-2"><span className="text-blue-500">&#10003;</span>주 3회 AIO 최적화 블로그 자동 발행</li>
                     <li className="flex items-start gap-2"><span className="text-blue-500">&#10003;</span>인스타그램 자동 변환 게시</li>
-                    <li className="flex items-start gap-2"><span className="text-blue-500">&#10003;</span>월간 키워드 분석 리포트 (Sheets 자동 생성)</li>
+                    <li className="flex items-start gap-2"><span className="text-blue-500">&#10003;</span>월간 키워드 분석 리포트 (Sheets 생성)</li>
                     <li className="flex items-start gap-2"><span className="text-blue-500">&#10003;</span>Google Sheets 콘텐츠 관리</li>
                     <li className="flex items-start gap-2"><span className="text-blue-500">&#10003;</span>이메일 발행 알림</li>
                   </ul>
@@ -1073,7 +1073,7 @@ export default function MakeGuidePage() {
                   <ul className="space-y-2 text-sm text-gray-600">
                     <li className="flex items-start gap-2"><span className="text-purple-500">&#10003;</span>매일 1편 AIO 최적화 콘텐츠 자동 발행</li>
                     <li className="flex items-start gap-2"><span className="text-purple-500">&#10003;</span>4개 채널 동시 배포 (블로그, 인스타, 링크드인, 카드뉴스)</li>
-                    <li className="flex items-start gap-2"><span className="text-purple-500">&#10003;</span>경쟁사 모니터링 + 대응 콘텐츠 자동 생성</li>
+                    <li className="flex items-start gap-2"><span className="text-purple-500">&#10003;</span>경쟁사 모니터링 + 대응 콘텐츠 생성</li>
                     <li className="flex items-start gap-2"><span className="text-purple-500">&#10003;</span>주간 시리즈 기획 + 자동 발행</li>
                     <li className="flex items-start gap-2"><span className="text-purple-500">&#10003;</span>주간/월간 성과 리포트 자동 발송</li>
                     <li className="flex items-start gap-2"><span className="text-purple-500">&#10003;</span>고객 문의 자동 응답 시스템</li>
@@ -1409,7 +1409,7 @@ Make.com (백그라운드 처리)
                   <p className="text-xs text-gray-500 mb-4">콘텐츠 생성 → 채널 체크 → 배포 버튼 1번</p>
                   <ul className="space-y-1.5 text-xs text-gray-600">
                     <li className="flex items-start gap-1.5"><span className="text-blue-500">&#10003;</span>채널별 포맷 자동 변환</li>
-                    <li className="flex items-start gap-1.5"><span className="text-blue-500">&#10003;</span>해시태그 자동 생성</li>
+                    <li className="flex items-start gap-1.5"><span className="text-blue-500">&#10003;</span>해시태그 생성</li>
                     <li className="flex items-start gap-1.5"><span className="text-blue-500">&#10003;</span>이미지 리사이징</li>
                     <li className="flex items-start gap-1.5"><span className="text-blue-500">&#10003;</span>즉시/예약 발행</li>
                     <li className="flex items-start gap-1.5"><span className="text-blue-500">&#10003;</span>발행 이력 관리</li>
@@ -1421,7 +1421,7 @@ Make.com (백그라운드 처리)
                   <h3 className="text-base font-bold text-gray-900 mb-1">정기 콘텐츠 구독 자동화</h3>
                   <p className="text-xs text-gray-500 mb-4">주제/키워드 + 발행 주기만 설정</p>
                   <ul className="space-y-1.5 text-xs text-gray-600">
-                    <li className="flex items-start gap-1.5"><span className="text-purple-500">&#10003;</span>매주/매일 자동 생성 + 배포</li>
+                    <li className="flex items-start gap-1.5"><span className="text-purple-500">&#10003;</span>매주/매일 생성 + 배포</li>
                     <li className="flex items-start gap-1.5"><span className="text-purple-500">&#10003;</span>시리즈 기획 자동화</li>
                     <li className="flex items-start gap-1.5"><span className="text-purple-500">&#10003;</span>키워드 자동 로테이션</li>
                     <li className="flex items-start gap-1.5"><span className="text-purple-500">&#10003;</span>성과 리포트 자동 발송</li>
@@ -1452,7 +1452,7 @@ Make.com (백그라운드 처리)
                   {
                     step: 1,
                     title: '콘텐츠 생성',
-                    desc: '주제 입력 → GEO/AIO 최적화 콘텐츠 자동 생성',
+                    desc: '주제 입력 → GEO/AIO 최적화 콘텐츠 생성',
                     icon: '✍️',
                     bgClass: 'bg-blue-50 border-blue-100',
                     details: undefined as string[] | undefined,
@@ -1860,7 +1860,7 @@ Make.com (백그라운드 처리)
                   {
                     segment: '마케팅 담당자 (중소기업)',
                     reaction: '"SEO도 아직 어려운데 AIO가 뭐지? ... 이거 필요하겠다"',
-                    positive: ['분석 리포트 자동 생성', '멀티채널 한 번에 해결', '상사 보고에 활용'],
+                    positive: ['분석 리포트 생성', '멀티채널 한 번에 해결', '상사 보고에 활용'],
                     concern: '"기존 SEO 전략과 충돌하지 않나?"',
                     persuasion: 'AIO가 SEO를 보완한다는 점 + 톤 커스터마이징',
                     conversion: '20~35%',

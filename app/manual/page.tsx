@@ -277,7 +277,7 @@ export default function ManualPage() {
                 <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">①</span> <span><strong>시드 키워드 입력</strong> + [클러스터 발견] 클릭 → 네이버 자동완성과 LLM 분석으로 검색어 풀과 <strong>&quot;삶의 언어&quot;</strong>(예: &quot;비 오는 주말 아이와 갈 곳&quot;) 자동 수집</span></li>
                 <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">②</span> <span><strong>클러스터 카드 선택</strong> → 같은 의도로 묶인 검색어 그룹과 검색 경로(예: 선크림 밀림 → 화장 뜸 → 화장 잘먹는 선크림)를 보고 점유할 클러스터 1개 선택</span></li>
                 <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">③</span> <span><strong>[장면 번역] 클릭</strong> → 클러스터를 한 줄 장면 문장으로 자동 변환 (예: &quot;아침 화장 전, 선크림은 발라야 하지만 베이스 메이크업이 뜨지 않기를 바라는 순간&quot;)</span></li>
-                <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">④</span> <span><strong>[후보 평가] 클릭</strong> → 시장성 / 브랜드 적합성 / 입증 가능성 3축 점수표가 자동 생성. 명시적 CEP와 잠재적 CEP를 비교</span></li>
+                <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">④</span> <span><strong>[후보 평가] 클릭</strong> → 시장성 / 브랜드 적합성 / 입증 가능성 3축 점수표가 생성. 명시적 CEP와 잠재적 CEP를 비교</span></li>
                 <li className="flex items-start gap-2"><span className="text-purple-500 font-bold whitespace-nowrap">⑤</span> <span><strong>장면 문장 확정</strong> → 결정한 문장은 그대로 콘텐츠 생성에 자동 전달되어 H1·도입부·H2·결론을 그 장면이 점유</span></li>
               </ol>
               <div className="bg-white rounded-lg p-3 border border-purple-200 mb-2">
@@ -470,7 +470,7 @@ export default function ManualPage() {
               </ul>
               <div className="mt-3 bg-white rounded-lg p-3 border border-orange-200">
                 <p className="text-[11px] font-medium text-orange-700 mb-1">사용 흐름</p>
-                <p className="text-[11px] text-gray-700">주제 입력 → 산업 분야 선택(선택) → 에피소드 수 조절 → 추가 요청(선택) → &quot;시리즈 기획하기&quot; 버튼 클릭 → AI가 연속성 있는 시리즈 기획안을 자동 생성합니다.</p>
+                <p className="text-[11px] text-gray-700">주제 입력 → 산업 분야 선택(선택) → 에피소드 수 조절 → 추가 요청(선택) → &quot;시리즈 기획하기&quot; 버튼 클릭 → AI가 연속성 있는 시리즈 기획안을 생성합니다.</p>
               </div>
             </div>
 
@@ -1148,7 +1148,7 @@ export default function ManualPage() {
               <h3 className="text-[13pt] font-semibold text-pink-800 mb-3">인용되기 쉬운 문장 작성법</h3>
               <div className="space-y-3">
                 {[
-                  { title: '정의문 포함', desc: '"[주제]란 [정의]를 말합니다" 형태의 명확한 정의를 포함하세요.', example: '"AIO란 Google 검색 결과 상단에 AI가 자동 생성하는 요약 답변입니다."' },
+                  { title: '정의문 포함', desc: '"[주제]란 [정의]를 말합니다" 형태의 명확한 정의를 포함하세요.', example: '"AIO란 Google 검색 결과 상단에 AI가 생성하는 요약 답변입니다."' },
                   { title: '수치와 통계 활용', desc: '구체적인 숫자를 포함하면 AI가 팩트로 인용합니다.', example: '"2025년 기준 전체 검색의 약 40%에서 AI Overview가 표시됩니다."' },
                   { title: '단계별 설명', desc: '"첫째... 둘째... 셋째..." 형태의 순서가 있는 설명', example: '"GEO 최적화는 3단계로 진행됩니다. 첫째, 콘텐츠 구조화..."' },
                   { title: '비교/대조 문장', desc: '"A는 ~인 반면, B는 ~입니다" 형태', example: '"SEO는 키워드 랭킹에 집중하는 반면, GEO는 AI의 의미 이해에 초점을 맞춥니다."' },
@@ -1311,7 +1311,7 @@ export default function ManualPage() {
                 <strong>위치:</strong> 헤더 → 제안서 / URL: /proposal/[카테고리]
               </p>
               <ul className="text-[11px] text-gray-700 space-y-1 list-disc list-inside ml-2">
-                <li>14개 카테고리별 자동 생성 (블로그 카테고리와 연동)</li>
+                <li>14개 카테고리별 생성 (블로그 카테고리와 연동)</li>
                 <li>섹션 구성: 한계 및 문제점 → 현황 진단 → GEO-AIO 솔루션 → SEO vs E-E-A-T 9-table 비교 → 실제 운영 콘텐츠 → ROI → 온톨로지 적용 안내 → 가격표 → 도입 절차 → 신뢰 시그널 → FAQ → CTA</li>
                 <li>schema.org JSON-LD 자동 출력 (AI 검색엔진 인용 최적화)</li>
                 <li>프리미엄 다크+골드 테마 + 비주얼 차트 (도넛·진행 바·그래프)</li>

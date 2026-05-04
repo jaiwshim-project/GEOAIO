@@ -8,9 +8,9 @@ import TesterModal, { TesterFloatingButton } from '@/components/TesterModal';
 
 const useCases = [
   {
-    title: '블로그 자동 생성',
-    description: '주제만 입력하면 GEO/AIO 최적화된 블로그 글이 자동 생성되고, Google Sheets에 저장됩니다.',
-    flow: ['주제 입력', 'GEO/AIO 최적화 블로그 글 자동 생성', 'Google Sheets 저장'],
+    title: '블로그 생성',
+    description: '주제만 입력하면 GEO/AIO 최적화된 블로그 글이 생성되고, Google Sheets에 저장됩니다.',
+    flow: ['주제 입력', 'GEO/AIO 최적화 블로그 글 생성', 'Google Sheets 저장'],
     icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
     color: 'from-emerald-500 to-teal-600',
     borderHover: 'hover:border-emerald-300',
@@ -85,7 +85,7 @@ const steps = [
 
 const blueprints = [
   {
-    title: '블로그 자동 생성',
+    title: '블로그 생성',
     description: '주제 입력부터 Google Sheets 저장까지 한번에 처리하는 블루프린트',
     file: '/make-blueprints/blog-auto-generate.json',
     color: 'from-emerald-500 to-teal-600',

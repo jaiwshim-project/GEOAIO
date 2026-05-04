@@ -24,7 +24,7 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
         <Header />
         <main className="max-w-5xl mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-3">제안서가 없습니다</h1>
-          <p className="text-gray-500">먼저 블로그 콘텐츠를 게시하면 카테고리별 제안서가 자동 생성됩니다.</p>
+          <p className="text-gray-500">먼저 블로그 콘텐츠를 게시하면 카테고리별 제안서가 생성됩니다.</p>
           <Link href="/generate" className="inline-flex mt-6 px-5 py-2.5 bg-indigo-500 text-white rounded-lg font-semibold text-sm hover:bg-indigo-600">
             콘텐츠 생성하러 가기
           </Link>

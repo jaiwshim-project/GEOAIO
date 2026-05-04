@@ -1429,7 +1429,7 @@ export default function GeneratePage() {
         }
       }
 
-      // ⭐ Phase 3: RAG 자동 보강 — critique·trend·urgency·pain-point 4개 intent 보강 글 자동 생성
+      // ⭐ Phase 3: RAG 자동 보강 — critique·trend·urgency·pain-point 4개 intent 보강 글 생성
       // 본 글 생성 전에 주제 기반 보강 자료를 만들어 Spoke 글들이 일반 카탈로그로 회귀하지 않도록 유도
       console.log('[RAG보강] 4개 intent 자동 보강 시작');
       setRagAugmentMsg('주제별 RAG 자료 자동 보강 중... (한계·트렌드·시나리오·오해 4편)');
@@ -1942,7 +1942,7 @@ export default function GeneratePage() {
           <img src="/images/logo-geoaio.png" alt="GEOAIO" className="relative z-10 h-16 rounded-lg shadow-lg hidden sm:block" />
           <div className="relative z-10">
             <h2 className="text-2xl font-bold mb-1">콘텐츠 생성</h2>
-            <p className="text-sm text-white/80">GEO/AIO에 최적화된 고품질 콘텐츠를 자동 생성합니다</p>
+            <p className="text-sm text-white/80">GEO/AIO에 최적화된 고품질 콘텐츠를 생성합니다</p>
           </div>
         </div>
 
@@ -2828,7 +2828,7 @@ export default function GeneratePage() {
                   </summary>
                   <div className="mt-3 space-y-2">
                     <p className="text-[11px] text-amber-800">
-                      시드 키워드를 입력하면 AI가 50개 질문형 제목을 자동 생성합니다. 그 중 원하는 것을 선택해 일괄 생성하세요.
+                      시드 키워드를 입력하면 AI가 50개 질문형 제목을 생성합니다. 그 중 원하는 것을 선택해 일괄 생성하세요.
                     </p>
                     <input
                       type="text"
@@ -3274,7 +3274,7 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* 톤/스타일 - 15가지 모두 자동 생성 */}
+                  {/* 톤/스타일 - 15가지 모두 생성 */}
                   {(() => {
                     const TONE_STYLES = [
                       { bg: 'bg-indigo-50', border: 'border-indigo-300', text: 'text-indigo-700', dot: 'bg-indigo-400' },

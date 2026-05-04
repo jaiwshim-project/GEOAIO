@@ -153,7 +153,7 @@ const T: Record<Lang, {
     s1NewBadge: '정답',
 
     s2Title: '후보자별 맞춤 제안서 — 양자 대결 구도',
-    s2Lead: '동일 선거구의 양 후보 GEO-AIO 제안서를 좌우로 비교해보세요. 각 후보의 지역구·직책에 맞춰 자동 생성된 1페이지 제안서를 클릭해 직접 확인할 수 있습니다.',
+    s2Lead: '동일 선거구의 양 후보 GEO-AIO 제안서를 좌우로 비교해보세요. 각 후보의 지역구·직책에 맞춰 생성된 1페이지 제안서를 클릭해 직접 확인할 수 있습니다.',
     s2GroupMP: '🏛️ 국회의원',
     s2GroupMayor: '🏙️ 시장',
     s2MPCount: '3개 선거구',
@@ -161,7 +161,7 @@ const T: Record<Lang, {
     s2RoleMP: '국회의원',
     s2RoleMayor: '시장',
     s2CardSub: '맞춤 GEO-AIO 제안서',
-    s2Footer: '※ 각 제안서는 후보자 자료를 기반으로 1페이지 자동 생성된 시안이며, 실제 캠프 도입 시 후보자별 맞춤 데이터로 재구성됩니다.',
+    s2Footer: '※ 각 제안서는 후보자 자료를 기반으로 1페이지 생성된 시안이며, 실제 캠프 도입 시 후보자별 맞춤 데이터로 재구성됩니다.',
     s2ExclusiveBadge: '⚡ 지역구당 단 1명 · 단독 계약 독점권',
     s2ExclusiveTitle: '먼저 계약하는 후보가 선거 승리에 유리한 입장에 섭니다',
     s2ExclusiveDesc: '본 솔루션은 각 지역구·광역시에서 가장 먼저 계약하는 후보 1명에게만 단독 계약 독점권이 주어집니다. 동일 선거구 경쟁 후보는 솔루션을 이용할 수 없으며, 먼저 계약한 후보만 AI 검색·인용 점유에서 독보적 우위를 가집니다.',
@@ -200,7 +200,7 @@ const T: Record<Lang, {
     s5Group1: '🎯 GEO-AIO 본 서비스 · 콘텐츠 자동화',
     s5Group2: '🚀 부가 서비스 · 후보자 당선 가능성 강화',
     s5Items1: [
-      { icon: '🎭', title: '15가지 톤 동시 발행', desc: '전문·친근·감성·스토리·뉴스 등 — SNS 채널별 최적화 콘텐츠 자동 생성' },
+      { icon: '🎭', title: '15가지 톤 동시 발행', desc: '전문·친근·감성·스토리·뉴스 등 — SNS 채널별 최적화 콘텐츠 생성' },
       { icon: '🚀', title: 'AI 인용에 최적화된 블로그 페이지에 업로드', desc: 'GSC 색인 모니터링 대시보드 포함 · 24~72h 내 색인 도달' },
       { icon: '📚', title: 'RAG 기반 정확성', desc: '후보자 자료 PDF 1건 업로드 → 실제 데이터·수치만 본문에 인용' },
       { icon: '⚡', title: 'E-E-A-T 자동 구조화', desc: '도입부 → H2 7개 → FAQ → 비교표 → CTA 구조 자동 적용 · AI 인용 가능성 4배' },
@@ -683,15 +683,19 @@ type CandidateCardProps = {
   regionKey: string;
   t: (typeof T)[Lang];
   candidateHref: (slug: string) => string;
+  compact?: boolean;
 };
-function CandidateCard({ side, role, regionKey, t, candidateHref }: CandidateCardProps) {
+function CandidateCard({ side, role, regionKey, t, candidateHref, compact }: CandidateCardProps) {
+  // compact: 카드를 글러브와 같은 정사각형 영역에 맞춰 컴팩트하게 표시
   if (side.tbd) {
     return (
-      <div className="relative bg-gradient-to-br from-slate-50 via-white to-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center min-h-[140px] flex flex-col items-center justify-center">
-        <div className="text-2xl mb-1.5 opacity-60">🤝</div>
-        <div className="text-sm font-extrabold text-slate-700 mb-1">{t.s2TbdName}</div>
-        <div className={`text-[11px] font-bold ${side.accent}`}>{t.candidateRegions[regionKey]}</div>
-        <div className="text-[10px] text-amber-700 font-semibold mt-1.5 px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200">
+      <div className={`relative bg-gradient-to-br from-slate-50 via-white to-slate-50 border-2 border-dashed border-slate-300 rounded-xl text-center flex flex-col items-center justify-center ${
+        compact ? 'aspect-square p-2' : 'p-4 min-h-[140px]'
+      }`}>
+        <div className={`opacity-60 ${compact ? 'text-lg' : 'text-2xl mb-1.5'}`}>🤝</div>
+        <div className={`font-extrabold text-slate-700 ${compact ? 'text-[11px]' : 'text-sm mb-1'}`}>{t.s2TbdName}</div>
+        <div className={`font-bold ${side.accent} ${compact ? 'text-[9px]' : 'text-[11px]'}`}>{t.candidateRegions[regionKey]}</div>
+        <div className={`text-amber-700 font-semibold rounded-full bg-amber-100 border border-amber-200 ${compact ? 'text-[8px] px-1.5 mt-1' : 'text-[10px] px-2 py-0.5 mt-1.5'}`}>
           ⚡ {t.s2TbdSub}
         </div>
       </div>
@@ -699,6 +703,32 @@ function CandidateCard({ side, role, regionKey, t, candidateHref }: CandidateCar
   }
   const slug = side.slug || '';
   const nameKey = side.key || '';
+  if (compact) {
+    return (
+      <Link
+        href={candidateHref(slug)}
+        className="group relative aspect-square bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-200/80 ring-1 ring-slate-100 rounded-xl p-2.5 hover:ring-2 hover:ring-amber-400/40 hover:border-slate-300 hover:shadow-[0_8px_24px_-8px_rgba(15,23,42,0.2)] hover:-translate-y-0.5 transition-all overflow-hidden flex flex-col justify-between"
+      >
+        <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${side.strip}`} />
+        <div className="flex items-start justify-between mt-0.5">
+          <span className={`px-1.5 py-0.5 bg-gradient-to-r ${side.strip} text-white text-[9px] font-extrabold rounded-full shadow-sm`}>
+            {role}
+          </span>
+          <svg className="w-3 h-3 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">
+            {t.candidateNames[nameKey]}
+          </h3>
+          <p className={`text-[10px] font-bold ${side.accent} leading-tight`}>
+            {t.candidateRegions[regionKey]}
+          </p>
+        </div>
+      </Link>
+    );
+  }
   return (
     <Link
       href={candidateHref(slug)}
@@ -912,23 +942,23 @@ export default function ElectionProposalPage() {
                   <span className="text-[10px] font-bold text-slate-400 tracking-wide">{groupCount}</span>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 max-w-3xl mx-auto">
                   {groupPairs.map((pair, idx) => (
-                    <div key={`${group}-${idx}`} className="grid grid-cols-[1fr_auto_1fr] sm:grid-cols-[1fr_120px_1fr] items-center gap-2 sm:gap-3">
+                    <div key={`${group}-${idx}`} className="grid grid-cols-3 items-center gap-2">
                       {/* 좌측 후보 카드 */}
-                      <CandidateCard side={pair.left} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} />
-                      {/* 가운데 글러브 vs */}
-                      <div className="flex items-center justify-center">
+                      <CandidateCard side={pair.left} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} compact />
+                      {/* 가운데 글러브 vs — 카드와 동일한 정사각형 영역 */}
+                      <div className="flex items-center justify-center aspect-square">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/images/election-2026/glove-vs.png"
                           alt={t.s2VsLabel}
-                          className="w-full max-w-[120px] sm:max-w-[120px] h-auto object-contain select-none pointer-events-none drop-shadow-md"
+                          className="w-full h-full object-contain select-none pointer-events-none drop-shadow-md"
                           loading="lazy"
                         />
                       </div>
                       {/* 우측 후보 카드 */}
-                      <CandidateCard side={pair.right} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} />
+                      <CandidateCard side={pair.right} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} compact />
                     </div>
                   ))}
                 </div>

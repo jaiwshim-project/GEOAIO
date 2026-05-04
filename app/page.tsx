@@ -33,7 +33,7 @@ const features = [
   },
   {
     title: 'AI 콘텐츠 생성',
-    description: '블로그, 제품 설명, FAQ, How-to 등 8가지 유형의 GEO/AIO 최적화 콘텐츠를 자동 생성합니다.',
+    description: '블로그, 제품 설명, FAQ, How-to 등 8가지 유형의 GEO/AIO 최적화 콘텐츠를 생성합니다.',
     icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
     color: 'from-emerald-500 to-teal-600',
     card: 'bg-white border-gray-200 hover:border-emerald-300 hover:shadow-md',
@@ -100,7 +100,7 @@ const targetAudiences = [
   {
     who: '중소기업 대표',
     problem: '마케팅 팀이 없어서 콘텐츠를 못 만들어요',
-    solution: '주제만 입력하면 전문 콘텐츠 자동 생성',
+    solution: '주제만 입력하면 전문 콘텐츠 생성',
     icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
     gradient: 'from-amber-500 to-orange-600',
   },
@@ -263,7 +263,7 @@ export default function LandingPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { number: '40%+', label: 'Google 검색에 AI Overview 표시', color: 'text-blue-600' },
-            { number: '8가지', label: '콘텐츠 유형 자동 생성', color: 'text-violet-600' },
+            { number: '8가지', label: '콘텐츠 유형 생성', color: 'text-violet-600' },
             { number: '3분', label: '분석부터 최적화까지', color: 'text-emerald-600' },
             { number: '100점', label: 'GEO/AIO 점수 분석 제공', color: 'text-amber-600' },
           ].map((stat) => (
@@ -368,7 +368,7 @@ export default function LandingPage() {
           <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl p-5 border border-indigo-200 shadow-sm">
             <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-lg flex items-center justify-center text-sm font-bold mb-3">4</div>
             <h4 className="text-sm font-bold text-gray-900 mb-1.5">AI 최적화 변환</h4>
-            <p className="text-xs text-gray-500">분석 결과를 바탕으로 AI가 최적화된 버전의 콘텐츠를 자동 생성합니다.</p>
+            <p className="text-xs text-gray-500">분석 결과를 바탕으로 AI가 최적화된 버전의 콘텐츠를 생성합니다.</p>
             <div className="mt-2 flex flex-wrap gap-1">
               <span className="px-1.5 py-0.5 text-[10px] font-medium bg-indigo-100 text-indigo-700 rounded">최적화 콘텐츠</span>
               <span className="px-1.5 py-0.5 text-[10px] font-medium bg-violet-100 text-violet-700 rounded">변경사항 요약</span>
@@ -381,7 +381,7 @@ export default function LandingPage() {
             <div className="flex-1">
               <h4 className="text-sm font-bold text-gray-900 mb-1.5">콘텐츠 생성도 한 번에</h4>
               <p className="text-xs text-gray-500 leading-relaxed">
-                기존 콘텐츠가 없어도 괜찮습니다. 주제와 키워드만 입력하면 처음부터 GEO/AIO 최적화된 콘텐츠를 자동 생성하고,
+                기존 콘텐츠가 없어도 괜찮습니다. 주제와 키워드만 입력하면 처음부터 GEO/AIO 최적화된 콘텐츠를 생성하고,
                 A/B 버전 비교, SNS 채널별 변환, 인포그래픽 이미지 생성까지 한 번에 제공합니다.
               </p>
             </div>

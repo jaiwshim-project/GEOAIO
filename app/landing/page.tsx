@@ -109,7 +109,7 @@ const targetAudiences = [
   {
     who: '중소기업 대표',
     problem: '"마케팅 팀이 없어서 콘텐츠를 못 만들어요"',
-    solution: '주제만 입력하면 8가지 유형의 전문 콘텐츠를 AI가 자동 생성',
+    solution: '주제만 입력하면 8가지 유형의 전문 콘텐츠를 AI가 생성',
     result: '마케팅 팀 없이도 대기업 수준의 콘텐츠 품질',
     color: 'amber',
     icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
@@ -617,7 +617,7 @@ export default function PromotionLandingPage() {
                 name: '기타 산업',
                 example: '"OO 분야 전문 업체 추천"',
                 pain: '어떤 분야든 AI 검색에 빠지면 고객을 잃음',
-                benefit: '업종 맞춤 콘텐츠를 AI 최적화 구조로 자동 생성',
+                benefit: '업종 맞춤 콘텐츠를 AI 최적화 구조로 생성',
                 borderClass: 'border-gray-200 hover:border-gray-400',
                 textClass: 'text-gray-600',
               },
@@ -687,7 +687,7 @@ export default function PromotionLandingPage() {
                 { step: '01', title: '콘텐츠 입력', desc: '기존 콘텐츠를 붙여넣거나 PDF/DOCX/PPTX 파일을 업로드', color: 'blue', tags: [] },
                 { step: '02', title: '종합 분석', desc: 'GEO/AIO 점수, E-E-A-T 평가, 키워드 밀도를 종합 분석', color: 'purple', tags: ['AIO 점수', 'GEO 점수', 'E-E-A-T', '키워드'] },
                 { step: '03', title: '개선 제안', desc: '우선순위별 구체적인 최적화 액션 아이템 제시', color: 'amber', tags: [] },
-                { step: '04', title: 'AI 최적화 변환', desc: '분석 결과 바탕으로 AI가 최적화 콘텐츠를 자동 생성', color: 'rose', tags: ['최적화 콘텐츠', '변경사항 요약', '예상 점수'] },
+                { step: '04', title: 'AI 최적화 변환', desc: '분석 결과 바탕으로 AI가 최적화 콘텐츠를 생성', color: 'rose', tags: ['최적화 콘텐츠', '변경사항 요약', '예상 점수'] },
               ].map((s) => (
                 <div key={s.step} className={`relative rounded-xl p-5 border border-${s.color}-200 bg-${s.color}-50/30 hover:border-${s.color}-400 hover:shadow-md transition-all`}>
                   <div className={`text-lg font-extrabold text-${s.color}-200 mb-2`}>{s.step}</div>
@@ -715,12 +715,12 @@ export default function PromotionLandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {[
-              { title: 'AI 콘텐츠 생성', desc: '블로그, 제품 설명, FAQ, How-to 등 8가지 유형의 GEO/AIO 최적화 콘텐츠를 자동 생성', color: 'emerald', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
+              { title: 'AI 콘텐츠 생성', desc: '블로그, 제품 설명, FAQ, How-to 등 8가지 유형의 GEO/AIO 최적화 콘텐츠를 생성', color: 'emerald', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
               { title: 'A/B 버전 생성', desc: '전문적·친근한·설득적 3가지 톤으로 동시 생성하여 최적의 콘텐츠를 비교 선택', color: 'amber', icon: 'M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
               { title: 'SNS 채널별 변환', desc: '인스타그램, 링크드인, 네이버 블로그, 카드뉴스, 요약본으로 자동 변환', color: 'pink', icon: 'M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z' },
               { title: '키워드 경쟁 분석', desc: '타겟 키워드의 경쟁 난이도, 검색 의도, AI 인용 핵심 요소, 차별화 전략 분석', color: 'teal', icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z' },
               { title: '시리즈 기획', desc: '하나의 주제로 3~12편의 연재 시리즈를 자동 기획, 에피소드별 키워드·개요 제공', color: 'violet', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
-              { title: 'AI 인포그래픽 이미지', desc: 'Gemini AI로 콘텐츠에 맞는 인포그래픽 이미지 3장을 자동 생성하여 본문에 삽입', color: 'sky', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
+              { title: 'AI 인포그래픽 이미지', desc: 'Gemini AI로 콘텐츠에 맞는 인포그래픽 이미지 3장을 생성하여 본문에 삽입', color: 'sky', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
             ].map((feat) => (
               <div key={feat.title} className={`rounded-xl p-5 border border-${feat.color}-100 bg-${feat.color}-50/30 hover:border-${feat.color}-300 hover:shadow-md transition-all`}>
                 <div className={`w-11 h-11 bg-gradient-to-br from-${feat.color}-500 to-${feat.color}-600 rounded-xl flex items-center justify-center mb-3`}>

@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-// 글마다 동적 OG 이미지 자동 생성 (Next.js 15 컨벤션).
+// 글마다 동적 OG 이미지 생성 (Next.js 15 컨벤션).
 // 별도의 og:image meta 태그를 수동 추가할 필요 없음 — Next.js가 자동으로
 // /blog/{id}/opengraph-image URL을 메타데이터에 주입.
 export const runtime = 'edge';

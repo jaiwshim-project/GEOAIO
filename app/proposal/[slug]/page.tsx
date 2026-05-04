@@ -208,7 +208,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
     },
     {
       q: '콘텐츠는 누가 작성하나요? 품질은 어떻게 보장하나요?',
-      a: 'GEO-AIO 플랫폼이 제미나이 AI 엔진으로 자동 생성합니다. 회사 RAG 파일(자료)을 기반으로 하므로 회사명·대표자명·주소·전화번호 등 사실 정보는 자료에 있는 그대로만 인용되며, 임의 생성·외부 통계 사용은 차단됩니다. 15가지 톤으로 생성 후 E-E-A-T 7단계 구조로 자동 변환됩니다.',
+      a: 'GEO-AIO 플랫폼이 제미나이 AI 엔진으로 생성합니다. 회사 RAG 파일(자료)을 기반으로 하므로 회사명·대표자명·주소·전화번호 등 사실 정보는 자료에 있는 그대로만 인용되며, 임의 생성·외부 통계 사용은 차단됩니다. 15가지 톤으로 생성 후 E-E-A-T 7단계 구조로 자동 변환됩니다.',
     },
     {
       q: '특정 업종(법무·의료·금융 등) 전문 용어도 정확히 처리되나요?',
@@ -220,7 +220,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
     },
   ];
 
-  // ─── 온톨로지 → JSON-LD 자동 생성 (AI 인용률↑) ───
+  // ─── 온톨로지 → JSON-LD 생성 (AI 인용률↑) ───
   const industryType: IndustryClass = INDUSTRY_MAP[slug] || 'ProfessionalService';
   const proposalUrl = `https://www.geo-aio.com/proposal/${encodeURIComponent(slug)}`;
   const jsonLd = {
@@ -535,7 +535,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
             <section>
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700 ring-2 ring-emerald-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(2)}</span>
-                <h3 className="text-xl font-bold text-gray-900">GEO-AIO 솔루션: 클릭 한 번으로 15가지 톤 콘텐츠 자동 생성</h3>
+                <h3 className="text-xl font-bold text-gray-900">GEO-AIO 솔루션: 클릭 한 번으로 15가지 톤 콘텐츠 생성</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
