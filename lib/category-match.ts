@@ -61,3 +61,46 @@ export const DEFAULT_PUBLISH_OPTIONS: PublishOptions = {
   repeatCount: 1,
   translationLangs: [], // 기본 모두 해제 — 사용자가 명시적으로 선택해야 외국어 발행
 };
+
+// 자동 반복 실행 상태 — generate ↔ result 라운드트립 자동화
+export const AUTOPILOT_RUN_KEY = 'geoaio_autopilot_run';
+export interface AutopilotRun {
+  isRunning: boolean;
+  totalRepeats: number;        // 사용자가 선택한 횟수 (1~5)
+  currentRepeat: number;       // 현재 진행 중인 회차 (1-base)
+  topicQueue: string[];        // 회차별 주제 (사용자 선택 시점에 고정)
+  translationLangs: ('en' | 'zh' | 'ja')[]; // 매 회차에 발행할 외국어
+  category: string;            // 모든 회차가 발행될 카테고리 (고정)
+  startedAt: number;           // 시작 timestamp
+  publishedTotal: number;      // 누적 발행 편 수 (참고용)
+}
+export const EMPTY_AUTOPILOT_RUN: AutopilotRun = {
+  isRunning: false,
+  totalRepeats: 0,
+  currentRepeat: 0,
+  topicQueue: [],
+  translationLangs: [],
+  category: '',
+  startedAt: 0,
+  publishedTotal: 0,
+};
+
+// 도우미 — sessionStorage 읽기/쓰기/클리어
+export function readAutopilotRun(): AutopilotRun {
+  if (typeof window === 'undefined') return EMPTY_AUTOPILOT_RUN;
+  try {
+    const raw = sessionStorage.getItem(AUTOPILOT_RUN_KEY);
+    if (!raw) return EMPTY_AUTOPILOT_RUN;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.totalRepeats === 'number') return parsed;
+  } catch {}
+  return EMPTY_AUTOPILOT_RUN;
+}
+export function writeAutopilotRun(run: AutopilotRun): void {
+  if (typeof window === 'undefined') return;
+  try { sessionStorage.setItem(AUTOPILOT_RUN_KEY, JSON.stringify(run)); } catch {}
+}
+export function clearAutopilotRun(): void {
+  if (typeof window === 'undefined') return;
+  try { sessionStorage.removeItem(AUTOPILOT_RUN_KEY); } catch {}
+}

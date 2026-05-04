@@ -11,7 +11,7 @@ import { stripProjectLinks } from '@/lib/inject-project-links';
 import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, saveBlogPostsBatch, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 import { useUser } from '@/lib/user-context';
 import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
-import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions } from '@/lib/category-match';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, readAutopilotRun, writeAutopilotRun, clearAutopilotRun } from '@/lib/category-match';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -153,6 +153,22 @@ export default function GenerateResultPage() {
     if (abVersions.length === 0) return;
     setSelectedVersions(new Set(abVersions.map((_, i) => i)));
     initialSelectedAppliedRef.current = true;
+  }, [abVersions.length]);
+
+  // ⭐ Autopilot 자동 발행 트리거 — abVersions 로드 완료 후 1회만 실행
+  // (사용자가 generate에서 "🚀 자동 발행 시작" 버튼으로 시작했을 때만 동작)
+  const autopilotTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (autopilotTriggeredRef.current) return;
+    if (abVersions.length === 0) return;
+    const run = readAutopilotRun();
+    if (!run.isRunning) return;
+    autopilotTriggeredRef.current = true;
+    console.log(`[autopilot] result 페이지 — ${run.currentRepeat}/${run.totalRepeats}회차 자동 발행 시작`);
+    // 콘텐츠 안정화 대기 (1.5초) 후 자동 발행 호출
+    const timer = setTimeout(() => { runAutoPilotPublish(); }, 1500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [abVersions.length]);
 
   // 새로고침 시 URL ?lang=en 등 비한국어이면 자동 번역 시작 (cache 부족할 때만)
@@ -1408,6 +1424,24 @@ export default function GenerateResultPage() {
       const total = counts.ko + counts.en + counts.zh + counts.ja;
       setAutoPilotResult({ ...counts, total, category });
       setAutoPilotPhase('done');
+
+      // 6) 자동 반복 진행 — 다음 회차로 redirect (또는 종료)
+      const run = readAutopilotRun();
+      if (run.isRunning) {
+        const newPublishedTotal = run.publishedTotal + total;
+        if (run.currentRepeat < run.totalRepeats) {
+          // 다음 회차 — generate 페이지로 redirect (?autoNext=true)
+          writeAutopilotRun({ ...run, currentRepeat: run.currentRepeat + 1, publishedTotal: newPublishedTotal });
+          console.log(`[autopilot] ${run.currentRepeat}/${run.totalRepeats}회차 완료 (${total}편 발행). 다음 회차로 이동…`);
+          setTimeout(() => { router.push('/generate?autoNext=true'); }, 2500);
+        } else {
+          // 모든 회차 완료
+          writeAutopilotRun({ ...run, isRunning: false, publishedTotal: newPublishedTotal });
+          console.log(`[autopilot] 🏁 전체 ${run.totalRepeats}회차 완료. 누적 ${newPublishedTotal}편 발행.`);
+          // sessionStorage는 그대로 두고 isRunning만 false (사용자가 결과 확인 후 클리어)
+          setTimeout(() => clearAutopilotRun(), 5000);
+        }
+      }
     } catch (err) {
       console.error('autopilot publish error:', err);
       const msg = err instanceof Error ? err.message : String(err);

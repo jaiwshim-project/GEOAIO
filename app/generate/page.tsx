@@ -11,7 +11,7 @@ import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
 import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, getBlogCategories, type Profile, type ProfileData, type BlogCategory } from '@/lib/supabase-storage';
 import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
-import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions } from '@/lib/category-match';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions, AUTOPILOT_RUN_KEY, readAutopilotRun, writeAutopilotRun, clearAutopilotRun } from '@/lib/category-match';
 // canUseFeature, incrementUsage는 커스텀 사용자 시스템에서 API 방식으로 대체
 import { useUser, type UserProject } from '@/lib/user-context';
 import { track } from '@vercel/analytics';
@@ -448,6 +448,79 @@ export default function GeneratePage() {
           : [...prev.translationLangs, lang],
       };
     });
+  };
+
+  // ==================== 자동 반복 발행 — 다음 주제 자동 진입 ====================
+  // URL ?autoNext=true로 진입 시: AutopilotRun 읽기 → 다음 주제 자동 set → handleGenerate
+  // 첫 회차는 시작 버튼 클릭으로 트리거, 2회차+는 result 페이지에서 redirect
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autoNext') !== 'true') return;
+    const run = readAutopilotRun();
+    if (!run.isRunning) return;
+    if (run.currentRepeat > run.totalRepeats) {
+      clearAutopilotRun();
+      return;
+    }
+    const idx = run.currentRepeat - 1;
+    const nextTopic = run.topicQueue[idx];
+    if (!nextTopic) {
+      clearAutopilotRun();
+      return;
+    }
+    // selectedCategory 복원 — autopilot 첫 회차에서 사용자가 'blog' 등 선택해야 시작 가능.
+    // mount 시 selectedCategory가 null이면 'blog'로 default (가장 흔한 케이스).
+    setSelectedCategory(prev => prev ?? 'blog');
+    setTopic(nextTopic);
+    console.log(`[autopilot] ${run.currentRepeat}/${run.totalRepeats}회차 자동 진입 — 주제: "${nextTopic}"`);
+    // state propagation 후 handleGenerate 호출 (700ms — 충분한 마운트 후 실행 보장)
+    const timer = setTimeout(() => {
+      const btn = document.querySelector<HTMLButtonElement>('button[data-autopilot-trigger="generate"]');
+      if (btn && !btn.disabled) btn.click();
+    }, 700);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 자동 발행 시작 — 사용자가 "🚀 자동 발행 시작" 버튼 클릭 시
+  const startAutopilotRun = () => {
+    if (!selectedCategory) {
+      alert('콘텐츠 유형을 먼저 선택하세요.');
+      return;
+    }
+    if (publishOptions.repeatCount > 1 && topicSuggestions.length < publishOptions.repeatCount) {
+      alert(`반복 ${publishOptions.repeatCount}회를 위해서는 추천 주제가 ${publishOptions.repeatCount}개 필요합니다. 현재 ${topicSuggestions.length}개. "AI 주제 추천" 버튼으로 5개 주제를 먼저 받아주세요.`);
+      return;
+    }
+    const queue = topicSuggestions.length >= publishOptions.repeatCount
+      ? topicSuggestions.slice(0, publishOptions.repeatCount)
+      : (topic.trim() ? [topic.trim()] : topicSuggestions.slice(0, publishOptions.repeatCount));
+    if (queue.length === 0 || queue.some(t => !t)) {
+      alert('주제를 입력하거나 추천 주제를 받아주세요.');
+      return;
+    }
+    const categoryHint = categoryChoice.mode === 'manual' && categoryChoice.manualSlug
+      ? categoryChoice.manualSlug
+      : (selectedProject?.name || '');
+    const run = {
+      isRunning: true,
+      totalRepeats: publishOptions.repeatCount,
+      currentRepeat: 1,
+      topicQueue: queue,
+      translationLangs: publishOptions.translationLangs,
+      category: categoryHint,
+      startedAt: Date.now(),
+      publishedTotal: 0,
+    };
+    writeAutopilotRun(run);
+    console.log(`[autopilot] 시작 — ${run.totalRepeats}회 / 외국어: ${run.translationLangs.join(',') || 'none'} / 주제: ${queue.length}개`);
+    setTopic(queue[0]);
+    // state propagation 후 handleGenerate 호출
+    setTimeout(() => {
+      const btn = document.querySelector<HTMLButtonElement>('button[data-autopilot-trigger="generate"]');
+      if (btn && !btn.disabled) btn.click();
+    }, 200);
   };
 
   // ==================== 톤 생성 진행 상황 ====================
@@ -3565,8 +3638,30 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* 생성 버튼 */}
+                  {/* 🚀 자동 반복 발행 시작 버튼 (반복 N회 + 선택 외국어) */}
                   <button
+                    onClick={startAutopilotRun}
+                    disabled={isGenerating || !selectedCategory || (publishOptions.repeatCount > 1 && topicSuggestions.length < publishOptions.repeatCount)}
+                    className="w-full mb-2 py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-extrabold rounded-xl hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 transition-colors shadow-lg shadow-orange-300/40 disabled:opacity-50 disabled:cursor-not-allowed border border-amber-400 flex items-center justify-center gap-2 ring-2 ring-amber-300/50"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>
+                      🚀 자동 반복 발행 시작
+                      <span className="ml-2 text-xs opacity-90">
+                        ({publishOptions.repeatCount}회 ×
+                        {publishOptions.translationLangs.length === 0
+                          ? ' 한국어만'
+                          : ` 한·${publishOptions.translationLangs.map(l => l === 'en' ? '영' : l === 'zh' ? '중' : '일').join('·')}`}
+                        )
+                      </span>
+                    </span>
+                  </button>
+
+                  {/* 생성 버튼 (단일 회 — 1회만 생성, 자동 반복 안 함) */}
+                  <button
+                    data-autopilot-trigger="generate"
                     onClick={handleGenerate}
                     disabled={isGenerating || !topic.trim()}
                     className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed border border-sky-300 flex items-center justify-center gap-2"
@@ -3586,7 +3681,7 @@ export default function GeneratePage() {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        GEO/AIO 최적화 콘텐츠 생성
+                        GEO/AIO 최적화 콘텐츠 생성 (1회)
                       </>
                     )}
                   </button>
