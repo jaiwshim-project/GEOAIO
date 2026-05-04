@@ -203,10 +203,10 @@ export default function BacklinkDashboardPage() {
       >
         <div className="flex items-start justify-between mb-1.5 gap-1">
           <div className="flex items-center gap-1 flex-wrap min-w-0">
-            <span className={`text-[9px] font-extrabold tracking-wide px-1.5 py-0.5 rounded ${
+            <span className={`text-base font-extrabold tracking-wide px-3 py-1 rounded-md ${
               post.channel === 'Tistory' ? 'bg-orange-500 text-white' : 'bg-blue-600 text-white'
             }`}>
-              {post.channel === 'Tistory' ? '📝' : '💼'}
+              {post.channel === 'Tistory' ? '📝 Tistory' : '💼 LinkedIn'}
             </span>
             {post.role && (
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
