@@ -21,15 +21,20 @@ export function autoMatchCategory(projectName: string, categories: BlogCategory[
 }
 
 // 프로젝트와 동일한(또는 자동 매칭될) 카테고리를 제외한 목록 — 수동 선택 시 노출
+// linkedSlugs가 주어지면 그 슬러그에 속하는 카테고리만 필터 (프로젝트 연관 카테고리만)
 export function categoriesExcludingProjectMatch(
   categories: BlogCategory[],
   projectName: string,
+  linkedSlugs?: string[],
 ): BlogCategory[] {
   if (!projectName) return categories;
   const matchedSlug = autoMatchCategory(projectName, categories);
+  const linkSet = linkedSlugs ? new Set(linkedSlugs) : null;
   return categories.filter(c => {
     if (c.slug === matchedSlug) return false;
     if (c.label === projectName || c.slug === projectName) return false;
+    // linkedSlugs가 주어졌고 비어있지 않으면 → 그 안에 있는 슬러그만 노출
+    if (linkSet && linkSet.size > 0 && !linkSet.has(c.slug)) return false;
     return true;
   });
 }

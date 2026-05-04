@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { BlogCategory } from '@/lib/supabase-storage';
 import {
   autoMatchCategory,
@@ -34,10 +34,37 @@ export default function CategorySelector({
   const [newLabel, setNewLabel] = useState('');
   const [createError, setCreateError] = useState('');
 
-  const autoMatched = autoMatchCategory(projectName, categories);
-  const manualOptions = categoriesExcludingProjectMatch(categories, projectName);
+  // 현재 프로젝트와 연결된 카테고리 슬러그 목록 — API에서 로드
+  const [linkedSlugs, setLinkedSlugs] = useState<string[] | null>(null);
+  const [linkedLoaded, setLinkedLoaded] = useState(false);
 
-  const handleCreate = () => {
+  // 프로젝트 변경 시 연관 카테고리 재로드
+  const loadLinked = useCallback(async () => {
+    if (!projectName) { setLinkedSlugs([]); setLinkedLoaded(true); return; }
+    try {
+      const res = await fetch(`/api/blog/category-projects?projectName=${encodeURIComponent(projectName)}`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setLinkedSlugs(data.slugs || []);
+      } else {
+        setLinkedSlugs([]);
+      }
+    } catch {
+      setLinkedSlugs([]);
+    } finally {
+      setLinkedLoaded(true);
+    }
+  }, [projectName]);
+  useEffect(() => { loadLinked(); }, [loadLinked]);
+
+  const autoMatched = autoMatchCategory(projectName, categories);
+  // linkedSlugs가 null 또는 빈 배열이면 폴백으로 전체 노출 (마이그레이션 미실행 시 보호)
+  const useLinkFilter = linkedLoaded && linkedSlugs && linkedSlugs.length > 0;
+  const manualOptions = useLinkFilter
+    ? categoriesExcludingProjectMatch(categories, projectName, linkedSlugs!)
+    : categoriesExcludingProjectMatch(categories, projectName);
+
+  const handleCreate = async () => {
     const label = newLabel.trim();
     if (!label) {
       setCreateError('카테고리 이름을 입력하세요');
@@ -51,6 +78,20 @@ export default function CategorySelector({
     setCreateError('');
     onCreateCategory?.(label, slug);
     onChange({ mode: 'manual', manualSlug: slug });
+
+    // 새 카테고리를 현재 프로젝트와 자동 연결 — 다음번 수동 선택에서 노출됨
+    if (projectName) {
+      try {
+        await fetch('/api/blog/category-projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ categorySlug: slug, projectName }),
+        });
+        // 로컬 상태에도 반영
+        setLinkedSlugs(prev => prev ? [...prev, slug] : [slug]);
+      } catch { /* 폴백: 연결 실패해도 카테고리 자체는 사용 가능 */ }
+    }
+
     setShowCreate(false);
     setNewLabel('');
   };
@@ -128,8 +169,17 @@ export default function CategorySelector({
 
           {value.mode === 'manual' && (
             <div className="mt-2">
+              {projectName && useLinkFilter && (
+                <p className="text-[10px] text-slate-600 mb-1">
+                  🔗 <span className="font-semibold text-amber-700">{projectName}</span> 프로젝트에 연결된 카테고리만 표시 ({manualOptions.length}개)
+                </p>
+              )}
               {manualOptions.length === 0 && !showCreate && (
-                <p className="text-[11px] text-slate-700 mb-2">선택 가능한 다른 카테고리가 없습니다 — 새 카테고리를 만들어주세요.</p>
+                <p className="text-[11px] text-slate-700 mb-2">
+                  {projectName && useLinkFilter
+                    ? '이 프로젝트에 연결된 다른 카테고리가 없습니다 — 새 카테고리를 만들면 자동으로 연결됩니다.'
+                    : '선택 가능한 다른 카테고리가 없습니다 — 새 카테고리를 만들어주세요.'}
+                </p>
               )}
               {manualOptions.length > 0 && (
                 <select
