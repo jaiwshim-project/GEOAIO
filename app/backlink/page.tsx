@@ -68,6 +68,16 @@ export default function BacklinkPage() {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed: Record<string, RoadmapResponse> = JSON.parse(raw);
+          // 마이그레이션: 옛 docx 원본의 잘못된 카테고리 URL(.../category/geo-aio)을 각 로드맵의 정확한 categoryLink로 교체
+          Object.values(parsed).forEach(roadmap => {
+            const correctLink = roadmap.posts?.[0]?.categoryLink;
+            if (!correctLink) return;
+            roadmap.posts?.forEach(post => {
+              if (post.body && /https?:\/\/www\.geo-aio\.com\/blog\/category\/geo-aio/.test(post.body)) {
+                post.body = post.body.replace(/https?:\/\/www\.geo-aio\.com\/blog\/category\/geo-aio/g, correctLink);
+              }
+            });
+          });
           setSavedRoadmaps(parsed);
           const slugs = Object.keys(parsed);
           if (slugs.length > 0) setActiveSlug(slugs[slugs.length - 1]);

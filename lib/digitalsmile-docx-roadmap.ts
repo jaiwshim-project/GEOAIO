@@ -207,7 +207,7 @@ GEO-AIO가 자동화한 것
 
 도입 문의는 jaiwshim@gmail.com으로 부탁드립니다.
 
-👉 https://www.geo-aio.com/blog/category/geo-aio`,
+👉 https://www.geo-aio.com/blog/category/디지털스마일치과`,
   },
   {
     postNo: 5,
@@ -243,7 +243,7 @@ ${CATEGORY_LINK}
 
 도입 문의: jaiwshim@gmail.com
 
-👉 https://www.geo-aio.com/blog/category/geo-aio
+👉 https://www.geo-aio.com/blog/category/디지털스마일치과
 
 #GEO #AIO #AI검색최적화 #콘텐츠마케팅 #병원마케팅 #ChatGPT #Perplexity #자동화`,
   },
@@ -366,7 +366,7 @@ Pillar-First 흐름의 비밀
 
 더 자세한 사례:
 
-👉 https://www.geo-aio.com/blog/category/geo-aio
+👉 https://www.geo-aio.com/blog/category/디지털스마일치과
 
 도입 문의: jaiwshim@gmail.com`,
   },
@@ -407,7 +407,7 @@ GEO-AIO 15톤 자동 생성
 단순 병렬 생성은 정보가 90% 똑같은 함정. Pillar 글 먼저 카탈로그 정의 → 14편 Spoke가 그 카탈로그 회피하며 고유 angle만 점유 → 결과 정보 80% 다름.
 
 사례:
-https://www.geo-aio.com/blog/category/geo-aio
+https://www.geo-aio.com/blog/category/디지털스마일치과
 
 도입 문의: jaiwshim@gmail.com
 

@@ -83,7 +83,25 @@ export default function BacklinkDashboardPage() {
     if (typeof window === 'undefined') return;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setRoadmaps(JSON.parse(raw));
+      if (raw) {
+        const parsed: Record<string, RoadmapResponse> = JSON.parse(raw);
+        // 마이그레이션: 옛 docx 원본의 잘못된 카테고리 URL(.../category/geo-aio)을 각 로드맵의 정확한 categoryLink로 교체
+        let mutated = false;
+        Object.values(parsed).forEach(roadmap => {
+          const correctLink = roadmap.posts?.[0]?.categoryLink;
+          if (!correctLink) return;
+          roadmap.posts?.forEach(post => {
+            if (post.body && /https?:\/\/www\.geo-aio\.com\/blog\/category\/geo-aio/.test(post.body)) {
+              post.body = post.body.replace(/https?:\/\/www\.geo-aio\.com\/blog\/category\/geo-aio/g, correctLink);
+              mutated = true;
+            }
+          });
+        });
+        if (mutated) {
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch {}
+        }
+        setRoadmaps(parsed);
+      }
     } catch {}
     try {
       const rawC = localStorage.getItem(COPIED_STORAGE_KEY);
