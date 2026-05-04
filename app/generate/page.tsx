@@ -3678,69 +3678,61 @@ export default function GeneratePage() {
                     </span>
                   </button>
 
-                  {/* 또는 — 시각 구분 (자동 모드 진행 중에만 hide) */}
-                  {!autopilotRunning && (
-                    <div className="flex items-center gap-2 my-2">
-                      <span className="flex-1 h-px bg-slate-200" />
-                      <span className="text-[10px] font-bold text-slate-500 tracking-wider">또는</span>
-                      <span className="flex-1 h-px bg-slate-200" />
-                    </div>
-                  )}
+                  {/* 또는 — 시각 구분 */}
+                  <div className="flex items-center gap-2 my-2">
+                    <span className="flex-1 h-px bg-slate-200" />
+                    <span className="text-[10px] font-bold text-slate-500 tracking-wider">또는</span>
+                    <span className="flex-1 h-px bg-slate-200" />
+                  </div>
 
-                  {/* 자동 모드 트리거용 hidden 버튼 — DOM에 항상 존재해야 startAutopilotRun이 클릭 가능 */}
+                  {/* 수동 1회 생성 버튼 — 항상 표시, 자동 모드 진행 중엔 비활성+자동 라벨 */}
                   <button
-                    type="button"
                     data-autopilot-trigger="generate"
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !topic.trim()}
-                    className="hidden"
-                    aria-hidden="true"
-                    tabIndex={-1}
-                  />
-
-                  {autopilotRunning ? (
-                    /* 자동 발행 진행 중 — 수동 버튼 자리에 안내 박스 표시 (혼동 방지) */
-                    <div className="w-full py-3.5 bg-amber-50 border-2 border-amber-300 rounded-xl flex items-center justify-center gap-2 text-amber-800 ring-1 ring-amber-200">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
-                      </span>
-                      <span className="text-sm font-extrabold">🚀 자동 반복 발행 진행 중</span>
-                      <span className="text-xs opacity-80">— 우하단 진행 상태 모달 확인</span>
-                    </div>
-                  ) : (
-                    /* 수동 1회 생성 버튼 — 항상 활성, topic 없으면 클릭 시 alert */
-                    <button
-                      onClick={() => {
-                        if (!topic.trim()) {
-                          alert('주제를 먼저 입력하세요. (또는 위의 자동 반복 발행을 사용하세요.)');
-                          return;
-                        }
-                        handleGenerate();
-                      }}
-                      disabled={isGenerating}
-                      className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed border border-sky-300 flex items-center justify-center gap-2"
-                    >
-                      {isGenerating ? (
-                        <>
-                          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          {ragAugmentMsg
-                            ? ragAugmentMsg
-                            : (toneProgress > 0 ? `콘텐츠 생성 중... ${toneProgress}/${toneOptions.length}` : `${toneOptions.length}가지 톤 콘텐츠 생성 중...`)}
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          GEO/AIO 최적화 콘텐츠 생성 (1회)
-                        </>
-                      )}
-                    </button>
-                  )}
+                    onClick={() => {
+                      if (autopilotRunning) {
+                        alert('자동 반복 발행이 진행 중입니다. 우하단 진행 모달에서 종료/완료를 확인한 뒤 사용하세요.');
+                        return;
+                      }
+                      if (!topic.trim()) {
+                        alert('주제를 먼저 입력하세요. (또는 위의 자동 반복 발행을 사용하세요.)');
+                        return;
+                      }
+                      handleGenerate();
+                    }}
+                    disabled={isGenerating}
+                    className={`w-full py-3.5 font-medium rounded-xl transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed border flex items-center justify-center gap-2 ${
+                      autopilotRunning
+                        ? 'bg-amber-50 text-amber-800 border-amber-300 ring-1 ring-amber-200'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 border-sky-300'
+                    }`}
+                  >
+                    {autopilotRunning ? (
+                      <>
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                        </span>
+                        <span className="text-sm font-extrabold">🚀 자동 발행 진행 중 — 수동 일시 차단</span>
+                      </>
+                    ) : isGenerating ? (
+                      <>
+                        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        {ragAugmentMsg
+                          ? ragAugmentMsg
+                          : (toneProgress > 0 ? `콘텐츠 생성 중... ${toneProgress}/${toneOptions.length}` : `${toneOptions.length}가지 톤 콘텐츠 생성 중...`)}
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        GEO/AIO 최적화 콘텐츠 생성 (1회)
+                      </>
+                    )}
+                  </button>
 
                   {/* ── 상시 API 키 설정 카드 ── */}
                   <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
