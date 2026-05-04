@@ -47,9 +47,12 @@ async function getServerBlogData() {
     for (let page = 0; page < 50; page++) { // 최대 50,000건 안전 가드
       const from = page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
+      // ISR fallback 사이즈 폭증 방지 — content 본문은 목록에서 안 씀.
+      // content 포함 시 1,291건 × ~15KB = ~19MB로 Vercel 한도(FALLBACK_BODY_TOO_LARGE) 초과.
+      // 목록 카드에 필요한 메타 필드만 선택.
       const { data, error } = await supabase
         .from('blog_articles')
-        .select('*')
+        .select('id, title, category, tags, author, created_at, updated_at')
         .order('created_at', { ascending: false })
         .range(from, to);
       if (error) {
@@ -69,7 +72,7 @@ async function getServerBlogData() {
       return {
         id: row.id,
         title: row.title,
-        content: row.content,
+        content: '', // 목록 페이지 — 본문은 /blog/[id]에서만 fetch
         summary: (meta.summary as string) || '',
         category: row.category || '',
         tag: (meta.tag as string) || '',
