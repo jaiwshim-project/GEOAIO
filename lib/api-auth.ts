@@ -40,20 +40,54 @@ export function getGeminiKey(request: NextRequest, body?: Record<string, unknown
 }
 
 /**
+ * Claude API 키 풀 — 환경변수에 여러 키 등록 시 분산 호출 (rate limit 회피)
+ * 등록 가능: ANTHROPIC_API_KEY, ANTHROPIC_API_KEY_2, ANTHROPIC_API_KEY_3, CLAUDE_API_KEY 등
+ * 호출마다 랜덤 픽 — 동시 요청도 키별로 분산.
+ * 동시 사용자 다수 + 10톤 시리즈처럼 분당 호출이 폭증할 때 RPM 한도(Tier 1 Haiku 50 RPM)를 N배로 늘림.
+ */
+function getClaudeKeyPool(): string[] {
+  const candidates = [
+    process.env.ANTHROPIC_API_KEY,
+    process.env.ANTHROPIC_API_KEY_2,
+    process.env.ANTHROPIC_API_KEY_3,
+    process.env.ANTHROPIC_API_KEY_4,
+    process.env.ANTHROPIC_API_KEY_5,
+    process.env.CLAUDE_API_KEY,
+    process.env.CLAUDE_API_KEY_2,
+    process.env.CLAUDE_API_KEY_3,
+  ];
+  // 빈 값·중복 제거
+  return Array.from(new Set(candidates.filter((v): v is string => !!v && v.length > 0)));
+}
+
+/**
  * Extract Claude API key from request.
- * Priority: process.env 환경 변수 (서버) > X-Claude-Key header (폴백용)
+ * Priority: process.env 키 풀(랜덤 픽) > X-Claude-Key header (폴백용)
  * 주의: 클라이언트 헤더를 우선으로 사용하면 로컬 캐시된 키 문제 발생
  */
 export function getClaudeKey(request: NextRequest): string | undefined {
-  // 서버 환경 변수를 먼저 시도 (신뢰할 수 있는 출처)
-  const envKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;
-  if (envKey) return envKey;
+  // 서버 환경 변수 풀에서 랜덤 픽 — rate limit 분산
+  const pool = getClaudeKeyPool();
+  if (pool.length > 0) {
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
 
   // 폴백: 클라이언트가 보낸 헤더 (디버깅/테스트용)
   const headerKey = request.headers.get('X-Claude-Key');
   if (headerKey) return headerKey;
 
   return undefined;
+}
+
+/**
+ * 429/529(과부하) 응답 시 다음 키로 retry용 — 호출 측에서 사용.
+ * 실패한 키를 제외하고 풀에서 다른 키를 반환. 모두 소진되면 undefined.
+ */
+export function getNextClaudeKey(failedKeys: Set<string>): string | undefined {
+  const pool = getClaudeKeyPool();
+  const remaining = pool.filter(k => !failedKeys.has(k));
+  if (remaining.length === 0) return undefined;
+  return remaining[Math.floor(Math.random() * remaining.length)];
 }
 
 /**
