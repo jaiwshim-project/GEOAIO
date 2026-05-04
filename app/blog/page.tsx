@@ -13,8 +13,10 @@ export const metadata: Metadata = {
   },
 };
 
-// SEO/AI 색인 친화: ISR로 1시간마다 갱신 (force-dynamic은 no-store 헤더로 색인 거부됨)
-export const revalidate = 3600;
+// 임시 — ISR fallback이 19MB 한도(FALLBACK_BODY_TOO_LARGE) 초과 → force-dynamic으로 우회.
+// content 필드 제거(메타만 select)도 적용했지만 글 수가 많을 때 안전을 위해 이중으로 차단.
+// 추후 페이지네이션 도입 후 ISR로 복귀 예정.
+export const dynamic = 'force-dynamic';
 
 const DEFAULT_CATEGORIES: BlogCategory[] = [
   { id: '1', slug: 'geo-aio', label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600', icon: 'search', sortOrder: 0 },
