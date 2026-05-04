@@ -83,15 +83,24 @@ export default function BacklinkPage() {
   const roadmap: RoadmapResponse | null = activeSlug ? (savedRoadmaps[activeSlug] || null) : null;
   const savedSlugs = Object.keys(savedRoadmaps);
 
-  const handleGenerate = async () => {
-    if (!selectedSlug) { setError('카테고리를 선택하세요'); return; }
+  const handleGenerate = async (overrideSlug?: string) => {
+    const slugToUse = overrideSlug || selectedSlug;
+    if (!slugToUse) { setError('카테고리를 선택하세요'); return; }
     setLoading(true);
     setError('');
     try {
+      // 재생성 시 기존 startDate·weeks 우선 활용 (저장된 로드맵의 originals)
+      let useStartDate = startDate;
+      let useWeeks = weeks;
+      if (overrideSlug && savedRoadmaps[overrideSlug]) {
+        const saved = savedRoadmaps[overrideSlug];
+        useStartDate = saved.posts[0]?.date || startDate;
+        useWeeks = saved.totalWeeks;
+      }
       const res = await fetch('/api/backlink', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ categorySlug: selectedSlug, startDate, weeks }),
+        body: JSON.stringify({ categorySlug: slugToUse, startDate: useStartDate, weeks: useWeeks }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '생성 실패'); return; }
@@ -103,6 +112,20 @@ export default function BacklinkPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 모든 저장된 로드맵을 새 형식으로 일괄 재생성 (순차 처리)
+  const handleRegenerateAll = async () => {
+    const slugs = Object.keys(savedRoadmaps);
+    if (slugs.length === 0) { alert('저장된 로드맵이 없습니다.'); return; }
+    if (!confirm(`저장된 ${slugs.length}개 로드맵을 새 형식으로 모두 재생성하시겠습니까? 약 ${slugs.length * 60}~${slugs.length * 90}초 걸립니다.`)) return;
+    setLoading(true);
+    setError('');
+    for (const slug of slugs) {
+      console.log(`[regenerate-all] ${slug} 재생성 중...`);
+      await handleGenerate(slug);
+    }
+    setLoading(false);
   };
 
   const handleDeleteRoadmap = (slug: string) => {
@@ -254,7 +277,7 @@ export default function BacklinkPage() {
 
           <button
             type="button"
-            onClick={handleGenerate}
+            onClick={() => handleGenerate()}
             disabled={loading || !selectedSlug}
             className="w-full py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-extrabold rounded-xl hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 transition-colors shadow-lg shadow-orange-300/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
@@ -279,13 +302,24 @@ export default function BacklinkPage() {
               📂 저장된 로드맵 {savedSlugs.length > 0 && `(${savedSlugs.length}개)`}
             </h2>
             {savedSlugs.length > 0 && (
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="text-[11px] text-rose-600 hover:text-rose-800 font-bold"
-              >
-                🗑 전체 삭제
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleRegenerateAll}
+                  disabled={loading}
+                  className="text-[11px] text-amber-700 hover:text-amber-900 font-bold disabled:opacity-50"
+                  title="모든 저장된 로드맵을 새 형식으로 일괄 재생성"
+                >
+                  🔄 전체 재생성 (새 형식)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className="text-[11px] text-rose-600 hover:text-rose-800 font-bold"
+                >
+                  🗑 전체 삭제
+                </button>
+              </div>
             )}
           </div>
           {savedSlugs.length === 0 ? (
@@ -345,16 +379,30 @@ export default function BacklinkPage() {
               <h2 className="text-lg font-extrabold text-slate-900">
                 📋 {roadmap.categorySlug} — {roadmap.totalWeeks}주 / {roadmap.totalPosts}개 포스트
               </h2>
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-full transition-colors shadow-sm"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
-                </svg>
-                PDF 다운로드
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!confirm(`"${roadmap.categorySlug}" 로드맵 ${roadmap.totalPosts}개 포스트를 새 형식으로 재생성하시겠습니까?`)) return;
+                    handleGenerate(roadmap.categorySlug);
+                  }}
+                  disabled={loading}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-full transition-colors shadow-sm disabled:opacity-50"
+                  title="이 로드맵을 새 형식으로 재생성"
+                >
+                  🔄 재생성
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-full transition-colors shadow-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                  </svg>
+                  PDF 다운로드
+                </button>
+              </div>
             </div>
 
             {/* 주별 그룹화 */}
