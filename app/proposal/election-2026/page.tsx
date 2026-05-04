@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -628,14 +628,17 @@ const MAYOR_CANDIDATES = [
 export default function ElectionProposalPage() {
   const [dDay, setDDay] = useState<number | null>(null);
   const [lang, setLang] = useState<Lang>('ko');
-  const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
   // URL ?lang= 우선 → localStorage 폴백 → 기본 ko
+  // useSearchParams는 prerender 시 Suspense를 요구해서, 클라이언트 마운트 후 window 사용
   useEffect(() => {
     setDDay(calcDDay());
-    const urlLang = searchParams.get('lang');
+    let urlLang: string | null = null;
+    if (typeof window !== 'undefined') {
+      urlLang = new URLSearchParams(window.location.search).get('lang');
+    }
     if (urlLang && ['ko', 'en', 'zh', 'ja'].includes(urlLang)) {
       setLang(urlLang as Lang);
     } else {
@@ -646,7 +649,6 @@ export default function ElectionProposalPage() {
     }
     const id = setInterval(() => setDDay(calcDDay()), 60_000);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 언어 변경 시: state + localStorage + URL ?lang= 동기화 (ko는 query 없음)
