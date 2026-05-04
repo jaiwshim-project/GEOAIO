@@ -947,7 +947,7 @@ export default function ElectionProposalPage() {
                   <span className="text-[11px] font-bold text-slate-400 tracking-wide">{groupCount}</span>
                 </div>
 
-                <div className="space-y-5 max-w-4xl mx-auto">
+                <div className="space-y-8 sm:space-y-10 max-w-4xl mx-auto">
                   {groupPairs.map((pair, idx) => (
                     <div key={`${group}-${idx}`} className="relative grid grid-cols-[1fr_180px_1fr] sm:grid-cols-[1fr_280px_1fr] md:grid-cols-[1fr_320px_1fr] items-center gap-1 sm:gap-2">
                       {/* 좌측 후보 카드 — BLUE CORNER */}
