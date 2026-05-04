@@ -3000,6 +3000,32 @@ export default function GeneratePage() {
               );
             })()}
 
+            {/* 카테고리 선택 섹션 (STEP 1 위 — 페이지 진입 즉시 보임)
+                Q1-C/Q2-A/Q3-A: 자동 매칭(기본) / 수동 선택 — 프로젝트와 다른 카테고리에 저장 가능 */}
+            <div className="mb-4 ring-2 ring-amber-400 rounded-xl shadow-md">
+              <CategorySelector
+                projectName={selectedProject?.name || ''}
+                categories={blogCategories}
+                value={categoryChoice}
+                onChange={setCategoryChoice}
+                onCreateCategory={(label, slug) => {
+                  const extraColors = ['from-rose-500 to-pink-600','from-cyan-500 to-blue-600','from-lime-500 to-green-600','from-fuchsia-500 to-purple-600','from-orange-500 to-red-600'];
+                  setBlogCategories(prev => [
+                    ...prev,
+                    {
+                      id: `custom-${Date.now()}`,
+                      slug,
+                      label,
+                      description: '',
+                      color: extraColors[prev.length % extraColors.length],
+                      icon: 'document',
+                      sortOrder: prev.length,
+                    },
+                  ]);
+                }}
+              />
+            </div>
+
             {/* 입력 폼 */}
             {selectedCategory && (
               <div className="bg-white rounded-xl shadow-sm border border-sky-200 p-5">
@@ -3409,31 +3435,6 @@ export default function GeneratePage() {
                         ))}
                       </div>
                     )}
-                  </div>
-
-                  {/* 카테고리 선택 섹션 — 자동 매칭 / 수동 선택 (Q1-C/Q2-A/Q3-A) */}
-                  <div className="mb-3">
-                    <CategorySelector
-                      projectName={selectedProject?.name || ''}
-                      categories={blogCategories}
-                      value={categoryChoice}
-                      onChange={setCategoryChoice}
-                      onCreateCategory={(label, slug) => {
-                        const extraColors = ['from-rose-500 to-pink-600','from-cyan-500 to-blue-600','from-lime-500 to-green-600','from-fuchsia-500 to-purple-600','from-orange-500 to-red-600'];
-                        setBlogCategories(prev => [
-                          ...prev,
-                          {
-                            id: `custom-${Date.now()}`,
-                            slug,
-                            label,
-                            description: '',
-                            color: extraColors[prev.length % extraColors.length],
-                            icon: 'document',
-                            sortOrder: prev.length,
-                          },
-                        ]);
-                      }}
-                    />
                   </div>
 
                   {/* 생성 버튼 */}
