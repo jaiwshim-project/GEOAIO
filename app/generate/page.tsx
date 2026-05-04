@@ -2469,15 +2469,14 @@ export default function GeneratePage() {
                     <button
                       key={cat.id}
                       onClick={() => {
-                        // 카테고리 카드 클릭 시 모든 하단 입력 초기화 (사용자 요구)
-                        // — 추천 주제·CEP·하네스(최우선 지시사항)·케이스·참고 파일 등
-                        setTopicSuggestions([]);
-                        setUsedTopics([]);
-                        setSavedTopicsCache(null);
+                        // 카테고리 카드 클릭 시: 텍스트 입력은 리셋, 추천 주제·CEP 섹션은 유지(보이게)
+                        // 사용자 요구 (2단계):
+                        //  1) 입력 텍스트(주제·키워드·하네스·케이스·파일·톤)는 깨끗이
+                        //  2) 추천 주제·CEP 결과 섹션은 그대로 표시 (이전에 받았던 데이터 유지)
                         setTopic('');
                         setTargetKeyword('');
                         setSelectedSubKeyword('');
-                        // 하네스(최우선 지시사항) — 사용자 명시 요구
+                        // 하네스(최우선 지시사항)
                         setAdditionalNotes('');
                         setHarnessAutoSaved(false);
                         // 환자/고객 케이스 입력
@@ -2489,23 +2488,9 @@ export default function GeneratePage() {
                         setReferenceFiles([]);
                         setTaxonomyCategory('');
                         setTone('전문적이고 신뢰감 있는');
-                        // CEP 위저드 결과 리셋
-                        setCepClusters([]);
-                        setCepLifeLanguages([]);
-                        setCepSelectedCluster(null);
-                        setSceneSentence('');
-                        setCepTask('');
-                        setCepHooks([]);
-                        setCepCandidates([]);
-                        setCepSeed('');
-                        setSavedCepCache(null);
-                        setCepAutoStatus('idle');
-                        // localStorage cache 모두 삭제
-                        try {
-                          localStorage.removeItem(SUGGEST_CACHE_KEY);
-                          localStorage.removeItem(CEP_CACHE_KEY);
-                        } catch {}
-                        console.log(`[reset] "${cat.label}" 카드 클릭 — 모든 입력 리셋(하네스·케이스·파일 포함)`);
+                        // 추천 주제·CEP 데이터는 의도적으로 유지 — 섹션이 안 사라지도록
+                        // (사용자가 새 추천을 원하면 'AI 주제 추천' 버튼·CEP 시작 버튼으로 갱신)
+                        console.log(`[reset] "${cat.label}" 카드 — 텍스트 입력만 리셋 (추천 주제·CEP 섹션은 유지)`);
                         setSelectedCategory(cat.id);
                       }}
                       className={`relative p-3 rounded-xl text-left transition-colors duration-200 border ${
