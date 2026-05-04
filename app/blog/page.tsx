@@ -128,7 +128,7 @@ export default async function BlogPage({
 }) {
   const sp = await searchParams;
   const pageNum = parseInt(sp.page || '1', 10) || 1;
-  const { posts, categories } = await getServerBlogData(pageNum);
+  const { posts, categories, total, page, totalPages } = await getServerBlogData(pageNum);
 
-  return <BlogClient initialPosts={posts} initialCategories={categories} />;
+  return <BlogClient initialPosts={posts} initialCategories={categories} page={page} totalPages={totalPages} total={total} />;
 }

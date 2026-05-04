@@ -78,9 +78,12 @@ const TAG_COLORS: Record<string, string> = {
 interface BlogClientProps {
   initialPosts: BlogPost[];
   initialCategories: BlogCategory[];
+  page?: number;
+  totalPages?: number;
+  total?: number;
 }
 
-export default function BlogClient({ initialPosts, initialCategories }: BlogClientProps) {
+export default function BlogClient({ initialPosts, initialCategories, page = 1, totalPages = 1, total = 0 }: BlogClientProps) {
   const router = useRouter();
   const [categories] = useState<BlogCategory[]>(initialCategories);
   const [activeTab, setActiveTab] = useState(initialCategories[0]?.slug || 'geo-aio');
@@ -510,6 +513,89 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                 </div>
               )}
             </div>
+
+            {/* 페이지 네비 — 전체 글이 페이지당 100건을 넘으면 표시 */}
+            {totalPages > 1 && (
+              <nav className="flex items-center justify-center gap-2 mt-6 px-1" aria-label="페이지 네비게이션">
+                {/* 이전 */}
+                {page > 1 ? (
+                  <a
+                    href={page === 2 ? '/blog' : `/blog?page=${page - 1}`}
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-colors shadow-sm"
+                    aria-label="이전 페이지"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>이전</span>
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 font-bold text-sm cursor-not-allowed">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>이전</span>
+                  </span>
+                )}
+
+                {/* 페이지 번호 (현재±2) */}
+                <div className="hidden sm:flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(n => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
+                    .map((n, idx, arr) => (
+                      <span key={n} className="flex items-center">
+                        {idx > 0 && arr[idx - 1] !== n - 1 && <span className="px-1 text-slate-400 font-bold">…</span>}
+                        {n === page ? (
+                          <span className="inline-flex items-center justify-center min-w-[44px] h-11 px-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md shadow-amber-500/40">
+                            {n}
+                          </span>
+                        ) : (
+                          <a
+                            href={n === 1 ? '/blog' : `/blog?page=${n}`}
+                            className="inline-flex items-center justify-center min-w-[44px] h-11 px-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-colors shadow-sm"
+                          >
+                            {n}
+                          </a>
+                        )}
+                      </span>
+                    ))}
+                </div>
+
+                {/* 모바일 — N/M 표기 */}
+                <span className="sm:hidden inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md">
+                  {page} / {totalPages}
+                </span>
+
+                {/* 다음 */}
+                {page < totalPages ? (
+                  <a
+                    href={`/blog?page=${page + 1}`}
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-colors shadow-sm"
+                    aria-label="다음 페이지"
+                  >
+                    <span>다음</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 font-bold text-sm cursor-not-allowed">
+                    <span>다음</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                )}
+              </nav>
+            )}
+
+            {/* 전체 글 수 / 현재 페이지 표시 */}
+            {total > 0 && (
+              <p className="text-center text-xs text-slate-600 mt-3">
+                전체 <span className="font-extrabold text-amber-700">{total.toLocaleString()}</span>편 ·
+                현재 페이지 <span className="font-bold text-slate-900">{(page - 1) * 100 + 1}–{Math.min(page * 100, total)}</span>편
+              </p>
+            )}
           </>
         )}
       </main>
