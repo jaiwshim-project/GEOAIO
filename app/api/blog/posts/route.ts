@@ -117,7 +117,8 @@ function validateCategory(raw: unknown): { ok: true; value: string } | { ok: fal
   }
   if (v.length < 2 || v.length > 80) return { ok: false, reason: `category length must be 2-80 chars (got ${v.length})` };
   // 한글·영숫자·하이픈·공백·일부 구분자만 허용
-  if (!/^[\p{L}\p{N}\-_·\s/]+$/u.test(v)) return { ok: false, reason: `category contains invalid characters: "${v}"` };
+  // 허용: 글자, 숫자, 일반 문장 부호 (-_.,·:()/?! 공백) — 슬러그화된 프로젝트명 호환
+  if (!/^[\p{L}\p{N}\-_·.,:()?!\s/]+$/u.test(v)) return { ok: false, reason: `category contains invalid characters: "${v}"` };
   return { ok: true, value: v };
 }
 

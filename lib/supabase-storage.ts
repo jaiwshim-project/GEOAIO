@@ -50,7 +50,9 @@ function assertValidCategory(raw: unknown, ctx: string): string {
     throw new Error(`[${ctx}] category "${v}"는 콘텐츠 형식 식별자입니다. 프로젝트 카테고리/후보자명으로 다시 선택하세요.`);
   }
   if (v.length < 2 || v.length > 80) throw new Error(`[${ctx}] category 길이는 2~80자여야 합니다 (got ${v.length}: "${v}")`);
-  if (!/^[\p{L}\p{N}\-_·\s/]+$/u.test(v)) throw new Error(`[${ctx}] category에 허용되지 않는 문자가 포함되었습니다: "${v}"`);
+  // 허용: 글자(한글·영문·한자), 숫자, 일반 문장 부호 (-_.,·:()/?! 공백)
+  // 카테고리명을 프로젝트명에서 슬러그화하면 다양한 문자가 들어올 수 있어 관대하게 허용.
+  if (!/^[\p{L}\p{N}\-_·.,:()?!\s/]+$/u.test(v)) throw new Error(`[${ctx}] category에 허용되지 않는 문자가 포함되었습니다: "${v}"`);
   return v;
 }
 
