@@ -272,13 +272,13 @@ export default function BacklinkPage() {
           </button>
         </section>
 
-        {/* 저장된 로드맵 탭 — 슬러그별 분류, 클릭하면 활성 전환 */}
-        {savedSlugs.length > 0 && (
-          <section className="print-hide bg-white rounded-2xl shadow-md border-2 border-amber-300 ring-2 ring-amber-200/60 p-4 mb-6">
-            <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
-              <h2 className="text-sm font-extrabold text-slate-900">
-                📂 저장된 로드맵 ({savedSlugs.length}개)
-              </h2>
+        {/* 저장된 로드맵 탭 — 항상 표시, 비어있으면 안내 */}
+        <section className="print-hide bg-white rounded-2xl shadow-md border-2 border-amber-300 ring-2 ring-amber-200/60 p-4 mb-6">
+          <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
+            <h2 className="text-sm font-extrabold text-slate-900">
+              📂 저장된 로드맵 {savedSlugs.length > 0 && `(${savedSlugs.length}개)`}
+            </h2>
+            {savedSlugs.length > 0 && (
               <button
                 type="button"
                 onClick={handleClearAll}
@@ -286,47 +286,57 @@ export default function BacklinkPage() {
               >
                 🗑 전체 삭제
               </button>
+            )}
+          </div>
+          {savedSlugs.length === 0 ? (
+            <div className="text-center py-6 bg-slate-50 border border-dashed border-slate-300 rounded-lg">
+              <p className="text-sm text-slate-700 font-bold mb-1">아직 생성된 로드맵이 없습니다</p>
+              <p className="text-xs text-slate-500">위에서 카테고리를 선택하고 <strong className="text-amber-700">🔗 10주 백링크 로드맵 생성</strong> 버튼을 클릭하세요.</p>
+              <p className="text-[10px] text-slate-400 mt-1">생성 후 이 영역에 카테고리별 탭이 추가됩니다.</p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {savedSlugs.map(slug => {
-                const r = savedRoadmaps[slug];
-                const isActive = activeSlug === slug;
-                return (
-                  <div key={slug} className="relative group">
-                    <button
-                      type="button"
-                      onClick={() => setActiveSlug(slug)}
-                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors border-2 ${
-                        isActive
-                          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-transparent shadow-md ring-2 ring-amber-300/60'
-                          : 'bg-white text-slate-700 border-slate-300 hover:border-amber-400 hover:bg-amber-50'
-                      }`}
-                    >
-                      <span className="text-base leading-none">{isActive ? '📌' : '📁'}</span>
-                      <span className="truncate max-w-[200px]" title={slug}>{slug}</span>
-                      <span className={`text-[10px] ${isActive ? 'text-amber-100' : 'text-slate-500'}`}>
-                        {r.totalPosts}개
-                      </span>
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        onClick={(e) => { e.stopPropagation(); handleDeleteRoadmap(slug); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleDeleteRoadmap(slug); } }}
-                        className={`ml-1 text-[10px] font-extrabold ${isActive ? 'text-amber-100 hover:text-white' : 'text-slate-400 hover:text-rose-600'} cursor-pointer`}
-                        title="이 로드맵 삭제"
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {savedSlugs.map(slug => {
+                  const r = savedRoadmaps[slug];
+                  const isActive = activeSlug === slug;
+                  return (
+                    <div key={slug} className="relative group">
+                      <button
+                        type="button"
+                        onClick={() => setActiveSlug(slug)}
+                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors border-2 ${
+                          isActive
+                            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-transparent shadow-md ring-2 ring-amber-300/60'
+                            : 'bg-white text-slate-700 border-slate-300 hover:border-amber-400 hover:bg-amber-50'
+                        }`}
                       >
-                        ✕
-                      </span>
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-            <p className="text-[10px] text-slate-500 mt-2">
-              💡 카테고리별 백링크 로드맵이 누적 저장됩니다. 새로 생성하면 같은 슬러그는 덮어씌워지고 새 슬러그는 추가됩니다.
-            </p>
-          </section>
-        )}
+                        <span className="text-base leading-none">{isActive ? '📌' : '📁'}</span>
+                        <span className="truncate max-w-[200px]" title={slug}>{slug}</span>
+                        <span className={`text-[10px] ${isActive ? 'text-amber-100' : 'text-slate-500'}`}>
+                          {r.totalPosts}개
+                        </span>
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => { e.stopPropagation(); handleDeleteRoadmap(slug); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleDeleteRoadmap(slug); } }}
+                          className={`ml-1 text-[10px] font-extrabold ${isActive ? 'text-amber-100 hover:text-white' : 'text-slate-400 hover:text-rose-600'} cursor-pointer`}
+                          title="이 로드맵 삭제"
+                        >
+                          ✕
+                        </span>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-2">
+                💡 카테고리별 백링크 로드맵이 누적 저장됩니다. 같은 슬러그 재생성 시 덮어씀, 새 슬러그는 추가.
+              </p>
+            </>
+          )}
+        </section>
 
         {/* 로드맵 결과 */}
         {roadmap && (
