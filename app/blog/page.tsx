@@ -13,10 +13,13 @@ export const metadata: Metadata = {
   },
 };
 
-// 임시 — ISR fallback이 19MB 한도(FALLBACK_BODY_TOO_LARGE) 초과 → force-dynamic으로 우회.
-// content 필드 제거(메타만 select)도 적용했지만 글 수가 많을 때 안전을 위해 이중으로 차단.
-// 추후 페이지네이션 도입 후 ISR로 복귀 예정.
-export const dynamic = 'force-dynamic';
+// SEO/AI 색인 친화 — ISR 1시간 갱신.
+// 페이지네이션 도입으로 fallback 사이즈를 안전 범위(~수백 KB)로 유지 → FALLBACK_BODY_TOO_LARGE 방지.
+// 글 1만, 10만건이 되어도 영향 없음 (페이지당 LIMIT만 fetch).
+// 카테고리별 정확한 카운트는 /api/blog/category-counts에서 BlogClient가 별도 fetch.
+export const revalidate = 3600;
+
+const POSTS_PER_PAGE = 100; // 메인 페이지 1번에 보여주는 글 수
 
 const DEFAULT_CATEGORIES: BlogCategory[] = [
   { id: '1', slug: 'geo-aio', label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600', icon: 'search', sortOrder: 0 },
@@ -35,38 +38,35 @@ const EXTRA_COLORS = [
 
 const EXTRA_ICONS = ['document', 'document', 'document', 'document', 'document'];
 
-async function getServerBlogData() {
+async function getServerBlogData(pageNum: number) {
   try {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
 
-    // Supabase max-rows 1000 cap을 우회하기 위한 페이지네이션 (전체 글 정확히 수집).
-    const PAGE_SIZE = 1000;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const postsData: any[] = [];
-    for (let page = 0; page < 50; page++) { // 최대 50,000건 안전 가드
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-      // ISR fallback 사이즈 폭증 방지 — content 본문은 목록에서 안 씀.
-      // content 포함 시 1,291건 × ~15KB = ~19MB로 Vercel 한도(FALLBACK_BODY_TOO_LARGE) 초과.
-      // 목록 카드에 필요한 메타 필드만 선택.
-      const { data, error } = await supabase
+    // 페이지네이션: pageNum(1-base)에 해당하는 N건만 fetch.
+    // 100건 × 메타만 select ≈ 200KB 정도 → ISR fallback 안전 범위.
+    // 카테고리 그리드의 정확한 카운트는 BlogClient가 /api/blog/category-counts에서 별도 fetch.
+    const safePage = Math.max(1, pageNum);
+    const from = (safePage - 1) * POSTS_PER_PAGE;
+    const to = from + POSTS_PER_PAGE - 1;
+
+    // 전체 글 수도 같이 조회 (page 네비용)
+    const [{ data: postsData, error: pErr }, { count: totalCount }] = await Promise.all([
+      supabase
         .from('blog_articles')
         .select('id, title, category, tags, author, created_at, updated_at')
         .order('created_at', { ascending: false })
-        .range(from, to);
-      if (error) {
-        console.error('[blog] page', page, '에러:', error.message);
-        break;
-      }
-      if (!data || data.length === 0) break;
-      postsData.push(...data);
-      if (data.length < PAGE_SIZE) break;
+        .range(from, to),
+      supabase.from('blog_articles').select('*', { count: 'exact', head: true }),
+    ]);
+    if (pErr) {
+      console.error('[blog] page', safePage, '에러:', pErr.message);
     }
+    const rows = postsData || [];
 
-    const posts: BlogPost[] = postsData.map(row => {
+    const posts: BlogPost[] = rows.map(row => {
       let meta: Record<string, unknown> = {};
       if (row.author) {
         try { meta = JSON.parse(row.author); } catch { /* ignore */ }
@@ -109,14 +109,26 @@ async function getServerBlogData() {
     // 카테고리 카드 가나다·알파벳 순 정렬 (한글 우선, 영문 뒤)
     categories.sort((a, b) => a.label.localeCompare(b.label, 'ko-KR', { sensitivity: 'base' }));
 
-    return { posts, categories };
+    return {
+      posts,
+      categories,
+      total: totalCount || posts.length,
+      page: safePage,
+      totalPages: Math.max(1, Math.ceil((totalCount || posts.length) / POSTS_PER_PAGE)),
+    };
   } catch {
-    return { posts: [], categories: DEFAULT_CATEGORIES };
+    return { posts: [], categories: DEFAULT_CATEGORIES, total: 0, page: 1, totalPages: 1 };
   }
 }
 
-export default async function BlogPage() {
-  const { posts, categories } = await getServerBlogData();
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const sp = await searchParams;
+  const pageNum = parseInt(sp.page || '1', 10) || 1;
+  const { posts, categories } = await getServerBlogData(pageNum);
 
   return <BlogClient initialPosts={posts} initialCategories={categories} />;
 }
