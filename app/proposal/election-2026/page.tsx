@@ -694,7 +694,7 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
 
   if (side.tbd) {
     return (
-      <div className={`relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-2 border-dashed border-slate-300 rounded-xl py-3 px-3 sm:px-4 min-h-[110px] sm:min-h-[120px] flex flex-col justify-between ${corner.glow}`}>
+      <div className={`relative bg-gradient-to-br from-slate-50 via-white to-slate-100 border-2 border-dashed border-slate-300 rounded-xl py-3 px-3 sm:px-4 min-h-[88px] sm:min-h-[96px] flex flex-col justify-between ${corner.glow}`}>
         {cornerLabel && (
           <div className={`text-[9px] sm:text-[10px] font-black tracking-[0.2em] ${corner.labelColor}`}>
             {corner.label}
@@ -719,7 +719,7 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
   return (
     <Link
       href={candidateHref(slug)}
-      className={`group relative bg-white border border-slate-200 rounded-xl py-3 px-3 sm:px-4 min-h-[110px] sm:min-h-[120px] flex flex-col justify-between hover:border-slate-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 overflow-hidden ${corner.glow}`}
+      className={`group relative bg-white border border-slate-200 rounded-xl py-3 px-3 sm:px-4 min-h-[88px] sm:min-h-[96px] flex flex-col justify-between hover:border-slate-400 hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 overflow-hidden ${corner.glow}`}
     >
       {/* 카드 배경 그라디언트 — 후보자 strip 색상 옅게 */}
       <div className={`absolute inset-0 bg-gradient-to-br ${side.strip} opacity-[0.07] pointer-events-none`} />
@@ -949,19 +949,19 @@ export default function ElectionProposalPage() {
 
                 <div className="space-y-5 max-w-4xl mx-auto">
                   {groupPairs.map((pair, idx) => (
-                    <div key={`${group}-${idx}`} className="relative grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-3">
+                    <div key={`${group}-${idx}`} className="relative grid grid-cols-[1fr_180px_1fr] sm:grid-cols-[1fr_280px_1fr] md:grid-cols-[1fr_320px_1fr] items-center gap-1 sm:gap-2">
                       {/* 좌측 후보 카드 — BLUE CORNER */}
                       <CandidateCard side={pair.left} role={role} regionKey={pair.regionKey} t={t} candidateHref={candidateHref} cornerLabel="BLUE" />
 
-                      {/* 가운데 글러브 — 카드 사이로 약간 비집고 들어가는 부유 느낌 */}
-                      <div className="relative w-[80px] sm:w-[120px] md:w-[140px] flex items-center justify-center">
+                      {/* 가운데 글러브 — grid 컬럼 폭에 맞춰 가득 차게, 카드보다 큰 임팩트 */}
+                      <div className="relative w-full flex items-center justify-center -my-3">
                         {/* 황금 빛 후광 */}
-                        <div className="absolute inset-0 rounded-full bg-amber-300/25 blur-2xl" />
+                        <div className="absolute inset-0 rounded-full bg-amber-300/30 blur-2xl scale-75" />
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/images/election-2026/glove-vs.png"
                           alt={t.s2VsLabel}
-                          className="relative w-full h-auto object-contain select-none pointer-events-none drop-shadow-[0_8px_16px_rgba(217,119,6,0.4)]"
+                          className="relative w-full h-auto object-contain select-none pointer-events-none drop-shadow-[0_12px_24px_rgba(217,119,6,0.5)]"
                           loading="lazy"
                         />
                       </div>
