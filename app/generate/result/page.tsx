@@ -10,6 +10,8 @@ import { addRevision, generateId } from '@/lib/history';
 import { stripProjectLinks } from '@/lib/inject-project-links';
 import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, saveBlogPostsBatch, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 import { useUser } from '@/lib/user-context';
+import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory } from '@/lib/category-match';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -209,6 +211,20 @@ export default function GenerateResultPage() {
   // 초기값 빈 문자열 — 사용자가 모달에서 명시 선택해야만 채워짐.
   // 자동 발행은 프로젝트 기반 매칭으로 별도 결정 (선택 없이 'geo-aio' 폴백 방지).
   const [selectedBlogCategory, setSelectedBlogCategory] = useState('');
+  // generate 페이지에서 사용자가 결정한 자동/수동 선택 (sessionStorage로 전달)
+  const [categoryChoice, setCategoryChoice] = useState<CategoryChoiceValue>(() => {
+    if (typeof window === 'undefined') return { mode: 'auto', manualSlug: '' };
+    try {
+      const raw = sessionStorage.getItem(CATEGORY_CHOICE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return { mode: 'auto', manualSlug: '' };
+  });
+  // categoryChoice 변경 시 sessionStorage 동기화 (이 페이지에서도 변경 가능)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try { sessionStorage.setItem(CATEGORY_CHOICE_KEY, JSON.stringify(categoryChoice)); } catch {}
+  }, [categoryChoice]);
   const [blogTag, setBlogTag] = useState('');
   const [blogSummary, setBlogSummary] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
@@ -1236,9 +1252,19 @@ export default function GenerateResultPage() {
     const CONTENT_FORMAT_TYPES = new Set(['blog','product','faq','howto','landing','technical','social','email','case','video']);
 
     const computeCategory = (): string => {
-      // 1순위: 사용자가 명시적으로 선택한 카테고리
+      // 0순위: generate 페이지에서 사용자가 명시한 categoryChoice
+      // - 수동 선택 + manualSlug 있으면 그대로 사용 (예: 'AI선거솔루션' 프로젝트로 작업하지만 '허태정-대전시장-후보자'로 저장)
+      // - 자동 매칭이면 projectName으로부터 매칭 (아래 2순위 로직과 동일하지만 명시적 의도 표시)
+      if (categoryChoice.mode === 'manual' && categoryChoice.manualSlug && !CONTENT_FORMAT_TYPES.has(categoryChoice.manualSlug)) {
+        return categoryChoice.manualSlug;
+      }
+      if (categoryChoice.mode === 'auto' && projectName) {
+        const auto = autoMatchCategory(projectName, cats);
+        if (auto && !CONTENT_FORMAT_TYPES.has(auto)) return auto;
+      }
+      // 1순위: 사용자가 발행 모달에서 명시 선택한 카테고리
       if (selectedBlogCategory && !CONTENT_FORMAT_TYPES.has(selectedBlogCategory)) return selectedBlogCategory;
-      // 2순위: 프로젝트명 기반 매칭
+      // 2순위: 프로젝트명 기반 매칭 (categoryChoice 미설정·auto 폴백)
       if (projectName) {
         // 2-1) 프로젝트명에 카테고리 슬러그/라벨이 포함되는지 (정확 매칭 우선)
         const exact = cats.find(c => projectName.includes(c.label) || projectName.includes(c.slug));
@@ -2489,9 +2515,37 @@ export default function GenerateResultPage() {
                 <p className="text-sm font-medium text-gray-900 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">{result?.title}</p>
               </div>
 
-              {/* 카테고리 선택 */}
+              {/* 카테고리 선택 — 자동/수동 (Q1-C/Q2-A/Q3-A) */}
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-2">카테고리 선택</label>
+                <CategorySelector
+                  projectName={selectedProject?.name || ''}
+                  categories={blogCategories}
+                  value={categoryChoice}
+                  onChange={(next) => {
+                    setCategoryChoice(next);
+                    // 모달의 grid와 동기화 — 사용자 선택을 selectedBlogCategory에도 반영
+                    if (next.mode === 'manual' && next.manualSlug) {
+                      setSelectedBlogCategory(next.manualSlug);
+                    } else if (next.mode === 'auto') {
+                      const auto = autoMatchCategory(selectedProject?.name || '', blogCategories);
+                      if (auto) setSelectedBlogCategory(auto);
+                    }
+                  }}
+                  onCreateCategory={(label, slug) => {
+                    const extraColors = ['from-rose-500 to-pink-600','from-cyan-500 to-blue-600','from-lime-500 to-green-600','from-fuchsia-500 to-purple-600','from-orange-500 to-red-600'];
+                    setBlogCategories(prev => [
+                      ...prev,
+                      { id: `custom-${Date.now()}`, slug, label, description: '', color: extraColors[prev.length % extraColors.length], icon: 'document', sortOrder: prev.length },
+                    ]);
+                    setSelectedBlogCategory(slug);
+                  }}
+                  variant="compact"
+                />
+              </div>
+
+              {/* 카테고리 직접 선택 (고급) — 기존 grid 보존 */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-2">카테고리 직접 선택 (고급)</label>
                 <div className="flex flex-wrap gap-2">
                   {(blogCategories.length > 0 ? blogCategories : [
                     { id: '', slug: 'geo-aio', label: 'GEO-AIO', color: 'from-indigo-500 to-violet-600' },

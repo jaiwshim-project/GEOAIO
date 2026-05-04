@@ -9,7 +9,9 @@ import Footer from '@/components/Footer';
 import ApiKeyPanel from '@/components/ApiKeyPanel';
 import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
-import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, type Profile, type ProfileData } from '@/lib/supabase-storage';
+import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, getBlogCategories, type Profile, type ProfileData, type BlogCategory } from '@/lib/supabase-storage';
+import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory } from '@/lib/category-match';
 // canUseFeature, incrementUsage는 커스텀 사용자 시스템에서 API 방식으로 대체
 import { useUser, type UserProject } from '@/lib/user-context';
 import { track } from '@vercel/analytics';
@@ -394,6 +396,28 @@ export default function GeneratePage() {
   // ==================== 동적 분야 생성 ====================
   const [dynamicSubKeywords, setDynamicSubKeywords] = useState<string[]>([]);
   const [loadingSubKeywords, setLoadingSubKeywords] = useState(false);
+
+  // ==================== 블로그 카테고리 선택 (Q1-C/Q2-A/Q3-A) ====================
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [categoryChoice, setCategoryChoice] = useState<CategoryChoiceValue>(() => {
+    if (typeof window === 'undefined') return { mode: 'auto', manualSlug: '' };
+    try {
+      const raw = sessionStorage.getItem(CATEGORY_CHOICE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return { mode: 'auto', manualSlug: '' };
+  });
+
+  // 페이지 진입 시 blog_categories 로드 (자동 매칭 미리보기 + 수동 드롭다운용)
+  useEffect(() => {
+    getBlogCategories().then(cats => setBlogCategories(cats)).catch(() => {});
+  }, []);
+
+  // 선택 변경 시 sessionStorage에 저장 — result 페이지에서 읽음
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try { sessionStorage.setItem(CATEGORY_CHOICE_KEY, JSON.stringify(categoryChoice)); } catch {}
+  }, [categoryChoice]);
 
   // ==================== 톤 생성 진행 상황 ====================
   const [toneProgress, setToneProgress] = useState(0);
@@ -3385,6 +3409,31 @@ export default function GeneratePage() {
                         ))}
                       </div>
                     )}
+                  </div>
+
+                  {/* 카테고리 선택 섹션 — 자동 매칭 / 수동 선택 (Q1-C/Q2-A/Q3-A) */}
+                  <div className="mb-3">
+                    <CategorySelector
+                      projectName={selectedProject?.name || ''}
+                      categories={blogCategories}
+                      value={categoryChoice}
+                      onChange={setCategoryChoice}
+                      onCreateCategory={(label, slug) => {
+                        const extraColors = ['from-rose-500 to-pink-600','from-cyan-500 to-blue-600','from-lime-500 to-green-600','from-fuchsia-500 to-purple-600','from-orange-500 to-red-600'];
+                        setBlogCategories(prev => [
+                          ...prev,
+                          {
+                            id: `custom-${Date.now()}`,
+                            slug,
+                            label,
+                            description: '',
+                            color: extraColors[prev.length % extraColors.length],
+                            icon: 'document',
+                            sortOrder: prev.length,
+                          },
+                        ]);
+                      }}
+                    />
                   </div>
 
                   {/* 생성 버튼 */}
