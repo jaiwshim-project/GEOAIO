@@ -2396,14 +2396,26 @@ export default function GeneratePage() {
                     <button
                       key={cat.id}
                       onClick={() => {
-                        // 카테고리 카드 클릭 시 항상 리셋 (같은 카테고리 다시 클릭해도 새 시작 보장)
-                        // 추천 주제 리셋
+                        // 카테고리 카드 클릭 시 모든 하단 입력 초기화 (사용자 요구)
+                        // — 추천 주제·CEP·하네스(최우선 지시사항)·케이스·참고 파일 등
                         setTopicSuggestions([]);
                         setUsedTopics([]);
                         setSavedTopicsCache(null);
                         setTopic('');
                         setTargetKeyword('');
                         setSelectedSubKeyword('');
+                        // 하네스(최우선 지시사항) — 사용자 명시 요구
+                        setAdditionalNotes('');
+                        setHarnessAutoSaved(false);
+                        // 환자/고객 케이스 입력
+                        setCaseProfile('');
+                        setCaseSymptom('');
+                        setCaseTreatment('');
+                        setCaseResult('');
+                        // 참고 파일 + 분류 + 톤
+                        setReferenceFiles([]);
+                        setTaxonomyCategory('');
+                        setTone('전문적이고 신뢰감 있는');
                         // CEP 위저드 결과 리셋
                         setCepClusters([]);
                         setCepLifeLanguages([]);
@@ -2420,7 +2432,7 @@ export default function GeneratePage() {
                           localStorage.removeItem(SUGGEST_CACHE_KEY);
                           localStorage.removeItem(CEP_CACHE_KEY);
                         } catch {}
-                        console.log(`[reset] "${cat.label}" 카드 클릭 — CEP·추천 주제 모두 리셋`);
+                        console.log(`[reset] "${cat.label}" 카드 클릭 — 모든 입력 리셋(하네스·케이스·파일 포함)`);
                         setSelectedCategory(cat.id);
                       }}
                       className={`relative p-3 rounded-xl text-left transition-colors duration-200 border ${

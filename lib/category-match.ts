@@ -59,5 +59,5 @@ export interface PublishOptions {
 }
 export const DEFAULT_PUBLISH_OPTIONS: PublishOptions = {
   repeatCount: 1,
-  translationLangs: ['en', 'zh', 'ja'], // 기본 3개 모두
+  translationLangs: [], // 기본 모두 해제 — 사용자가 명시적으로 선택해야 외국어 발행
 };
