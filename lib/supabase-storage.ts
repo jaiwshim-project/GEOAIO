@@ -35,6 +35,25 @@ function getSupabase() {
   return createClient();
 }
 
+// === 카테고리 검증 (클라이언트 발행 경로) ===
+// /api/blog/posts route는 외부 통합용이고 실제 클라이언트 발행은 saveBlogPost(s)Batch가 게이트.
+// 같은 검증 규칙을 여기에도 박아 폴백 사고를 진짜로 막는다.
+const FORBIDDEN_CATEGORY_VALUES = new Set([
+  'blog', 'product', 'faq', 'howto', 'landing', 'technical', 'social', 'email', 'case', 'video',
+  'undefined', 'null', '', 'autopilot', '__fallback__', 'fallback',
+]);
+function assertValidCategory(raw: unknown, ctx: string): string {
+  if (typeof raw !== 'string') throw new Error(`[${ctx}] category must be a string`);
+  const v = raw.trim();
+  if (!v) throw new Error(`[${ctx}] category is empty — selectedBlogCategory를 먼저 선택하세요.`);
+  if (FORBIDDEN_CATEGORY_VALUES.has(v.toLowerCase())) {
+    throw new Error(`[${ctx}] category "${v}"는 콘텐츠 형식 식별자입니다. 프로젝트 카테고리/후보자명으로 다시 선택하세요.`);
+  }
+  if (v.length < 2 || v.length > 80) throw new Error(`[${ctx}] category 길이는 2~80자여야 합니다 (got ${v.length}: "${v}")`);
+  if (!/^[\p{L}\p{N}\-_·\s/]+$/u.test(v)) throw new Error(`[${ctx}] category에 허용되지 않는 문자가 포함되었습니다: "${v}"`);
+  return v;
+}
+
 async function getUserId(): Promise<string> {
   const supabase = getSupabase();
   const { data: { user } } = await supabase.auth.getUser();
@@ -442,6 +461,7 @@ export async function saveBlogPost(post: {
   masterId?: string;
 }): Promise<string> {
   try {
+    const validCategory = assertValidCategory(post.category, 'saveBlogPost');
     const meta = JSON.stringify({
       tag: post.tag || '',
       summary: post.summary || '',
@@ -452,7 +472,7 @@ export async function saveBlogPost(post: {
     const insertData = {
       title: post.title,
       content: post.content,
-      category: post.category,
+      category: validCategory,
       tags: post.hashtags || [],
       author: meta,
       metadata: post.metadata || {},
@@ -494,10 +514,12 @@ export async function saveBlogPostsBatch(posts: {
   historyId?: string;
   masterId?: string;
 }[]): Promise<string[]> {
+  // 모든 글의 카테고리를 사전 검증 — 1건이라도 폴백 의심값이면 전체 중단
+  posts.forEach((post, idx) => assertValidCategory(post.category, `saveBlogPostsBatch[${idx}]`));
   const rows = posts.map(post => ({
     title: post.title,
     content: post.content,
-    category: post.category,
+    category: post.category.trim(),
     tags: post.hashtags || [],
     author: JSON.stringify({
       tag: post.tag || '',
