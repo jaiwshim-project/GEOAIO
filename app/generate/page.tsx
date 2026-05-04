@@ -3623,10 +3623,16 @@ export default function GeneratePage() {
                     )}
                   </div>
 
-                  {/* 🚀 자동 반복 발행 시작 버튼 (반복 N회 + 선택 외국어) */}
+                  {/* 두 버튼 가이드 — 사용자가 자동/수동 선택 가능 */}
+                  <div className="flex items-center justify-between gap-2 mb-2 px-1 py-1.5 bg-slate-50 border border-slate-200 rounded-md">
+                    <span className="text-[10px] font-bold text-slate-600 tracking-wider uppercase">발행 모드 선택</span>
+                    <span className="text-[10px] text-slate-500">자동(반복) 또는 수동(1회) 중 선택해 클릭</span>
+                  </div>
+
+                  {/* 🚀 자동 반복 발행 시작 버튼 (반복 N회 + 선택 외국어) — 생성 중에만 비활성 */}
                   <button
                     onClick={startAutopilotRun}
-                    disabled={isGenerating || !selectedCategory || (publishOptions.repeatCount > 1 && topicSuggestions.length < publishOptions.repeatCount)}
+                    disabled={isGenerating}
                     className="w-full mb-2 py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-extrabold rounded-xl hover:from-amber-400 hover:via-orange-400 hover:to-rose-400 transition-colors shadow-lg shadow-orange-300/40 disabled:opacity-50 disabled:cursor-not-allowed border border-amber-400 flex items-center justify-center gap-2 ring-2 ring-amber-300/50"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -3644,11 +3650,24 @@ export default function GeneratePage() {
                     </span>
                   </button>
 
-                  {/* 생성 버튼 (단일 회 — 1회만 생성, 자동 반복 안 함) */}
+                  {/* 또는 — 시각 구분 */}
+                  <div className="flex items-center gap-2 my-2">
+                    <span className="flex-1 h-px bg-slate-200" />
+                    <span className="text-[10px] font-bold text-slate-500 tracking-wider">또는</span>
+                    <span className="flex-1 h-px bg-slate-200" />
+                  </div>
+
+                  {/* 수동 1회 생성 버튼 — 항상 활성, topic 없으면 클릭 시 alert */}
                   <button
                     data-autopilot-trigger="generate"
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !topic.trim()}
+                    onClick={() => {
+                      if (!topic.trim()) {
+                        alert('주제를 먼저 입력하세요. (또는 위의 자동 반복 발행을 사용하세요.)');
+                        return;
+                      }
+                      handleGenerate();
+                    }}
+                    disabled={isGenerating}
                     className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed border border-sky-300 flex items-center justify-center gap-2"
                   >
                     {isGenerating ? (
