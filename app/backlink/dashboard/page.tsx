@@ -186,6 +186,7 @@ export default function BacklinkDashboardPage() {
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 truncate max-w-[180px]" title={post.categorySlug}>
               📁 {post.categorySlug}
             </span>
+            <span className="text-xs text-slate-700 font-bold">Post {post.postNo} · {post.date}({post.weekday})</span>
           </div>
           <button
             type="button"
@@ -198,18 +199,19 @@ export default function BacklinkDashboardPage() {
           </button>
         </div>
 
-        <h4 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 leading-snug">
+        <h4 className="text-base sm:text-lg font-extrabold text-slate-900 mb-2 leading-snug">
           {post.title}
         </h4>
 
-        <div className="text-xs text-slate-700 leading-relaxed line-clamp-3 mb-2 whitespace-pre-wrap">
-          {post.body.slice(0, 220)}{post.body.length > 220 ? '…' : ''}
+        {/* /backlink와 동일: 본문 전체 + whitespace-pre-wrap */}
+        <div className="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap mb-3">
+          {post.body}
         </div>
 
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            {post.tags.slice(0, 6).map((tag, i) => (
-              <span key={i} className="text-[9px] text-orange-800 bg-orange-100 border border-orange-200 px-1.5 py-0.5 rounded-full font-semibold">
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {post.tags.map((tag, i) => (
+              <span key={i} className="text-[10px] text-orange-800 bg-orange-100 border border-orange-200 px-2 py-0.5 rounded-full font-semibold">
                 #{tag}
               </span>
             ))}
@@ -220,7 +222,7 @@ export default function BacklinkDashboardPage() {
           href={post.categoryLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-[10px] text-indigo-700 font-bold hover:underline"
+          className="inline-flex items-center gap-1 text-[11px] text-indigo-700 font-bold hover:underline"
         >
           🔗 {post.categoryLink}
         </a>
@@ -230,19 +232,20 @@ export default function BacklinkDashboardPage() {
 
   const renderDateGroup = (posts: DashboardPost[], dateGroupBy: boolean) => {
     if (!dateGroupBy) {
-      return <div className="grid sm:grid-cols-2 gap-3">{posts.map(renderCard)}</div>;
+      // 단일 컬럼 (full-width 카드) — /backlink와 동일
+      return <div className="space-y-4">{posts.map(renderCard)}</div>;
     }
-    // 일자별로 그룹
+    // 일자별로 그룹 + 그룹 안 단일 컬럼
     const grouped: Record<string, DashboardPost[]> = {};
     posts.forEach(p => { if (!grouped[p.date]) grouped[p.date] = []; grouped[p.date].push(p); });
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         {Object.entries(grouped).map(([date, ps]) => (
           <div key={date}>
             <h4 className="text-xs font-extrabold text-slate-600 mb-2 pb-1.5 border-b border-slate-200">
               📅 {dateLabel(date)} <span className="text-slate-400 font-semibold">· {ps.length}개</span>
             </h4>
-            <div className="grid sm:grid-cols-2 gap-3">{ps.map(renderCard)}</div>
+            <div className="space-y-4">{ps.map(renderCard)}</div>
           </div>
         ))}
       </div>
