@@ -246,7 +246,7 @@ const T: Record<Lang, {
     s8BookTitle: '미래 선거 파워플랜',
     s8BookSubtitle: 'AI 선거 솔루션 완전 가이드',
     s8Authors: '심재우 · 정장덕 · 박대겸 공저',
-    s8Publisher: 'Bohan MOB',
+    s8Publisher: '진한엠앤비',
     s8CTA: 'YES24에서 자세히 보기',
     s8Alt: '미래 선거 파워플랜 — AI 선거 솔루션 완전 가이드 (심재우·정장덕·박대겸 공저)',
 
@@ -404,7 +404,7 @@ const T: Record<Lang, {
     s8BookTitle: 'Future Election Power Plan',
     s8BookSubtitle: 'The Complete Guide to AI Election Solutions',
     s8Authors: 'Co-authored by Jaiwoo Shim · Jangduk Jeong · Daegyeom Park',
-    s8Publisher: 'Bohan MOB',
+    s8Publisher: '진한엠앤비',
     s8CTA: 'View on YES24',
     s8Alt: 'Future Election Power Plan — The Complete Guide to AI Election Solutions (co-authored by Jaiwoo Shim, Jangduk Jeong, Daegyeom Park)',
 
@@ -562,7 +562,7 @@ const T: Record<Lang, {
     s8BookTitle: '未來選舉力量計劃',
     s8BookSubtitle: 'AI選舉解決方案完整指南',
     s8Authors: '沈在祐 · 鄭章德 · 朴大兼 共同著作',
-    s8Publisher: 'Bohan MOB',
+    s8Publisher: '진한엠앤비',
     s8CTA: '在YES24查看詳情',
     s8Alt: '未來選舉力量計劃 — AI選舉解決方案完整指南（沈在祐·鄭章德·朴大兼共著）',
 
@@ -720,7 +720,7 @@ const T: Record<Lang, {
     s8BookTitle: '未来選挙パワープラン',
     s8BookSubtitle: 'AI選挙ソリューション完全ガイド',
     s8Authors: 'シム・ジェウ · チョン・ジャンドク · パク・デギョム 共著',
-    s8Publisher: 'Bohan MOB',
+    s8Publisher: '진한엠앤비',
     s8CTA: 'YES24で詳細を見る',
     s8Alt: '未来選挙パワープラン — AI選挙ソリューション完全ガイド（シム・ジェウ・チョン・ジャンドク・パク・デギョム共著）',
 
@@ -1418,7 +1418,6 @@ export default function ElectionProposalPage() {
                 </div>
 
                 <div className="flex-1 min-w-0 flex flex-col justify-center text-center sm:text-left">
-                  <div className="text-[11px] font-bold text-amber-300 tracking-[0.2em] uppercase mb-1">Bohan MOB · 2025</div>
                   <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight mb-1">{t.s8BookTitle}</h3>
                   <p className="text-base sm:text-lg font-bold text-amber-200 mb-3">{t.s8BookSubtitle}</p>
                   <p className="text-sm text-slate-300 mb-1">{t.s8Authors}</p>
