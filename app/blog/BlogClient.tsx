@@ -432,8 +432,8 @@ export default function BlogClient({ initialPosts, initialCategories, page = 1, 
           </div>
         )}
 
-        {/* 포스트 목록 — 프리미엄 다크 글래스 카드 */}
-        {!selectedPost && (
+        {/* 포스트 목록 — /blog 메인 페이지에서는 hide. 카테고리 카드 클릭 시 /blog/category/[slug]로 이동. */}
+        {false && !selectedPost && (
           <>
             <div className="flex items-baseline justify-between mb-2 px-1">
               <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-amber-700">Articles</p>
