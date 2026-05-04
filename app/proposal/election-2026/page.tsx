@@ -201,7 +201,7 @@ const T: Record<Lang, {
     s5Group2: '🚀 부가 서비스 · 후보자 당선 가능성 강화',
     s5Items1: [
       { icon: '🎭', title: '15가지 톤 동시 발행', desc: '전문·친근·감성·스토리·뉴스 등 — SNS 채널별 최적화 콘텐츠 자동 생성' },
-      { icon: '🚀', title: '티스토리·블로그 자동 업로드', desc: 'GSC 색인 모니터링 대시보드 포함 · 24~72h 내 색인 도달' },
+      { icon: '🚀', title: 'AI 인용에 최적화된 블로그 페이지에 업로드', desc: 'GSC 색인 모니터링 대시보드 포함 · 24~72h 내 색인 도달' },
       { icon: '📚', title: 'RAG 기반 정확성', desc: '후보자 자료 PDF 1건 업로드 → 실제 데이터·수치만 본문에 인용' },
       { icon: '⚡', title: 'E-E-A-T 자동 구조화', desc: '도입부 → H2 7개 → FAQ → 비교표 → CTA 구조 자동 적용 · AI 인용 가능성 4배' },
     ],
@@ -333,7 +333,7 @@ const T: Record<Lang, {
     s5Group2: '🚀 Add-Ons · Boosting Election Odds',
     s5Items1: [
       { icon: '🎭', title: 'Publish 15 tones in parallel', desc: 'Professional, friendly, emotional, storytelling, news, etc. — auto-optimized per social channel' },
-      { icon: '🚀', title: 'Auto upload to Tistory · blogs', desc: 'GSC indexing dashboard included · indexed in 24–72 hours' },
+      { icon: '🚀', title: 'Upload to AI-citation-optimized blog pages', desc: 'GSC indexing dashboard included · indexed in 24–72 hours' },
       { icon: '📚', title: 'RAG-based accuracy', desc: 'Upload one candidate PDF → only real data and figures appear in the body' },
       { icon: '⚡', title: 'E-E-A-T auto-structuring', desc: 'Intro → 7 H2s → FAQ → comparison table → CTA · 4× higher AI citation probability' },
     ],
@@ -465,7 +465,7 @@ const T: Record<Lang, {
     s5Group2: '🚀 附加服務 · 提升候選人當選機率',
     s5Items1: [
       { icon: '🎭', title: '同時釋出15種語調', desc: '專業·親和·感性·敘事·新聞等 — 按社交渠道自動最佳化生成' },
-      { icon: '🚀', title: 'Tistory·部落格自動上傳', desc: '含GSC索引監控儀表板 · 24~72h內完成索引' },
+      { icon: '🚀', title: '上傳至AI引用最佳化的部落格頁面', desc: '含GSC索引監控儀表板 · 24~72h內完成索引' },
       { icon: '📚', title: '基於RAG的準確性', desc: '上傳1份候選人PDF資料 → 僅在正文中引用真實資料和數值' },
       { icon: '⚡', title: 'E-E-A-T自動結構化', desc: '匯入 → H2 7個 → FAQ → 對比表 → CTA結構自動應用 · AI引用機率提高4倍' },
     ],
@@ -597,7 +597,7 @@ const T: Record<Lang, {
     s5Group2: '🚀 追加サービス · 当選確率の強化',
     s5Items1: [
       { icon: '🎭', title: '15トーン同時発行', desc: '専門·親しみ·感性·ストーリー·ニュース等 — SNSチャネル別に最適化されたコンテンツを自動生成' },
-      { icon: '🚀', title: 'Tistory·ブログ自動アップロード', desc: 'GSCインデックス監視ダッシュボード付属 · 24~72h以内にインデックス到達' },
+      { icon: '🚀', title: 'AI引用に最適化されたブログページにアップロード', desc: 'GSCインデックス監視ダッシュボード付属 · 24~72h以内にインデックス到達' },
       { icon: '📚', title: 'RAGベースの正確性', desc: '候補者資料PDF1件をアップロード → 実データ·数値のみを本文に引用' },
       { icon: '⚡', title: 'E-E-A-T自動構造化', desc: '導入 → H2 7個 → FAQ → 比較表 → CTA構造を自動適用 · AI引用確率4倍' },
     ],
