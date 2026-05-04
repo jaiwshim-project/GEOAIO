@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser, UserProject, ProjectFile } from '@/lib/user-context';
@@ -84,6 +84,47 @@ export default function UserDashboardPage() {
   useEffect(() => {
     if (initialized && !currentUser) router.push('/user-select');
   }, [initialized, currentUser, router]);
+
+  // 즐겨찾기 (사용자별 localStorage)
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const favStorageKey = currentUser ? `geoaio_fav_projects_${currentUser.id}` : '';
+  useEffect(() => {
+    if (typeof window === 'undefined' || !favStorageKey) return;
+    try {
+      const raw = localStorage.getItem(favStorageKey);
+      if (raw) setFavoriteIds(new Set(JSON.parse(raw) as string[]));
+      else setFavoriteIds(new Set());
+    } catch { setFavoriteIds(new Set()); }
+  }, [favStorageKey]);
+  const toggleFavorite = useCallback((projectId: string) => {
+    setFavoriteIds(prev => {
+      const next = new Set(prev);
+      if (next.has(projectId)) next.delete(projectId);
+      else next.add(projectId);
+      if (typeof window !== 'undefined' && favStorageKey) {
+        try { localStorage.setItem(favStorageKey, JSON.stringify(Array.from(next))); } catch {}
+      }
+      return next;
+    });
+  }, [favStorageKey]);
+
+  // 원래 생성 순서(역순) 시퀀스를 프로젝트 ID로 고정 — 즐겨찾기 정렬과 무관하게 "01.X"는 늘 같은 X
+  const seqMap = useMemo(() => {
+    const m = new Map<string, string>();
+    projects.forEach((p, idx) => {
+      m.set(p.id, String(projects.length - idx).padStart(2, '0'));
+    });
+    return m;
+  }, [projects]);
+
+  // 즐겨찾기 우선 정렬 (그 안에서는 원래 순서 보존)
+  const sortedProjects = useMemo(() => {
+    return [...projects].sort((a, b) => {
+      const aFav = favoriteIds.has(a.id) ? 1 : 0;
+      const bFav = favoriteIds.has(b.id) ? 1 : 0;
+      return bFav - aFav;
+    });
+  }, [projects, favoriteIds]);
 
   const fetchProjects = useCallback(async () => {
     if (!currentUser) return;
@@ -548,14 +589,15 @@ export default function UserDashboardPage() {
             <p className="text-gray-500 text-xs text-center py-2">등록된 프로젝트가 없습니다.</p>
           ) : (
             <ul className="space-y-1">
-              {projects.map((p, idx) => {
-                const seq = String(projects.length - idx).padStart(2, '0');
+              {sortedProjects.map((p) => {
+                const seq = seqMap.get(p.id) || '';
                 const isActive = selectedProject?.id === p.id;
+                const isFav = favoriteIds.has(p.id);
                 return (
-                  <li key={p.id}>
+                  <li key={p.id} className="flex items-center gap-1">
                     <button
                       onClick={() => handleSelectProject(p)}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors text-left ${
+                      className={`flex-1 flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors text-left min-w-0 ${
                         isActive
                           ? 'bg-indigo-600/30 ring-1 ring-indigo-400/50'
                           : 'hover:bg-white/10'
@@ -564,6 +606,20 @@ export default function UserDashboardPage() {
                       <span className="text-indigo-300 text-xs font-mono shrink-0 w-6">{seq}.</span>
                       <span className="text-white text-sm truncate flex-1">{p.name}</span>
                       {isActive && <span className="text-[10px] text-indigo-200 shrink-0">선택됨</span>}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(p.id); }}
+                      title={isFav ? '즐겨찾기 해제' : '즐겨찾기'}
+                      className={`shrink-0 p-1.5 rounded-lg transition-colors ${
+                        isFav
+                          ? 'text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/15'
+                          : 'text-gray-500 hover:text-yellow-300 hover:bg-white/10'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
                     </button>
                   </li>
                 );
@@ -747,8 +803,8 @@ export default function UserDashboardPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {projects.map((project, index) => {
-                const seq = String(projects.length - index).padStart(2, '0');
+              {sortedProjects.map((project) => {
+                const seq = seqMap.get(project.id) || '';
                 return (
                 <div
                   key={project.id}
@@ -1126,8 +1182,8 @@ export default function UserDashboardPage() {
               <p className="text-gray-400 text-xs text-center py-2">등록된 프로젝트가 없습니다.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {projects.map((p, idx) => {
-                  const seq = String(projects.length - idx).padStart(2, '0');
+                {sortedProjects.map((p) => {
+                  const seq = seqMap.get(p.id) || '';
                   return (
                   <button
                     key={p.id}

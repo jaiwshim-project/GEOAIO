@@ -42,10 +42,17 @@ const mainNav: NavItem[] = [
   { href: '/keyword-analysis', label: '키워드' },
   { href: '/series', label: '시리즈' },
   { href: '/dashboard/indexing', label: '색인' },
-  { href: '/backlink', label: '백링크' },
+  {
+    href: '/backlink',
+    label: '백링크',
+    children: [
+      { href: '/backlink', label: '로드맵 생성' },
+      { href: '/backlink/dashboard', label: '발행 대시보드' },
+    ],
+  },
 ];
 
-const subNav = [
+const subNav: NavItem[] = [
   { href: '/pricing', label: '요금제' },
   { href: '/resources', label: '자료실' },
   { href: '/community', label: '질문/후기' },
@@ -330,20 +337,26 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
       {mobileOpen && (
         <div className="md:hidden border-t border-indigo-500 bg-indigo-700">
           <div className="px-4 py-3 space-y-1">
-            {[...mainNav, ...subNav].map((item) => {
-              const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+            {[...mainNav, ...subNav].flatMap((item) => {
+              const parentEntry = { href: item.href, label: item.label, indent: false, key: item.href };
+              const childEntries = (item.children || [])
+                .filter(c => c.href !== item.href)
+                .map(c => ({ href: c.href, label: c.label, indent: true, key: `${item.href}__${c.href}` }));
+              return [parentEntry, ...childEntries];
+            }).map((entry) => {
+              const isActive = pathname === entry.href || (!entry.indent && pathname?.startsWith(entry.href + '/'));
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={entry.key}
+                  href={entry.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  className={`block ${entry.indent ? 'pl-8 text-xs' : 'px-3 text-sm'} ${entry.indent ? 'py-1.5' : 'py-2'} font-medium rounded-lg transition-colors ${
                     isActive
                       ? 'bg-white/20 text-white'
                       : 'text-white hover:bg-white/10'
                   }`}
                 >
-                  {item.label}
+                  {entry.indent ? `↳ ${entry.label}` : entry.label}
                 </Link>
               );
             })}
