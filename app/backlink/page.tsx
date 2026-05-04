@@ -42,25 +42,51 @@ export default function BacklinkPage() {
   const [weeks, setWeeks] = useState(10);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [roadmap, setRoadmap] = useState<RoadmapResponse | null>(null);
   const [copiedPost, setCopiedPost] = useState<number | null>(null);
 
+  // 생성된 로드맵을 슬러그별로 누적 저장 (localStorage 영구) + 탭 전환
+  const STORAGE_KEY = 'geoaio_backlink_roadmaps';
+  const [savedRoadmaps, setSavedRoadmaps] = useState<Record<string, RoadmapResponse>>({});
+  const [activeSlug, setActiveSlug] = useState<string>('');
+
+  // 마운트 시 카테고리 목록 + 저장된 로드맵 로드
   useEffect(() => {
     fetch('/api/backlink', { cache: 'no-store' })
       .then(r => r.json())
       .then(d => setCategories(d.categories || []))
       .catch(() => setCategories([]));
+
+    if (typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed: Record<string, RoadmapResponse> = JSON.parse(raw);
+          setSavedRoadmaps(parsed);
+          const slugs = Object.keys(parsed);
+          if (slugs.length > 0) setActiveSlug(slugs[slugs.length - 1]);
+        }
+      } catch {}
+    }
   }, []);
+
+  // 저장된 로드맵 변경 시 localStorage 동기화
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedRoadmaps)); } catch {}
+  }, [savedRoadmaps]);
 
   const visibleCategories = filter
     ? categories.filter(c => c.slug.toLowerCase().includes(filter.toLowerCase()))
     : categories;
 
+  // 현재 활성 탭의 로드맵
+  const roadmap: RoadmapResponse | null = activeSlug ? (savedRoadmaps[activeSlug] || null) : null;
+  const savedSlugs = Object.keys(savedRoadmaps);
+
   const handleGenerate = async () => {
     if (!selectedSlug) { setError('카테고리를 선택하세요'); return; }
     setLoading(true);
     setError('');
-    setRoadmap(null);
     try {
       const res = await fetch('/api/backlink', {
         method: 'POST',
@@ -69,12 +95,33 @@ export default function BacklinkPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '생성 실패'); return; }
-      setRoadmap(data);
+      // 슬러그별 누적 저장 (같은 슬러그 재생성 시 덮어씀)
+      setSavedRoadmaps(prev => ({ ...prev, [data.categorySlug]: data }));
+      setActiveSlug(data.categorySlug);
     } catch (e) {
       setError(e instanceof Error ? e.message : '네트워크 오류');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteRoadmap = (slug: string) => {
+    if (!confirm(`"${slug}" 로드맵을 삭제하시겠습니까?`)) return;
+    setSavedRoadmaps(prev => {
+      const next = { ...prev };
+      delete next[slug];
+      return next;
+    });
+    if (activeSlug === slug) {
+      const remaining = Object.keys(savedRoadmaps).filter(s => s !== slug);
+      setActiveSlug(remaining[remaining.length - 1] || '');
+    }
+  };
+
+  const handleClearAll = () => {
+    if (!confirm('모든 로드맵을 삭제하시겠습니까?')) return;
+    setSavedRoadmaps({});
+    setActiveSlug('');
   };
 
   const handleCopy = async (post: RoadmapPost) => {
@@ -224,6 +271,62 @@ export default function BacklinkPage() {
             )}
           </button>
         </section>
+
+        {/* 저장된 로드맵 탭 — 슬러그별 분류, 클릭하면 활성 전환 */}
+        {savedSlugs.length > 0 && (
+          <section className="print-hide bg-white rounded-2xl shadow-md border-2 border-amber-300 ring-2 ring-amber-200/60 p-4 mb-6">
+            <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
+              <h2 className="text-sm font-extrabold text-slate-900">
+                📂 저장된 로드맵 ({savedSlugs.length}개)
+              </h2>
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="text-[11px] text-rose-600 hover:text-rose-800 font-bold"
+              >
+                🗑 전체 삭제
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {savedSlugs.map(slug => {
+                const r = savedRoadmaps[slug];
+                const isActive = activeSlug === slug;
+                return (
+                  <div key={slug} className="relative group">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSlug(slug)}
+                      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors border-2 ${
+                        isActive
+                          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-transparent shadow-md ring-2 ring-amber-300/60'
+                          : 'bg-white text-slate-700 border-slate-300 hover:border-amber-400 hover:bg-amber-50'
+                      }`}
+                    >
+                      <span className="text-base leading-none">{isActive ? '📌' : '📁'}</span>
+                      <span className="truncate max-w-[200px]" title={slug}>{slug}</span>
+                      <span className={`text-[10px] ${isActive ? 'text-amber-100' : 'text-slate-500'}`}>
+                        {r.totalPosts}개
+                      </span>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); handleDeleteRoadmap(slug); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleDeleteRoadmap(slug); } }}
+                        className={`ml-1 text-[10px] font-extrabold ${isActive ? 'text-amber-100 hover:text-white' : 'text-slate-400 hover:text-rose-600'} cursor-pointer`}
+                        title="이 로드맵 삭제"
+                      >
+                        ✕
+                      </span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-slate-500 mt-2">
+              💡 카테고리별 백링크 로드맵이 누적 저장됩니다. 새로 생성하면 같은 슬러그는 덮어씌워지고 새 슬러그는 추가됩니다.
+            </p>
+          </section>
+        )}
 
         {/* 로드맵 결과 */}
         {roadmap && (
