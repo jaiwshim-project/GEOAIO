@@ -161,14 +161,14 @@ export default function BlogEngagement({ postId, defaultAuthorName = '' }: Props
           onClick={handleLike}
           aria-label={likedByMe ? '좋아요 취소' : '좋아요'}
           aria-pressed={likedByMe}
-          className={`inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-full transition-all shadow-sm border ${
+          className={`inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-full transition-colors shadow-sm border ${
             likedByMe
               ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100'
               : 'bg-white text-slate-700 border-slate-300 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700'
           } ${likeAnimating ? 'scale-105' : ''}`}
         >
           <svg
-            className={`w-4 h-4 transition-all ${likedByMe ? 'text-rose-500' : 'text-slate-400'}`}
+            className={`w-4 h-4 transition-colors ${likedByMe ? 'text-rose-500' : 'text-slate-400'}`}
             fill={likedByMe ? 'currentColor' : 'none'}
             stroke="currentColor"
             strokeWidth={2}
@@ -185,7 +185,7 @@ export default function BlogEngagement({ postId, defaultAuthorName = '' }: Props
           onClick={() => setShowComments(s => !s)}
           aria-label="댓글 영역 토글"
           aria-expanded={showComments}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-full transition-all shadow-sm border bg-white text-slate-700 border-slate-300 hover:bg-sky-50 hover:border-sky-200 hover:text-sky-700"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-full transition-colors shadow-sm border bg-white text-slate-700 border-slate-300 hover:bg-sky-50 hover:border-sky-200 hover:text-sky-700"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -223,7 +223,7 @@ export default function BlogEngagement({ postId, defaultAuthorName = '' }: Props
               <button
                 type="submit"
                 disabled={submitting}
-                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 transition-all shadow-sm"
+                className="text-sm px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold hover:from-amber-400 hover:to-amber-500 disabled:opacity-50 transition-colors shadow-sm"
               >
                 {submitting ? '등록…' : '등록'}
               </button>

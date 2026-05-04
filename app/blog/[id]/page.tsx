@@ -444,7 +444,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                   <Link
                     key={rp.id}
                     href={`/blog/${rp.id}`}
-                    className="group block bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-all duration-200 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 p-3"
+                    className="group block bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-colors duration-200 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 p-3"
                   >
                     <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                       {rpMeta.tag && (

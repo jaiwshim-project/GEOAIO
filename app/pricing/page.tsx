@@ -70,7 +70,7 @@ export default function PricingPage() {
         {/* 세 가지 플랜 */}
         <div className="grid md:grid-cols-3 gap-5 mb-8">
           {/* 프로 플랜 */}
-          <div className="relative bg-white rounded-2xl border-2 border-blue-300 p-6 shadow-md hover:shadow-xl transition-all">
+          <div className="relative bg-white rounded-2xl border-2 border-blue-300 p-6 shadow-md hover:shadow-xl transition-colors">
             <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-bold rounded-full">
               프로 (Pro)
             </div>
@@ -110,14 +110,14 @@ export default function PricingPage() {
 
             <button
               onClick={() => setContactModal('pro')}
-              className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm text-sm"
+              className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl hover:opacity-90 transition-colors shadow-sm text-sm"
             >
               프로 플랜 문의하기
             </button>
           </div>
 
           {/* 프리미엄 플랜 — 라이트 indigo */}
-          <div className="relative bg-white rounded-2xl border-2 border-indigo-300 p-6 shadow-md hover:shadow-xl transition-all">
+          <div className="relative bg-white rounded-2xl border-2 border-indigo-300 p-6 shadow-md hover:shadow-xl transition-colors">
             <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-xs font-bold rounded-full">
               프리미엄 (Premium)
             </div>
@@ -156,14 +156,14 @@ export default function PricingPage() {
 
             <button
               onClick={() => setContactModal('premium')}
-              className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm text-sm"
+              className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold rounded-xl hover:opacity-90 transition-colors shadow-sm text-sm"
             >
               프리미엄 플랜 문의하기
             </button>
           </div>
 
           {/* 맥스 플랜 — 프리미엄 골드 ring */}
-          <div className="relative bg-gradient-to-br from-white via-amber-50/30 to-white rounded-2xl ring-2 ring-amber-300/60 p-6 shadow-[0_12px_40px_-10px_rgba(251,191,36,0.4)] hover:shadow-[0_20px_60px_-10px_rgba(251,191,36,0.5)] transition-all">
+          <div className="relative bg-gradient-to-br from-white via-amber-50/30 to-white rounded-2xl ring-2 ring-amber-300/60 p-6 shadow-[0_12px_40px_-10px_rgba(251,191,36,0.4)] hover:shadow-[0_20px_60px_-10px_rgba(251,191,36,0.5)] transition-colors">
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent rounded-t-2xl" />
             <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-white text-xs font-bold rounded-full shadow-md">
               맥스 (Max)
@@ -217,7 +217,7 @@ export default function PricingPage() {
 
             <button
               onClick={() => setContactModal('max')}
-              className="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white font-bold rounded-xl hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all shadow-md text-sm ring-1 ring-amber-400"
+              className="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white font-bold rounded-xl hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-colors shadow-md text-sm ring-1 ring-amber-400"
             >
               맥스 플랜 문의하기
             </button>
@@ -368,10 +368,10 @@ export default function PricingPage() {
               경쟁사보다 먼저 AI 검색엔진에 최적화된 콘텐츠를 만들어 보세요.
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              <a href="tel:010-2397-5734" className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all ring-1 ring-amber-300">
+              <a href="tel:010-2397-5734" className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-colors ring-1 ring-amber-300">
                 📞 010-2397-5734
               </a>
-              <a href="mailto:jaiwshim@gmail.com" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-sm text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-all">
+              <a href="mailto:jaiwshim@gmail.com" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-colors">
                 ✉️ jaiwshim@gmail.com
               </a>
             </div>
@@ -385,7 +385,7 @@ export default function PricingPage() {
       {/* 문의 모달 */}
       {contactModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setContactModal(null)}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/60" />
           <div
             className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full"
             onClick={(e) => e.stopPropagation()}
@@ -397,7 +397,7 @@ export default function PricingPage() {
             }`}>
               <button
                 onClick={() => setContactModal(null)}
-                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-all"
+                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -442,13 +442,13 @@ export default function PricingPage() {
                     contactModal === 'pro' ? 'bg-blue-500 hover:bg-blue-600'
                     : contactModal === 'max' ? 'bg-amber-500 hover:bg-amber-600'
                     : 'bg-indigo-500 hover:bg-indigo-600'
-                  } transition-all`}
+                  } transition-colors`}
                 >
                   📞 전화 걸기
                 </a>
                 <a
                   href={`mailto:jaiwshim@gmail.com?subject=GEO-AIO ${contactModal === 'pro' ? '프로' : contactModal === 'max' ? '맥스' : '프리미엄'} 플랜 문의`}
-                  className="flex-1 text-center py-2.5 text-gray-700 font-semibold rounded-xl border border-gray-300 hover:bg-gray-50 text-sm transition-all"
+                  className="flex-1 text-center py-2.5 text-gray-700 font-semibold rounded-xl border border-gray-300 hover:bg-gray-50 text-sm transition-colors"
                 >
                   ✉️ 이메일 보내기
                 </a>

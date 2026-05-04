@@ -92,7 +92,7 @@ export default function UserSelectPage() {
         </div>
 
         {!selectedUser ? (
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+          <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
             <h2 className="text-white font-bold text-lg mb-5">사용자 선택</h2>
 
             {loading ? (
@@ -105,7 +105,7 @@ export default function UserSelectPage() {
                   <button
                     key={user.id}
                     onClick={() => handleSelectUser(user)}
-                    className="w-full flex items-center gap-4 p-4 bg-white/5 hover:bg-white/15 rounded-xl border border-white/10 hover:border-indigo-400/50 transition-all text-left group"
+                    className="w-full flex items-center gap-4 p-4 bg-white/5 hover:bg-white/15 rounded-xl border border-white/10 hover:border-indigo-400/50 transition-colors text-left group"
                   >
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
                       {user.username.charAt(0).toUpperCase()}
@@ -127,7 +127,7 @@ export default function UserSelectPage() {
             )}
 
             <div className="border-t border-white/10 pt-4">
-              <Link href="/user-register" className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-all">
+              <Link href="/user-register" className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
@@ -136,7 +136,7 @@ export default function UserSelectPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+          <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
             <button onClick={() => { setSelectedUser(null); setPin(['','','','']); setError(''); }}
               className="flex items-center gap-1 text-gray-400 hover:text-white text-sm mb-5 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +172,7 @@ export default function UserSelectPage() {
             {error && <p className="text-red-400 text-sm text-center mb-4">{error}</p>}
 
             <button onClick={handleVerify} disabled={verifying || pin.join('').length !== 4}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all">
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors">
               {verifying ? '확인 중...' : '로그인'}
             </button>
           </div>

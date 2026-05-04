@@ -256,7 +256,7 @@ export default function CommunityPage() {
               <div className="flex">
                 <button
                   onClick={() => setActiveTab('questions')}
-                  className={`flex-1 py-3.5 text-sm font-bold text-center transition-all border-b-3 ${
+                  className={`flex-1 py-3.5 text-sm font-bold text-center transition-colors border-b-3 ${
                     activeTab === 'questions'
                       ? 'text-emerald-700 bg-emerald-50 border-emerald-600'
                       : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 border-transparent'
@@ -266,7 +266,7 @@ export default function CommunityPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('reviews')}
-                  className={`flex-1 py-3.5 text-sm font-bold text-center transition-all border-b-3 ${
+                  className={`flex-1 py-3.5 text-sm font-bold text-center transition-colors border-b-3 ${
                     activeTab === 'reviews'
                       ? 'text-purple-700 bg-purple-50 border-purple-600'
                       : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 border-transparent'
@@ -276,7 +276,7 @@ export default function CommunityPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab('qna')}
-                  className={`flex-1 py-3.5 text-sm font-bold text-center transition-all border-b-3 ${
+                  className={`flex-1 py-3.5 text-sm font-bold text-center transition-colors border-b-3 ${
                     activeTab === 'qna'
                       ? 'text-indigo-800 bg-indigo-50 border-indigo-800'
                       : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50 border-transparent'
@@ -293,7 +293,7 @@ export default function CommunityPage() {
                   {user && !showQForm && (
                     <button
                       onClick={() => setShowQForm(true)}
-                      className="w-full mb-4 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm"
+                      className="w-full mb-4 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-colors shadow-sm"
                     >
                       질문 작성하기
                     </button>
@@ -325,14 +325,14 @@ export default function CommunityPage() {
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => { setShowQForm(false); setQTitle(''); setQContent(''); }}
-                          className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all"
+                          className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                         >
                           취소
                         </button>
                         <button
                           onClick={handleSubmitQuestion}
                           disabled={qSubmitting || !qTitle.trim() || !qContent.trim()}
-                          className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {qSubmitting ? '등록 중...' : '등록'}
                         </button>
@@ -351,7 +351,7 @@ export default function CommunityPage() {
                         <div key={q.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                           <button
                             onClick={() => { setExpandedQ(expandedQ === q.id ? null : q.id); setAnswerText(q.answer || ''); }}
-                            className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-gray-50 transition-all"
+                            className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-gray-50 transition-colors"
                           >
                             <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full shrink-0 ${
                               q.answer ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
@@ -402,7 +402,7 @@ export default function CommunityPage() {
                                   <button
                                     onClick={() => handleAnswer(q.id)}
                                     disabled={answering || !answerText.trim()}
-                                    className="px-4 py-1.5 text-xs font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-all disabled:opacity-50"
+                                    className="px-4 py-1.5 text-xs font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
                                   >
                                     {answering ? '저장 중...' : '답변 저장'}
                                   </button>
@@ -414,7 +414,7 @@ export default function CommunityPage() {
                                 <div className="flex justify-end">
                                   <button
                                     onClick={() => handleDeleteQuestion(q.id)}
-                                    className="text-[10px] text-red-400 hover:text-red-600 transition-all"
+                                    className="text-[10px] text-red-400 hover:text-red-600 transition-colors"
                                   >
                                     삭제
                                   </button>
@@ -456,7 +456,7 @@ export default function CommunityPage() {
                   {user && !showRForm && (
                     <button
                       onClick={() => setShowRForm(true)}
-                      className="w-full mb-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-all shadow-sm"
+                      className="w-full mb-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-colors shadow-sm"
                     >
                       후기 작성하기
                     </button>
@@ -503,14 +503,14 @@ export default function CommunityPage() {
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => { setShowRForm(false); setRContent(''); setRRating(5); }}
-                          className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all"
+                          className="px-4 py-2 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                         >
                           취소
                         </button>
                         <button
                           onClick={handleSubmitReview}
                           disabled={rSubmitting || !rContent.trim()}
-                          className="px-4 py-2 text-xs font-semibold text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="px-4 py-2 text-xs font-semibold text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {rSubmitting ? '등록 중...' : '등록'}
                         </button>
@@ -548,7 +548,7 @@ export default function CommunityPage() {
                               {user?.id === r.user_id && (
                                 <button
                                   onClick={() => handleDeleteReview(r.id)}
-                                  className="text-[10px] text-red-400 hover:text-red-600 transition-all"
+                                  className="text-[10px] text-red-400 hover:text-red-600 transition-colors"
                                 >
                                   삭제
                                 </button>
@@ -575,7 +575,7 @@ export default function CommunityPage() {
                       <button
                         key={cat}
                         onClick={() => setQnaFilter(cat)}
-                        className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+                        className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                           qnaFilter === cat
                             ? 'bg-indigo-600 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -594,7 +594,7 @@ export default function CommunityPage() {
                         <div key={item.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                           <button
                             onClick={() => setExpandedQna(expandedQna === item.id ? null : item.id)}
-                            className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-gray-50 transition-all"
+                            className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-gray-50 transition-colors"
                           >
                             <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-700 shrink-0">
                               {item.category}

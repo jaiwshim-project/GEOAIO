@@ -1954,7 +1954,7 @@ export default function GeneratePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-teal-50/40 via-indigo-50/40 to-purple-50/40 pointer-events-none" />
               <div className="relative flex items-center justify-center gap-0">
                 {/* 1단계 */}
-                <div className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300 ${showBusinessInfo ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-200 scale-105' : 'bg-teal-50 text-teal-700 border border-teal-200'}`}>
+                <div className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-colors duration-300 ${showBusinessInfo ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-lg shadow-teal-200 scale-105' : 'bg-teal-50 text-teal-700 border border-teal-200'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${showBusinessInfo ? 'bg-white/20 text-white' : 'bg-teal-200 text-teal-700'}`}>1</div>
                   <div className="text-left">
                     <p className={`text-xs font-bold ${showBusinessInfo ? 'text-white' : 'text-teal-500'}`}>STEP 1</p>
@@ -1974,7 +1974,7 @@ export default function GeneratePage() {
                 </div>
 
                 {/* 2단계 */}
-                <div className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300 ${selectedCategory ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-200 scale-105' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}`}>
+                <div className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-colors duration-300 ${selectedCategory ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-200 scale-105' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${selectedCategory ? 'bg-white/20 text-white' : 'bg-indigo-200 text-indigo-700'}`}>2</div>
                   <div className="text-left">
                     <p className={`text-xs font-bold ${selectedCategory ? 'text-white' : 'text-indigo-500'}`}>STEP 2</p>
@@ -1994,7 +1994,7 @@ export default function GeneratePage() {
                 </div>
 
                 {/* 3단계 */}
-                <div className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300 ${isGenerating ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-200 scale-105 animate-pulse' : 'bg-purple-50 text-purple-700 border border-purple-200'}`}>
+                <div className={`flex items-center gap-3 px-5 py-3 rounded-xl transition-colors duration-300 ${isGenerating ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-200 scale-105 animate-pulse' : 'bg-purple-50 text-purple-700 border border-purple-200'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${isGenerating ? 'bg-white/20 text-white' : 'bg-purple-200 text-purple-700'}`}>3</div>
                   <div className="text-left">
                     <p className={`text-xs font-bold ${isGenerating ? 'text-white' : 'text-purple-500'}`}>STEP 3</p>
@@ -2011,7 +2011,7 @@ export default function GeneratePage() {
             <div className="bg-white rounded-2xl shadow-sm border border-teal-200 overflow-hidden">
               <button
                 onClick={() => setShowBusinessInfo(!showBusinessInfo)}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-teal-50 transition-all duration-200"
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-teal-50 transition-colors duration-200"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg flex items-center justify-center">
@@ -2052,7 +2052,7 @@ export default function GeneratePage() {
                       <button
                         type="button"
                         onClick={() => setShowProfileList(!showProfileList)}
-                        className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border hover:shadow-lg hover:scale-105 ${
+                        className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 border hover:shadow-lg hover:scale-105 ${
                           showProfileList
                             ? 'bg-gradient-to-r from-indigo-500 to-violet-500 text-white border-indigo-300 shadow-md'
                             : 'bg-white text-indigo-700 border-indigo-300 hover:bg-indigo-50'
@@ -2086,7 +2086,7 @@ export default function GeneratePage() {
                                   <p className="text-[10px] text-indigo-500">{savedProfiles.length}개 프로필 저장됨</p>
                                 </div>
                               </div>
-                              <button type="button" onClick={() => setShowProfileList(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
+                              <button type="button" onClick={() => setShowProfileList(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                               </button>
                             </div>
@@ -2105,7 +2105,7 @@ export default function GeneratePage() {
                                 {savedProfiles.map((profile) => (
                                   <div
                                     key={profile.id}
-                                    className="px-6 py-4 hover:bg-indigo-50/50 transition-all duration-150 cursor-pointer group"
+                                    className="px-6 py-4 hover:bg-indigo-50/50 transition-colors duration-150 cursor-pointer group"
                                     onClick={() => loadProfile(profile)}
                                   >
                                     <div className="flex items-start justify-between gap-4">
@@ -2153,7 +2153,7 @@ export default function GeneratePage() {
                                         <button
                                           type="button"
                                           onClick={(e) => handleDeleteProfile(profile.id, e)}
-                                          className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                                          className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
                                         >
                                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -2174,7 +2174,7 @@ export default function GeneratePage() {
                     <button
                       type="button"
                       onClick={saveAsProfile}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-white text-teal-700 border-teal-300 hover:bg-teal-50 hover:shadow-lg hover:scale-105"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 border bg-white text-teal-700 border-teal-300 hover:bg-teal-50 hover:shadow-lg hover:scale-105"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -2227,7 +2227,7 @@ export default function GeneratePage() {
                             key={ind.value}
                             type="button"
                             onClick={() => updateBiz('industry', ind.value)}
-                            className={`flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-xl border transition-all duration-200 hover:shadow-md hover:scale-105 ${
+                            className={`flex flex-col items-center justify-center gap-1 px-2 py-3 rounded-xl border transition-colors duration-200 hover:shadow-md hover:scale-105 ${
                               businessInfo.industry === ind.value
                                 ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white border-amber-300 shadow-md'
                                 : 'bg-white text-gray-700 border-gray-200 hover:border-amber-400 hover:bg-amber-50/50'
@@ -2268,7 +2268,7 @@ export default function GeneratePage() {
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {['10대 청소년', '20대 대학생', '20-30대 직장인', '30-40대 주부', '40-50대 중년층', '시니어'].map(t => (
                         <button key={t} type="button" onClick={() => updateBiz('targetAudience', businessInfo.targetAudience ? `${businessInfo.targetAudience}, ${t}` : t)}
-                          className="px-2.5 py-1 text-xs bg-violet-50 text-violet-600 rounded-lg border border-violet-200 hover:bg-violet-100 hover:border-violet-400 hover:scale-105 transition-all duration-200"
+                          className="px-2.5 py-1 text-xs bg-violet-50 text-violet-600 rounded-lg border border-violet-200 hover:bg-violet-100 hover:border-violet-400 hover:scale-105 transition-colors duration-200"
                         >{t}</button>
                       ))}
                     </div>
@@ -2293,12 +2293,12 @@ export default function GeneratePage() {
                     )}
                     <div className="flex gap-2">
                       <input type="text" value={businessInfo.newStrength} onChange={e => updateBiz('newStrength', e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addStrength())} placeholder="강점 입력 (최대 5개)" className="flex-1 px-4 py-2.5 bg-rose-50/50 border border-rose-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-transparent placeholder-rose-400/60" />
-                      <button type="button" onClick={addStrength} className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-rose-600 hover:to-pink-700 hover:shadow-md hover:scale-105 transition-all duration-200 border border-rose-300 shadow-sm">추가</button>
+                      <button type="button" onClick={addStrength} className="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 text-white text-sm font-medium rounded-xl hover:from-rose-600 hover:to-pink-700 hover:shadow-md hover:scale-105 transition-colors duration-200 border border-rose-300 shadow-sm">추가</button>
                     </div>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {['합리적인 가격', '전문가 상담', '풍부한 경험', '빠른 서비스', '고품질', '친절한 응대'].map(s => (
                         <button key={s} type="button" onClick={() => { if (businessInfo.strengths.length < 5 && !businessInfo.strengths.includes(s)) setBusinessInfo(prev => { const next = { ...prev, strengths: [...prev.strengths, s] }; autoSave(next); return next; }); }}
-                          className="px-2.5 py-1 text-xs bg-rose-50 text-rose-600 rounded-lg border border-rose-200 hover:bg-rose-100 hover:border-rose-400 hover:scale-105 transition-all duration-200"
+                          className="px-2.5 py-1 text-xs bg-rose-50 text-rose-600 rounded-lg border border-rose-200 hover:bg-rose-100 hover:border-rose-400 hover:scale-105 transition-colors duration-200"
                         >{s}</button>
                       ))}
                     </div>
@@ -2310,7 +2310,7 @@ export default function GeneratePage() {
                     <button
                       type="button"
                       onClick={saveAsProfile}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-white text-teal-700 border-teal-300 hover:bg-teal-50 hover:shadow-lg hover:scale-105"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 border bg-white text-teal-700 border-teal-300 hover:bg-teal-50 hover:shadow-lg hover:scale-105"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
@@ -2347,7 +2347,7 @@ export default function GeneratePage() {
                   <p className="text-xs text-amber-600 font-bold">프로젝트 미선택</p>
                   <p className="text-[13px] text-amber-800">프로젝트를 선택하면 맞춤 콘텐츠를 생성할 수 있습니다</p>
                 </div>
-                <Link href="/user-dashboard" className="shrink-0 px-3 py-1.5 bg-amber-500 text-white text-xs font-semibold rounded-lg hover:bg-amber-600 transition-all">
+                <Link href="/user-dashboard" className="shrink-0 px-3 py-1.5 bg-amber-500 text-white text-xs font-semibold rounded-lg hover:bg-amber-600 transition-colors">
                   프로젝트 선택/추가
                 </Link>
               </div>
@@ -2392,7 +2392,7 @@ export default function GeneratePage() {
                         console.log(`[reset] "${cat.label}" 카드 클릭 — CEP·추천 주제 모두 리셋`);
                         setSelectedCategory(cat.id);
                       }}
-                      className={`relative p-3 rounded-xl text-left transition-all duration-200 border ${
+                      className={`relative p-3 rounded-xl text-left transition-colors duration-200 border ${
                         isSelected
                           ? `bg-gradient-to-br ${cat.color} text-white shadow-lg`
                           : `${cat.bgIdle} hover:shadow-md`
@@ -2434,7 +2434,7 @@ export default function GeneratePage() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelectedApi('gemini')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     selectedApi === 'gemini'
                       ? 'bg-blue-500 text-white shadow-sm'
                       : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
@@ -2534,7 +2534,7 @@ export default function GeneratePage() {
             {/* CEP(Category Entry Point) 발굴 위저드 */}
             {selectedCategory && (
               <div
-                className={`bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 rounded-xl shadow-sm border border-purple-200 p-5 transition-all duration-300 ${
+                className={`bg-gradient-to-br from-purple-50 via-indigo-50 to-violet-50 rounded-xl shadow-sm border border-purple-200 p-5 transition-colors duration-300 ${
                   cepAutoStatus === 'searching' || cepAutoStatus === 'translating'
                     ? 'ring-2 ring-purple-400 ring-offset-2 shadow-lg'
                     : cepAutoStatus === 'done'
@@ -2685,7 +2685,7 @@ export default function GeneratePage() {
                             return (
                               <div
                                 key={idx}
-                                className={`rounded-lg border p-3 transition-all ${
+                                className={`rounded-lg border p-3 transition-colors ${
                                   selected
                                     ? 'bg-purple-600 border-purple-700 text-white shadow-md'
                                     : 'bg-white border-purple-200 hover:border-purple-400'
@@ -3091,7 +3091,7 @@ export default function GeneratePage() {
                             <button
                               key={kw}
                               onClick={() => setSelectedSubKeyword(selectedSubKeyword === kw ? '' : kw)}
-                              className={`px-2.5 py-1 text-xs font-semibold rounded-full transition-all ${
+                              className={`px-2.5 py-1 text-xs font-semibold rounded-full transition-colors ${
                                 selectedSubKeyword === kw
                                   ? 'bg-blue-600 text-white shadow-sm'
                                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -3133,7 +3133,7 @@ export default function GeneratePage() {
                           }
                         }
                       }}
-                      className={`mt-1.5 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all ${
+                      className={`mt-1.5 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors ${
                         showTopicDropdown
                           ? selectedApi === 'claude'
                             ? 'bg-slate-600 text-white border-slate-600'
@@ -3261,7 +3261,7 @@ export default function GeneratePage() {
                             key={i}
                             type="button"
                             onClick={() => toggleKeyword(kw)}
-                            className={`px-2.5 py-1 text-xs rounded-full border transition-all ${
+                            className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
                               selectedKeywords.includes(kw)
                                 ? 'bg-indigo-100 text-indigo-600 border-indigo-300 line-through opacity-50'
                                 : 'bg-gray-50 text-gray-600 border-gray-300 hover:border-indigo-400 hover:text-indigo-600'
@@ -3358,14 +3358,14 @@ export default function GeneratePage() {
                       onDrop={handleDrop}
                       onDragOver={handleDragOver}
                       onDragLeave={handleDragLeave}
-                      className={`mt-3 relative rounded-xl border border-dashed transition-all duration-200 ${
+                      className={`mt-3 relative rounded-xl border border-dashed transition-colors duration-200 ${
                         dragOver
                           ? 'border-indigo-500 bg-indigo-100 scale-[1.01] shadow-lg'
                           : 'border-indigo-300 bg-indigo-50 hover:border-indigo-400 hover:bg-indigo-100'
                       }`}
                     >
                       <label className="flex flex-col items-center gap-2 px-4 py-5 cursor-pointer">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
                           dragOver ? 'bg-indigo-500 text-white scale-110' : 'bg-indigo-200 text-indigo-600'
                         }`}>
                           {fileUploading ? (
@@ -3441,7 +3441,7 @@ export default function GeneratePage() {
                   <button
                     onClick={handleGenerate}
                     disabled={isGenerating || !topic.trim()}
-                    className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed border border-sky-300 flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed border border-sky-300 flex items-center justify-center gap-2"
                   >
                     {isGenerating ? (
                       <>
@@ -3521,7 +3521,7 @@ export default function GeneratePage() {
                           <button
                             onClick={() => handleSaveInlineKey(false)}
                             disabled={inlineSaving || !inlineKey.trim()}
-                            className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                            className="px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
                           >
                             {inlineSaving ? '저장 중...' : '저장'}
                           </button>
@@ -3539,12 +3539,12 @@ export default function GeneratePage() {
                       <div className="flex items-center justify-between pt-1">
                         {inlineHasKey ? (
                           <button onClick={handleDeleteInlineKey}
-                            className="text-xs text-red-500 hover:text-red-700 hover:underline transition-all">
+                            className="text-xs text-red-500 hover:text-red-700 hover:underline transition-colors">
                             등록된 키 삭제
                           </button>
                         ) : <span />}
                         <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline transition-all">
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline transition-colors">
                           키 무료 발급받기
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -3590,7 +3590,7 @@ export default function GeneratePage() {
                     <p className="text-sm font-bold text-white">API 키를 재입력하고 바로 재시도하세요</p>
                     <p className="text-xs text-amber-100">새 키를 저장하면 이 페이지를 벗어나지 않고 즉시 생성을 재시작합니다</p>
                   </div>
-                  <button onClick={() => setShowKeyRecovery(false)} className="w-6 h-6 flex items-center justify-center rounded-md bg-white/15 hover:bg-white/30 text-white transition-all">
+                  <button onClick={() => setShowKeyRecovery(false)} className="w-6 h-6 flex items-center justify-center rounded-md bg-white/15 hover:bg-white/30 text-white transition-colors">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
                 </div>
@@ -3632,7 +3632,7 @@ export default function GeneratePage() {
                     <button
                       onClick={() => handleSaveRecoveryKey(false)}
                       disabled={recoverySaving || !recoveryKey.trim()}
-                      className="px-4 py-2.5 bg-white border-2 border-amber-300 text-amber-700 text-sm font-semibold rounded-xl hover:bg-amber-50 transition-all disabled:opacity-40 whitespace-nowrap"
+                      className="px-4 py-2.5 bg-white border-2 border-amber-300 text-amber-700 text-sm font-semibold rounded-xl hover:bg-amber-50 transition-colors disabled:opacity-40 whitespace-nowrap"
                     >
                       {recoverySaved ? '✓ 저장됨' : '저장'}
                     </button>
@@ -3640,7 +3640,7 @@ export default function GeneratePage() {
                     <button
                       onClick={() => handleSaveRecoveryKey(true)}
                       disabled={recoverySaving || !recoveryKey.trim()}
-                      className="px-4 py-2.5 bg-amber-500 text-white text-sm font-bold rounded-xl hover:bg-amber-600 transition-all disabled:opacity-40 whitespace-nowrap flex items-center gap-1.5 shadow-md"
+                      className="px-4 py-2.5 bg-amber-500 text-white text-sm font-bold rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-40 whitespace-nowrap flex items-center gap-1.5 shadow-md"
                     >
                       {recoverySaving ? (
                         <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -3756,7 +3756,7 @@ export default function GeneratePage() {
                   href="https://console.anthropic.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-slate-600 to-slate-700 border border-slate-700 rounded-xl hover:from-slate-700 hover:to-slate-800 transition-all whitespace-nowrap"
+                  className="px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-slate-600 to-slate-700 border border-slate-700 rounded-xl hover:from-slate-700 hover:to-slate-800 transition-colors whitespace-nowrap"
                 >
                   발급받기
                 </a>
@@ -3779,7 +3779,7 @@ export default function GeneratePage() {
                     alert('❌ API 키를 입력해주세요');
                   }
                 }}
-                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-all"
+                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 💾 저장
               </button>
@@ -3790,7 +3790,7 @@ export default function GeneratePage() {
                     alert('✅ Claude API 키가 삭제되었습니다');
                   }
                 }}
-                className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl transition-all"
+                className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 🗑️ 삭제
               </button>
@@ -3803,7 +3803,7 @@ export default function GeneratePage() {
                     alert('❌ 저장된 Claude API 키가 없습니다');
                   }
                 }}
-                className="ml-auto px-5 py-2.5 bg-slate-500 hover:bg-slate-600 text-white text-sm font-semibold rounded-xl transition-all"
+                className="ml-auto px-5 py-2.5 bg-slate-500 hover:bg-slate-600 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 ✓ 상태 확인
               </button>

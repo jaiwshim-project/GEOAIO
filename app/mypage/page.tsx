@@ -118,13 +118,13 @@ export default function MyPage() {
                   <div className="flex gap-2 shrink-0">
                     <Link
                       href="/pricing"
-                      className="px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-all"
+                      className="px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors"
                     >
                       요금제
                     </Link>
                     <Link
                       href="/change-password"
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all"
+                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
                     >
                       비밀번호 변경
                     </Link>
@@ -170,7 +170,7 @@ export default function MyPage() {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full transition-all ${barColor}`}
+                            className={`h-2 rounded-full transition-colors ${barColor}`}
                             style={{ width: isAdmin ? '100%' : `${percentage}%` }}
                           />
                         </div>
@@ -234,7 +234,7 @@ export default function MyPage() {
                     <Link
                       key={action.href}
                       href={action.href}
-                      className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all group"
+                      className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-colors group"
                     >
                       <div className={`w-9 h-9 bg-gradient-to-br ${action.color} rounded-lg flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

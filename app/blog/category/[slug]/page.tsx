@@ -290,7 +290,7 @@ export default async function BlogCategoryPage({
         {/* 뒤로가기 — 골드 캡슐 (화이트) */}
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-wider uppercase text-amber-700 hover:text-amber-900 mb-3 transition-all border border-amber-300 bg-white rounded-full hover:border-amber-500 hover:bg-amber-50 shadow-sm"
+          className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] tracking-wider uppercase text-amber-700 hover:text-amber-900 mb-3 transition-colors border border-amber-300 bg-white rounded-full hover:border-amber-500 hover:bg-amber-50 shadow-sm"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -381,7 +381,7 @@ export default async function BlogCategoryPage({
                     return (
                       <span
                         key={lang}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] tracking-wide border font-bold transition-all ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] tracking-wide border font-bold transition-colors ${
                           isActive
                             ? 'bg-amber-50 border-amber-400 text-amber-900 shadow-[0_0_10px_-2px_rgba(245,158,11,0.5)]'
                             : count > 0
@@ -418,7 +418,7 @@ export default async function BlogCategoryPage({
                   <Link
                     key={lang}
                     href={isEmpty ? '#' : href}
-                    className={`relative flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition-all duration-300 font-bold ${
+                    className={`relative flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg transition-colors duration-300 font-bold ${
                       isActive
                         ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/40'
                         : isEmpty
@@ -458,7 +458,7 @@ export default async function BlogCategoryPage({
               {pagedPosts.map((post) => (
                 <article
                   key={post.id}
-                  className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 active:border-amber-400 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 active:bg-amber-50/50"
+                  className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 active:border-amber-400 transition-colors duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 active:bg-amber-50/50"
                 >
                   <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-400 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200" />
                   <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-3 sm:py-2.5 min-h-[64px] sm:min-h-0">
@@ -491,7 +491,7 @@ export default async function BlogCategoryPage({
                       )}
                     </div>
                     <div
-                      className={`shrink-0 w-7 h-7 rounded-md bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 shadow-sm ring-1 ring-amber-200/60`}
+                      className={`shrink-0 w-7 h-7 rounded-md bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-colors duration-200 shadow-sm ring-1 ring-amber-200/60`}
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -509,7 +509,7 @@ export default async function BlogCategoryPage({
                 {currentPage > 1 ? (
                   <Link
                     href={buildPageHref(currentPage - 1)}
-                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm"
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-colors shadow-sm"
                     aria-label="이전 페이지"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -547,7 +547,7 @@ export default async function BlogCategoryPage({
                         ) : (
                           <Link
                             href={buildPageHref(n)}
-                            className="inline-flex items-center justify-center min-w-[44px] h-11 px-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 active:bg-amber-100 transition-all shadow-sm"
+                            className="inline-flex items-center justify-center min-w-[44px] h-11 px-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 active:bg-amber-100 transition-colors shadow-sm"
                           >
                             {n}
                           </Link>
@@ -560,7 +560,7 @@ export default async function BlogCategoryPage({
                 {currentPage < totalPages ? (
                   <Link
                     href={buildPageHref(currentPage + 1)}
-                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm"
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 font-bold text-sm hover:bg-amber-50 hover:border-amber-400 hover:text-amber-800 transition-colors shadow-sm"
                     aria-label="다음 페이지"
                   >
                     <span className="hidden sm:inline">다음</span>
@@ -584,7 +584,7 @@ export default async function BlogCategoryPage({
             <p className="text-xs text-slate-800 tracking-wider font-medium">No articles in this collection</p>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/30"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 mt-3 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:from-amber-400 hover:to-amber-500 transition-colors shadow-md shadow-amber-500/30"
             >
               Create Content
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

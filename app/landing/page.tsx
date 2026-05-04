@@ -166,7 +166,7 @@ export default function PromotionLandingPage() {
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 text-center">
           <img src="/images/logo-geoaio.png" alt="GEOAIO" className="h-14 sm:h-16 rounded-lg mx-auto mb-5" />
 
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-sm text-indigo-200 font-medium mb-5">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/20 text-sm text-indigo-200 font-medium mb-5">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             AI 검색 시대, 새로운 콘텐츠 전략이 필요합니다
           </div>
@@ -192,7 +192,7 @@ export default function PromotionLandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-5">
             <Link
               href={analyzeHref}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-700 text-base font-bold rounded-xl hover:bg-gray-100 transition-all shadow-xl shadow-indigo-900/30 w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-700 text-base font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-xl shadow-indigo-900/30 w-full sm:w-auto justify-center"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -201,7 +201,7 @@ export default function PromotionLandingPage() {
             </Link>
             <Link
               href={generateHref}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 backdrop-blur-sm text-white text-base font-bold rounded-xl hover:bg-white/20 transition-all border border-white/20 w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white/10 text-white text-base font-bold rounded-xl hover:bg-white/20 transition-colors border border-white/20 w-full sm:w-auto justify-center"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -262,7 +262,7 @@ export default function PromotionLandingPage() {
               href="https://forms.gle/RdniybCMpa6V77dw9"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-teal-700 text-sm font-bold rounded-xl hover:bg-gray-100 transition-all shadow-md shrink-0"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-teal-700 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-md shrink-0"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -313,7 +313,7 @@ export default function PromotionLandingPage() {
           {painPoints.map((point) => (
             <div
               key={point.title}
-              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all group"
+              className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-gray-200 hover:shadow-md transition-colors group"
             >
               <div className={`w-12 h-12 bg-${point.color}-100 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
                 <svg className={`w-6 h-6 text-${point.color}-600`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,7 +346,7 @@ export default function PromotionLandingPage() {
             <span className="font-bold text-white">&ldquo;OO 분야 추천해줘&rdquo;</span> &mdash; 당신의 브랜드가 나오나요?<br />
             안 나온다면, 경쟁사에게 고객을 빼앗기고 있는 것입니다.
           </p>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-5 max-w-lg mx-auto">
+          <div className="bg-white/10 rounded-xl border border-white/20 p-5 max-w-lg mx-auto">
             <div className="flex items-start gap-3 text-left">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -432,7 +432,7 @@ export default function PromotionLandingPage() {
                 {i < steps.length - 1 && (
                   <div className="hidden md:block absolute top-10 left-full w-full h-px bg-gradient-to-r from-indigo-500/50 to-transparent z-0" />
                 )}
-                <div className="relative bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-5 hover:bg-white/10 transition-all">
+                <div className="relative bg-white/5 rounded-xl border border-white/10 p-5 hover:bg-white/10 transition-colors">
                   <div className="text-lg font-extrabold text-indigo-400/30 mb-3">{s.step}</div>
                   <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-3">
                     <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -465,7 +465,7 @@ export default function PromotionLandingPage() {
           {targetAudiences.map((ta) => (
             <div
               key={ta.who}
-              className={`bg-white rounded-xl shadow-sm border border-${ta.color}-100 hover:border-${ta.color}-300 hover:shadow-md transition-all p-5`}
+              className={`bg-white rounded-xl shadow-sm border border-${ta.color}-100 hover:border-${ta.color}-300 hover:shadow-md transition-colors p-5`}
             >
               <div className="flex items-center gap-3 mb-3">
                 <div className={`w-11 h-11 bg-gradient-to-br from-${ta.color}-500 to-${ta.color}-600 rounded-xl flex items-center justify-center`}>
@@ -624,12 +624,12 @@ export default function PromotionLandingPage() {
             ].map((industry) => (
               <div
                 key={industry.name}
-                className={`group bg-white rounded-xl p-5 border ${industry.borderClass} hover:shadow-lg transition-all duration-300 cursor-default`}
+                className={`group bg-white rounded-xl p-5 border ${industry.borderClass} hover:shadow-lg transition-colors duration-300 cursor-default`}
               >
                 <div className="text-lg mb-3">{industry.emoji}</div>
                 <h3 className="text-sm font-bold text-gray-900 mb-2">{industry.name}</h3>
                 <p className={`text-xs font-semibold ${industry.textClass} mb-2`}>{industry.example}</p>
-                <div className="hidden group-hover:block transition-all">
+                <div className="hidden group-hover:block transition-colors">
                   <div className="mt-2 pt-2 border-t border-gray-100 space-y-2">
                     <div className="flex items-start gap-1.5">
                       <span className="text-red-400 text-xs mt-0.5 shrink-0">&#10005;</span>
@@ -651,7 +651,7 @@ export default function PromotionLandingPage() {
             </p>
             <Link
               href={analyzeHref}
-              className="inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold rounded-xl hover:from-indigo-700 hover:to-violet-700 transition-all shadow-lg"
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold rounded-xl hover:from-indigo-700 hover:to-violet-700 transition-colors shadow-lg"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -689,7 +689,7 @@ export default function PromotionLandingPage() {
                 { step: '03', title: '개선 제안', desc: '우선순위별 구체적인 최적화 액션 아이템 제시', color: 'amber', tags: [] },
                 { step: '04', title: 'AI 최적화 변환', desc: '분석 결과 바탕으로 AI가 최적화 콘텐츠를 생성', color: 'rose', tags: ['최적화 콘텐츠', '변경사항 요약', '예상 점수'] },
               ].map((s) => (
-                <div key={s.step} className={`relative rounded-xl p-5 border border-${s.color}-200 bg-${s.color}-50/30 hover:border-${s.color}-400 hover:shadow-md transition-all`}>
+                <div key={s.step} className={`relative rounded-xl p-5 border border-${s.color}-200 bg-${s.color}-50/30 hover:border-${s.color}-400 hover:shadow-md transition-colors`}>
                   <div className={`text-lg font-extrabold text-${s.color}-200 mb-2`}>{s.step}</div>
                   <h4 className="text-sm font-bold text-gray-900 mb-1">{s.title}</h4>
                   <p className="text-xs text-gray-600 leading-relaxed">{s.desc}</p>
@@ -722,7 +722,7 @@ export default function PromotionLandingPage() {
               { title: '시리즈 기획', desc: '하나의 주제로 3~12편의 연재 시리즈를 자동 기획, 에피소드별 키워드·개요 제공', color: 'violet', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
               { title: 'AI 인포그래픽 이미지', desc: 'Gemini AI로 콘텐츠에 맞는 인포그래픽 이미지 3장을 생성하여 본문에 삽입', color: 'sky', icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
             ].map((feat) => (
-              <div key={feat.title} className={`rounded-xl p-5 border border-${feat.color}-100 bg-${feat.color}-50/30 hover:border-${feat.color}-300 hover:shadow-md transition-all`}>
+              <div key={feat.title} className={`rounded-xl p-5 border border-${feat.color}-100 bg-${feat.color}-50/30 hover:border-${feat.color}-300 hover:shadow-md transition-colors`}>
                 <div className={`w-11 h-11 bg-gradient-to-br from-${feat.color}-500 to-${feat.color}-600 rounded-xl flex items-center justify-center mb-3`}>
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={feat.icon} />
@@ -840,7 +840,7 @@ export default function PromotionLandingPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href={analyzeHref}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-700 text-base font-bold rounded-xl hover:bg-gray-100 transition-all shadow-xl w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-700 text-base font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-xl w-full sm:w-auto justify-center"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -849,7 +849,7 @@ export default function PromotionLandingPage() {
             </Link>
             <Link
               href={generateHref}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white/15 text-white text-base font-bold rounded-xl hover:bg-white/25 transition-all border border-white/30 w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white/15 text-white text-base font-bold rounded-xl hover:bg-white/25 transition-colors border border-white/30 w-full sm:w-auto justify-center"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

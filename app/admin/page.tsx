@@ -505,7 +505,7 @@ export default function AdminPage() {
               <button
                 onClick={handlePasswordLogin}
                 disabled={passwordChecking || !adminPassword.trim()}
-                className="w-full py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all"
+                className="w-full py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 {passwordChecking ? '확인 중...' : '접속'}
               </button>
@@ -576,7 +576,7 @@ export default function AdminPage() {
             <button
               onClick={() => loadCepStats()}
               disabled={cepStatsLoading}
-              className="px-3 py-1.5 text-xs font-semibold text-purple-700 bg-white border border-purple-300 rounded-lg hover:bg-purple-50 transition-all disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-semibold text-purple-700 bg-white border border-purple-300 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-50"
             >
               {cepStatsLoading ? '불러오는 중...' : '새로고침'}
             </button>
@@ -744,7 +744,7 @@ export default function AdminPage() {
         <div className="flex items-end gap-0 mb-0">
           <button
             onClick={() => setActiveTab('subscriptions')}
-            className={`relative px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all ${
+            className={`relative px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-colors ${
               activeTab === 'subscriptions'
                 ? 'bg-white text-indigo-700 border-t-indigo-500 border-l-gray-300 border-r-gray-300 border-b-0 z-10 -mb-px'
                 : 'bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700'
@@ -759,7 +759,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('users')}
-            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all ${
+            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-colors ${
               activeTab === 'users'
                 ? 'bg-white text-emerald-700 border-t-emerald-500 border-l-gray-300 border-r-gray-300 border-b-0 z-10 -mb-px'
                 : 'bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700'
@@ -769,7 +769,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('contents')}
-            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all ${
+            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-colors ${
               activeTab === 'contents'
                 ? 'bg-white text-violet-700 border-t-violet-500 border-l-gray-300 border-r-gray-300 border-b-0 z-10 -mb-px'
                 : 'bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700'
@@ -779,7 +779,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={() => setActiveTab('api-keys')}
-            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all ${
+            className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-colors ${
               activeTab === 'api-keys'
                 ? 'bg-white text-amber-700 border-t-amber-500 border-l-gray-300 border-r-gray-300 border-b-0 z-10 -mb-px'
                 : 'bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700'
@@ -789,7 +789,7 @@ export default function AdminPage() {
           </button>
           <Link
             href="/admin/stats"
-            className="px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700"
+            className="px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-colors bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700"
           >
             통계 관리
           </Link>
@@ -866,7 +866,7 @@ export default function AdminPage() {
                                 value={user.plan}
                                 onChange={(e) => handlePlanChange(user.id, e.target.value)}
                                 disabled={updatingUser === user.id}
-                                className={`px-2.5 py-1 text-xs font-bold rounded-full border ${badge.color} focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all ${
+                                className={`px-2.5 py-1 text-xs font-bold rounded-full border ${badge.color} focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors ${
                                   updatingUser === user.id ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:ring-1 hover:ring-indigo-300'
                                 }`}
                                 title="등급 변경"
@@ -893,21 +893,21 @@ export default function AdminPage() {
                                 <button
                                   onClick={() => handleRenew(user.id)}
                                   disabled={updatingUser === user.id}
-                                  className="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-all disabled:opacity-50"
+                                  className="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-50"
                                 >
                                   {updatingUser === user.id ? '...' : '30일 연장'}
                                 </button>
                                 <button
                                   onClick={() => handleSendExpiryNotice(user)}
                                   disabled={sendingEmail === user.id}
-                                  className="px-3 py-1.5 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-all disabled:opacity-50"
+                                  className="px-3 py-1.5 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors disabled:opacity-50"
                                   title="등급 만료일 안내 및 유지 방법 이메일 발송"
                                 >
                                   {sendingEmail === user.id ? '발송중...' : '만료 안내'}
                                 </button>
                                 <button
                                   onClick={() => setExpandedHistory(expandedHistory === user.id ? null : user.id)}
-                                  className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-all"
+                                  className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
                                   title="등급 변경 히스토리"
                                 >
                                   {expandedHistory === user.id ? '접기' : '이력'}
@@ -982,13 +982,13 @@ export default function AdminPage() {
                                 <button
                                   onClick={() => handlePlanChange(user.id, user.previous_plan!)}
                                   disabled={updatingUser === user.id}
-                                  className="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-all disabled:opacity-50"
+                                  className="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
                                 >
                                   {updatingUser === user.id ? '...' : `${prevBadge.label}로 복원`}
                                 </button>
                                 <button
                                   onClick={() => setExpandedHistory(expandedHistory === user.id ? null : user.id)}
-                                  className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-all"
+                                  className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
                                 >
                                   {expandedHistory === user.id ? '접기' : '이력'}
                                 </button>
@@ -1074,14 +1074,14 @@ export default function AdminPage() {
                               <button
                                 onClick={() => handlePlanChange(user.id, 'pro')}
                                 disabled={updatingUser === user.id}
-                                className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all disabled:opacity-50"
+                                className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors disabled:opacity-50"
                               >
                                 {updatingUser === user.id ? '...' : '프로 전환'}
                               </button>
                               <button
                                 onClick={() => handlePlanChange(user.id, 'free')}
                                 disabled={updatingUser === user.id}
-                                className="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+                                className="px-3 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
                               >
                                 {updatingUser === user.id ? '...' : '해제'}
                               </button>
@@ -1203,7 +1203,7 @@ export default function AdminPage() {
                               setContentProjectId(p.id);
                               loadContentItems(p.id);
                             }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                               contentProjectId === p.id
                                 ? 'bg-violet-600 text-white shadow-sm ring-2 ring-violet-400/50'
                                 : 'bg-gray-100 text-gray-600 hover:bg-violet-50 hover:text-violet-700'
@@ -1261,7 +1261,7 @@ export default function AdminPage() {
                         href={`/generate/result?id=${item.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-start gap-3 p-3 bg-gray-50 hover:bg-violet-50 rounded-xl cursor-pointer transition-all border border-transparent hover:border-violet-200"
+                        className="flex items-start gap-3 p-3 bg-gray-50 hover:bg-violet-50 rounded-xl cursor-pointer transition-colors border border-transparent hover:border-violet-200"
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-gray-800 truncate">{item.title || item.topic}</p>
@@ -1324,7 +1324,7 @@ export default function AdminPage() {
                       href="https://aistudio.google.com/app/apikey"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all"
+                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
                     >
                       발급받기
                     </a>
@@ -1348,7 +1348,7 @@ export default function AdminPage() {
                       href="https://console.anthropic.com/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all"
+                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
                     >
                       발급받기
                     </a>
@@ -1372,7 +1372,7 @@ export default function AdminPage() {
                       href="https://www.geo-aio.com/generate"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-all"
+                      className="px-3 py-2.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
                     >
                       발급받기
                     </a>
@@ -1397,7 +1397,7 @@ export default function AdminPage() {
                     }
                   }}
                   disabled={apiKeySaving || (!geminApiKey && !claudeApiKey && !geoAioApiKey)}
-                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-all"
+                  className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                   {apiKeySaving ? '저장 중...' : '💾 로컬 저장'}
                 </button>
@@ -1411,7 +1411,7 @@ export default function AdminPage() {
                       setApiKeyMessage('✅ API 키가 삭제되었습니다');
                     }
                   }}
-                  className="px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-all"
+                  className="px-6 py-2.5 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors"
                 >
                   🗑️ 삭제
                 </button>
@@ -1459,7 +1459,7 @@ export default function AdminPage() {
           <button
             onClick={() => loadUsers()}
             disabled={loading}
-            className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50"
+            className="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1583,7 +1583,7 @@ export default function AdminPage() {
                             value={user.plan}
                             onChange={(e) => handlePlanChange(user.id, e.target.value)}
                             disabled={updatingUser === user.id}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all ${
+                            className={`px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors ${
                               updatingUser === user.id ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:border-indigo-300'
                             }`}
                           >
@@ -1610,7 +1610,7 @@ export default function AdminPage() {
                           {userProjects.length > 0 ? (
                             <button
                               onClick={() => setExpandedUserProjects(isProjectExpanded ? null : user.id)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg hover:bg-violet-100 transition-all"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors"
                             >
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />

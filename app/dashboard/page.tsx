@@ -126,7 +126,7 @@ export default function DashboardPage() {
         {/* 다른 대시보드 진입 */}
         <a
           href="/dashboard/indexing"
-          className="block bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 hover:from-emerald-100 hover:via-teal-100 hover:to-cyan-100 rounded-xl shadow-sm border border-emerald-200 p-4 transition-all"
+          className="block bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 hover:from-emerald-100 hover:via-teal-100 hover:to-cyan-100 rounded-xl shadow-sm border border-emerald-200 p-4 transition-colors"
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -166,7 +166,7 @@ export default function DashboardPage() {
         <div className="bg-white rounded-xl shadow-sm border border-indigo-200 p-1.5 flex gap-1">
           <button
             onClick={() => { setActiveTab('analysis'); setActiveCategory(null); }}
-            className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border hover:shadow-md ${
+            className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors border hover:shadow-md ${
               activeTab === 'analysis'
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm border-sky-300'
                 : 'text-gray-600 hover:bg-gray-50 border-transparent hover:border-indigo-200'
@@ -182,7 +182,7 @@ export default function DashboardPage() {
           </button>
           <button
             onClick={() => { setActiveTab('generation'); setActiveCategory(null); }}
-            className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all border hover:shadow-md ${
+            className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors border hover:shadow-md ${
               activeTab === 'generation'
                 ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-sm border-purple-300'
                 : 'text-gray-600 hover:bg-gray-50 border-transparent hover:border-purple-200'
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                       <button
                         key={p.id}
                         onClick={() => handleProjectClick(p.id)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           activeProject === p.id
                             ? 'bg-pink-500 text-white shadow-sm'
                             : 'bg-gray-50 text-gray-700 hover:bg-pink-50 hover:text-pink-700'
@@ -255,7 +255,7 @@ export default function DashboardPage() {
                 <div className="space-y-1.5">
                   <button
                     onClick={() => setActiveCategory(null)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       activeCategory === null
                         ? 'bg-violet-600 text-white shadow-sm'
                         : 'bg-gray-50 text-gray-700 hover:bg-violet-50 hover:text-violet-700'
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                       <button
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           activeCategory === cat
                             ? 'bg-violet-600 text-white shadow-sm'
                             : 'bg-gray-50 text-gray-700 hover:bg-violet-50 hover:text-violet-700'
@@ -301,7 +301,7 @@ export default function DashboardPage() {
                         <div
                           key={item.id}
                           onClick={() => router.push(`/generate/result?id=${item.id}`)}
-                          className="flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-violet-50 rounded-xl cursor-pointer transition-all border border-transparent hover:border-violet-200"
+                          className="flex items-center gap-3 px-4 py-3 bg-gray-50 hover:bg-violet-50 rounded-xl cursor-pointer transition-colors border border-transparent hover:border-violet-200"
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-800 truncate">{item.title || item.topic}</p>
@@ -337,7 +337,7 @@ export default function DashboardPage() {
             {filteredHistory.map((item) => (
               <div key={item.id}>
                 {/* 메인 항목 */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-all">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:border-indigo-300 hover:shadow-md transition-colors">
                   <div className="flex items-center gap-3 px-5 py-3">
                     {/* 날짜 */}
                     <div className="text-center min-w-[60px]">
@@ -371,7 +371,7 @@ export default function DashboardPage() {
                     {item.type === 'generation' && item.revisions && item.revisions.length > 0 && (
                       <button
                         onClick={() => toggleRevisions(item.id)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-violet-100 text-violet-700 border border-violet-200 hover:bg-violet-200 hover:shadow-md transition-all"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-violet-100 text-violet-700 border border-violet-200 hover:bg-violet-200 hover:shadow-md transition-colors"
                       >
                         <svg className={`w-3 h-3 transition-transform ${expandedRevisions.has(item.id) ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => router.push(`/dashboard/${item.id}`)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-400 hover:shadow-md transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-400 hover:shadow-md transition-colors"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -394,7 +394,7 @@ export default function DashboardPage() {
                       </button>
                       <button
                         onClick={() => handleDelete(item.id)}
-                        className="inline-flex items-center p-1.5 text-xs rounded-lg text-gray-400 border border-transparent hover:text-red-500 hover:bg-red-50 hover:border-red-200 hover:shadow-md transition-all"
+                        className="inline-flex items-center p-1.5 text-xs rounded-lg text-gray-400 border border-transparent hover:text-red-500 hover:bg-red-50 hover:border-red-200 hover:shadow-md transition-colors"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -410,7 +410,7 @@ export default function DashboardPage() {
                     {item.revisions.map((rev, i) => (
                       <div
                         key={rev.id}
-                        className="bg-violet-50 rounded-xl border border-violet-200 hover:border-violet-400 hover:shadow-md transition-all"
+                        className="bg-violet-50 rounded-xl border border-violet-200 hover:border-violet-400 hover:shadow-md transition-colors"
                       >
                         <div className="flex items-center gap-4 px-5 py-3">
                           <div className="text-center min-w-[60px]">
@@ -424,7 +424,7 @@ export default function DashboardPage() {
                           </div>
                           <button
                             onClick={() => router.push(`/dashboard/${item.id}?revision=${rev.id}`)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-white text-violet-600 border border-violet-200 hover:bg-violet-100 hover:border-violet-400 hover:shadow-md transition-all"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-white text-violet-600 border border-violet-200 hover:bg-violet-100 hover:border-violet-400 hover:shadow-md transition-colors"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

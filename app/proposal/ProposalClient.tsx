@@ -69,7 +69,7 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
           </span>
           <Link
             href="/proposal/election-2026"
-            className="group relative block bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-6 ring-2 ring-amber-400/40 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.5)] hover:shadow-[0_24px_56px_-16px_rgba(15,23,42,0.6)] hover:scale-[1.01] transition-all overflow-hidden"
+            className="group relative block bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-6 ring-2 ring-amber-400/40 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.5)] hover:shadow-[0_24px_56px_-16px_rgba(15,23,42,0.6)] hover:scale-[1.01] transition-colors overflow-hidden"
           >
             <div className="absolute -top-16 -right-16 w-44 h-44 bg-amber-500/25 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-indigo-500/25 rounded-full blur-3xl pointer-events-none" />
@@ -110,7 +110,7 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
             <Link
               key={cat.slug}
               href={`/proposal/${encodeURIComponent(cat.slug)}`}
-              className="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all"
+              className="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-colors"
             >
               <div className={`h-2 bg-gradient-to-r ${cat.color}`} />
               <div className="p-5">

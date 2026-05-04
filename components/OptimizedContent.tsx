@@ -128,7 +128,7 @@ export default function OptimizedContent({ result, originalContent, targetKeywor
                     href="https://console.anthropic.com/settings/keys"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -168,7 +168,7 @@ export default function OptimizedContent({ result, originalContent, targetKeywor
                 <button
                   onClick={handleSaveApiKey}
                   disabled={isSavingKey || !apiKeyInput.trim()}
-                  className="px-4 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  className="px-4 py-2.5 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   {isSavingKey ? '저장 중...' : '저장'}
                 </button>
@@ -205,7 +205,7 @@ export default function OptimizedContent({ result, originalContent, targetKeywor
           <div className="flex flex-col items-center gap-3">
             <button
               onClick={handleOptimize}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-colors shadow-sm"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -300,7 +300,7 @@ export default function OptimizedContent({ result, originalContent, targetKeywor
             <div className="bg-gray-100 rounded-lg p-0.5 flex border border-emerald-300">
               <button
                 onClick={() => setViewMode('optimized')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                   viewMode === 'optimized' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                 }`}
               >
@@ -308,7 +308,7 @@ export default function OptimizedContent({ result, originalContent, targetKeywor
               </button>
               <button
                 onClick={() => setViewMode('compare')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                   viewMode === 'compare' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'
                 }`}
               >
@@ -318,7 +318,7 @@ export default function OptimizedContent({ result, originalContent, targetKeywor
             {/* 복사 버튼 */}
             <button
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all border border-sky-300"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors border border-sky-300"
             >
               {copied ? (
                 <>
@@ -373,7 +373,7 @@ export default function OptimizedContent({ result, originalContent, targetKeywor
       <div className="text-center">
         <button
           onClick={handleOptimize}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-all border border-emerald-300"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors border border-emerald-300"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />

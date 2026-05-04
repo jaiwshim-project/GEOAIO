@@ -1822,7 +1822,7 @@ export default function GenerateResultPage() {
             </div>
             <div className="w-full bg-indigo-100 rounded-full h-2 mb-3">
               <div
-                className="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-colors duration-500"
                 style={{ width: `${(eeatProgress / Math.max(abVersions.length, 1)) * 100}%` }}
               />
             </div>
@@ -1874,7 +1874,7 @@ export default function GenerateResultPage() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={handleOpenBlogPublish}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:scale-105 shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 border bg-gradient-to-r from-rose-500 to-pink-500 text-white border-rose-300 hover:from-rose-600 hover:to-pink-600 hover:shadow-lg hover:scale-105 shadow-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -1894,7 +1894,7 @@ export default function GenerateResultPage() {
                   } catch {}
                   router.push(url);
                 }}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 border bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-300 hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg hover:scale-105 shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl transition-colors duration-200 border bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-300 hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg hover:scale-105 shadow-sm"
                 title="추천 주제 페이지로 돌아가서 다른 주제 선택"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1941,7 +1941,7 @@ export default function GenerateResultPage() {
                       key={l.key}
                       onClick={() => handleLangClick(l.key)}
                       disabled={isLoading}
-                      className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl border text-sm font-semibold transition-all ${
+                      className={`relative flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl border text-sm font-semibold transition-colors ${
                         isActive
                           ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
                           : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'
@@ -2057,7 +2057,7 @@ export default function GenerateResultPage() {
                           });
                         }
                       }}
-                      className={`relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all duration-200 whitespace-nowrap shadow-sm ${
+                      className={`relative flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border-2 text-xs font-semibold transition-colors duration-200 whitespace-nowrap shadow-sm ${
                         isFailed
                           ? 'bg-rose-50 text-rose-400 border-rose-200 cursor-not-allowed opacity-50 line-through'
                           : !isReady
@@ -2153,19 +2153,19 @@ export default function GenerateResultPage() {
 
           {/* 액션 툴바 */}
           <div className="flex flex-wrap items-center gap-2 px-6 pt-4 pb-3 border-b border-gray-100">
-            <button onClick={handleCopyTitle} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${copiedTitle ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100'}`}>
+            <button onClick={handleCopyTitle} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${copiedTitle ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100'}`}>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
               {copiedTitle ? '복사됨!' : '제목 복사'}
             </button>
-            <button onClick={handleCopy} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${copied ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-sky-50 text-sky-700 border-sky-300 hover:bg-sky-100'}`}>
+            <button onClick={handleCopy} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${copied ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-sky-50 text-sky-700 border-sky-300 hover:bg-sky-100'}`}>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
               {copied ? '복사됨!' : '본문 복사'}
             </button>
-            <button onClick={handleCopyAsImage} disabled={isCapturing} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all disabled:opacity-50 ${copiedImage ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'}`}>
+            <button onClick={handleCopyAsImage} disabled={isCapturing} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors disabled:opacity-50 ${copiedImage ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'}`}>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               {copiedImage ? '복사됨!' : isCapturing ? '캡처 중...' : '이미지 복사'}
             </button>
-            <button onClick={() => setShowEditInput(!showEditInput)} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${showEditInput ? 'bg-violet-500 text-white border-violet-300' : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100'}`}>
+            <button onClick={() => setShowEditInput(!showEditInput)} className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${showEditInput ? 'bg-violet-500 text-white border-violet-300' : 'bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100'}`}>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
               수정
             </button>
@@ -2177,7 +2177,7 @@ export default function GenerateResultPage() {
                 <button
                   onClick={handleCompleteEeatSingle}
                   disabled={isDisabled}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                     eeatCompletingSingle
                       ? 'bg-indigo-500 text-white border-indigo-300 cursor-wait'
                       : isComplete
@@ -2209,7 +2209,7 @@ export default function GenerateResultPage() {
               );
             })()}
             {/* ⭐ 자동 EEAT 일괄 변환 토글 + 진행 요약 */}
-            <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 transition-all cursor-pointer">
+            <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 transition-colors cursor-pointer">
               <input
                 type="checkbox"
                 checked={eeatAutoMode}
@@ -2231,12 +2231,12 @@ export default function GenerateResultPage() {
             <button
               onClick={() => router.push('/generate')}
               title="추천 주제 목록을 그대로 두고 다른 주제로 콘텐츠를 또 생성합니다"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200 transition-all ml-auto"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200 transition-colors ml-auto"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
               📝 다른 주제로 또 생성
             </button>
-            <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-all">
+            <button onClick={handleReset} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border bg-gray-50 text-gray-600 border-gray-300 hover:bg-gray-100 transition-colors">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
               새로 만들기
             </button>
@@ -2259,7 +2259,7 @@ export default function GenerateResultPage() {
           {showEditInput && (
             <div className="mx-6 my-3 bg-violet-50 rounded-xl border border-violet-200 p-4">
               <textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} placeholder="수정하거나 추가하고 싶은 내용을 입력하세요..." rows={3} className="w-full px-3 py-2 border border-violet-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-400 resize-none bg-white" />
-              <button onClick={handleRegenerate} disabled={isRegenerating || !editNotes.trim()} className="mt-2 w-full py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-violet-700 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+              <button onClick={handleRegenerate} disabled={isRegenerating || !editNotes.trim()} className="mt-2 w-full py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-violet-700 hover:to-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
                 {isRegenerating ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>재생성 중...</> : '재생성'}
               </button>
             </div>
@@ -2294,7 +2294,7 @@ export default function GenerateResultPage() {
             {result.hashtags && result.hashtags.length > 0 && (
               <div className="mt-8 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
                 {result.hashtags.map((tag, i) => (
-                  <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 transition-all cursor-default">
+                  <span key={i} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-default">
                     {tag.startsWith('#') ? tag : `#${tag}`}
                   </span>
                 ))}
@@ -2331,7 +2331,7 @@ export default function GenerateResultPage() {
                 <button
                   onClick={handleGenerateImages}
                   disabled={isGeneratingImages}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 hover:from-emerald-600 hover:to-teal-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-300 hover:from-emerald-600 hover:to-teal-600 hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
                   {isGeneratingImages ? (
                     <>
@@ -2363,7 +2363,7 @@ export default function GenerateResultPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleApplyImages}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 border border-indigo-300 text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg hover:scale-105 shadow-sm"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 border border-indigo-300 text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:shadow-lg hover:scale-105 shadow-sm"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -2373,7 +2373,7 @@ export default function GenerateResultPage() {
                     <button
                       onClick={handleGenerateImages}
                       disabled={isGeneratingImages}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:shadow-md hover:scale-105 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors duration-200 border border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 hover:shadow-md hover:scale-105 disabled:opacity-50"
                     >
                       {isGeneratingImages ? (
                         <>
@@ -2389,13 +2389,13 @@ export default function GenerateResultPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {generatedImages.map((img, i) => (
-                    <div key={i} className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-200">
+                    <div key={i} className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-colors duration-200">
                       <img src={img} alt={`AI 생성 이미지 ${i + 1}`} className="w-full aspect-video object-cover" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center">
                         <a
                           href={img}
                           download={`ai-image-${i + 1}.png`}
-                          className="opacity-0 group-hover:opacity-100 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/90 text-gray-800 text-xs font-medium rounded-lg shadow-md hover:bg-white transition-all"
+                          className="opacity-0 group-hover:opacity-100 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/90 text-gray-800 text-xs font-medium rounded-lg shadow-md hover:bg-white transition-colors"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -2443,7 +2443,7 @@ export default function GenerateResultPage() {
                     key={ch.id}
                     onClick={() => handleSnsConvert(ch.id)}
                     disabled={snsLoading}
-                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border transition-all hover:shadow-md hover:scale-105 disabled:opacity-50 ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl border transition-colors hover:shadow-md hover:scale-105 disabled:opacity-50 ${
                       snsChannel === ch.id
                         ? `bg-${ch.color}-500 text-white border-${ch.color}-300`
                         : `bg-${ch.color}-50 text-${ch.color}-700 border-${ch.color}-200 hover:bg-${ch.color}-100`
@@ -2469,7 +2469,7 @@ export default function GenerateResultPage() {
                     <span className="text-xs font-semibold text-gray-600">변환 결과</span>
                     <button
                       onClick={handleCopySns}
-                      className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border transition-all ${
+                      className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
                         snsCopied ? 'bg-emerald-500 text-white border-emerald-300' : 'bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100'
                       }`}
                     >
@@ -2490,7 +2490,7 @@ export default function GenerateResultPage() {
 
       {/* 블로그 게시 모달 */}
       {showBlogPublish && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowBlogPublish(false)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 overflow-y-auto" onClick={() => setShowBlogPublish(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative my-4 max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -2556,7 +2556,7 @@ export default function GenerateResultPage() {
                     <div key={cat.slug} className="flex items-center gap-1">
                       <button
                         onClick={() => setSelectedBlogCategory(cat.slug)}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
                           selectedBlogCategory === cat.slug
                             ? `bg-gradient-to-r ${cat.color} text-white border-transparent shadow-md`
                             : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
@@ -2577,7 +2577,7 @@ export default function GenerateResultPage() {
                   ))}
                   <button
                     onClick={() => setShowNewCategory(!showNewCategory)}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-dashed border-gray-300 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-all"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-dashed border-gray-300 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
                   >
                     + 새 카테고리
                   </button>
@@ -2615,7 +2615,7 @@ export default function GenerateResultPage() {
                       key={t}
                       type="button"
                       onClick={() => setBlogTag(t)}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-all ${
+                      className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-colors ${
                         blogTag === t
                           ? 'bg-rose-500 text-white border-rose-400 shadow-sm'
                           : 'bg-white text-gray-500 border-gray-200 hover:border-rose-300 hover:text-rose-500'
@@ -2668,7 +2668,7 @@ export default function GenerateResultPage() {
                             if (next.has(ch.id)) next.delete(ch.id); else next.add(ch.id);
                             return next;
                           })}
-                          className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-all ${
+                          className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-colors ${
                             snsChannels.has(ch.id)
                               ? `bg-${ch.color}-500 text-white border-${ch.color}-400`
                               : `bg-white text-gray-500 border-gray-200 hover:border-${ch.color}-300`
@@ -2712,7 +2712,7 @@ export default function GenerateResultPage() {
                 <button
                   onClick={abVersions.length > 1 ? handlePublishSelectedToBlog : handlePublishToBlog}
                   disabled={isPublishing || publishSuccess}
-                  className={`inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-xl transition-all duration-200 border shadow-sm ${
+                  className={`inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-xl transition-colors duration-200 border shadow-sm ${
                     publishSuccess
                       ? 'bg-emerald-500 text-white border-emerald-300'
                       : selectedVersions.size > 1
@@ -2752,7 +2752,7 @@ export default function GenerateResultPage() {
 
       {/* 최종 콘텐츠 모달 (이미지 + 글) */}
       {showFinalContent && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto p-3 sm:p-6">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 overflow-y-auto p-3 sm:p-6">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-4">
             <div className="sticky top-0 bg-white border-b border-gray-200 rounded-t-2xl px-6 py-4 flex items-center justify-between z-10">
               <div className="flex items-center gap-3">
@@ -2767,7 +2767,7 @@ export default function GenerateResultPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyFinalContent}
-                  className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-105 ${
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border hover:shadow-md hover:scale-105 ${
                     copiedFinal
                       ? 'bg-emerald-500 text-white border-emerald-300'
                       : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 hover:from-indigo-600 hover:to-purple-700'
@@ -2780,7 +2780,7 @@ export default function GenerateResultPage() {
                 </button>
                 <button
                   onClick={() => setShowFinalContent(false)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2804,7 +2804,7 @@ export default function GenerateResultPage() {
       {eeatDone && autoPilotPhase === 'idle' && abVersions.length > 0 && (
         <button
           onClick={runAutoPilotPublish}
-          className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-bold rounded-full shadow-2xl shadow-amber-500/40 hover:shadow-amber-500/60 hover:scale-105 active:scale-95 transition-all"
+          className="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 px-5 py-3 min-h-[48px] bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white font-bold rounded-full shadow-2xl shadow-amber-500/40 hover:shadow-amber-500/60 hover:scale-105 active:scale-95 transition-colors"
         >
           <span className="text-xl">🚀</span>
           <span className="text-sm">논스톱 자동 발행 (4개 언어)</span>
@@ -2813,7 +2813,7 @@ export default function GenerateResultPage() {
 
       {/* 🚀 자동 발행 진행 중 — 풀스크린 오버레이 (순차 단계 표시) */}
       {autoPilotPhase !== 'idle' && autoPilotPhase !== 'done' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
           <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-lg w-full">
             <div className="text-center mb-6">
               <div className="w-14 h-14 mx-auto mb-3 relative">
@@ -2853,7 +2853,7 @@ export default function GenerateResultPage() {
                     return (
                       <div
                         key={lang}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all ${
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-colors ${
                           status === 'done'
                             ? 'bg-emerald-50 border-emerald-200'
                             : status === 'translating' || status === 'publishing'
@@ -2896,7 +2896,7 @@ export default function GenerateResultPage() {
 
       {/* ✅ 자동 발행 완료 팝업 */}
       {autoPilotPhase === 'done' && autoPilotResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
           <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
             {/* 상단 헤더 */}
             <div className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-6 py-5 text-white">
@@ -2943,7 +2943,7 @@ export default function GenerateResultPage() {
                   setAutoPilotResult(null);
                   router.push('/generate');
                 }}
-                className="w-full px-6 py-3 min-h-[48px] bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:from-amber-700 active:to-orange-700 text-white font-bold rounded-xl shadow-md transition-all"
+                className="w-full px-6 py-3 min-h-[48px] bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:from-amber-700 active:to-orange-700 text-white font-bold rounded-xl shadow-md transition-colors"
               >
                 확인 — 새 주제 선정
               </button>

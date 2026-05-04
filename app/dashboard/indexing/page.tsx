@@ -30,7 +30,7 @@ export default function IndexingSitesPage() {
               <Link
                 key={site.id}
                 href={`/dashboard/indexing/${site.id}`}
-                className={`block bg-gradient-to-br ${c.card} rounded-xl border-2 p-5 transition-all hover:shadow-md`}
+                className={`block bg-gradient-to-br ${c.card} rounded-xl border-2 p-5 transition-colors hover:shadow-md`}
               >
                 <div className="flex items-start gap-3">
                   <div className={`w-12 h-12 rounded-xl ${c.badge} text-white flex items-center justify-center text-2xl shrink-0`}>

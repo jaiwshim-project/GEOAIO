@@ -61,7 +61,7 @@ export default function UserRegisterPage() {
           <p className="text-gray-400 text-sm mt-1">새 사용자 등록</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+        <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
           <div className="flex items-center gap-2 mb-6">
             <Link href="/user-select" className="text-gray-400 hover:text-white transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@ export default function UserRegisterPage() {
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
             <button type="submit" disabled={loading}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold rounded-xl transition-all">
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold rounded-xl transition-colors">
               {loading ? '등록 중...' : '사용자 등록'}
             </button>
           </form>

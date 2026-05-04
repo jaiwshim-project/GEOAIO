@@ -114,7 +114,7 @@ export default function CategorySelector({
 
       {/* 라디오: 자동 매칭 */}
       <label
-        className={`flex items-start gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${
+        className={`flex items-start gap-2 p-2.5 rounded-lg border cursor-pointer transition-colors ${
           value.mode === 'auto'
             ? 'bg-amber-50 border-amber-400 shadow-sm'
             : 'bg-white border-slate-200 hover:border-amber-200'
@@ -148,7 +148,7 @@ export default function CategorySelector({
 
       {/* 라디오: 수동 선택 */}
       <label
-        className={`mt-1.5 flex items-start gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${
+        className={`mt-1.5 flex items-start gap-2 p-2.5 rounded-lg border cursor-pointer transition-colors ${
           value.mode === 'manual'
             ? 'bg-amber-50 border-amber-400 shadow-sm'
             : 'bg-white border-slate-200 hover:border-amber-200'

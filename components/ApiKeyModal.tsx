@@ -68,7 +68,7 @@ export default function ApiKeyModal({ show, onClose }: ApiKeyModalProps) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* 배경 오버레이 */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* 모달 */}
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
@@ -90,7 +90,7 @@ export default function ApiKeyModal({ show, onClose }: ApiKeyModalProps) {
           )}
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white shrink-0"
+            className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white shrink-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -139,7 +139,7 @@ export default function ApiKeyModal({ show, onClose }: ApiKeyModalProps) {
               <button
                 onClick={handleSave}
                 disabled={isSaving || !geminiKeyInput.trim()}
-                className="px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                className="px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isSaving ? '저장 중...' : '저장'}
               </button>

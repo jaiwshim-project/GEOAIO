@@ -310,7 +310,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                 </span>
                 <button
                   onClick={() => router.push('/generate')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white rounded-full text-[10px] font-semibold tracking-wider transition-all shadow-md shadow-amber-500/30"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white rounded-full text-[10px] font-semibold tracking-wider transition-colors shadow-md shadow-amber-500/30"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -335,7 +335,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                   <button
                     key={cat.slug}
                     onClick={() => router.push(`/blog/category/${encodeURIComponent(cat.slug)}`)}
-                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-all ${
+                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-colors ${
                       isActive
                         ? `bg-gradient-to-r ${cat.color} text-white font-semibold shadow-md ring-1 ring-amber-300/60`
                         : 'bg-slate-50 text-slate-700 font-medium border border-slate-200 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800'
@@ -376,7 +376,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
           <div className="mb-4">
             <button
               onClick={() => setSelectedPost(null)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-medium tracking-wider uppercase text-amber-700 hover:text-amber-900 mb-3 transition-all border border-amber-300 bg-white rounded-full hover:border-amber-500 hover:bg-amber-50 shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-medium tracking-wider uppercase text-amber-700 hover:text-amber-900 mb-3 transition-colors border border-amber-300 bg-white rounded-full hover:border-amber-500 hover:bg-amber-50 shadow-sm"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -430,7 +430,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                 filteredPosts.map((post) => (
                   <article
                     key={post.id}
-                    className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-all duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30"
+                    className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-colors duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30"
                   >
                     <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                     <div className="flex items-center gap-3 px-3 py-2.5">
@@ -470,7 +470,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                         <button
                           onClick={() => handleDeletePost(post.id)}
                           disabled={deletingId === post.id}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 transition-all rounded-md hover:bg-red-50"
+                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-600 transition-colors rounded-md hover:bg-red-50"
                           title="삭제"
                         >
                           {deletingId === post.id ? (
@@ -484,7 +484,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                             </svg>
                           )}
                         </button>
-                        <div className={`w-7 h-7 rounded-md bg-gradient-to-br ${currentCategory?.color || 'from-gray-400 to-gray-500'} flex items-center justify-center text-white opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-200 shadow-sm ring-1 ring-amber-200/60`}>
+                        <div className={`w-7 h-7 rounded-md bg-gradient-to-br ${currentCategory?.color || 'from-gray-400 to-gray-500'} flex items-center justify-center text-white opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-colors duration-200 shadow-sm ring-1 ring-amber-200/60`}>
                           <span className="scale-[0.55]">{ICON_MAP[currentCategory?.icon || 'document']}</span>
                         </div>
                       </div>
@@ -500,7 +500,7 @@ export default function BlogClient({ initialPosts, initialCategories }: BlogClie
                   <p className="text-[11px] text-slate-700 mt-1 mb-3">콘텐츠를 생성한 후 블로그에 게시해보세요.</p>
                   <button
                     onClick={() => router.push('/generate')}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:from-amber-400 hover:to-amber-500 transition-all shadow-md shadow-amber-500/30"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-[11px] font-semibold tracking-wider uppercase bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-full hover:from-amber-400 hover:to-amber-500 transition-colors shadow-md shadow-amber-500/30"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

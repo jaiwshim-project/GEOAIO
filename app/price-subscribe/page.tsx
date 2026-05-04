@@ -140,7 +140,7 @@ export default function PricingPage() {
                 key={plan.id}
                 className={`relative rounded-xl p-5 border ${plan.border} ${plan.bg} ${
                   isCurrent ? 'ring-2 ring-indigo-400 shadow-lg' : 'shadow-sm'
-                } transition-all`}
+                } transition-colors`}
               >
                 {plan.discount && (
                   <span className="absolute -top-3 right-4 px-3 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full">
@@ -205,7 +205,7 @@ export default function PricingPage() {
                 ) : (
                   <button
                     onClick={() => setPaymentModal(plan.id as 'pro' | 'max')}
-                    className={`w-full py-2.5 bg-gradient-to-r ${plan.color} text-white font-semibold rounded-xl hover:opacity-90 transition-all shadow-md border ${plan.border} text-sm`}
+                    className={`w-full py-2.5 bg-gradient-to-r ${plan.color} text-white font-semibold rounded-xl hover:opacity-90 transition-colors shadow-md border ${plan.border} text-sm`}
                   >
                     결제
                   </button>
@@ -248,7 +248,7 @@ export default function PricingPage() {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full transition-all ${
+                        className={`h-2 rounded-full transition-colors ${
                           isUnlimited ? 'bg-emerald-500' : isOver ? 'bg-red-500' : percentage > 70 ? 'bg-amber-500' : 'bg-emerald-500'
                         }`}
                         style={{ width: isUnlimited ? '100%' : `${percentage}%` }}
@@ -280,7 +280,7 @@ export default function PricingPage() {
       {/* 결제 안내 모달 */}
       {paymentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setPaymentModal(null)}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-black/60" />
           <div
             className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
@@ -293,7 +293,7 @@ export default function PricingPage() {
             }`}>
               <button
                 onClick={() => setPaymentModal(null)}
-                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-all"
+                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -406,7 +406,7 @@ export default function PricingPage() {
             <div className="px-6 py-4 border-t border-gray-100">
               <button
                 onClick={() => setPaymentModal(null)}
-                className="w-full py-2.5 text-gray-500 text-sm font-medium rounded-xl hover:bg-gray-100 transition-all border border-gray-200"
+                className="w-full py-2.5 text-gray-500 text-sm font-medium rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
               >
                 닫기
               </button>

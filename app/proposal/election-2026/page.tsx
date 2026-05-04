@@ -980,7 +980,7 @@ export default function ElectionProposalPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 max-w-3xl">
               {t.stats.map((s) => (
-                <div key={s.label} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl px-3 py-3 text-center">
+                <div key={s.label} className="bg-white/10 border border-white/15 rounded-xl px-3 py-3 text-center">
                   <div className="text-xl sm:text-2xl font-extrabold text-amber-300">{s.value}</div>
                   <div className="text-[11px] text-slate-300 mt-0.5">{s.label}</div>
                 </div>
@@ -1165,7 +1165,7 @@ export default function ElectionProposalPage() {
                 {t.s4LiveBadge}
               </span>
               <a href="https://buzzlab-busan-bukgu-pledge100.vercel.app/" target="_blank" rel="noopener noreferrer"
-                className="group flex items-center gap-4 px-6 py-5 bg-gradient-to-r from-amber-50 via-amber-100/80 to-amber-50 border-2 border-amber-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(251,191,36,0.45)] ring-2 ring-amber-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(251,191,36,0.55)] hover:border-amber-500 transition-all duration-200">
+                className="group flex items-center gap-4 px-6 py-5 bg-gradient-to-r from-amber-50 via-amber-100/80 to-amber-50 border-2 border-amber-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(251,191,36,0.45)] ring-2 ring-amber-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(251,191,36,0.55)] hover:border-amber-500 transition-colors duration-200">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shrink-0 shadow-md ring-2 ring-amber-300/40">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1190,7 +1190,7 @@ export default function ElectionProposalPage() {
                 {t.s4LiveBadge}
               </span>
               <a href="https://buzzlab-busan-bukgu-route.vercel.app/" target="_blank" rel="noopener noreferrer"
-                className="group flex items-center gap-4 px-6 py-5 bg-gradient-to-r from-rose-50 via-pink-100/80 to-rose-50 border-2 border-pink-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.45)] ring-2 ring-pink-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(236,72,153,0.55)] hover:border-pink-500 transition-all duration-200">
+                className="group flex items-center gap-4 px-6 py-5 bg-gradient-to-r from-rose-50 via-pink-100/80 to-rose-50 border-2 border-pink-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.45)] ring-2 ring-pink-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(236,72,153,0.55)] hover:border-pink-500 transition-colors duration-200">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-700 flex items-center justify-center shrink-0 shadow-md ring-2 ring-pink-300/40">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0L6.343 16.657a8 8 0 1111.314 0z" />
@@ -1227,7 +1227,7 @@ export default function ElectionProposalPage() {
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 {t.s5Items1.map((item, i) => (
-                  <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-xl px-4 py-3 flex items-start gap-3">
+                  <div key={i} className="bg-white/10 border border-white/15 rounded-xl px-4 py-3 flex items-start gap-3">
                     <span className="text-xl shrink-0">{item.icon}</span>
                     <div>
                       <div className="text-base font-extrabold text-amber-200 mb-0.5">{item.title}</div>
@@ -1245,7 +1245,7 @@ export default function ElectionProposalPage() {
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 {t.s5Items2.map((item, i) => (
-                  <div key={i} className="bg-emerald-500/10 backdrop-blur-sm border border-emerald-400/30 ring-1 ring-emerald-400/20 rounded-xl px-4 py-3 flex items-start gap-3">
+                  <div key={i} className="bg-emerald-500/10 border border-emerald-400/30 ring-1 ring-emerald-400/20 rounded-xl px-4 py-3 flex items-start gap-3">
                     <span className="text-xl shrink-0">{item.icon}</span>
                     <div>
                       <div className="text-base font-extrabold text-emerald-200 mb-0.5">{item.title}</div>
@@ -1312,7 +1312,7 @@ export default function ElectionProposalPage() {
               const n = String(i + 1).padStart(2, '0');
               return (
                 <div key={n} className="relative bg-white rounded-2xl border border-slate-200/80 ring-1 ring-slate-100 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.18)] overflow-hidden">
-                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-amber-300 text-[11px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 text-amber-300 text-[11px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
                     {n} / 12
                   </span>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

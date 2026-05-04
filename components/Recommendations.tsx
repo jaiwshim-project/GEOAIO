@@ -60,7 +60,7 @@ export default function Recommendations({ recommendations }: RecommendationsProp
             {sorted.map((rec) => {
               const pConfig = priorityConfig[rec.priority];
               return (
-                <div key={rec.id} className={`border ${pConfig.border} rounded-xl p-3 ${pConfig.bg} ${pConfig.hoverBorder} transition-all duration-200`}>
+                <div key={rec.id} className={`border ${pConfig.border} rounded-xl p-3 ${pConfig.bg} ${pConfig.hoverBorder} transition-colors duration-200`}>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${pConfig.badge} ${pConfig.text}`}>

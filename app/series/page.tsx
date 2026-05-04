@@ -220,7 +220,7 @@ export default function SeriesPage() {
             <button
               type="submit"
               disabled={isLoading || !topic.trim()}
-              className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -272,7 +272,7 @@ export default function SeriesPage() {
                 return (
                   <div
                     key={episode.number}
-                    className="bg-white rounded-xl shadow-lg border border-indigo-200 overflow-hidden transition-all hover:shadow-xl"
+                    className="bg-white rounded-xl shadow-lg border border-indigo-200 overflow-hidden transition-colors hover:shadow-xl"
                   >
                     <div
                       onClick={() => toggleEpisode(episode.number)}
@@ -352,7 +352,7 @@ export default function SeriesPage() {
 
                         <button
                           onClick={() => handleCreateContent(episode)}
-                          className="w-full mt-4 py-2.5 px-6 bg-gradient-to-r from-green-500 to-teal-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all"
+                          className="w-full mt-4 py-2.5 px-6 bg-gradient-to-r from-green-500 to-teal-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-colors"
                         >
                           이 시리즈로 콘텐츠 생성
                         </button>

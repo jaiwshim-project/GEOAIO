@@ -369,7 +369,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </p>
               <Link
                 href={`/blog/category/${encodeURIComponent(slug)}`}
-                className="group relative flex items-center gap-4 px-6 py-5 mt-2 bg-gradient-to-r from-amber-50 via-amber-100/80 to-amber-50 border-2 border-amber-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(251,191,36,0.45)] ring-2 ring-amber-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(251,191,36,0.55)] hover:border-amber-500 hover:ring-amber-300 transition-all duration-200"
+                className="group relative flex items-center gap-4 px-6 py-5 mt-2 bg-gradient-to-r from-amber-50 via-amber-100/80 to-amber-50 border-2 border-amber-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(251,191,36,0.45)] ring-2 ring-amber-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(251,191,36,0.55)] hover:border-amber-500 hover:ring-amber-300 transition-colors duration-200"
               >
                 {/* 🔴 LIVE 배지 */}
                 <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
@@ -399,7 +399,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   href={TISTORY_MAP[slug]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex items-center gap-4 px-6 py-5 mt-7 bg-gradient-to-r from-rose-50 via-pink-100/80 to-rose-50 border-2 border-pink-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.45)] ring-2 ring-pink-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(236,72,153,0.55)] hover:border-pink-500 hover:ring-pink-300 transition-all duration-200"
+                  className="group relative flex items-center gap-4 px-6 py-5 mt-7 bg-gradient-to-r from-rose-50 via-pink-100/80 to-rose-50 border-2 border-pink-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.45)] ring-2 ring-pink-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(236,72,153,0.55)] hover:border-pink-500 hover:ring-pink-300 transition-colors duration-200"
                 >
                   {/* 🔴 LIVE 배지 */}
                   <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
@@ -828,7 +828,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <p>👉 <strong>SEO 방식</strong>은 &quot;트래픽을 만드는 구조&quot;</p>
                   <p>👉 <strong>E-E-A-T 방식</strong>은 &quot;신뢰와 인용을 만드는 구조&quot;</p>
                 </div>
-                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="bg-white/15 rounded-xl p-4 border border-white/20">
                   <p className="text-xs font-semibold text-white/95 mb-1">전략 한 문장</p>
                   <p className="text-base font-bold">
                     👉 &quot;SEO로 유입을 만들고, E-E-A-T 구조로 AI가 인용하게 만든다&quot;
@@ -854,12 +854,12 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <Link
                     key={i}
                     href={`/blog/${posts[i].id}`}
-                    className="group block bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-indigo-400 hover:shadow-sm transition-all"
+                    className="group block bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-indigo-400 hover:shadow-sm transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-gray-600 font-mono shrink-0">{String(i + 1).padStart(2, '0')}</span>
                       <p className="text-sm text-gray-800 flex-1 group-hover:text-indigo-600 transition-colors">{title}</p>
-                      <svg className="w-4 h-4 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>
@@ -869,7 +869,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               <div className="flex flex-wrap gap-2 mt-4">
                 <Link
                   href={`/blog/category/${encodeURIComponent(slug)}`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-lg hover:from-indigo-600 hover:to-violet-600 hover:shadow-md transition-all"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-lg hover:from-indigo-600 hover:to-violet-600 hover:shadow-md transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -878,7 +878,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </Link>
                 <Link
                   href="/blog"
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   전체 카테고리 보기
                 </Link>
@@ -1124,7 +1124,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   {/* 3단 흐름: 카테고리 → schema.org 클래스 → AI 인용 */}
                   <div className="grid grid-cols-3 gap-2 items-center">
                     <div className="text-center">
-                      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-3">
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-3">
                         <p className="text-[10px] text-white/75 mb-1">카테고리</p>
                         <p className="text-sm font-bold text-white truncate">{meta.label}</p>
                       </div>
@@ -1134,7 +1134,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <p className="text-[11px] sm:text-[9px] text-amber-300/80 -mt-1">매핑</p>
                     </div>
                     <div className="text-center">
-                      <div className="bg-gradient-to-br from-amber-400/20 to-yellow-500/10 backdrop-blur-sm border border-amber-400/40 rounded-xl p-3">
+                      <div className="bg-gradient-to-br from-amber-400/20 to-yellow-500/10 border border-amber-400/40 rounded-xl p-3">
                         <p className="text-[10px] text-amber-300 mb-1">schema.org 클래스</p>
                         <p className="text-sm font-bold bg-gradient-to-r from-amber-200 to-yellow-200 bg-clip-text text-transparent truncate">{industryType}</p>
                       </div>
@@ -1358,7 +1358,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link
                   href="/pricing"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   전체 가격표 자세히 보기
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1463,7 +1463,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </p>
               <div className="space-y-2.5">
                 {FAQS.map((f, i) => (
-                  <details key={i} className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-purple-300 transition-all">
+                  <details key={i} className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-purple-300 transition-colors">
                     <summary className="cursor-pointer list-none px-4 py-3 flex items-center gap-3 hover:bg-purple-50/40 transition-colors">
                       <span className="w-6 h-6 shrink-0 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 text-purple-700 ring-1 ring-purple-300/50 flex items-center justify-center text-[11px] font-bold">Q</span>
                       <span className="text-sm font-semibold text-gray-900 flex-1">{f.q}</span>
@@ -1498,7 +1498,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 <div className="flex flex-wrap gap-2">
                   <Link
                     href={`/blog/category/${encodeURIComponent(slug)}`}
-                    className="group inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all ring-1 ring-amber-300"
+                    className="group inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-colors ring-1 ring-amber-300"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -1508,8 +1508,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </Link>
-                  <Link href="/pricing" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-sm text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-all">요금제 보기</Link>
-                  <Link href="/community" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 backdrop-blur-sm text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-all">도입 문의</Link>
+                  <Link href="/pricing" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-colors">요금제 보기</Link>
+                  <Link href="/community" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/5 text-amber-100 border border-amber-400/30 rounded-lg font-semibold text-sm hover:bg-white/10 hover:border-amber-400/60 transition-colors">도입 문의</Link>
                 </div>
               </div>
             </section>
@@ -1552,7 +1552,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       const n = String(i + 1).padStart(2, '0');
                       return (
                         <div key={n} className="relative bg-white rounded-2xl border border-slate-200/80 ring-1 ring-slate-100 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.18)] overflow-hidden">
-                          <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 backdrop-blur-sm text-amber-300 text-[10px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
+                          <span className="absolute top-3 left-3 px-2.5 py-1 bg-slate-900/85 text-amber-300 text-[10px] font-extrabold rounded-full tracking-[0.15em] z-10 ring-1 ring-amber-400/40 shadow-md">
                             {n} / 12
                           </span>
                           {/* eslint-disable-next-line @next/next/no-img-element */}

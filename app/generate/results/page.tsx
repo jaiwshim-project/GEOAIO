@@ -104,7 +104,7 @@ export default function GenerateResultsPage() {
           />
           <Link
             href="/generate"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold rounded-xl hover:shadow-md transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-sm font-semibold rounded-xl hover:shadow-md transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -130,7 +130,7 @@ export default function GenerateResultsPage() {
             <p className="text-sm text-gray-400 font-medium">{filter ? '검색 결과가 없습니다' : '아직 생성한 결과가 없습니다'}</p>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-2 px-4 py-2 mt-4 text-sm font-medium bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 mt-4 text-sm font-medium bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors"
             >
               첫 콘텐츠 생성하기
             </Link>
@@ -141,7 +141,7 @@ export default function GenerateResultsPage() {
               <Link
                 key={r.id}
                 href={`/generate/result?id=${r.id}`}
-                className="group block bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+                className="group block bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-indigo-300 hover:shadow-sm transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -162,7 +162,7 @@ export default function GenerateResultsPage() {
                       {r.topic}
                     </h2>
                   </div>
-                  <svg className="w-5 h-5 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-colors shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>

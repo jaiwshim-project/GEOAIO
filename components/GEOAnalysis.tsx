@@ -51,7 +51,7 @@ export default function GEOAnalysis({ geo }: GEOAnalysisProps) {
                 </div>
                 <div className={`w-full ${metric.trackColor} rounded-full h-2.5`}>
                   <div
-                    className={`${metric.color} h-2.5 rounded-full transition-all duration-1000`}
+                    className={`${metric.color} h-2.5 rounded-full transition-colors duration-1000`}
                     style={{ width: `${metric.score}%` }}
                   />
                 </div>
@@ -62,7 +62,7 @@ export default function GEOAnalysis({ geo }: GEOAnalysisProps) {
             {geo.details.length > 0 && (
               <div className="mt-3 space-y-2">
                 {geo.details.map((detail, i) => (
-                  <div key={i} className="bg-violet-50/50 rounded-xl p-3 border border-violet-100 hover:border-violet-300 transition-all duration-200">
+                  <div key={i} className="bg-violet-50/50 rounded-xl p-3 border border-violet-100 hover:border-violet-300 transition-colors duration-200">
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm font-medium text-gray-800">{detail.category}</span>
                       <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${detail.score >= 70 ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : detail.score >= 40 ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-red-100 text-red-700 border border-red-200'}`}>

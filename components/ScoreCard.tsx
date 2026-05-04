@@ -29,7 +29,7 @@ export default function ScoreCard({ title, score, description, icon, color }: Sc
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <div className={`${colors.bg} rounded-xl p-4 flex items-center gap-3 border ${colors.border} ${colors.hoverBorder} hover:shadow-md transition-all duration-200`}>
+    <div className={`${colors.bg} rounded-xl p-4 flex items-center gap-3 border ${colors.border} ${colors.hoverBorder} hover:shadow-md transition-colors duration-200`}>
       <div className="relative w-20 h-20 flex-shrink-0">
         <svg className="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="40" fill="none" strokeWidth="8" className={colors.track} />

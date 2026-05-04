@@ -387,7 +387,7 @@ export default function DashboardDetailPage() {
         {/* 뒤로가기 */}
         <button
           onClick={() => router.push('/dashboard')}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-indigo-300 hover:shadow-md transition-all"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-indigo-300 hover:shadow-md transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -418,7 +418,7 @@ export default function DashboardDetailPage() {
               {/* 블로그 붙여넣기 복사 */}
               <button
                 onClick={handleCopyBlog}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] ${
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border hover:shadow-md hover:scale-[1.03] ${
                   copiedBlog
                     ? 'bg-emerald-500 text-white border-emerald-300'
                     : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 hover:from-indigo-600 hover:to-purple-700'
@@ -432,7 +432,7 @@ export default function DashboardDetailPage() {
               {/* 제목 복사 */}
               <button
                 onClick={handleCopyTitle}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] ${
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border hover:shadow-md hover:scale-[1.03] ${
                   copiedTitle
                     ? 'bg-emerald-500 text-white border-emerald-300'
                     : 'border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100'
@@ -446,7 +446,7 @@ export default function DashboardDetailPage() {
               {/* 본문 복사 */}
               <button
                 onClick={handleCopyContent}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] ${
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border hover:shadow-md hover:scale-[1.03] ${
                   copiedContent
                     ? 'bg-emerald-500 text-white border-emerald-300'
                     : 'border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100'
@@ -461,7 +461,7 @@ export default function DashboardDetailPage() {
               <button
                 onClick={handleCopyAsImage}
                 disabled={isCapturing}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] disabled:opacity-50 ${
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border hover:shadow-md hover:scale-[1.03] disabled:opacity-50 ${
                   copiedImage
                     ? 'bg-emerald-500 text-white border-emerald-300'
                     : 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
@@ -482,7 +482,7 @@ export default function DashboardDetailPage() {
               {/* 본문 수정 */}
               <button
                 onClick={isEditing ? handleSaveEdit : handleStartEdit}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border hover:shadow-md hover:scale-[1.03] ${
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border hover:shadow-md hover:scale-[1.03] ${
                   savedMessage
                     ? 'bg-emerald-500 text-white border-emerald-300'
                     : isEditing
@@ -498,7 +498,7 @@ export default function DashboardDetailPage() {
               {isEditing && (
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 border border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:shadow-md hover:scale-[1.03]"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors duration-200 border border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 hover:shadow-md hover:scale-[1.03]"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -511,7 +511,7 @@ export default function DashboardDetailPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleRevisionChange(null)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all hover:shadow-md ${
+                    className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors hover:shadow-md ${
                       !revisionId ? 'bg-indigo-600 text-white border-indigo-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-indigo-300'
                     }`}
                   >
@@ -521,7 +521,7 @@ export default function DashboardDetailPage() {
                     <button
                       key={rev.id}
                       onClick={() => handleRevisionChange(rev.id)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all hover:shadow-md ${
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors hover:shadow-md ${
                         revisionId === rev.id ? 'bg-violet-600 text-white border-violet-300' : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-violet-300'
                       }`}
                     >

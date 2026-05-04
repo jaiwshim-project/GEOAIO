@@ -10,7 +10,7 @@ export default function TesterModal({ show, onClose }: TesterModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60" />
       <div
         className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
@@ -23,7 +23,7 @@ export default function TesterModal({ show, onClose }: TesterModalProps) {
             <img src="/images/logo-geoaio.png" alt="GEO-AIO 로고" className="absolute top-3 left-3 h-8 object-contain drop-shadow-md" />
             <button
               onClick={onClose}
-              className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-all"
+              className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -146,13 +146,13 @@ export default function TesterModal({ show, onClose }: TesterModalProps) {
             href="https://forms.gle/QVtdqRD6N73q4EvZ9"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-sm"
+            className="flex-1 text-center px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-colors shadow-sm"
           >
             테스터 신청하기
           </a>
           <button
             onClick={onClose}
-            className="px-4 py-2.5 text-gray-500 text-sm font-medium rounded-xl hover:bg-gray-100 transition-all border border-gray-200"
+            className="px-4 py-2.5 text-gray-500 text-sm font-medium rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
           >
             닫기
           </button>
@@ -166,7 +166,7 @@ export function TesterFloatingButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed top-20 left-4 sm:left-6 z-40 w-20 h-20 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white rounded-2xl shadow-xl shadow-orange-500/40 hover:shadow-orange-500/60 hover:scale-110 transition-all flex flex-col items-center justify-center gap-1 group"
+      className="fixed top-20 left-4 sm:left-6 z-40 w-20 h-20 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white rounded-2xl shadow-xl shadow-orange-500/40 hover:shadow-orange-500/60 hover:scale-110 transition-colors flex flex-col items-center justify-center gap-1 group"
     >
       <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-ping" />
       <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full" />

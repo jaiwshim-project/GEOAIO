@@ -142,7 +142,7 @@ export default function PdfDownloadButton({
       onClick={handleClick}
       disabled={loading}
       data-pdf-hide
-      className={className ?? 'inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-all ring-1 ring-amber-300 disabled:opacity-60 disabled:cursor-wait'}
+      className={className ?? 'inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-lg font-bold text-sm hover:shadow-[0_8px_24px_-4px_rgba(251,191,36,0.6)] hover:scale-[1.02] transition-colors ring-1 ring-amber-300 disabled:opacity-60 disabled:cursor-wait'}
       aria-label="PDF로 저장"
     >
       {loading ? (

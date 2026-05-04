@@ -117,7 +117,7 @@ export default function ResetPasswordPage() {
                 required
                 placeholder="최소 6자 이상"
                 minLength={6}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-colors"
               />
             </div>
             <div>
@@ -130,14 +130,14 @@ export default function ResetPasswordPage() {
                 required
                 placeholder="비밀번호를 다시 입력하세요"
                 minLength={6}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || !ready}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md border border-sky-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-md border border-sky-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="inline-flex items-center gap-2">

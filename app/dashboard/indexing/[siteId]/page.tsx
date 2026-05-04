@@ -122,7 +122,7 @@ export default function IndexingDashboardPage({ params }: { params: Promise<{ si
                 <div className="flex flex-wrap gap-2">
                   <a
                     href="/api/indexing/oauth-start"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-lg shadow-md transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 rounded-lg shadow-md transition-colors"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path d="M21.35 11.1H12v3.2h5.35c-.5 2.5-2.7 4.3-5.35 4.3a5.6 5.6 0 110-11.2c1.5 0 2.85.55 3.9 1.55l2.4-2.4A8.85 8.85 0 0012 3a9 9 0 100 18c5.2 0 8.95-3.65 8.95-8.8 0-.6-.05-1.05-.15-1.55z" />
@@ -133,7 +133,7 @@ export default function IndexingDashboardPage({ params }: { params: Promise<{ si
                     href="/docs/gsc-oauth-setup.md"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-amber-700 bg-white border border-amber-300 hover:bg-amber-50 rounded-lg transition-all"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-amber-700 bg-white border border-amber-300 hover:bg-amber-50 rounded-lg transition-colors"
                   >
                     📖 상세 가이드
                   </a>

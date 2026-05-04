@@ -158,7 +158,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center">
           <img src="/images/logo-geoaio.png" alt="GEOAIO" className="h-14 sm:h-16 rounded-lg mx-auto mb-6" />
 
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-sm text-indigo-200 font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 rounded-full border border-white/20 text-sm text-indigo-200 font-medium mb-6">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             AI 검색 시대, 새로운 콘텐츠 전략
           </div>
@@ -177,7 +177,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
             <button
               onClick={() => router.push(isLoggedIn ? '/user-dashboard' : '/user-select')}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-700 text-sm font-bold rounded-xl hover:bg-gray-100 transition-all shadow-xl shadow-indigo-900/30"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-700 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-xl shadow-indigo-900/30"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -186,7 +186,7 @@ export default function LandingPage() {
             </button>
             <Link
               href="/analyze"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm text-white text-sm font-bold rounded-xl hover:bg-white/20 transition-all border border-white/20"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white text-sm font-bold rounded-xl hover:bg-white/20 transition-colors border border-white/20"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -195,7 +195,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm text-white text-sm font-bold rounded-xl hover:bg-white/20 transition-all border border-white/20"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white text-sm font-bold rounded-xl hover:bg-white/20 transition-colors border border-white/20"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -215,14 +215,14 @@ export default function LandingPage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-3 py-1.5 text-xs font-medium text-white hover:text-white hover:bg-white/10 rounded-lg transition-all border border-gray-400"
+                className="px-3 py-1.5 text-xs font-medium text-white hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-gray-400"
               >
                 {link.label}
               </Link>
             ))}
             <Link
               href="/settings"
-              className="px-3 py-1.5 text-xs font-medium text-white hover:text-white hover:bg-white/10 rounded-lg transition-all border border-gray-400"
+              className="px-3 py-1.5 text-xs font-medium text-white hover:text-white hover:bg-white/10 rounded-lg transition-colors border border-gray-400"
             >
               API 키
             </Link>
@@ -314,7 +314,7 @@ export default function LandingPage() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className={`rounded-xl p-5 shadow-sm border transition-all duration-200 group ${feature.card}`}
+              className={`rounded-xl p-5 shadow-sm border transition-colors duration-200 group ${feature.card}`}
             >
               <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-3`}>
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,7 +387,7 @@ export default function LandingPage() {
             </div>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-violet-700 transition-all shadow-md shrink-0"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold rounded-xl hover:from-indigo-700 hover:to-violet-700 transition-colors shadow-md shrink-0"
             >
               콘텐츠 생성하기
             </Link>
@@ -405,7 +405,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {targetAudiences.map((ta) => (
-              <div key={ta.who} className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+              <div key={ta.who} className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-colors">
                 <div className={`w-10 h-10 bg-gradient-to-br ${ta.gradient} rounded-lg flex items-center justify-center mb-3`}>
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={ta.icon} />
@@ -468,7 +468,7 @@ export default function LandingPage() {
           <div className="text-center mt-6">
             <Link
               href="/community"
-              className="text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-all"
+              className="text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
             >
               후기 더보기 &rarr;
             </Link>
@@ -498,7 +498,7 @@ export default function LandingPage() {
               href="https://forms.gle/RdniybCMpa6V77dw9"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-teal-700 text-sm font-bold rounded-xl hover:bg-gray-100 transition-all shadow-md shrink-0"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-teal-700 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-md shrink-0"
             >
               테스터 신청하기
             </a>
@@ -519,13 +519,13 @@ export default function LandingPage() {
           <div className="flex items-center justify-center gap-3">
             <Link
               href="/analyze"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-600 text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-600 text-sm font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
             >
               콘텐츠 분석
             </Link>
             <Link
               href="/generate"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/15 text-white text-sm font-semibold rounded-lg hover:bg-white/25 transition-all border border-white/30"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/15 text-white text-sm font-semibold rounded-lg hover:bg-white/25 transition-colors border border-white/30"
             >
               콘텐츠 생성
             </Link>

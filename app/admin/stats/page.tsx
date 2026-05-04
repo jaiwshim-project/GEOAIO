@@ -160,7 +160,7 @@ export default function AdminStatsPage() {
             </div>
             <h2 className="text-xl font-bold text-gray-900">접근 권한 없음</h2>
             <p className="text-sm text-gray-500 mt-2">관리자 계정으로 로그인해야 접근할 수 있습니다.</p>
-            <Link href="/" className="inline-block mt-4 px-6 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-all">
+            <Link href="/" className="inline-block mt-4 px-6 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
               홈으로 돌아가기
             </Link>
           </div>
@@ -195,13 +195,13 @@ export default function AdminStatsPage() {
         <div className="flex items-end gap-0 mb-0">
           <Link
             href="/admin"
-            className="px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700"
+            className="px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-colors bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700"
           >
             구독 관리
           </Link>
           <Link
             href="/admin"
-            className="px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-all bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700"
+            className="px-5 py-2.5 text-sm font-semibold rounded-t-lg border-t-2 border-l border-r transition-colors bg-gray-100 text-gray-500 border-t-transparent border-l-gray-200 border-r-gray-200 hover:bg-gray-50 hover:text-gray-700"
           >
             등급 관리
           </Link>
@@ -212,7 +212,7 @@ export default function AdminStatsPage() {
             <button
               onClick={() => loadStats()}
               disabled={loading}
-              className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50"
+              className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -294,7 +294,7 @@ export default function AdminStatsPage() {
                           <span className={`text-sm font-extrabold tabular-nums ${colors.text}`}>{count.toLocaleString()}<span className="text-[10px] font-semibold ml-0.5">회</span></span>
                         </div>
                         <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${colors.bar} transition-all`} style={{ width: `${pct}%` }} />
+                          <div className={`h-full rounded-full ${colors.bar} transition-colors`} style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     );
@@ -320,7 +320,7 @@ export default function AdminStatsPage() {
                           <span className={`text-sm font-extrabold tabular-nums ${colors.text}`}>{count.toLocaleString()}<span className="text-[10px] font-semibold ml-0.5">회</span></span>
                         </div>
                         <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${colors.bar} transition-all`} style={{ width: `${pct}%` }} />
+                          <div className={`h-full rounded-full ${colors.bar} transition-colors`} style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     );
@@ -443,8 +443,8 @@ export default function AdminStatsPage() {
                           <span className="text-red-600">↓{m.downgrades}</span>
                         </div>
                         <div className="w-full flex gap-0.5 items-end" style={{ height: '120px' }}>
-                          <div className="flex-1 bg-green-400 rounded-t-md transition-all" style={{ height: `${upH}px` }} />
-                          <div className="flex-1 bg-red-400 rounded-t-md transition-all" style={{ height: `${downH}px` }} />
+                          <div className="flex-1 bg-green-400 rounded-t-md transition-colors" style={{ height: `${upH}px` }} />
+                          <div className="flex-1 bg-red-400 rounded-t-md transition-colors" style={{ height: `${downH}px` }} />
                         </div>
                         <span className="text-[11px] font-medium text-gray-500">{formatMonth(m.month)}</span>
                       </div>
@@ -489,7 +489,7 @@ export default function AdminStatsPage() {
                             <span className="text-xs font-extrabold text-gray-700 tabular-nums">{t.count}건</span>
                           </div>
                           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full transition-all ${isUpgrade ? 'bg-green-400' : 'bg-red-400'}`} style={{ width: `${pct}%` }} />
+                            <div className={`h-full rounded-full transition-colors ${isUpgrade ? 'bg-green-400' : 'bg-red-400'}`} style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );
@@ -590,7 +590,7 @@ export default function AdminStatsPage() {
                             </td>
                             <td className="px-4 py-3">
                               <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-full transition-all" style={{ width: `${(user.total / maxTotal) * 100}%` }} />
+                                <div className="h-full bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-full transition-colors" style={{ width: `${(user.total / maxTotal) * 100}%` }} />
                               </div>
                             </td>
                           </tr>

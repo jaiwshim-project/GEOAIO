@@ -153,7 +153,7 @@ export default function MakeIntegrationPage() {
           <div className="relative z-10 flex items-center gap-6">
             <img src="/images/logo-geoaio.png" alt="GEOAIO" className="h-16 rounded-lg shadow-lg hidden sm:block" />
             <div>
-              <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs font-medium mb-2">
+              <div className="inline-flex items-center gap-2 bg-white/15 rounded-full px-4 py-1.5 text-xs font-medium mb-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -231,7 +231,7 @@ export default function MakeIntegrationPage() {
             {useCases.map((uc) => (
               <div
                 key={uc.title}
-                className={`rounded-xl border border-gray-200 bg-white shadow-sm p-5 transition-all ${uc.borderHover} hover:shadow-md`}
+                className={`rounded-xl border border-gray-200 bg-white shadow-sm p-5 transition-colors ${uc.borderHover} hover:shadow-md`}
               >
                 <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${uc.color} flex items-center justify-center mb-3`}>
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -553,7 +553,7 @@ export default function MakeIntegrationPage() {
             </a>
             <Link
               href="/community"
-              className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white font-medium text-sm rounded-lg px-5 py-2.5 hover:bg-white/25 transition-colors"
+              className="inline-flex items-center gap-2 bg-white/15 text-white font-medium text-sm rounded-lg px-5 py-2.5 hover:bg-white/25 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

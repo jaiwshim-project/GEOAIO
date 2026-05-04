@@ -94,7 +94,7 @@ function LoginContent() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="name@example.com"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-colors"
               />
             </div>
             <div>
@@ -107,7 +107,7 @@ function LoginContent() {
                 required
                 placeholder="비밀번호를 입력하세요"
                 minLength={6}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-colors"
               />
               <div className="mt-1 text-right">
                 <Link href="/forgot-password" className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors">
@@ -119,7 +119,7 @@ function LoginContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md border border-sky-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-md border border-sky-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="inline-flex items-center gap-2">
@@ -145,7 +145,7 @@ function LoginContent() {
             <button
               type="button"
               onClick={() => handleSocialLogin('google')}
-              className="w-full py-2.5 px-4 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-3"
+              className="w-full py-2.5 px-4 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -158,7 +158,7 @@ function LoginContent() {
             <button
               type="button"
               onClick={() => handleSocialLogin('kakao')}
-              className="w-full py-2.5 px-4 bg-[#FEE500] border border-[#FDD835] rounded-xl text-sm font-medium text-[#191919] hover:bg-[#FADA0A] transition-all flex items-center justify-center gap-3"
+              className="w-full py-2.5 px-4 bg-[#FEE500] border border-[#FDD835] rounded-xl text-sm font-medium text-[#191919] hover:bg-[#FADA0A] transition-colors flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#191919">
                 <path d="M12 3C6.48 3 2 6.44 2 10.61c0 2.68 1.75 5.04 4.4 6.39-.13.47-.84 3.01-.87 3.2 0 0-.02.08.04.11.06.03.13.01.13.01.17-.02 3.15-2.08 3.64-2.43.85.12 1.73.18 2.66.18 5.52 0 10-3.44 10-7.69S17.52 3 12 3z"/>

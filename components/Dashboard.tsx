@@ -149,7 +149,7 @@ export default function Dashboard() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap border ${
+                  className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap border ${
                     activeTab === tab.id
                       ? tab.id === 'optimize'
                         ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm border-lime-300'

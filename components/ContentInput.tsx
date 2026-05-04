@@ -47,7 +47,7 @@ export default function ContentInput({ onAnalyze, isAnalyzing }: ContentInputPro
               value={targetKeyword}
               onChange={(e) => setTargetKeyword(e.target.value)}
               placeholder="예: AI 콘텐츠 최적화"
-              className="w-full px-4 py-2.5 bg-blue-50/50 border border-blue-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all placeholder-blue-400/50"
+              className="w-full px-4 py-2.5 bg-blue-50/50 border border-blue-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors placeholder-blue-400/50"
             />
           </div>
           <div>
@@ -59,7 +59,7 @@ export default function ContentInput({ onAnalyze, isAnalyzing }: ContentInputPro
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com/article"
-              className="w-full px-4 py-2.5 bg-indigo-50/50 border border-indigo-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 focus:border-transparent outline-none transition-all placeholder-indigo-400/50"
+              className="w-full px-4 py-2.5 bg-indigo-50/50 border border-indigo-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-400 focus:border-transparent outline-none transition-colors placeholder-indigo-400/50"
             />
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function ContentInput({ onAnalyze, isAnalyzing }: ContentInputPro
             onChange={(e) => setContent(e.target.value)}
             placeholder="분석할 콘텐츠를 여기에 붙여넣으세요. 블로그 글, 웹페이지 본문, 기사 등 어떤 텍스트든 가능합니다."
             rows={10}
-            className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all resize-y placeholder-slate-400/60"
+            className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors resize-y placeholder-slate-400/60"
           />
           <div className="flex justify-between mt-1.5">
             <span className={`text-xs font-medium ${content.length >= 50 ? 'text-emerald-500' : 'text-gray-400'}`}>
@@ -88,7 +88,7 @@ export default function ContentInput({ onAnalyze, isAnalyzing }: ContentInputPro
         <button
           type="submit"
           disabled={isAnalyzing || content.trim().length === 0}
-          className="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 border border-sky-300 shadow-sm"
+          className="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 hover:shadow-lg hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center gap-2 border border-sky-300 shadow-sm"
         >
           {isAnalyzing ? (
             <>

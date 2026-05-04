@@ -158,7 +158,7 @@ export default function KeywordAnalysisPage() {
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   placeholder="예: AI 마케팅 전략"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   disabled={loading}
                 />
               </div>
@@ -171,7 +171,7 @@ export default function KeywordAnalysisPage() {
                   id="industry"
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                   disabled={loading}
                 >
                   <option value="">선택하지 않음</option>
@@ -186,7 +186,7 @@ export default function KeywordAnalysisPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
@@ -319,7 +319,7 @@ export default function KeywordAnalysisPage() {
                 {result.relatedKeywords.map((relatedKeyword, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1.5 bg-gradient-to-r from-cyan-100 to-blue-100 text-cyan-800 rounded-full font-semibold border border-cyan-300 hover:from-cyan-200 hover:to-blue-200 transition-all cursor-pointer"
+                    className="px-3 py-1.5 bg-gradient-to-r from-cyan-100 to-blue-100 text-cyan-800 rounded-full font-semibold border border-cyan-300 hover:from-cyan-200 hover:to-blue-200 transition-colors cursor-pointer"
                   >
                     {relatedKeyword}
                   </span>

@@ -40,7 +40,7 @@ export default function ResourcesPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-all ${
+              className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${
                 activeTab === tab.id
                   ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-600'

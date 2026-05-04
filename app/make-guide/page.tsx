@@ -487,7 +487,7 @@ export default function MakeGuidePage() {
               value={pinInput}
               onChange={(e) => { setPinInput(e.target.value.replace(/\D/g, '')); setPinError(false); }}
               onKeyDown={(e) => e.key === 'Enter' && handlePinSubmit()}
-              className={`w-full px-4 py-3 text-center text-lg font-bold tracking-[0.5em] border rounded-lg focus:outline-none transition-all ${
+              className={`w-full px-4 py-3 text-center text-lg font-bold tracking-[0.5em] border rounded-lg focus:outline-none transition-colors ${
                 pinError ? 'border-red-400 bg-red-50 focus:border-red-500' : 'border-gray-200 focus:border-indigo-400'
               }`}
             />
@@ -497,12 +497,12 @@ export default function MakeGuidePage() {
             <button
               onClick={handlePinSubmit}
               disabled={pinInput.length < 4}
-              className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-700 hover:to-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-700 hover:to-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               확인
             </button>
           </div>
-          <Link href="/" className="inline-block mt-4 text-xs text-gray-400 hover:text-gray-600 transition-all">
+          <Link href="/" className="inline-block mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors">
             홈으로 돌아가기
           </Link>
         </div>
@@ -1403,7 +1403,7 @@ Make.com (백그라운드 처리)
               <p className="text-sm text-gray-500 mb-6">플랫폼 × Make.com 연동으로 3가지 핵심 서비스를 제공할 수 있습니다.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* 서비스 A */}
-                <div className="border-2 border-blue-100 rounded-2xl p-5 hover:border-blue-300 hover:shadow-lg transition-all">
+                <div className="border-2 border-blue-100 rounded-2xl p-5 hover:border-blue-300 hover:shadow-lg transition-colors">
                   <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl mb-3">📤</div>
                   <h3 className="text-base font-bold text-gray-900 mb-1">원클릭 멀티채널 배포</h3>
                   <p className="text-xs text-gray-500 mb-4">콘텐츠 생성 → 채널 체크 → 배포 버튼 1번</p>
@@ -1416,7 +1416,7 @@ Make.com (백그라운드 처리)
                   </ul>
                 </div>
                 {/* 서비스 B */}
-                <div className="border-2 border-purple-100 rounded-2xl p-5 hover:border-purple-300 hover:shadow-lg transition-all">
+                <div className="border-2 border-purple-100 rounded-2xl p-5 hover:border-purple-300 hover:shadow-lg transition-colors">
                   <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl mb-3">🔄</div>
                   <h3 className="text-base font-bold text-gray-900 mb-1">정기 콘텐츠 구독 자동화</h3>
                   <p className="text-xs text-gray-500 mb-4">주제/키워드 + 발행 주기만 설정</p>
@@ -1429,7 +1429,7 @@ Make.com (백그라운드 처리)
                   </ul>
                 </div>
                 {/* 서비스 C */}
-                <div className="border-2 border-emerald-100 rounded-2xl p-5 hover:border-emerald-300 hover:shadow-lg transition-all">
+                <div className="border-2 border-emerald-100 rounded-2xl p-5 hover:border-emerald-300 hover:shadow-lg transition-colors">
                   <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-3">♻️</div>
                   <h3 className="text-base font-bold text-gray-900 mb-1">콘텐츠 리사이클링</h3>
                   <p className="text-xs text-gray-500 mb-4">기존 콘텐츠 업로드 → 5개 채널 변환 배포</p>

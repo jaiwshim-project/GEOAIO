@@ -432,7 +432,7 @@ export default function UserDashboardPage() {
         </div>
 
         {/* ===== 로그인 정보 카드 ===== */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 mb-6">
+        <div className="bg-white/10 rounded-2xl p-6 border border-white/20 mb-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-xl shrink-0">
               {currentUser.username.charAt(0).toUpperCase()}
@@ -471,7 +471,7 @@ export default function UserDashboardPage() {
         </div>
 
         {/* ===== 이용 현황 ===== */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 mb-6">
+        <div className="bg-white/10 rounded-2xl p-5 border border-white/20 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-white font-bold text-base">이번 달 이용 현황</h3>
@@ -516,7 +516,7 @@ export default function UserDashboardPage() {
                     {!isUnlimited && (
                       <div className="w-full bg-white/10 rounded-full h-1 mb-1.5">
                         <div
-                          className={`h-1 rounded-full transition-all ${isFull ? 'bg-red-500' : isAlmostFull ? 'bg-orange-400' : 'bg-indigo-400'}`}
+                          className={`h-1 rounded-full transition-colors ${isFull ? 'bg-red-500' : isAlmostFull ? 'bg-orange-400' : 'bg-indigo-400'}`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -533,7 +533,7 @@ export default function UserDashboardPage() {
         </div>
 
         {/* ===== 프로젝트 목록 (제목만) ===== */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/20 mb-6">
+        <div className="bg-white/10 rounded-2xl p-5 border border-white/20 mb-6">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-white font-bold text-base flex items-center gap-2">
               프로젝트 목록
@@ -573,7 +573,7 @@ export default function UserDashboardPage() {
         </div>
 
         {/* ===== 프로젝트 ===== */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+        <div className="bg-white/10 rounded-2xl p-6 border border-white/20">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-white font-bold text-base flex items-center gap-2">
               프로젝트
@@ -583,7 +583,7 @@ export default function UserDashboardPage() {
             </h3>
             <button
               onClick={() => { setShowAddForm(!showAddForm); setError(''); }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -671,7 +671,7 @@ export default function UserDashboardPage() {
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-colors ${
                   isDragging
                     ? 'border-indigo-400 bg-indigo-500/10'
                     : 'border-white/20 hover:border-white/40 hover:bg-white/5'
@@ -721,11 +721,11 @@ export default function UserDashboardPage() {
 
               <div className="flex gap-2">
                 <button onClick={handleAddProject} disabled={adding}
-                  className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-all">
+                  className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors">
                   {adding ? addProgress || '처리 중...' : '프로젝트 추가'}
                 </button>
                 <button onClick={resetAddForm}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 text-sm rounded-lg transition-all">
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 text-sm rounded-lg transition-colors">
                   취소
                 </button>
               </div>
@@ -752,7 +752,7 @@ export default function UserDashboardPage() {
                 return (
                 <div
                   key={project.id}
-                  className={`p-4 rounded-xl border transition-all ${
+                  className={`p-4 rounded-xl border transition-colors ${
                     selectedProject?.id === project.id
                       ? 'bg-indigo-600/30 border-indigo-400/60'
                       : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
@@ -879,7 +879,7 @@ export default function UserDashboardPage() {
                         onDragLeave={() => setEditIsDragging(false)}
                         onDrop={(e) => { e.preventDefault(); setEditIsDragging(false); addEditFiles(e.dataTransfer.files); }}
                         onClick={() => editFileInputRef.current?.click()}
-                        className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-all ${
+                        className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-colors ${
                           editIsDragging ? 'border-indigo-400 bg-indigo-500/10' : 'border-white/20 hover:border-white/40'
                         }`}
                       >
@@ -914,11 +914,11 @@ export default function UserDashboardPage() {
 
                       <div className="flex gap-2">
                         <button onClick={() => handleUpdateProject(project.id)} disabled={editSaving}
-                          className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-all">
+                          className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors">
                           {editSaving ? editProgress || '저장 중...' : '저장'}
                         </button>
                         <button onClick={cancelEdit}
-                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 text-xs rounded-lg transition-all">
+                          className="px-4 py-2 bg-white/10 hover:bg-white/20 text-gray-300 text-xs rounded-lg transition-colors">
                           취소
                         </button>
                       </div>
@@ -976,7 +976,7 @@ export default function UserDashboardPage() {
                         <div className="flex items-center gap-1.5 shrink-0">
                           <button
                             onClick={() => handleSelectProject(project)}
-                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all"
+                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors"
                           >
                             선택
                           </button>
@@ -1055,7 +1055,7 @@ export default function UserDashboardPage() {
 
         {/* 바로가기 */}
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <Link href="/analyze" className="flex items-center justify-center gap-2 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold rounded-xl transition-all">
+          <Link href="/analyze" className="flex items-center justify-center gap-2 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-semibold rounded-xl transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
@@ -1072,7 +1072,7 @@ export default function UserDashboardPage() {
                 fetchGenItems(autoId);
               }
             }}
-            className={`flex items-center justify-center gap-2 py-3 text-white text-sm font-semibold rounded-xl transition-all ${
+            className={`flex items-center justify-center gap-2 py-3 text-white text-sm font-semibold rounded-xl transition-colors ${
               showGenSection ? 'bg-indigo-500' : 'bg-indigo-600 hover:bg-indigo-500'
             }`}
           >
@@ -1088,11 +1088,11 @@ export default function UserDashboardPage() {
 
         {/* ===== 콘텐츠 생성 섹션 ===== */}
         {showGenSection && (
-          <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-4 space-y-3">
+          <div className="mt-3 bg-white/10 rounded-2xl border border-white/20 p-4 space-y-3">
             {/* 헤더 */}
             <div className="flex items-center justify-between">
               <p className="text-white text-sm font-bold">생성된 콘텐츠 목록</p>
-              <Link href="/generate" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all">
+              <Link href="/generate" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors">
                 + 새 콘텐츠 생성
               </Link>
             </div>
@@ -1108,7 +1108,7 @@ export default function UserDashboardPage() {
                   <button
                     key={p.id}
                     onClick={() => handleGenProjectSelect(p.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                       genProjectId === p.id
                         ? 'bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400/50'
                         : 'bg-white/10 text-gray-300 hover:bg-white/20'
@@ -1135,7 +1135,7 @@ export default function UserDashboardPage() {
                     <div
                       key={item.id}
                       onClick={() => router.push(`/generate/result?id=${item.id}`)}
-                      className="flex items-start gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-all"
+                      className="flex items-start gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer transition-colors"
                     >
                       <div className="flex-1 min-w-0">
                         <p className="text-white text-xs font-semibold truncate">{item.title || item.topic}</p>

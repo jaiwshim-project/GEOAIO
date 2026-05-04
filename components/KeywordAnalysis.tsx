@@ -31,7 +31,7 @@ export default function KeywordAnalysis({ keywords }: KeywordAnalysisProps) {
             <h3 className="text-xs font-bold text-teal-600 uppercase tracking-wide mb-3">주요 키워드</h3>
             <div className="space-y-2">
               {keywords.primaryKeywords.map((kw, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-teal-50/50 rounded-xl border border-teal-100 hover:border-teal-300 transition-all duration-200">
+                <div key={i} className="flex items-center justify-between p-3 bg-teal-50/50 rounded-xl border border-teal-100 hover:border-teal-300 transition-colors duration-200">
                   <div className="flex items-center gap-3">
                     <span className={`w-2.5 h-2.5 rounded-full ${kw.prominence === 'high' ? 'bg-emerald-500' : kw.prominence === 'medium' ? 'bg-amber-500' : 'bg-gray-400'}`} />
                     <span className="text-sm font-semibold text-gray-900">{kw.keyword}</span>
@@ -59,7 +59,7 @@ export default function KeywordAnalysis({ keywords }: KeywordAnalysisProps) {
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2">
                     <div
-                      className={`h-2 rounded-full transition-all duration-1000 ${d.optimal ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                      className={`h-2 rounded-full transition-colors duration-1000 ${d.optimal ? 'bg-emerald-500' : 'bg-amber-500'}`}
                       style={{ width: `${Math.min(100, d.percentage * 20)}%` }}
                     />
                   </div>
@@ -74,7 +74,7 @@ export default function KeywordAnalysis({ keywords }: KeywordAnalysisProps) {
               <h3 className="text-xs font-bold text-cyan-600 uppercase tracking-wide mb-3">관련 키워드 제안</h3>
               <div className="flex flex-wrap gap-2">
                 {keywords.relatedKeywords.map((kw, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-cyan-50 text-cyan-700 text-xs font-semibold rounded-full border border-cyan-200 hover:bg-cyan-100 hover:border-cyan-400 transition-all duration-200 cursor-default">
+                  <span key={i} className="px-3 py-1.5 bg-cyan-50 text-cyan-700 text-xs font-semibold rounded-full border border-cyan-200 hover:bg-cyan-100 hover:border-cyan-400 transition-colors duration-200 cursor-default">
                     {kw}
                   </span>
                 ))}
@@ -85,7 +85,7 @@ export default function KeywordAnalysis({ keywords }: KeywordAnalysisProps) {
               <h3 className="text-xs font-bold text-emerald-600 uppercase tracking-wide mb-3">롱테일 키워드 기회</h3>
               <div className="space-y-2">
                 {keywords.longTailOpportunities.map((kw, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 hover:border-emerald-400 transition-all duration-200">
+                  <div key={i} className="flex items-center gap-2 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 hover:border-emerald-400 transition-colors duration-200">
                     <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>

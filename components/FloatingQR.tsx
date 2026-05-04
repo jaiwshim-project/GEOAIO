@@ -32,7 +32,7 @@ export default function FloatingQR() {
       )}
       <button
         onClick={() => setExpanded(!expanded)}
-        className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl ${
+        className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors duration-300 hover:scale-110 hover:shadow-xl ${
           expanded
             ? 'bg-gray-200 text-gray-600'
             : 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'

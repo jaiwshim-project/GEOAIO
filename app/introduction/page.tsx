@@ -85,7 +85,7 @@ export default function IntroductionPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyAll}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-all shadow-sm border hover:shadow-md hover:scale-[1.03] ${
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors shadow-sm border hover:shadow-md hover:scale-[1.03] ${
                   copiedAll
                     ? 'bg-emerald-500 text-white border-emerald-300'
                     : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 hover:from-indigo-600 hover:to-purple-700'
@@ -98,7 +98,7 @@ export default function IntroductionPage() {
               </button>
               <button
                 onClick={handleDownloadPdf}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-pink-600 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all shadow-sm border border-rose-300 hover:shadow-md hover:scale-[1.03]"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-pink-600 rounded-xl hover:from-rose-600 hover:to-pink-700 transition-colors shadow-sm border border-rose-300 hover:shadow-md hover:scale-[1.03]"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -107,7 +107,7 @@ export default function IntroductionPage() {
               </button>
               <button
                 onClick={handleDownloadDocx}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-sm border border-sky-300 hover:shadow-md hover:scale-[1.03]"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-colors shadow-sm border border-sky-300 hover:shadow-md hover:scale-[1.03]"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -116,7 +116,7 @@ export default function IntroductionPage() {
               </button>
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-800 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all border border-violet-300 hover:border-violet-400"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-800 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-violet-300 hover:border-violet-400"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -133,7 +133,7 @@ export default function IntroductionPage() {
 
           {/* 타이틀 히어로 */}
           <section className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-xl shadow-lg p-7 text-center text-white">
-            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+            <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-3">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
@@ -307,10 +307,10 @@ export default function IntroductionPage() {
               GEOAIO가 당신의 콘텐츠를 AI가 선택하는 콘텐츠로 만들어 드립니다.
             </p>
             <div className="flex items-center justify-center gap-3">
-              <Link href="/generate" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-gray-100 transition-all shadow-lg">
+              <Link href="/generate" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
                 콘텐츠 생성 시작하기
               </Link>
-              <Link href="/analyze" className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-all border border-white/40">
+              <Link href="/analyze" className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 text-white font-bold rounded-xl hover:bg-white/30 transition-colors border border-white/40">
                 콘텐츠 분석하기
               </Link>
             </div>

@@ -118,7 +118,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                     <div key={item.href} className="relative group">
                       <Link
                         href={item.href}
-                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                        className={`flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
                           isActive
                             ? 'bg-white text-indigo-700 shadow-sm'
                             : 'text-white hover:bg-white/10'
@@ -129,7 +129,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </Link>
-                      <div className="absolute top-full left-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                      <div className="absolute top-full left-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-colors z-50">
                         {item.children.map((child) => {
                           const childActive = pathname === child.href;
                           return (
@@ -154,7 +154,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
                       isActive
                         ? 'bg-white text-indigo-700 shadow-sm'
                         : 'text-white hover:bg-white/10'
@@ -176,7 +176,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+                  className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
                     isActive
                       ? 'text-white bg-white/20'
                       : 'text-white hover:bg-white/10'
@@ -195,21 +195,21 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                 {plan === 'admin' && (
                   <Link
                     href="/admin"
-                    className="px-2 py-1 text-[10px] font-bold text-red-100 bg-red-500/30 rounded hover:bg-red-500/50 transition-all"
+                    className="px-2 py-1 text-[10px] font-bold text-red-100 bg-red-500/30 rounded hover:bg-red-500/50 transition-colors"
                   >
                     관리 대시보드
                   </Link>
                 )}
                 <Link
                   href="/dashboard"
-                  className="px-2.5 py-1.5 text-xs font-semibold text-white bg-white/15 rounded-lg hover:bg-white/25 transition-all"
+                  className="px-2.5 py-1.5 text-xs font-semibold text-white bg-white/15 rounded-lg hover:bg-white/25 transition-colors"
                 >
                   대시보드
                 </Link>
                 {/* 사용자 버튼 (클릭하면 드롭다운) */}
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-white/15 transition-all"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-white/15 transition-colors"
                 >
                   <span className="text-xs text-white font-medium max-w-[100px] truncate">{displayName}</span>
                   <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${PLAN_LABELS[plan].style}`}>
@@ -226,7 +226,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                     <Link
                       href="/mypage"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-all"
+                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -236,7 +236,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                     <Link
                       href="/pricing"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-all"
+                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -246,7 +246,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                     <Link
                       href="/change-password"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-all"
+                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                       <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -255,7 +255,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                     </Link>
                     <button
                       onClick={() => { setUserMenuOpen(false); setApiKeyModalOpen(true); }}
-                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-all w-full"
+                      className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors w-full"
                     >
                       <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -265,7 +265,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                     <div className="border-t border-gray-100 my-1" />
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-all w-full"
+                      className="flex items-center gap-2 px-3 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors w-full"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -279,13 +279,13 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
               <div className="flex items-center gap-1.5">
                 <Link
                   href="/login"
-                  className="px-3 py-1.5 text-xs font-medium text-white hover:text-white transition-all"
+                  className="px-3 py-1.5 text-xs font-medium text-white hover:text-white transition-colors"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-3 py-1.5 text-xs font-semibold bg-white text-indigo-700 rounded-lg hover:bg-white/90 transition-all"
+                  className="px-3 py-1.5 text-xs font-semibold bg-white text-indigo-700 rounded-lg hover:bg-white/90 transition-colors"
                 >
                   회원가입
                 </Link>
@@ -298,7 +298,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
             {showApiKeyButton && (
               <button
                 onClick={onToggleApiKey}
-                className={`p-1.5 rounded-lg transition-all ${
+                className={`p-1.5 rounded-lg transition-colors ${
                   apiKeyOpen ? 'bg-amber-400 text-white' : 'text-white hover:bg-white/15'
                 }`}
               >
@@ -309,7 +309,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
             )}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="p-1.5 rounded-lg text-white hover:bg-white/15 transition-all"
+              className="p-1.5 rounded-lg text-white hover:bg-white/15 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileOpen ? (
@@ -336,7 +336,7 @@ export default function Header({ showApiKeyButton = false, onToggleApiKey, apiKe
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block px-3 py-2 text-sm font-medium rounded-lg transition-all ${
+                  className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive
                       ? 'bg-white/20 text-white'
                       : 'text-white hover:bg-white/10'

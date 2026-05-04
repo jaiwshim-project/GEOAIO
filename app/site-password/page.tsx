@@ -52,7 +52,7 @@ function PasswordForm() {
       <button
         type="submit"
         disabled={submitting || password.length === 0}
-        className="mt-4 w-full py-3 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-semibold tracking-wider uppercase text-sm hover:from-amber-300 hover:to-amber-400 transition-all shadow-lg shadow-amber-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="mt-4 w-full py-3 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-semibold tracking-wider uppercase text-sm hover:from-amber-300 hover:to-amber-400 transition-colors shadow-lg shadow-amber-500/30 disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitting ? '확인 중...' : 'Enter'}
       </button>
