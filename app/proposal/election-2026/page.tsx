@@ -897,6 +897,30 @@ const T: Record<Lang, {
 // tbd: true면 "후보 영입중" placeholder 카드로 표시 (단독 계약 가능 안내)
 type Side = { key?: string; slug?: string; strip: string; accent: string; tbd?: boolean };
 type Pair = { group: 'mp' | 'mayor'; regionKey: string; left: Side; right: Side };
+
+// 후보자별 GEO-AIO에서 발행된 언어 — 카드 하단에 국기로 표시
+// ko=태극기, en=성조기, zh=중국기, ja=일본기
+// 정원오·허태정만 4개 언어 모두 발행 완료, 나머지는 한국어만.
+const CANDIDATE_LANGS: Record<string, ('ko' | 'en' | 'zh' | 'ja')[]> = {
+  hajeongwoo: ['ko'],
+  handonghoon: ['ko'],
+  chokuk: ['ko'],
+  hwangkyoahn: ['ko'],
+  songyounggil: ['ko'],
+  parkjongjin: ['ko'],
+  ohsehoon: ['ko'],
+  jeongwonoh: ['ko', 'en', 'zh', 'ja'],
+  minhyungbae: ['ko'],
+  leejeonghyeon: ['ko'],
+  leejangwoo: ['ko'],
+  heotaejung: ['ko', 'en', 'zh', 'ja'],
+};
+const LANG_FLAG: Record<'ko' | 'en' | 'zh' | 'ja', string> = {
+  ko: '🇰🇷',
+  en: '🇺🇸',
+  zh: '🇨🇳',
+  ja: '🇯🇵',
+};
 const PAIRS: Pair[] = [
   { group: 'mp', regionKey: '부산-북구갑',
     left:  { key: 'hajeongwoo',  slug: '하정우-국회의원선거-후보자', strip: 'from-indigo-500 via-violet-500 to-violet-600', accent: 'text-indigo-700' },
@@ -959,6 +983,7 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
   const slug = side.slug || '';
   const nameKey = side.key || '';
   const slogan = t.candidateSlogans[nameKey] || '';
+  const langs = CANDIDATE_LANGS[nameKey] || ['ko'];
   return (
     <Link
       href={candidateHref(slug)}
@@ -996,6 +1021,12 @@ function CandidateCard({ side, role, regionKey, t, candidateHref, cornerLabel }:
             &ldquo;{slogan}&rdquo;
           </p>
         )}
+        {/* 발행 언어 국기 — ko만 있으면 태극기 1개, 4개 모두 발행 시 4개 표시 */}
+        <div className="mt-1.5 flex items-center gap-1" aria-label="published languages">
+          {langs.map(l => (
+            <span key={l} className="text-sm sm:text-base leading-none" title={l}>{LANG_FLAG[l]}</span>
+          ))}
+        </div>
       </div>
 
       {/* 하단: 블로그 자세히 보기 뱃지 */}
@@ -1338,10 +1369,18 @@ export default function ElectionProposalPage() {
           <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-cyan-300/20 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative p-5 sm:p-7 border border-indigo-200/70 ring-1 ring-cyan-100/70 rounded-3xl">
-            {/* 헤더 */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-100 to-cyan-200 text-indigo-700 ring-2 ring-indigo-300/50 flex items-center justify-center text-base font-bold shadow-md">4</span>
-              <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.sMultiTitle}</h2>
+            {/* 헤더 — 좌측 제목 / 우측 4개국 국기 (다국어 도달 가능 언어 시각화) */}
+            <div className="flex items-start sm:items-center justify-between gap-3 mb-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-100 to-cyan-200 text-indigo-700 ring-2 ring-indigo-300/50 flex items-center justify-center text-base font-bold shadow-md">4</span>
+                <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.sMultiTitle}</h2>
+              </div>
+              <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 bg-white/80 border border-indigo-200 rounded-full shadow-sm" aria-label="supported languages">
+                <span className="text-xl sm:text-2xl leading-none" title="ko">🇰🇷</span>
+                <span className="text-xl sm:text-2xl leading-none" title="en">🇺🇸</span>
+                <span className="text-xl sm:text-2xl leading-none" title="zh">🇨🇳</span>
+                <span className="text-xl sm:text-2xl leading-none" title="ja">🇯🇵</span>
+              </div>
             </div>
             <span className="inline-block text-[11px] font-extrabold tracking-[0.15em] uppercase text-indigo-700 bg-indigo-100/70 border border-indigo-200 px-2.5 py-1 rounded-full mb-3">
               🌍 {t.sMultiBadge}
