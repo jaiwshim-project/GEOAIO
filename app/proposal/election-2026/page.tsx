@@ -1112,7 +1112,7 @@ export default function ElectionProposalPage() {
         {/* ── 언어 탭 + PDF 다운로드 ── */}
         <nav aria-label="Language" className="sticky top-0 z-40 mb-5 -mx-4 sm:mx-0 px-4 sm:px-0 py-2 bg-slate-50">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-full p-1 shadow-sm overflow-x-auto flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-50 via-white to-amber-50 border-2 border-amber-300 ring-2 ring-amber-200/60 rounded-full p-1 shadow-lg shadow-amber-200/50 overflow-x-auto flex-1 min-w-0">
               {(Object.keys(LANG_LABELS) as Lang[]).map((code) => {
                 const isActive = code === lang;
                 return (
@@ -1443,16 +1443,16 @@ export default function ElectionProposalPage() {
               </div>
             </div>
 
-            {/* 다국어 발행 강조 + CTA */}
-            <div className="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 sm:p-6 overflow-hidden">
-              <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+            {/* 다국어 발행 강조 + CTA — Indigo·Cyan 톤 (Section 6 검은 배경과 시각 차별화) */}
+            <div className="relative bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-600 text-white rounded-2xl p-5 sm:p-6 overflow-hidden border-2 border-indigo-300 ring-2 ring-cyan-200/60 shadow-xl shadow-indigo-300/40">
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-300/30 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-300/20 rounded-full blur-3xl pointer-events-none" />
               <div className="relative">
-                <h4 className="text-base sm:text-lg font-extrabold text-amber-300 mb-2">🌐 {t.sMultiLangTitle}</h4>
-                <p className="text-sm text-slate-200 mb-3 leading-relaxed">{t.sMultiLangDesc}</p>
+                <h4 className="text-base sm:text-lg font-extrabold text-amber-200 mb-2">🌐 {t.sMultiLangTitle}</h4>
+                <p className="text-sm text-white/95 mb-3 leading-relaxed">{t.sMultiLangDesc}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {t.sMultiLangChips.map((chip, i) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-xs font-bold text-white">
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/15 border border-white/30 rounded-full text-xs font-bold text-white">
                       {chip}
                     </span>
                   ))}
@@ -1460,14 +1460,14 @@ export default function ElectionProposalPage() {
                 <a
                   href="#contact"
                   onClick={(e) => { e.preventDefault(); document.querySelector('[href=\"tel:010-2397-5734\"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm font-extrabold rounded-full shadow-lg hover:from-amber-400 hover:to-amber-500 transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 text-sm font-extrabold rounded-full shadow-lg hover:from-amber-300 hover:to-amber-400 transition-colors"
                 >
                   {t.sMultiCTA}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </a>
-                <p className="text-[11px] text-amber-200/80 mt-2">{t.sMultiCTASub}</p>
+                <p className="text-[11px] text-amber-100/90 mt-2">{t.sMultiCTASub}</p>
               </div>
             </div>
 
