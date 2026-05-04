@@ -161,17 +161,17 @@ export default function BacklinkDashboardPage() {
           post.channel === 'Tistory'
             ? 'from-orange-50 to-amber-50 border-orange-200'
             : 'from-blue-50 to-indigo-50 border-blue-200'
-        } border-2 rounded-xl p-4 shadow-sm`}
+        } border rounded-lg p-2.5 shadow-sm flex flex-col`}
       >
-        <div className="flex items-baseline justify-between mb-2 gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className={`text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full ${
+        <div className="flex items-start justify-between mb-1.5 gap-1">
+          <div className="flex items-center gap-1 flex-wrap min-w-0">
+            <span className={`text-[9px] font-extrabold tracking-wide px-1.5 py-0.5 rounded ${
               post.channel === 'Tistory' ? 'bg-orange-500 text-white' : 'bg-blue-600 text-white'
             }`}>
-              {post.channel === 'Tistory' ? '📝 Tistory' : '💼 LinkedIn'}
+              {post.channel === 'Tistory' ? '📝' : '💼'}
             </span>
             {post.role && (
-              <span className={`text-[10px] font-extrabold tracking-wider px-2 py-0.5 rounded-full border ${
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${
                 post.role.startsWith('Pillar')
                   ? 'bg-rose-100 text-rose-800 border-rose-300'
                   : post.role.startsWith('Spoke')
@@ -180,38 +180,41 @@ export default function BacklinkDashboardPage() {
                       ? 'bg-violet-100 text-violet-800 border-violet-300'
                       : 'bg-sky-100 text-sky-800 border-sky-300'
               }`}>
-                {post.role}{post.intent ? ` · ${post.intent}` : ''}
+                {post.role}
               </span>
             )}
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 truncate max-w-[180px]" title={post.categorySlug}>
-              📁 {post.categorySlug}
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 truncate max-w-[110px]" title={post.categorySlug}>
+              📁{post.categorySlug}
             </span>
-            <span className="text-xs text-slate-700 font-bold">Post {post.postNo} · {post.date}({post.weekday})</span>
           </div>
           <button
             type="button"
             onClick={() => handleCopy(post)}
-            className={`text-[10px] font-bold px-2 py-1 rounded-md transition-colors ${
+            className={`shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded transition-colors ${
               isCopied ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
             }`}
           >
-            {isCopied ? '✓ 복사됨' : '📋 복사'}
+            {isCopied ? '✓' : '📋'}
           </button>
         </div>
 
-        <h4 className="text-base sm:text-lg font-extrabold text-slate-900 mb-2 leading-snug">
+        <div className="text-[9px] text-slate-500 font-semibold mb-1">
+          P{post.postNo} · {post.date}({post.weekday})
+        </div>
+
+        <h4 className="text-xs font-extrabold text-slate-900 mb-1 leading-snug line-clamp-2">
           {post.title}
         </h4>
 
-        {/* /backlink와 동일: 본문 전체 + whitespace-pre-wrap */}
-        <div className="text-sm text-slate-800 leading-relaxed whitespace-pre-wrap mb-3">
+        {/* 스크롤 본문 — 카드 높이 고정 */}
+        <div className="text-[11px] text-slate-700 leading-relaxed whitespace-pre-wrap mb-1.5 max-h-[100px] overflow-y-auto pr-1 [scrollbar-width:thin]">
           {post.body}
         </div>
 
         {post.tags && post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-2">
+          <div className="flex flex-wrap gap-0.5 mb-1.5">
             {post.tags.map((tag, i) => (
-              <span key={i} className="text-[10px] text-orange-800 bg-orange-100 border border-orange-200 px-2 py-0.5 rounded-full font-semibold">
+              <span key={i} className="text-[8px] text-orange-800 bg-orange-100 border border-orange-200 px-1 py-0 rounded-full font-semibold">
                 #{tag}
               </span>
             ))}
@@ -222,9 +225,11 @@ export default function BacklinkDashboardPage() {
           href={post.categoryLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-[11px] text-indigo-700 font-bold hover:underline"
+          onClick={(e) => e.stopPropagation()}
+          className="inline-flex items-center gap-0.5 text-[9px] text-indigo-700 font-bold hover:underline truncate mt-auto"
+          title={post.categoryLink}
         >
-          🔗 {post.categoryLink}
+          🔗<span className="truncate">{post.categoryLink.replace(/^https?:\/\//, '')}</span>
         </a>
       </article>
     );
@@ -232,20 +237,20 @@ export default function BacklinkDashboardPage() {
 
   const renderDateGroup = (posts: DashboardPost[], dateGroupBy: boolean) => {
     if (!dateGroupBy) {
-      // 단일 컬럼 (full-width 카드) — /backlink와 동일
-      return <div className="space-y-4">{posts.map(renderCard)}</div>;
+      // 한 줄 3장 (lg) / 2장 (sm) / 1장 (mobile)
+      return <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">{posts.map(renderCard)}</div>;
     }
-    // 일자별로 그룹 + 그룹 안 단일 컬럼
+    // 일자별로 그룹 + 그룹 안 3-col 그리드
     const grouped: Record<string, DashboardPost[]> = {};
     posts.forEach(p => { if (!grouped[p.date]) grouped[p.date] = []; grouped[p.date].push(p); });
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         {Object.entries(grouped).map(([date, ps]) => (
           <div key={date}>
-            <h4 className="text-xs font-extrabold text-slate-600 mb-2 pb-1.5 border-b border-slate-200">
+            <h4 className="text-xs font-extrabold text-slate-600 mb-1.5 pb-1 border-b border-slate-200">
               📅 {dateLabel(date)} <span className="text-slate-400 font-semibold">· {ps.length}개</span>
             </h4>
-            <div className="space-y-4">{ps.map(renderCard)}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">{ps.map(renderCard)}</div>
           </div>
         ))}
       </div>
