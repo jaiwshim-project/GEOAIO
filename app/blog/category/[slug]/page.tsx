@@ -404,6 +404,37 @@ export default async function BlogCategoryPage({
           </div>
         </section>
 
+        {/* 선거 후보자 카테고리 → election-2026 통합 페이지로 연결
+            슬러그/라벨에 "후보자"/"선거"/"시장-"/"교육감" 포함 시만 표시 */}
+        {(/(후보자|선거|시장-|교육감)/.test(slug) || /(후보자|선거|시장-|교육감)/.test(meta.label)) && (
+          <Link
+            href="/proposal/election-2026"
+            className="block mb-4 group"
+            aria-label="6·3 지방선거 통합 페이지로 이동"
+          >
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border-2 border-amber-300 px-4 py-3 shadow-md hover:shadow-lg transition-colors">
+              <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-amber-500 via-orange-500 to-rose-500" />
+              <div className="flex items-center gap-3 pl-2">
+                <span className="text-2xl shrink-0">🏆</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-extrabold tracking-[0.2em] text-amber-700 uppercase mb-0.5">
+                    Election 2026 · 6·3 지방선거
+                  </p>
+                  <p className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
+                    이 후보자 카테고리는 <span className="text-amber-700">양자 대결 통합 페이지</span>와 연결됩니다
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-slate-700 leading-snug mt-0.5">
+                    동일 선거구 경쟁 후보 비교 · 단독 계약 독점권 · AI 검색 마케팅 솔루션 →
+                  </p>
+                </div>
+                <svg className="w-5 h-5 text-amber-700 group-hover:translate-x-1 transition-colors shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+        )}
+
         {/* 언어 탭 — 프리미엄 화이트 세그먼트 (골드 글로우) — 가독성 최대화·볼드체 */}
         <div className="relative mb-4">
           <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-300/40 via-amber-400/20 to-amber-300/40 blur-[2px] opacity-50" />
