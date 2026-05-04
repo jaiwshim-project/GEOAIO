@@ -1375,11 +1375,13 @@ export default function ElectionProposalPage() {
                 <span className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-100 to-cyan-200 text-indigo-700 ring-2 ring-indigo-300/50 flex items-center justify-center text-base font-bold shadow-md">4</span>
                 <h2 className="text-xl sm:text-xl font-extrabold text-gray-900">{t.sMultiTitle}</h2>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 bg-white/80 border border-indigo-200 rounded-full shadow-sm" aria-label="supported languages">
-                <span className="text-xl sm:text-2xl leading-none" title="ko">🇰🇷</span>
-                <span className="text-xl sm:text-2xl leading-none" title="en">🇺🇸</span>
-                <span className="text-xl sm:text-2xl leading-none" title="zh">🇨🇳</span>
-                <span className="text-xl sm:text-2xl leading-none" title="ja">🇯🇵</span>
+              <div className="flex items-center gap-2 sm:gap-2.5 px-3 py-2 bg-white border-2 border-indigo-300 ring-2 ring-cyan-200/50 rounded-full shadow-md" aria-label="supported languages">
+                {/* eslint-disable @next/next/no-img-element */}
+                <img src="https://flagcdn.com/w80/kr.png" alt="한국어" title="한국어" className="w-7 h-5 sm:w-8 sm:h-6 rounded-sm shadow-sm object-cover" loading="lazy" />
+                <img src="https://flagcdn.com/w80/us.png" alt="English" title="English" className="w-7 h-5 sm:w-8 sm:h-6 rounded-sm shadow-sm object-cover" loading="lazy" />
+                <img src="https://flagcdn.com/w80/cn.png" alt="中文" title="中文" className="w-7 h-5 sm:w-8 sm:h-6 rounded-sm shadow-sm object-cover" loading="lazy" />
+                <img src="https://flagcdn.com/w80/jp.png" alt="日本語" title="日本語" className="w-7 h-5 sm:w-8 sm:h-6 rounded-sm shadow-sm object-cover" loading="lazy" />
+                {/* eslint-enable @next/next/no-img-element */}
               </div>
             </div>
             <span className="inline-block text-[11px] font-extrabold tracking-[0.15em] uppercase text-indigo-700 bg-indigo-100/70 border border-indigo-200 px-2.5 py-1 rounded-full mb-3">
