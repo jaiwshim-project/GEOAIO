@@ -172,6 +172,21 @@ export default function BacklinkDashboardPage() {
     }
   };
 
+  // 카테고리 통째로 삭제 — 해당 슬러그의 로드맵+모든 포스트가 일정에서 사라짐
+  const handleDeleteCategory = (slug: string) => {
+    const r = roadmaps[slug];
+    const total = r?.totalPosts ?? r?.posts?.length ?? 0;
+    if (!confirm(`"${slug}" 카테고리를 삭제하시겠습니까?\n관련 ${total}개 포스트가 모든 일정 섹션(오늘/내일/이번 주/...)에서 사라집니다. 되돌릴 수 없습니다.`)) return;
+    setRoadmaps(prev => {
+      const next = { ...prev };
+      delete next[slug];
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      }
+      return next;
+    });
+  };
+
   const renderCard = (post: DashboardPost) => {
     const id = `${post.categorySlug}-${post.postNo}`;
     const isCopied = copiedIds.has(id);
@@ -349,9 +364,17 @@ export default function BacklinkDashboardPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               {countsByCategory.map(([slug, count]) => (
-                <span key={slug} className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+                <span key={slug} className="inline-flex items-center gap-1.5 text-xs font-bold pl-2.5 pr-1 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
                   <span className="truncate max-w-[180px]" title={slug}>{slug}</span>
                   <span className="px-1.5 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px]">{count}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCategory(slug)}
+                    title={`${slug} 카테고리의 ${count}개 포스트 모두 삭제`}
+                    className="ml-0.5 w-5 h-5 inline-flex items-center justify-center rounded-full text-rose-600 hover:text-white hover:bg-rose-500 transition-colors text-[11px] font-extrabold"
+                  >
+                    ✕
+                  </button>
                 </span>
               ))}
             </div>
