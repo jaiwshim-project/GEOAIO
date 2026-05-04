@@ -47,6 +47,123 @@ export default function ManualPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+        {/* 🆕 최근 업데이트 / 신규 기능 — 사용자 매뉴얼 업데이트 (2026-05) */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 rounded-xl shadow-md border-2 border-amber-300 ring-2 ring-amber-200/60 p-6">
+          <div className="absolute -top-12 -right-12 w-40 h-40 bg-amber-200/40 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-amber-700 bg-amber-100/80 border border-amber-300 px-2.5 py-1 rounded-full">🆕 NEW</span>
+              <h2 className="text-sm font-extrabold text-amber-900">최근 업데이트 — 신규 기능 안내 (2026-05)</h2>
+            </div>
+            <p className="text-[11px] text-slate-800 mb-4 leading-relaxed">
+              플랫폼이 크게 개선되었습니다. 자동 반복 발행 + 다국어 + 카테고리 매칭 정확도 향상으로 <strong>10배 이상의 발행 효율</strong>이 가능합니다.
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">🚀 자동 반복 발행 (1~5회)</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  콘텐츠 유형 선택 + 카테고리 선택 후, 추천 주제 5개를 받고 <strong>반복 횟수(1~5회)</strong>를 정하면 끝까지 자동.
+                  매 회차마다 다음 주제로 진행, 한국어 + 선택한 외국어로 자동 번역·발행.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">위치: <code className="bg-amber-50 px-1 rounded">/generate</code> → 카테고리 선택 아래 시안 박스</p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">🌐 번역 언어 다중 선택 (영·중·일)</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  🇰🇷 한국어는 항상 발행. 추가로 🇺🇸 영어 / 🇨🇳 중국어 / 🇯🇵 일본어 중 원하는 것만 토글 선택.
+                  매 회차마다 한국어 + 선택 외국어 자동 번역·동시 발행.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">디폴트: 모두 해제 (사용자가 명시 선택)</p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">📁 카테고리 자동/수동 선택</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  <strong>자동 매칭</strong>: 프로젝트명과 동일한 카테고리에 자동 저장.<br/>
+                  <strong>수동 선택</strong>: 다른 카테고리(예: 특정 후보자)에 저장 — 프로젝트 연관 카테고리만 옵션 노출.
+                  <strong>+ 새 카테고리 만들기</strong>로 신규 등록 가능.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">Fuzzy 매칭으로 70% 유사 시 기존 카테고리 자동 재사용</p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">📊 자동 발행 진행 모달</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  자동 발행 시 우하단에 <strong>실시간 진행 모달</strong> 표시.
+                  현재 회차/총 회차, 단계(콘텐츠 생성 → EEAT → 한·영·중·일 발행), 누적 발행 편 수 자동 갱신.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">접기/펼치기 가능, 모든 페이지에서 관찰</p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">❤️ 블로그 좋아요·댓글</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  글 페이지 공유 버튼 옆에 좋아요/댓글 버튼.
+                  익명 + 로그인 모두 가능, 1인 1좋아요, 댓글 60초 rate limit, 본인 댓글만 삭제.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">위치: <code className="bg-amber-50 px-1 rounded">/blog/[글ID]</code></p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">📂 /blog 카테고리 인덱스</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  메인 <code className="bg-amber-50 px-1 rounded">/blog</code>는 카테고리 카드만 표시.
+                  카드 클릭 → 카테고리 페이지(<code className="bg-amber-50 px-1 rounded">/blog/category/[slug]</code>)에서 페이지당 50건씩.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">활성 탭은 sessionStorage에 저장 (페이지 이동 후에도 유지)</p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">🏆 단체 솔루션 안내 페이지</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  병원·기업·정치·공공기관 등 단체 영업용 페이지 신설.
+                  4개 단체 유형별 가치, 6가지 차별 가치, 일반 SEO vs GEO-AIO 비교, 3개 티어 패키지, 48시간 도입 로드맵.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">URL: <code className="bg-amber-50 px-1 rounded">/solutions</code></p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">🗳️ 6·3 지방선거 양자 대결</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  <code className="bg-amber-50 px-1 rounded">/proposal/election-2026</code> — 양자 대결 6쌍, 다문화 유권자 섹션, 4개 언어 i18n(한·영·중·일), PDF 다운로드 버튼.
+                  단독 계약 독점권 안내 + 후보자별 슬로건 + 발행 언어 국기 표시.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">선거 카테고리 페이지에서 통합 안내로 자동 link</p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">📋 전략 기획서 (디지털스마일치과)</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  <code className="bg-amber-50 px-1 rounded">/report.html</code> — 단체별 서브페이지 토글 구조 + PDF 다운로드 버튼.
+                  향후 추가 기획서가 들어가면 상단 nav에 자동 추가.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">현재: 디지털스마일치과 12개월 로드맵</p>
+              </div>
+
+              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
+                <div className="text-base font-bold text-slate-900 mb-1">⚡ Claude API 키 풀 (3개 분산)</div>
+                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
+                  Tier 1 Haiku 4.5의 RPM 한도(50/분) → 3개 키 풀로 <strong>~150 RPM 분산</strong>.
+                  동시 사용자 5명까지 안정 처리 가능. 호출마다 랜덤 픽으로 자동 분산.
+                </p>
+                <p className="text-[10px] text-amber-700 font-bold">사용자 환경 무관, 백엔드 자동</p>
+              </div>
+            </div>
+
+            <div className="mt-4 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+              <p className="text-[10px] text-slate-700 leading-relaxed">
+                <strong className="text-slate-900">💡 사용 흐름</strong>: 프로젝트 선택 →
+                <code className="bg-white px-1 mx-1 rounded text-amber-700">/generate</code> →
+                콘텐츠 유형 카드 클릭 → 카테고리 선택 → 반복 횟수 + 번역 언어 → 주제 추천 받기 →
+                <strong className="text-amber-700">🚀 자동 반복 발행 시작</strong> 클릭 → 우하단 모달에서 진행 관찰 → 완료 후
+                <code className="bg-white px-1 mx-1 rounded text-amber-700">/blog/category/[슬러그]</code>에서 발행 결과 확인.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* 소개 */}
         <section className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-sm border border-indigo-200 p-6">
           <h2 className="text-sm font-bold bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent mb-3">GEO-AIO란?</h2>
