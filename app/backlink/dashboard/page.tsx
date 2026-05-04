@@ -70,10 +70,12 @@ function dateLabel(iso: string) {
   return `${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
 }
 
+const COPIED_STORAGE_KEY = 'geoaio_backlink_copied_posts';
+
 export default function BacklinkDashboardPage() {
   const [roadmaps, setRoadmaps] = useState<Record<string, RoadmapResponse>>({});
   const [loaded, setLoaded] = useState(false);
-  const [copiedId, setCopiedId] = useState('');
+  const [copiedIds, setCopiedIds] = useState<Set<string>>(new Set());
   const [showPast, setShowPast] = useState(true);
   const [showFuture, setShowFuture] = useState(true);
 
@@ -82,6 +84,10 @@ export default function BacklinkDashboardPage() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setRoadmaps(JSON.parse(raw));
+    } catch {}
+    try {
+      const rawC = localStorage.getItem(COPIED_STORAGE_KEY);
+      if (rawC) setCopiedIds(new Set(JSON.parse(rawC) as string[]));
     } catch {}
     setLoaded(true);
   }, []);
@@ -138,29 +144,46 @@ export default function BacklinkDashboardPage() {
   };
 
   const handleCopy = async (post: DashboardPost) => {
+    const id = `${post.categorySlug}-${post.postNo}`;
+    if (copiedIds.has(id)) return; // 이미 복사된 항목은 무시 (버튼 disabled)
     const text = post.channel === 'Tistory'
       ? `[제목] ${post.title}\n\n[태그] ${post.tags.join(', ')}\n\n[본문]\n${post.body}`
       : `${post.title}\n\n${post.body}`;
     try {
       await navigator.clipboard.writeText(text);
-      const id = `${post.categorySlug}-${post.postNo}`;
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(''), 2000);
+      setCopiedIds(prev => {
+        const next = new Set(prev);
+        next.add(id);
+        if (typeof window !== 'undefined') {
+          try { localStorage.setItem(COPIED_STORAGE_KEY, JSON.stringify(Array.from(next))); } catch {}
+        }
+        return next;
+      });
     } catch {
       alert('복사 실패 — 원본 페이지에서 복사해 주세요');
     }
   };
 
+  const resetCopied = () => {
+    if (!confirm(`복사 기록 ${copiedIds.size}개를 모두 초기화하시겠습니까? 모든 카드가 다시 활성화됩니다.`)) return;
+    setCopiedIds(new Set());
+    if (typeof window !== 'undefined') {
+      try { localStorage.removeItem(COPIED_STORAGE_KEY); } catch {}
+    }
+  };
+
   const renderCard = (post: DashboardPost) => {
     const id = `${post.categorySlug}-${post.postNo}`;
-    const isCopied = copiedId === id;
+    const isCopied = copiedIds.has(id);
     return (
       <article
         key={id}
         className={`relative bg-gradient-to-br ${
-          post.channel === 'Tistory'
-            ? 'from-orange-50 to-amber-50 border-orange-200'
-            : 'from-blue-50 to-indigo-50 border-blue-200'
+          isCopied
+            ? 'from-slate-50 to-slate-100 border-slate-300 opacity-70'
+            : post.channel === 'Tistory'
+              ? 'from-orange-50 to-amber-50 border-orange-200'
+              : 'from-blue-50 to-indigo-50 border-blue-200'
         } border rounded-lg p-2.5 shadow-sm flex flex-col`}
       >
         <div className="flex items-start justify-between mb-1.5 gap-1">
@@ -190,10 +213,13 @@ export default function BacklinkDashboardPage() {
           <button
             type="button"
             onClick={() => handleCopy(post)}
+            disabled={isCopied}
             className={`shrink-0 text-lg font-bold px-3 py-1.5 rounded-md transition-colors ${
-              isCopied ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+              isCopied
+                ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
             }`}
-            title="복사"
+            title={isCopied ? '이미 복사됨' : '복사'}
           >
             {isCopied ? '✓' : '📋'}
           </button>
@@ -203,7 +229,11 @@ export default function BacklinkDashboardPage() {
           P{post.postNo} · {post.date}({post.weekday})
         </div>
 
-        <h4 className="text-xs font-extrabold text-slate-900 mb-1 leading-snug line-clamp-2">
+        <h4 className={`text-xs font-extrabold mb-1 leading-snug line-clamp-2 ${
+          isCopied
+            ? 'text-slate-500 line-through decoration-red-500 decoration-2'
+            : 'text-slate-900'
+        }`}>
           {post.title}
         </h4>
 
@@ -304,7 +334,19 @@ export default function BacklinkDashboardPage() {
         {/* 카테고리별 포스트 수 — /backlink 저장 탭과 1:1 일치 검증용 */}
         {countsByCategory.length > 0 && (
           <section className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">
-            <h3 className="text-xs font-extrabold text-slate-700 mb-2 tracking-wider uppercase">📂 카테고리별 포스트 수 (총 {stats.posts}개)</h3>
+            <div className="flex items-baseline justify-between mb-2 gap-2 flex-wrap">
+              <h3 className="text-xs font-extrabold text-slate-700 tracking-wider uppercase">📂 카테고리별 포스트 수 (총 {stats.posts}개)</h3>
+              {copiedIds.size > 0 && (
+                <button
+                  type="button"
+                  onClick={resetCopied}
+                  className="text-[11px] font-bold text-rose-600 hover:text-rose-800 hover:underline"
+                  title="복사한 카드의 빨간 줄·비활성화 상태를 모두 풀기"
+                >
+                  ↺ 복사 기록 초기화 ({copiedIds.size}개)
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
               {countsByCategory.map(([slug, count]) => (
                 <span key={slug} className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
