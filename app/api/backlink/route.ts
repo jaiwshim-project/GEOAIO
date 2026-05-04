@@ -93,27 +93,82 @@ export async function POST(req: NextRequest) {
   }
   const client = new Anthropic({ apiKey });
 
-  // 카테고리 글 제목 5개를 컨텍스트로
+  // 카테고리 글 제목 10개를 컨텍스트로
   const sampleTitles = posts.slice(0, 10).map((p, i) => `${i + 1}. ${p.title}`).join('\n');
 
+  // 카테고리에 연관된 프로젝트(단체) 정보 자동 fetch — 푸터 연락처 자동 채움
+  let projectInfo = '';
+  try {
+    const { data: cps } = await supa.from('blog_category_projects').select('project_name').eq('category_slug', categorySlug).limit(5);
+    const projectNames = (cps || []).map(c => c.project_name);
+    if (projectNames.length > 0) {
+      const { data: projs } = await supa.from('user_projects')
+        .select('name, representative_name, region, contact_phone, contact_email, homepage_url, description')
+        .in('name', projectNames)
+        .limit(3);
+      if (projs && projs.length > 0) {
+        const p = projs[0];
+        const lines = [
+          p.name && `단체명: ${p.name}`,
+          p.representative_name && `대표/전문가: ${p.representative_name}`,
+          p.region && `지역: ${p.region}`,
+          p.contact_phone && `전화: ${p.contact_phone}`,
+          p.contact_email && `이메일: ${p.contact_email}`,
+          p.homepage_url && `홈페이지: ${p.homepage_url}`,
+          p.description && `소개: ${p.description.slice(0, 200)}`,
+        ].filter(Boolean);
+        if (lines.length > 0) projectInfo = '\n\n== 단체 정보 (푸터·본문에 자연스럽게 1~2회 언급) ==\n' + lines.join('\n');
+      }
+    }
+  } catch {}
+
   // 마크다운 구분자 형식 — JSON escape 문제 회피로 더 견고
-  const systemPrompt = `당신은 백링크 실행 로드맵 카피라이터입니다. 카테고리 페이지로 트래픽을 유도하는 Tistory/LinkedIn 포스트를 일정에 맞춰 작성합니다.
+  // docx 사례 형식 (비교표·FAQ 5·단계별 5·푸터·해시태그)에 정확히 맞춤
+  const systemPrompt = `당신은 AI 검색·백링크 실행 카피라이터입니다. 카테고리 페이지로 트래픽을 유도하는 Tistory/LinkedIn 포스트를 일정에 맞춰 작성합니다.
 
-규칙:
-- Tistory: 제목 30~45자, 본문 600~800자, 태그 5~7개. 자연스러운 정보형. 본문 끝에 카테고리 URL 1회 포함.
-- LinkedIn: 제목 줄 + 5~8문단. 인사이트·통찰형. 본문 중간에 카테고리 URL 1회 + 마지막에 해시태그 3~5개.
-- 같은 주제·표현 반복 금지. 매 포스트마다 다른 각도(가격·기간·비교·사례·장단점·FAQ·체크리스트·트렌드 등).
-- 카테고리 글 제목을 참고하되 그대로 베끼지 말 것.
+== Tistory 포스트 형식 ==
+- 제목: 30~45자, 비교/FAQ/완벽 가이드/단계별/체크리스트/트렌드 등 정보형 후크
+- 본문 구성 (반드시 이 순서):
+  ① 도입부 (1~2문장 — 질문형으로 시작)
+  ② 본 콘텐츠 — 비교표 / FAQ Q1~Q5 / HowTo 5단계 중 1~2개 형식 적극 사용
+  ③ 카테고리 페이지 안내 ("👉 더 자세한 사례·후기:" + 카테고리 URL)
+  ④ 푸터 ("---" + 📍 연락처/홈페이지 — 단체 정보가 본문에 어울리면)
+- 비교표 예시: | 항목 | 기존 | 신규 | 형식
+- FAQ 예시: Q1. 질문 / 답변 80~150자, 첫 문장에 결론
+- HowTo 예시: 1. 단계명 — 짧은 설명 / 2. 단계명 — ... / 5단계까지
+- 길이: 600~900자 (구조 포함)
+- 태그: 5~7개 (지역·시술·인물·전문분야·AI검색 등 혼합)
 
-응답 형식: 정확히 아래 마커 형식만 사용. JSON·마크다운·다른 형식 금지.
+== LinkedIn 포스트 형식 ==
+- 제목: 호기심·통찰형 (예: "ChatGPT가 인용하는 X, 어떻게 만드는가")
+- 본문 구성 (반드시 이 순서):
+  ① 짧은 도입 (1~2문장 — 통계·트렌드 인용)
+  ② 핵심 메시지 1~2문장
+  ③ "▶" 기호로 핵심 신호/포인트 4~5개 짧게 나열
+  ④ 카테고리 페이지 안내 ("▶ 카테고리 페이지: " + URL)
+  ⑤ 마무리 1문장 (CTA·통찰)
+  ⑥ 푸터 (📍 연락처 — 단체 정보가 본문에 어울리면)
+  ⑦ 해시태그 5~9개 (#태그1 #태그2 ...)
+- 길이: 400~600자
+- 태그 필드: 비워둠 (해시태그는 본문 끝에 포함)
+
+== 공통 규칙 ==
+- 매 포스트마다 다른 각도: 가격·기간·비교·사례·장단점·FAQ·체크리스트·트렌드·실수·전후 변화·통계·5가지 신호 등
+- 같은 표현 반복 금지
+- 카테고리 글 제목을 참고하되 그대로 베끼지 말 것
+- 단체명·전문가명·지역명 자연스럽게 본문에 1~2회 언급 (강제 X)
+- AI 인용 친화 신호 (JSON-LD·E-E-A-T·FAQ·HowTo) 가능하면 본문 내 짧게 언급
+
+== 응답 형식 ==
+정확히 아래 마커 형식만 사용. JSON·마크다운·다른 형식 금지.
 
 ===POST 1===
 TITLE: 포스트 제목 한 줄
-TAGS: 태그1, 태그2, 태그3 (Tistory만, LinkedIn은 비워둠)
+TAGS: 태그1, 태그2, 태그3 (Tistory만; LinkedIn은 비워둠)
 BODY:
 포스트 본문 시작
-여러 줄 가능
-본문 끝 — 다음 포스트 전까지
+(여러 줄 자유)
+본문 끝
 
 ===POST 2===
 TITLE: ...
@@ -128,12 +183,18 @@ BODY:
 카테고리 페이지 URL: ${categoryLink}
 
 카테고리 내 기존 글 제목 샘플:
-${sampleTitles}
+${sampleTitles}${projectInfo}
 
-작성할 포스트 ${schedule.length}개:
+작성할 포스트 ${schedule.length}개 (Tistory와 LinkedIn 채널 번갈아):
 ${schedule.map(s => `Post ${s.postNo}: ${s.date}(${s.weekday}) - ${s.channel}`).join('\n')}
 
-각 포스트는 위 카테고리 페이지로 백링크가 향하는 보조 콘텐츠입니다. 위 형식대로 ${schedule.length}개 포스트를 모두 작성하세요. 마지막에 === END === 마커 필수.`;
+각 포스트는 위 카테고리 페이지로 백링크가 향하는 보조 콘텐츠입니다.
+- 매 포스트마다 다른 각도(비교/FAQ/단계별/사례/체크리스트/트렌드/통계/실수 등)
+- Tistory는 비교표·FAQ·HowTo 등 구조 활용
+- LinkedIn은 ▶ 기호로 핵심 신호 나열 + 해시태그 5~9개
+- 단체 정보가 있으면 본문/푸터에 자연스럽게 1~2회 언급 (강제 X)
+
+위 형식대로 ${schedule.length}개 포스트를 모두 작성하세요. 마지막에 === END === 마커 필수.`;
 
   let aiPosts: { postNo: number; title: string; body: string; tags: string[] }[] = [];
   try {
