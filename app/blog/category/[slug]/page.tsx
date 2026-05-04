@@ -406,7 +406,7 @@ export default async function BlogCategoryPage({
 
         {/* 선거 후보자 카테고리 → election-2026 통합 페이지로 연결
             슬러그/라벨에 "후보자"/"선거"/"시장-"/"교육감" 포함 시만 표시 */}
-        {(/(후보자|선거|시장-|교육감)/.test(slug) || /(후보자|선거|시장-|교육감)/.test(meta.label)) && (
+        {(/(후보자|후보|선거|시장|교육감|국회의원)/.test(slug) || /(후보자|후보|선거|시장|교육감|국회의원)/.test(meta.label)) && (
           <Link
             href="/proposal/election-2026"
             className="block mb-4 group"
