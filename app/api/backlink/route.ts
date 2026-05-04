@@ -96,39 +96,50 @@ export async function POST(req: NextRequest) {
   // 카테고리 글 제목 5개를 컨텍스트로
   const sampleTitles = posts.slice(0, 10).map((p, i) => `${i + 1}. ${p.title}`).join('\n');
 
-  // 한번에 LLM에 일정 + 모든 포스트 생성 요청 (Haiku 빠름)
+  // 마크다운 구분자 형식 — JSON escape 문제 회피로 더 견고
   const systemPrompt = `당신은 백링크 실행 로드맵 카피라이터입니다. 카테고리 페이지로 트래픽을 유도하는 Tistory/LinkedIn 포스트를 일정에 맞춰 작성합니다.
 
 규칙:
-- Tistory: 제목 30~45자, 본문 600~800자, 태그 5~7개. 자연스러운 정보형. 본문 끝에 "👉 카테고리 링크" 형식으로 카테고리 URL 1회 포함.
-- LinkedIn: 제목 줄 + 5~8문단 짧게. 인사이트·통찰형. 본문 중간에 카테고리 URL 1회 포함, 마지막에 해시태그 3~5개.
-- 같은 주제·같은 표현 반복 금지. 매 포스트마다 다른 각도(가격·기간·비교·사례·장단점·FAQ·체크리스트 등).
+- Tistory: 제목 30~45자, 본문 600~800자, 태그 5~7개. 자연스러운 정보형. 본문 끝에 카테고리 URL 1회 포함.
+- LinkedIn: 제목 줄 + 5~8문단. 인사이트·통찰형. 본문 중간에 카테고리 URL 1회 + 마지막에 해시태그 3~5개.
+- 같은 주제·표현 반복 금지. 매 포스트마다 다른 각도(가격·기간·비교·사례·장단점·FAQ·체크리스트·트렌드 등).
 - 카테고리 글 제목을 참고하되 그대로 베끼지 말 것.
 
-응답: JSON 배열만. 다른 텍스트·마크다운 금지.`;
+응답 형식: 정확히 아래 마커 형식만 사용. JSON·마크다운·다른 형식 금지.
 
-  const userPrompt = `카테고리: ${categorySlug}
-카테고리 페이지: ${categoryLink}
-카테고리 내 글 샘플 제목:
+===POST 1===
+TITLE: 포스트 제목 한 줄
+TAGS: 태그1, 태그2, 태그3 (Tistory만, LinkedIn은 비워둠)
+BODY:
+포스트 본문 시작
+여러 줄 가능
+본문 끝 — 다음 포스트 전까지
+
+===POST 2===
+TITLE: ...
+TAGS: ...
+BODY:
+...
+
+(이런 식으로 모든 포스트를 마커로 구분)
+=== END ===`;
+
+  const userPrompt = `카테고리 슬러그: ${categorySlug}
+카테고리 페이지 URL: ${categoryLink}
+
+카테고리 내 기존 글 제목 샘플:
 ${sampleTitles}
 
-다음 ${schedule.length}개 포스트를 일정에 맞춰 작성하세요. 각 포스트는 위 카테고리 글로 백링크가 향하는 보조 콘텐츠입니다.
+작성할 포스트 ${schedule.length}개:
+${schedule.map(s => `Post ${s.postNo}: ${s.date}(${s.weekday}) - ${s.channel}`).join('\n')}
 
-일정:
-${schedule.map(s => `[Post ${s.postNo}] ${s.date}(${s.weekday}) ${s.channel}`).join('\n')}
-
-응답 형식 (JSON 배열, 정확히 ${schedule.length}개):
-[
-  {"postNo": 1, "title": "...", "body": "...", "tags": ["...", "..."]},
-  ...
-]
-태그는 Tistory 포스트만 채우고, LinkedIn은 빈 배열로.`;
+각 포스트는 위 카테고리 페이지로 백링크가 향하는 보조 콘텐츠입니다. 위 형식대로 ${schedule.length}개 포스트를 모두 작성하세요. 마지막에 === END === 마커 필수.`;
 
   let aiPosts: { postNo: number; title: string; body: string; tags: string[] }[] = [];
   try {
     const resp = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 8000,
+      max_tokens: 12000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     });
@@ -136,10 +147,35 @@ ${schedule.map(s => `[Post ${s.postNo}] ${s.date}(${s.weekday}) ${s.channel}`).j
       .filter(b => b.type === 'text')
       .map(b => (b as { type: 'text'; text: string }).text)
       .join('');
-    // JSON 추출 (```json ... ``` 또는 [ ... ])
-    const jsonMatch = txt.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error('JSON 응답 파싱 실패');
-    aiPosts = JSON.parse(jsonMatch[0]);
+
+    // ===POST N=== 블록 단위로 split
+    const blocks = txt.split(/={3,}\s*POST\s*(\d+)\s*={3,}/i);
+    // split 결과: [intro, "1", body1, "2", body2, ...]
+    for (let i = 1; i < blocks.length; i += 2) {
+      const postNo = parseInt(blocks[i], 10);
+      const block = blocks[i + 1] || '';
+      // === END === 또는 다음 마커 전까지
+      const cleanBlock = block.split(/={3,}\s*END\s*={3,}/i)[0];
+
+      const titleMatch = cleanBlock.match(/^\s*TITLE:\s*(.+?)$/m);
+      const tagsMatch = cleanBlock.match(/^\s*TAGS:\s*(.*?)$/m);
+      const bodyMatch = cleanBlock.match(/^\s*BODY:\s*([\s\S]*?)$/m);
+
+      const title = titleMatch ? titleMatch[1].trim() : '';
+      const tagsRaw = tagsMatch ? tagsMatch[1].trim() : '';
+      const tags = tagsRaw && tagsRaw !== '(비워둠)' && tagsRaw !== '(없음)'
+        ? tagsRaw.split(/[,#·]+/).map(t => t.trim().replace(/^#/, '')).filter(t => t && t.length > 0 && t !== '비워둠')
+        : [];
+      const body = bodyMatch ? bodyMatch[1].trim() : '';
+
+      if (postNo && (title || body)) {
+        aiPosts.push({ postNo, title, body, tags });
+      }
+    }
+
+    if (aiPosts.length === 0) {
+      throw new Error(`구분자 형식 파싱 실패 — 응답 첫 500자: "${txt.slice(0, 500)}"`);
+    }
   } catch (e) {
     console.error('[backlink-roadmap] Claude error:', e);
     return NextResponse.json({ error: 'AI 생성 실패: ' + (e instanceof Error ? e.message : String(e)) }, { status: 500 });
