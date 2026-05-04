@@ -42,6 +42,7 @@ const mainNav: NavItem[] = [
   { href: '/keyword-analysis', label: '키워드' },
   { href: '/series', label: '시리즈' },
   { href: '/dashboard/indexing', label: '색인' },
+  { href: '/backlink', label: '백링크' },
 ];
 
 const subNav = [
