@@ -68,13 +68,25 @@ export default function BacklinkPage() {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed: Record<string, RoadmapResponse> = JSON.parse(raw);
-          // 마이그레이션: 옛 docx 원본의 잘못된 카테고리 URL(.../category/geo-aio)을 각 로드맵의 정확한 categoryLink로 교체
+          // 마이그레이션: 카테고리 URL을 인코딩 버전으로 정규화
+          // 1) 옛 .../category/geo-aio → 인코딩된 정확한 URL
+          // 2) unencoded 한글 .../category/<korean> → 인코딩된 URL
+          // 3) post.categoryLink 자체도 인코딩 버전으로 통일
           Object.values(parsed).forEach(roadmap => {
-            const correctLink = roadmap.posts?.[0]?.categoryLink;
-            if (!correctLink) return;
+            const slug = roadmap.categorySlug;
+            if (!slug) return;
+            const encodedLink = `https://www.geo-aio.com/blog/category/${encodeURIComponent(slug)}`;
+            const oldKoreanLink = `https://www.geo-aio.com/blog/category/${slug}`;
+            const oldGeoAioLink = `https://www.geo-aio.com/blog/category/geo-aio`;
             roadmap.posts?.forEach(post => {
-              if (post.body && /https?:\/\/www\.geo-aio\.com\/blog\/category\/geo-aio/.test(post.body)) {
-                post.body = post.body.replace(/https?:\/\/www\.geo-aio\.com\/blog\/category\/geo-aio/g, correctLink);
+              if (post.categoryLink !== encodedLink) post.categoryLink = encodedLink;
+              if (post.body) {
+                let nb = post.body;
+                if (nb.includes(oldGeoAioLink)) nb = nb.split(oldGeoAioLink).join(encodedLink);
+                if (oldKoreanLink !== encodedLink && nb.includes(oldKoreanLink)) {
+                  nb = nb.split(oldKoreanLink).join(encodedLink);
+                }
+                if (nb !== post.body) post.body = nb;
               }
             });
           });
