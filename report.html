@@ -443,10 +443,83 @@
     .bonus-banner { padding: 18px 20px !important; }
     .bonus-banner h4 { font-size: 15px !important; }
   }
+
+  /* ============ 서브페이지 네비게이션 ============ */
+  .report-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.08);
+  }
+  .report-nav-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .report-nav-btn {
+    padding: 8px 18px;
+    border: 1px solid #cbd5e1;
+    background: white;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    font-family: inherit;
+  }
+  .report-nav-btn:hover {
+    border-color: #fbbf24;
+    color: #b45309;
+    background: #fffbeb;
+  }
+  .report-nav-btn.active {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 10px -2px rgba(245, 158, 11, 0.45);
+  }
+  .report-page { display: none; }
+  .report-page.active { display: block; }
+  @media (max-width: 720px) {
+    .report-nav { padding: 10px 12px; gap: 6px; }
+    .report-nav-label { font-size: 10px; }
+    .report-nav-btn { padding: 6px 12px; font-size: 12px; }
+  }
 </style>
 </head>
 <body>
 <div class="container">
+
+  <!-- ====================================================
+       기획서 서브페이지 네비게이션
+       새 기획서 추가 방법:
+       1) 아래 .report-nav 안에 <button data-report="키" class="report-nav-btn">제목</button> 추가
+       2) </div><!-- /report-page--> 다음에 새 <div class="report-page" data-report="키" id="report-키">...</div> 추가
+       ==================================================== -->
+  <nav class="report-nav" aria-label="기획서 목록">
+    <span class="report-nav-label">기획서</span>
+    <button type="button" class="report-nav-btn active" data-report="digitalsmile">디지털스마일치과</button>
+  </nav>
+
+  <!-- ============ 디지털스마일치과 기획서 ============ -->
+  <div class="report-page active" data-report="digitalsmile" id="report-digitalsmile">
 
   <!-- COVER -->
   <header class="cover">
@@ -1192,6 +1265,33 @@
     </p>
   </footer>
 
+  </div><!-- /report-page (digitalsmile) -->
+
 </div>
+
+<script>
+  // 서브페이지 토글 — 버튼 클릭 시 해당 기획서만 노출, URL hash 동기화 (#digitalsmile 등)
+  (function () {
+    var buttons = document.querySelectorAll('.report-nav-btn');
+    var pages = document.querySelectorAll('.report-page');
+    function show(name) {
+      buttons.forEach(function (b) { b.classList.toggle('active', b.dataset.report === name); });
+      pages.forEach(function (p) { p.classList.toggle('active', p.dataset.report === name); });
+      if (window.history && history.replaceState) {
+        history.replaceState(null, '', '#' + name);
+      }
+      // 페이지 상단으로 부드럽게 스크롤
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { show(b.dataset.report); });
+    });
+    // 초기 진입 시 URL hash가 유효하면 그 기획서로 이동
+    var initial = (location.hash || '').replace('#', '');
+    if (initial && document.querySelector('.report-page[data-report="' + initial + '"]')) {
+      show(initial);
+    }
+  })();
+</script>
 </body>
 </html>
