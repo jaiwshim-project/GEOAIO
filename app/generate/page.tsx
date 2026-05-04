@@ -11,7 +11,7 @@ import type { ContentCategory } from '@/lib/types';
 import { saveHistoryItem, generateId } from '@/lib/history';
 import { getProfiles, saveProfile, deleteProfile as deleteProfileSupabase, saveApiKey, getBlogCategories, type Profile, type ProfileData, type BlogCategory } from '@/lib/supabase-storage';
 import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
-import { CATEGORY_CHOICE_KEY, autoMatchCategory } from '@/lib/category-match';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions } from '@/lib/category-match';
 // canUseFeature, incrementUsage는 커스텀 사용자 시스템에서 API 방식으로 대체
 import { useUser, type UserProject } from '@/lib/user-context';
 import { track } from '@vercel/analytics';
@@ -418,6 +418,37 @@ export default function GeneratePage() {
     if (typeof window === 'undefined') return;
     try { sessionStorage.setItem(CATEGORY_CHOICE_KEY, JSON.stringify(categoryChoice)); } catch {}
   }, [categoryChoice]);
+
+  // ==================== 반복 횟수 + 번역 언어 선택 (NEW) ====================
+  const [publishOptions, setPublishOptions] = useState<PublishOptions>(() => {
+    if (typeof window === 'undefined') return DEFAULT_PUBLISH_OPTIONS;
+    try {
+      const raw = sessionStorage.getItem(PUBLISH_OPTIONS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed?.repeatCount === 'number' && Array.isArray(parsed?.translationLangs)) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return DEFAULT_PUBLISH_OPTIONS;
+  });
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try { sessionStorage.setItem(PUBLISH_OPTIONS_KEY, JSON.stringify(publishOptions)); } catch {}
+  }, [publishOptions]);
+
+  const toggleTranslationLang = (lang: 'en' | 'zh' | 'ja') => {
+    setPublishOptions(prev => {
+      const has = prev.translationLangs.includes(lang);
+      return {
+        ...prev,
+        translationLangs: has
+          ? prev.translationLangs.filter(l => l !== lang)
+          : [...prev.translationLangs, lang],
+      };
+    });
+  };
 
   // ==================== 톤 생성 진행 상황 ====================
   const [toneProgress, setToneProgress] = useState(0);
@@ -3024,6 +3055,91 @@ export default function GeneratePage() {
                   ]);
                 }}
               />
+            </div>
+
+            {/* ── 반복횟수 & 언어 선택 섹션 (NEW) ── */}
+            <div className="mb-4 ring-2 ring-cyan-400 rounded-xl shadow-md bg-white p-4">
+              <div className="flex items-baseline justify-between mb-2 flex-wrap gap-1">
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">🔁 반복 횟수 & 번역 언어 선택</h3>
+                <span className="text-[10px] text-slate-600">
+                  반복 시 추천 주제 5개에서 순서대로 자동 사용
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-700 mb-3 leading-snug">
+                <strong>각 반복</strong>마다 콘텐츠 생성 → 15톤 MD → 15톤 EEAT → 선택 외국어 번역 → 카테고리 업로드까지 자동 실행됩니다. 한국어는 항상 발행, 외국어는 선택한 것만.
+              </p>
+
+              {/* 반복 횟수 — 5개 버튼 */}
+              <div className="mb-3">
+                <label className="text-[11px] font-bold text-slate-700 mb-1.5 block">반복 횟수 (최대 5회)</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[1, 2, 3, 4, 5].map(n => {
+                    const active = publishOptions.repeatCount === n;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setPublishOptions(prev => ({ ...prev, repeatCount: n }))}
+                        className={`px-4 py-1.5 rounded-full text-sm font-bold border-2 transition-colors ${
+                          active
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white border-transparent shadow-md'
+                            : 'bg-white text-slate-700 border-slate-300 hover:border-cyan-400'
+                        }`}
+                      >
+                        {n}회
+                      </button>
+                    );
+                  })}
+                </div>
+                {publishOptions.repeatCount > 1 && topicSuggestions.length < publishOptions.repeatCount && (
+                  <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5 mt-2">
+                    ⚠️ 추천 주제가 <strong>{topicSuggestions.length}개</strong>입니다. 반복 {publishOptions.repeatCount}회를 실행하려면 &quot;AI 주제 추천&quot; 버튼으로 5개 주제를 먼저 받아주세요.
+                  </p>
+                )}
+              </div>
+
+              {/* 번역 언어 선택 — 다중 선택 칩 */}
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 mb-1.5 block">
+                  번역 언어 선택 (다중 선택 — <span className="text-cyan-700">🇰🇷 한국어 자동 포함</span>)
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {([
+                    { code: 'en' as const, flag: '🇺🇸', name: 'English' },
+                    { code: 'zh' as const, flag: '🇨🇳', name: '中文' },
+                    { code: 'ja' as const, flag: '🇯🇵', name: '日本語' },
+                  ]).map(l => {
+                    const active = publishOptions.translationLangs.includes(l.code);
+                    return (
+                      <button
+                        key={l.code}
+                        type="button"
+                        onClick={() => toggleTranslationLang(l.code)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold border-2 transition-colors ${
+                          active
+                            ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white border-transparent shadow-md'
+                            : 'bg-white text-slate-700 border-slate-300 hover:border-amber-400'
+                        }`}
+                      >
+                        <span className="text-base leading-none">{l.flag}</span>
+                        {l.name}
+                        {active && <span className="text-[10px] ml-0.5">✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1.5">
+                  선택된 언어:{' '}
+                  <span className="font-bold text-cyan-700">🇰🇷 한국어</span>
+                  {publishOptions.translationLangs.length > 0 && ' + '}
+                  {publishOptions.translationLangs.map((l, i) => (
+                    <span key={l} className="font-bold text-amber-700">
+                      {l === 'en' ? '🇺🇸 English' : l === 'zh' ? '🇨🇳 中文' : '🇯🇵 日本語'}
+                      {i < publishOptions.translationLangs.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
+                </p>
+              </div>
             </div>
 
             {/* 입력 폼 */}

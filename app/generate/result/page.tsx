@@ -11,7 +11,7 @@ import { stripProjectLinks } from '@/lib/inject-project-links';
 import { uploadImage, getGenerateResult, saveGenerateResult, saveBlogPost, saveBlogPostsBatch, getBlogCategories, type GenerateResultData, type BlogCategory } from '@/lib/supabase-storage';
 import { useUser } from '@/lib/user-context';
 import CategorySelector, { type CategoryChoiceValue } from '@/components/CategorySelector';
-import { CATEGORY_CHOICE_KEY, autoMatchCategory } from '@/lib/category-match';
+import { CATEGORY_CHOICE_KEY, autoMatchCategory, PUBLISH_OPTIONS_KEY, DEFAULT_PUBLISH_OPTIONS, type PublishOptions } from '@/lib/category-match';
 
 const categories: { id: ContentCategory; label: string }[] = [
   { id: 'blog', label: '블로그 포스트' },
@@ -1354,36 +1354,55 @@ export default function GenerateResultPage() {
       return posts.length;
     };
 
+    // 사용자가 generate 페이지에서 선택한 번역 언어 — 선택 안 된 언어는 skip
+    let publishOpts: PublishOptions = DEFAULT_PUBLISH_OPTIONS;
     try {
-      // 1) 한국어 발행 (즉시 — 번역 불필요)
+      const raw = sessionStorage.getItem(PUBLISH_OPTIONS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed?.repeatCount === 'number' && Array.isArray(parsed?.translationLangs)) {
+          publishOpts = parsed;
+        }
+      }
+    } catch {}
+    const enabledLangs = new Set(publishOpts.translationLangs);
+    console.log('[autopilot] 선택된 번역 언어:', Array.from(enabledLangs));
+
+    try {
+      // 1) 한국어 발행 (항상 발행)
       setAutoPilotPhase('publishing-ko');
       counts.ko = await publishLanguage('ko');
       setAutoPilotProgress(prev => ({ ...prev, ko: counts.ko }));
 
-      // 2) 영어 번역 → 발행
-      setAutoPilotPhase('translating-en');
-      await startTranslation('en');
-      // state propagation 대기 (한 틱)
-      await new Promise(r => setTimeout(r, 200));
-      setAutoPilotPhase('publishing-en');
-      counts.en = await publishLanguage('en');
-      setAutoPilotProgress(prev => ({ ...prev, en: counts.en }));
+      // 2) 영어 — 선택된 경우만
+      if (enabledLangs.has('en')) {
+        setAutoPilotPhase('translating-en');
+        await startTranslation('en');
+        await new Promise(r => setTimeout(r, 200));
+        setAutoPilotPhase('publishing-en');
+        counts.en = await publishLanguage('en');
+        setAutoPilotProgress(prev => ({ ...prev, en: counts.en }));
+      }
 
-      // 3) 중국어 번역 → 발행
-      setAutoPilotPhase('translating-zh');
-      await startTranslation('zh');
-      await new Promise(r => setTimeout(r, 200));
-      setAutoPilotPhase('publishing-zh');
-      counts.zh = await publishLanguage('zh');
-      setAutoPilotProgress(prev => ({ ...prev, zh: counts.zh }));
+      // 3) 중국어 — 선택된 경우만
+      if (enabledLangs.has('zh')) {
+        setAutoPilotPhase('translating-zh');
+        await startTranslation('zh');
+        await new Promise(r => setTimeout(r, 200));
+        setAutoPilotPhase('publishing-zh');
+        counts.zh = await publishLanguage('zh');
+        setAutoPilotProgress(prev => ({ ...prev, zh: counts.zh }));
+      }
 
-      // 4) 일본어 번역 → 발행
-      setAutoPilotPhase('translating-ja');
-      await startTranslation('ja');
-      await new Promise(r => setTimeout(r, 200));
-      setAutoPilotPhase('publishing-ja');
-      counts.ja = await publishLanguage('ja');
-      setAutoPilotProgress(prev => ({ ...prev, ja: counts.ja }));
+      // 4) 일본어 — 선택된 경우만
+      if (enabledLangs.has('ja')) {
+        setAutoPilotPhase('translating-ja');
+        await startTranslation('ja');
+        await new Promise(r => setTimeout(r, 200));
+        setAutoPilotPhase('publishing-ja');
+        counts.ja = await publishLanguage('ja');
+        setAutoPilotProgress(prev => ({ ...prev, ja: counts.ja }));
+      }
 
       // 5) 완료
       const total = counts.ko + counts.en + counts.zh + counts.ja;

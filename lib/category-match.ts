@@ -50,3 +50,14 @@ export interface CategoryChoice {
   mode: 'auto' | 'manual';
   manualSlug: string;
 }
+
+// 반복 횟수 + 번역 언어 선택 (generate → result)
+export const PUBLISH_OPTIONS_KEY = 'geoaio_publish_options';
+export interface PublishOptions {
+  repeatCount: number; // 1~5
+  translationLangs: ('en' | 'zh' | 'ja')[]; // 선택된 외국어 (한국어는 항상 발행)
+}
+export const DEFAULT_PUBLISH_OPTIONS: PublishOptions = {
+  repeatCount: 1,
+  translationLangs: ['en', 'zh', 'ja'], // 기본 3개 모두
+};
