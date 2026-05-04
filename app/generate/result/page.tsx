@@ -1384,12 +1384,21 @@ export default function GenerateResultPage() {
     const enabledLangs = new Set(publishOpts.translationLangs);
     console.log('[autopilot] 선택된 번역 언어:', Array.from(enabledLangs));
 
+    // 헬퍼 — 발행 완료 직후 sessionStorage publishedTotal 즉시 누적 (오른쪽 모달 실시간 동기화)
+    const bumpPublishedTotal = (delta: number) => {
+      if (delta <= 0) return;
+      const r = readAutopilotRun();
+      if (!r.isRunning) return;
+      writeAutopilotRun({ ...r, publishedTotal: r.publishedTotal + delta, phaseUpdatedAt: Date.now() });
+    };
+
     try {
       // 1) 한국어 발행 (항상 발행)
       setAutoPilotPhase('publishing-ko');
       updateAutopilotPhase('publishing-ko');
       counts.ko = await publishLanguage('ko');
       setAutoPilotProgress(prev => ({ ...prev, ko: counts.ko }));
+      bumpPublishedTotal(counts.ko);
 
       // 2) 영어 — 선택된 경우만
       if (enabledLangs.has('en')) {
@@ -1401,6 +1410,7 @@ export default function GenerateResultPage() {
         updateAutopilotPhase('publishing-en');
         counts.en = await publishLanguage('en');
         setAutoPilotProgress(prev => ({ ...prev, en: counts.en }));
+        bumpPublishedTotal(counts.en);
       }
 
       // 3) 중국어 — 선택된 경우만
@@ -1413,6 +1423,7 @@ export default function GenerateResultPage() {
         updateAutopilotPhase('publishing-zh');
         counts.zh = await publishLanguage('zh');
         setAutoPilotProgress(prev => ({ ...prev, zh: counts.zh }));
+        bumpPublishedTotal(counts.zh);
       }
 
       // 4) 일본어 — 선택된 경우만
@@ -1425,6 +1436,7 @@ export default function GenerateResultPage() {
         updateAutopilotPhase('publishing-ja');
         counts.ja = await publishLanguage('ja');
         setAutoPilotProgress(prev => ({ ...prev, ja: counts.ja }));
+        bumpPublishedTotal(counts.ja);
       }
 
       // 5) 완료
@@ -1433,31 +1445,26 @@ export default function GenerateResultPage() {
       setAutoPilotPhase('done');
 
       // 6) 자동 반복 진행 — 다음 회차로 redirect (또는 종료)
+      // 주의: publishedTotal은 위 bumpPublishedTotal로 이미 누적됨 → 여기서 추가 누적 X
       const run = readAutopilotRun();
       if (run.isRunning) {
-        const newPublishedTotal = run.publishedTotal + total;
         if (run.currentRepeat < run.totalRepeats) {
-          // 다음 회차 — generate 페이지로 redirect (?autoNext=true)
           writeAutopilotRun({
             ...run,
             currentRepeat: run.currentRepeat + 1,
-            publishedTotal: newPublishedTotal,
             currentPhase: 'cycle-done',
             phaseUpdatedAt: Date.now(),
           });
-          console.log(`[autopilot] ${run.currentRepeat}/${run.totalRepeats}회차 완료 (${total}편 발행). 다음 회차로 이동…`);
+          console.log(`[autopilot] ${run.currentRepeat}/${run.totalRepeats}회차 완료 (${total}편 발행, 누적 ${run.publishedTotal}편). 다음 회차로 이동…`);
           setTimeout(() => { router.push('/generate?autoNext=true'); }, 2500);
         } else {
-          // 모든 회차 완료
           writeAutopilotRun({
             ...run,
             isRunning: false,
-            publishedTotal: newPublishedTotal,
             currentPhase: 'all-done',
             phaseUpdatedAt: Date.now(),
           });
-          console.log(`[autopilot] 🏁 전체 ${run.totalRepeats}회차 완료. 누적 ${newPublishedTotal}편 발행.`);
-          // 사용자가 overlay에서 닫기 클릭하면 클리어 (자동 클리어 안 함)
+          console.log(`[autopilot] 🏁 전체 ${run.totalRepeats}회차 완료. 누적 ${run.publishedTotal}편 발행.`);
         }
       }
     } catch (err) {
