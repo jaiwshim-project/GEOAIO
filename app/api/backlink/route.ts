@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
-import { getClaudeKey } from '@/lib/api-auth';
+import { GoogleGenAI, Type } from '@google/genai';
+import { getClaudeKey, getGeminiKey } from '@/lib/api-auth';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -406,13 +407,104 @@ ${schedule.map(s => {
 
   let aiPosts: { postNo: number; title: string; body: string; tags: string[] }[] = [];
   try {
+    // ============================================================
+    // 하이브리드 생성 (사용자 선택)
+    //   Step 1: Gemini 2.5 Flash → 12 포스트 본문 초안 (JSON 배열)
+    //   Step 2: Claude Haiku 4.5 → E-E-A-T 7단계 + 표준 사례 1·2·3 포맷 보강·검증
+    // 이유: Gemini는 빠르고 저렴하게 본문 분량을 채우고, Claude는 한국어 톤과
+    //       === POST N === 마커 형식·FAQ·푸터 같은 strict 포맷을 안정적으로 강제.
+    // 기존 비-하이브리드(Claude 단독)로 폴백하려면 GEMINI_API_KEY 미설정 시 자동 작동.
+    // ============================================================
+
+    let draftSection = ''; // Step 2 입력에 들어갈 Gemini 초안
+    const geminiKey = getGeminiKey(req);
+
+    if (geminiKey) {
+      try {
+        const ai = new GoogleGenAI({ apiKey: geminiKey });
+        const draftSchema = {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              postNo: { type: Type.INTEGER },
+              title: { type: Type.STRING },
+              body: { type: Type.STRING },
+              tags: { type: Type.ARRAY, items: { type: Type.STRING } },
+            },
+            required: ['postNo', 'title', 'body', 'tags'],
+          },
+        };
+        const draftPrompt = `${userPrompt}
+
+위 ${schedule.length}개 포스트의 본문 초안을 JSON 배열로 작성하세요.
+각 항목 형식: { postNo: 정수, title: 제목, body: 본문(Tistory 1000~2000자, LinkedIn 500~900자), tags: 5~9개 문자열 배열(LinkedIn은 빈 배열) }
+- 한국어로 작성
+- 시스템 프롬프트의 표준 사례 1·2·3 형식·E-E-A-T 7단계·Pillar-First 카탈로그 회피 원칙 적용
+- 단체 정보가 있으면 본문·푸터에 그대로 반영
+- 응답은 정확히 JSON 배열 ${schedule.length}개. 다른 텍스트 금지.`;
+
+        const geminiResp = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: draftPrompt,
+          config: {
+            systemInstruction: systemPrompt,
+            maxOutputTokens: 32768,
+            responseMimeType: 'application/json',
+            responseSchema: draftSchema,
+          },
+        });
+        const draftsText = geminiResp.text || '';
+        try {
+          const drafts = JSON.parse(draftsText) as Array<{ postNo: number; title: string; body: string; tags: string[] }>;
+          if (Array.isArray(drafts) && drafts.length > 0) {
+            // Claude 입력용으로 정리
+            draftSection = drafts
+              .sort((a, b) => a.postNo - b.postNo)
+              .map(d => {
+                const tagLine = (d.tags && d.tags.length > 0) ? d.tags.join(', ') : '(LinkedIn — 빈 줄)';
+                return `--- Post ${d.postNo} 초안 ---\nTITLE: ${d.title}\nTAGS: ${tagLine}\nBODY:\n${d.body}`;
+              })
+              .join('\n\n');
+            console.log('[backlink] Gemini 초안 ok —', drafts.length, '개 / 입력문자', draftsText.length);
+          } else {
+            console.warn('[backlink] Gemini 응답이 배열이 아님 — Claude 단독으로 폴백');
+          }
+        } catch (parseErr) {
+          console.warn('[backlink] Gemini JSON 파싱 실패 — Claude 단독 폴백:', parseErr instanceof Error ? parseErr.message : parseErr);
+        }
+      } catch (geminiErr) {
+        console.warn('[backlink] Gemini 생성 실패 — Claude 단독 폴백:', geminiErr instanceof Error ? geminiErr.message : geminiErr);
+      }
+    }
+
+    // Step 2: Claude Haiku — 초안이 있으면 정제, 없으면 처음부터 생성
+    const polishUserPrompt = draftSection
+      ? `${userPrompt}
+
+============================================================
+🎨 1차 초안 (Gemini 작성) — 아래를 기준으로 다듬어 출력
+============================================================
+${draftSection}
+
+============================================================
+✅ 다듬기 지시 (Claude의 책임)
+============================================================
+- 초안의 의도·사실관계는 보존하되 시스템 프롬프트의 표준 사례 1·2·3 포맷으로 재구성
+- E-E-A-T 7단계 (Tistory: ①도입 ②진단 ③심층 ④사례 ⑤FAQ 5 ⑥CTA(👉) ⑦메타 푸터) 강제
+- 분량 검증: Tistory 1000~2000자 / LinkedIn 500~900자 — 부족하면 섹션 추가, 초과하면 압축
+- 단체 정보가 있으면 ② 단체 소개 + ⑦ 푸터에 정확히 반영. 없으면 일반 정보형으로
+- LinkedIn(Echo)은 ▶ 4~5개 + 해시태그 7~10개 + ▶ 카테고리 URL 필수
+- Pillar-First 카탈로그 회피: Pillar(1·4) 카탈로그 정의 ↔ Spoke(3·6·7·9·10)는 1개만 깊이 ↔ Echo(2·5·8·11)는 직전 Tistory 압축 ↔ Summary(12)는 8영역 표
+- 응답 형식: 시스템 프롬프트 명시한 === POST N === / TITLE / TAGS / BODY 마커 형식 그대로. 마지막 === END === 마커 필수.`
+      : userPrompt;
+
     // SDK 강제: max_tokens가 10분 초과 가능 범위(>~16k)면 반드시 streaming.
-    // .messages.stream()으로 호출 후 .finalMessage()로 완성 메시지를 받아 .create()와 동일한 형태로 사용.
     const stream = client.messages.stream({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 24000, // 12포스트 × Tistory 1500자 / LinkedIn 700자 + 마커 여유분
       system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
+      messages: [{ role: 'user', content: polishUserPrompt }],
     });
     const resp = await stream.finalMessage();
     const txt = resp.content
