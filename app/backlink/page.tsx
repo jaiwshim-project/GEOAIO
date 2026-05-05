@@ -3,7 +3,7 @@
 // 백링크 실행 로드맵 — 카테고리 선택 → 10주 자동 일정 + AI 본문 생성
 // Tistory와 LinkedIn 채널을 매주 번갈아 발행
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -56,12 +56,27 @@ export default function BacklinkPage() {
   const [savedRoadmaps, setSavedRoadmaps] = useState<Record<string, RoadmapResponse>>({});
   const [activeSlug, setActiveSlug] = useState<string>('');
 
+  const [categoriesRefreshing, setCategoriesRefreshing] = useState(false);
+  const [categoriesUpdatedAt, setCategoriesUpdatedAt] = useState<number | null>(null);
+
+  // 카테고리 목록 fetch — 마운트·주기·포커스·수동에서 호출
+  const fetchCategories = useCallback(async (silent = false) => {
+    if (!silent) setCategoriesRefreshing(true);
+    try {
+      const res = await fetch('/api/backlink', { cache: 'no-store' });
+      const d = await res.json();
+      setCategories(d.categories || []);
+      setCategoriesUpdatedAt(Date.now());
+    } catch {
+      if (!silent) setCategories([]);
+    } finally {
+      if (!silent) setCategoriesRefreshing(false);
+    }
+  }, []);
+
   // 마운트 시 카테고리 목록 + 저장된 로드맵 로드
   useEffect(() => {
-    fetch('/api/backlink', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(d => setCategories(d.categories || []))
-      .catch(() => setCategories([]));
+    fetchCategories(false);
 
     if (typeof window !== 'undefined') {
       try {
@@ -103,6 +118,41 @@ export default function BacklinkPage() {
     if (typeof window === 'undefined') return;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedRoadmaps)); } catch {}
   }, [savedRoadmaps]);
+
+  // 카테고리 목록 실시간 새로고침
+  // 1) 30초 주기 (페이지 visible 일 때만)
+  // 2) 탭 포커스 / visibility change 시 즉시
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    let intervalId: number | null = null;
+    const startInterval = () => {
+      if (intervalId !== null) return;
+      intervalId = window.setInterval(() => fetchCategories(true), 30_000);
+    };
+    const stopInterval = () => {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchCategories(true);
+        startInterval();
+      } else {
+        stopInterval();
+      }
+    };
+    const onFocus = () => fetchCategories(true);
+    if (document.visibilityState === 'visible') startInterval();
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      stopInterval();
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [fetchCategories]);
 
   const visibleCategories = filter
     ? categories.filter(c => c.slug.toLowerCase().includes(filter.toLowerCase()))
@@ -270,7 +320,26 @@ export default function BacklinkPage() {
 
         {/* 입력 폼 */}
         <section className="print-hide bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 mb-6">
-          <h2 className="text-base font-extrabold text-slate-900 mb-4">📁 카테고리 선택</h2>
+          <div className="flex items-baseline justify-between mb-3 gap-2 flex-wrap">
+            <h2 className="text-base font-extrabold text-slate-900">📁 카테고리 선택</h2>
+            <div className="flex items-center gap-2 text-[11px] text-slate-500">
+              {categoriesUpdatedAt && (
+                <span>마지막 갱신 {new Date(categoriesUpdatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
+              )}
+              <button
+                type="button"
+                onClick={() => fetchCategories(false)}
+                disabled={categoriesRefreshing}
+                title="카테고리 목록 새로고침 (편수 실시간 반영)"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold border border-amber-200 disabled:opacity-50"
+              >
+                <svg className={`w-3.5 h-3.5 ${categoriesRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {categoriesRefreshing ? '갱신 중…' : '새로고침'}
+              </button>
+            </div>
+          </div>
 
           <input
             type="text"

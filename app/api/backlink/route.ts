@@ -492,15 +492,36 @@ ${schedule.map(s => {
 }
 
 // GET: 사용 가능 카테고리 목록 (DB의 distinct + 글 수)
+// 실시간 편수 반영을 위해 캐시 비활성화 + 1000행 cap 페이지네이션
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const supa = getSupabase();
-  const { data } = await supa.from('blog_articles').select('category');
+  const PAGE_SIZE = 1000;
   const counts: Record<string, number> = {};
-  (data || []).forEach(r => {
-    if (r.category) counts[r.category] = (counts[r.category] || 0) + 1;
-  });
+  for (let p = 0; p < 50; p++) {
+    const fromR = p * PAGE_SIZE;
+    const toR = fromR + PAGE_SIZE - 1;
+    const { data, error } = await supa
+      .from('blog_articles')
+      .select('category')
+      .order('created_at', { ascending: false })
+      .range(fromR, toR);
+    if (error || !data || data.length === 0) break;
+    for (const r of data) {
+      if (r.category) counts[r.category] = (counts[r.category] || 0) + 1;
+    }
+    if (data.length < PAGE_SIZE) break;
+  }
   const categories = Object.entries(counts)
     .map(([slug, count]) => ({ slug, count }))
     .sort((a, b) => b.count - a.count);
-  return NextResponse.json({ categories });
+  return NextResponse.json(
+    { categories },
+    {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      },
+    },
+  );
 }
