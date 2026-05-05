@@ -383,12 +383,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
               {post.title}
             </h1>
 
-            {/* 공유 버튼 — Facebook · LinkedIn · 카카오톡 (페이지 상단으로 이동) */}
+            {/* 공유 버튼 — Facebook · LinkedIn · 카카오톡 · 본문복사 */}
             <div className="mb-4">
               <BlogShareButtons
                 title={post.title}
                 url={`${siteUrl}/blog/${post.id}`}
                 description={summary}
+                content={post.content}
+                siteUrl={siteUrl}
               />
             </div>
 
