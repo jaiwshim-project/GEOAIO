@@ -5,7 +5,7 @@
 // 일자별로 통합 정렬해서 "오늘 / 내일 / 이번 주 / 다음 주" 카드로 표시.
 // 사용자가 매일 어떤 카테고리·채널에 어떤 글을 발행해야 하는지 한눈에 보여준다.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -78,17 +78,16 @@ export default function BacklinkDashboardPage() {
   const [copiedIds, setCopiedIds] = useState<Set<string>>(new Set());
   const [showPast, setShowPast] = useState(true);
   const [showFuture, setShowFuture] = useState(true);
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
-  useEffect(() => {
+  // localStorage에서 로드맵 + 복사 기록을 읽어오는 함수 — mount, storage event, focus, polling 등에서 재사용
+  const loadFromStorage = useCallback(() => {
     if (typeof window === 'undefined') return;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed: Record<string, RoadmapResponse> = JSON.parse(raw);
         // 마이그레이션: 카테고리 URL을 인코딩 버전으로 정규화
-        // 1) 옛 .../category/geo-aio → 인코딩된 정확한 URL
-        // 2) unencoded 한글 .../category/<korean> → 인코딩된 URL
-        // 3) post.categoryLink 자체도 인코딩 버전으로 통일
         let mutated = false;
         Object.values(parsed).forEach(roadmap => {
           const slug = roadmap.categorySlug;
@@ -111,15 +110,53 @@ export default function BacklinkDashboardPage() {
         if (mutated) {
           try { localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch {}
         }
+        // 변경 여부와 무관하게 setRoadmaps — 새 슬러그/포스트가 들어왔다면 반영
         setRoadmaps(parsed);
+      } else {
+        setRoadmaps({});
       }
     } catch {}
     try {
       const rawC = localStorage.getItem(COPIED_STORAGE_KEY);
-      if (rawC) setCopiedIds(new Set(JSON.parse(rawC) as string[]));
+      setCopiedIds(rawC ? new Set(JSON.parse(rawC) as string[]) : new Set());
     } catch {}
+    setUpdatedAt(Date.now());
     setLoaded(true);
   }, []);
+
+  // 마운트 시 1회 로드
+  useEffect(() => {
+    loadFromStorage();
+  }, [loadFromStorage]);
+
+  // 자동 업데이트
+  // 1) storage 이벤트 — 다른 탭에서 /backlink가 새 로드맵을 저장하면 즉시 반영
+  // 2) focus / visibilitychange — 사용자가 대시보드 탭으로 돌아왔을 때 즉시 반영
+  // 3) 30초 주기 폴링 — 같은 탭에서 다른 화면 갔다가 돌아온 직후 등 안전망
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY || e.key === COPIED_STORAGE_KEY || e.key === null) {
+        loadFromStorage();
+      }
+    };
+    const onFocus = () => loadFromStorage();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') loadFromStorage();
+    };
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') loadFromStorage();
+    }, 30_000);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+      clearInterval(intervalId);
+    };
+  }, [loadFromStorage]);
 
   // 모든 로드맵의 포스트를 평탄화하고 categorySlug 부착
   const allPosts: DashboardPost[] = useMemo(() => {
@@ -359,6 +396,25 @@ export default function BacklinkDashboardPage() {
             </div>
           </div>
         </section>
+
+        {/* 자동 새로고침 안내 */}
+        <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+          <p className="text-[11px] text-slate-500">
+            📡 <strong className="text-slate-700">자동 새로고침</strong> 켜짐 — 다른 탭에서 새 로드맵을 만들면 즉시 반영됩니다
+            {updatedAt && <span className="ml-2 text-slate-400">· 마지막 갱신 {new Date(updatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>}
+          </p>
+          <button
+            type="button"
+            onClick={loadFromStorage}
+            title="지금 즉시 새로고침"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-200"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            지금 새로고침
+          </button>
+        </div>
 
         {/* 통계 */}
         <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
