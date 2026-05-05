@@ -9,7 +9,11 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { DIGITALSMILE_DOCX_ROADMAP } from '@/lib/digitalsmile-docx-roadmap';
 
-interface CategoryItem { slug: string; count: number }
+interface CategoryItem {
+  slug: string;
+  count: number; // 한·영·중·일 모든 언어 합산
+  langs?: { ko: number; en: number; zh: number; ja: number };
+}
 
 interface RoadmapPost {
   postNo: number;
@@ -320,7 +324,7 @@ export default function BacklinkPage() {
 
         {/* 입력 폼 */}
         <section className="print-hide bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 mb-6">
-          <div className="flex items-baseline justify-between mb-3 gap-2 flex-wrap">
+          <div className="flex items-baseline justify-between mb-2 gap-2 flex-wrap">
             <h2 className="text-base font-extrabold text-slate-900">📁 카테고리 선택</h2>
             <div className="flex items-center gap-2 text-[11px] text-slate-500">
               {categoriesUpdatedAt && (
@@ -340,6 +344,9 @@ export default function BacklinkPage() {
               </button>
             </div>
           </div>
+          <p className="text-[11px] text-slate-500 mb-3">
+            💡 편수는 <strong className="text-slate-700">🇰🇷 한국어 + 🇺🇸 영어 + 🇨🇳 중국어 + 🇯🇵 일본어</strong> 모든 언어를 합산한 수입니다. 항목에 마우스 올리면 언어별 분포 표시.
+          </p>
 
           <input
             type="text"
@@ -356,22 +363,36 @@ export default function BacklinkPage() {
               </div>
             ) : (
               <ul className="divide-y divide-slate-200">
-                {visibleCategories.map(c => (
-                  <li key={c.slug}>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSlug(c.slug)}
-                      className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm transition-colors ${
-                        selectedSlug === c.slug
-                          ? 'bg-amber-100 text-amber-900 font-bold'
-                          : 'bg-white hover:bg-amber-50 text-slate-800'
-                      }`}
-                    >
-                      <span className="truncate flex-1">{c.slug}</span>
-                      <span className="ml-2 text-[11px] text-slate-500 shrink-0">{c.count}편</span>
-                    </button>
-                  </li>
-                ))}
+                {visibleCategories.map(c => {
+                  const l = c.langs;
+                  const tooltip = l
+                    ? `${c.slug} — 총 ${c.count}편 (한국어 ${l.ko} · 영어 ${l.en} · 중국어 ${l.zh} · 일본어 ${l.ja})`
+                    : `${c.slug} — 총 ${c.count}편`;
+                  return (
+                    <li key={c.slug}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSlug(c.slug)}
+                        title={tooltip}
+                        className={`w-full flex items-center justify-between px-4 py-2.5 text-left text-sm transition-colors ${
+                          selectedSlug === c.slug
+                            ? 'bg-amber-100 text-amber-900 font-bold'
+                            : 'bg-white hover:bg-amber-50 text-slate-800'
+                        }`}
+                      >
+                        <span className="truncate flex-1">{c.slug}</span>
+                        <span className="ml-2 flex items-center gap-1.5 shrink-0">
+                          {l && (l.ko + l.en + l.zh + l.ja > 0) && (
+                            <span className="text-[9px] text-slate-400 font-mono">
+                              {l.ko}·{l.en}·{l.zh}·{l.ja}
+                            </span>
+                          )}
+                          <span className="text-[11px] text-slate-700 font-bold">{c.count}편</span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

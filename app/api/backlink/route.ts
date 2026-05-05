@@ -493,28 +493,44 @@ ${schedule.map(s => {
 
 // GET: 사용 가능 카테고리 목록 (DB의 distinct + 글 수)
 // 실시간 편수 반영을 위해 캐시 비활성화 + 1000행 cap 페이지네이션
+// count = 한·영·중·일 모든 언어 합산. langs로 언어별 분포도 함께 반환.
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const supa = getSupabase();
   const PAGE_SIZE = 1000;
   const counts: Record<string, number> = {};
+  const langs: Record<string, { ko: number; en: number; zh: number; ja: number }> = {};
   for (let p = 0; p < 50; p++) {
     const fromR = p * PAGE_SIZE;
     const toR = fromR + PAGE_SIZE - 1;
     const { data, error } = await supa
       .from('blog_articles')
-      .select('category')
+      .select('category, author')
       .order('created_at', { ascending: false })
       .range(fromR, toR);
     if (error || !data || data.length === 0) break;
     for (const r of data) {
-      if (r.category) counts[r.category] = (counts[r.category] || 0) + 1;
+      if (!r.category) continue;
+      const cat = r.category;
+      counts[cat] = (counts[cat] || 0) + 1;
+      // 언어 검출 — author JSON의 metadata.lang (없으면 ko)
+      let lang: 'ko' | 'en' | 'zh' | 'ja' = 'ko';
+      const author = (r as { author?: string | null }).author;
+      if (author) {
+        try {
+          const m = JSON.parse(author);
+          const explicit = m?.metadata?.lang || m?.lang;
+          if (explicit && ['ko', 'en', 'zh', 'ja'].includes(explicit)) lang = explicit as 'ko' | 'en' | 'zh' | 'ja';
+        } catch {}
+      }
+      if (!langs[cat]) langs[cat] = { ko: 0, en: 0, zh: 0, ja: 0 };
+      langs[cat][lang]++;
     }
     if (data.length < PAGE_SIZE) break;
   }
   const categories = Object.entries(counts)
-    .map(([slug, count]) => ({ slug, count }))
+    .map(([slug, count]) => ({ slug, count, langs: langs[slug] || { ko: 0, en: 0, zh: 0, ja: 0 } }))
     .sort((a, b) => b.count - a.count);
   return NextResponse.json(
     { categories },
