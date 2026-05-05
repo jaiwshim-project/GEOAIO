@@ -3695,8 +3695,10 @@ export default function GeneratePage() {
                   {/* 수동 1회 생성 버튼 — 항상 표시, 자동 모드 진행 중엔 비활성+자동 라벨 */}
                   <button
                     data-autopilot-trigger="generate"
-                    onClick={() => {
-                      if (autopilotRunning) {
+                    onClick={(e) => {
+                      // ⚠️ autopilot 자체 트리거(.click() 호출)는 e.isTrusted=false → 통과시켜야 함.
+                      // 사용자가 직접 클릭(isTrusted=true)했는데 자동 모드 진행 중이면 차단.
+                      if (e.isTrusted && autopilotRunning) {
                         alert('자동 반복 발행이 진행 중입니다. 우하단 진행 모달에서 종료/완료를 확인한 뒤 사용하세요.');
                         return;
                       }
