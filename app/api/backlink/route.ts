@@ -406,12 +406,15 @@ ${schedule.map(s => {
 
   let aiPosts: { postNo: number; title: string; body: string; tags: string[] }[] = [];
   try {
-    const resp = await client.messages.create({
+    // SDK 강제: max_tokens가 10분 초과 가능 범위(>~16k)면 반드시 streaming.
+    // .messages.stream()으로 호출 후 .finalMessage()로 완성 메시지를 받아 .create()와 동일한 형태로 사용.
+    const stream = client.messages.stream({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 24000, // 12포스트 × Tistory 1500자 / LinkedIn 700자 + 마커 여유분
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     });
+    const resp = await stream.finalMessage();
     const txt = resp.content
       .filter(b => b.type === 'text')
       .map(b => (b as { type: 'text'; text: string }).text)
