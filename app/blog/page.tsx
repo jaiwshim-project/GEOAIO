@@ -46,20 +46,40 @@ async function getServerBlogData(pageNum: number) {
     );
 
     // 페이지네이션: pageNum(1-base)에 해당하는 N건만 fetch.
-    // 100건 × 메타만 select ≈ 200KB 정도 → ISR fallback 안전 범위.
-    // 카테고리 그리드의 정확한 카운트는 BlogClient가 /api/blog/category-counts에서 별도 fetch.
     const safePage = Math.max(1, pageNum);
     const from = (safePage - 1) * POSTS_PER_PAGE;
     const to = from + POSTS_PER_PAGE - 1;
 
-    // 전체 글 수도 같이 조회 (page 네비용)
-    const [{ data: postsData, error: pErr }, { count: totalCount }] = await Promise.all([
+    // 모든 distinct 카테고리 슬러그 가져오기 — 1000행 cap 우회 위해 페이지네이션
+    const fetchAllCategorySlugs = async (): Promise<string[]> => {
+      const PAGE_SIZE = 1000;
+      const set = new Set<string>();
+      for (let p = 0; p < 50; p++) {
+        const fromP = p * PAGE_SIZE;
+        const toP = fromP + PAGE_SIZE - 1;
+        const { data, error } = await supabase
+          .from('blog_articles')
+          .select('category')
+          .order('created_at', { ascending: false })
+          .range(fromP, toP);
+        if (error || !data || data.length === 0) break;
+        for (const r of data) {
+          if (r.category) set.add(r.category);
+        }
+        if (data.length < PAGE_SIZE) break;
+      }
+      return Array.from(set);
+    };
+
+    // posts(현재 페이지) + total + 모든 distinct 카테고리 슬러그를 병렬 fetch
+    const [{ data: postsData, error: pErr }, { count: totalCount }, allCategorySlugs] = await Promise.all([
       supabase
         .from('blog_articles')
         .select('id, title, category, tags, author, created_at, updated_at')
         .order('created_at', { ascending: false })
         .range(from, to),
       supabase.from('blog_articles').select('*', { count: 'exact', head: true }),
+      fetchAllCategorySlugs(),
     ]);
     if (pErr) {
       console.error('[blog] page', safePage, '에러:', pErr.message);
@@ -88,11 +108,10 @@ async function getServerBlogData(pageNum: number) {
       };
     });
 
-    // Build categories from DB
-    const dbCategorySlugs = [...new Set(posts.map(p => p.category).filter(Boolean))];
+    // 모든 distinct 카테고리(현재 페이지 포함 안 된 것까지)로 그리드 구성
     const categories = [...DEFAULT_CATEGORIES];
     let extraIdx = 0;
-    for (const slug of dbCategorySlugs) {
+    for (const slug of allCategorySlugs) {
       if (!categories.find(c => c.slug === slug)) {
         categories.push({
           id: `custom-${extraIdx}`,
