@@ -420,6 +420,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 ))}
               </div>
             )}
+
+            {/* 이 글 링크 */}
+            <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+              <span>🌐 홈페이지: <a href={siteUrl} className="text-indigo-500 hover:underline">{siteUrl}</a></span>
+              <span>📝 블로그: <a href={`${siteUrl}/blog`} className="text-indigo-500 hover:underline">{siteUrl}/blog</a></span>
+              <span>🔗 이 글: <a href={`${siteUrl}/blog/${post.id}`} className="text-indigo-500 hover:underline break-all">{siteUrl}/blog/{post.id}</a></span>
+            </div>
           </div>
         </article>
 
