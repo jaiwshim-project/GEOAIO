@@ -235,9 +235,10 @@ export default function BacklinkDashboardPage() {
   const handleCopy = async (post: DashboardPost) => {
     const id = `${post.categorySlug}-${post.postNo}`;
     if (copiedIds.has(id)) return; // 이미 복사된 항목은 무시 (버튼 disabled)
+    const linkLine = post.categoryLink ? `\n\n${post.categoryLink}` : '';
     const text = post.channel === 'Tistory'
-      ? `[제목] ${post.title}\n\n[태그] ${post.tags.join(', ')}\n\n[본문]\n${post.body}`
-      : `${post.title}\n\n${post.body}`;
+      ? `[제목] ${post.title}\n\n[태그] ${post.tags.join(', ')}\n\n[본문]\n${post.body}${linkLine}`
+      : `${post.title}\n\n${post.body}${linkLine}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopiedIds(prev => {
