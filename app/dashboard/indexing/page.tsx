@@ -201,12 +201,6 @@ export default function IndexingSitesPage() {
           </button>
         </div>
 
-        <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-900">
-          <p className="font-semibold mb-1">💡 정적 사이트 추가 방법</p>
-          <p className="text-xs leading-relaxed">
-            <code className="bg-amber-100 px-1.5 py-0.5 rounded">lib/indexing-sites.ts</code>의 <code className="bg-amber-100 px-1.5 py-0.5 rounded">INDEXING_SITES</code> 배열에 항목을 추가하거나, 위 <strong>사이트 추가</strong> 버튼으로 DB에 동적 등록할 수 있습니다.
-          </p>
-        </div>
       </div>
 
       {/* 삭제 확인 모달 */}
