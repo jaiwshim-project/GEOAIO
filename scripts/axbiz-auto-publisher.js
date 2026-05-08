@@ -11,7 +11,21 @@
  *   트리거: 매일 오전 9:00
  *   동작: node "C:\...\scripts\axbiz-auto-publisher.js"
  */
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env.local') });
+// .env.local 직접 파싱 (dotenv 불필요)
+const fs = require('fs');
+const path = require('path');
+(function loadEnv() {
+  const envPath = path.join(__dirname, '..', '.env.local');
+  if (!fs.existsSync(envPath)) return;
+  const raw = fs.readFileSync(envPath, 'utf8');
+  raw.split(/\r?\n/).forEach(line => {
+    const m = line.match(/^([^#=\s]+)\s*=\s*(.+)$/);
+    if (!m) return;
+    let val = m[2].replace(/^["']|["']$/g, '').trim();
+    while (val.endsWith('\\n') || val.endsWith('\n')) val = val.replace(/\\n$/, '').replace(/\n$/, '').trim();
+    if (!process.env[m[1]]) process.env[m[1]] = val;
+  });
+})();
 
 const puppeteer = require('puppeteer-core');
 const https = require('https');
