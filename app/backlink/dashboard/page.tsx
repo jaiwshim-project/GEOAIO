@@ -7,7 +7,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -103,7 +102,6 @@ export default function BacklinkDashboardPage() {
   const [linkedinPublishing, setLinkedinPublishing] = useState<Set<string>>(new Set());
   const [linkedinConnected, setLinkedinConnected] = useState<boolean | null>(null);
   const linkedinFetchedRef = useRef(false);
-  const searchParams = useSearchParams();
 
   // localStorage에서 로드맵 + 복사 기록을 읽어오는 함수 — mount, storage event, focus, polling 등에서 재사용
   const loadFromStorage = useCallback(() => {
@@ -310,10 +308,12 @@ export default function BacklinkDashboardPage() {
     loadLinkedInStatus();
   }, [loadLinkedInStatus]);
 
-  // LinkedIn OAuth 콜백 파라미터 처리
+  // LinkedIn OAuth 콜백 파라미터 처리 (window.location.search 직접 사용 — useSearchParams Suspense 불필요)
   useEffect(() => {
-    const ok = searchParams.get('linkedin_ok');
-    const err = searchParams.get('linkedin_error');
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const ok = params.get('linkedin_ok');
+    const err = params.get('linkedin_error');
     if (ok === '1') {
       alert('✅ LinkedIn 연동 완료! 이제 LinkedIn 포스트를 자동 발행할 수 있습니다.');
       loadLinkedInStatus();
@@ -322,7 +322,7 @@ export default function BacklinkDashboardPage() {
       alert(`❌ LinkedIn 연동 실패: ${err}\n\n다시 시도하려면 "LinkedIn 연동" 버튼을 클릭하세요.`);
       window.history.replaceState({}, '', '/backlink/dashboard');
     }
-  }, [searchParams, loadLinkedInStatus]);
+  }, [loadLinkedInStatus]);
 
   // LinkedIn 포스트 즉시 발행
   const handleLinkedInPublish = useCallback(async (post: DashboardPost) => {
