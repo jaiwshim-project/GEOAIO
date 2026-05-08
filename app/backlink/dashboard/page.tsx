@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -92,10 +93,17 @@ export default function BacklinkDashboardPage() {
   const [showFuture, setShowFuture] = useState(true);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
-  // 발행 큐 상태
+  // Tistory 발행 큐 상태
   const [queueMap, setQueueMap] = useState<QueueMap>({});
   const [publishing, setPublishing] = useState<Set<string>>(new Set());
   const queueFetchedRef = useRef(false);
+
+  // LinkedIn 발행 상태
+  const [linkedinQueueMap, setLinkedinQueueMap] = useState<QueueMap>({});
+  const [linkedinPublishing, setLinkedinPublishing] = useState<Set<string>>(new Set());
+  const [linkedinConnected, setLinkedinConnected] = useState<boolean | null>(null);
+  const linkedinFetchedRef = useRef(false);
+  const searchParams = useSearchParams();
 
   // localStorage에서 로드맵 + 복사 기록을 읽어오는 함수 — mount, storage event, focus, polling 등에서 재사용
   const loadFromStorage = useCallback(() => {
@@ -255,7 +263,7 @@ export default function BacklinkDashboardPage() {
     }
   };
 
-  // 발행 큐 상태 불러오기
+  // Tistory 발행 큐 상태 불러오기
   const loadQueueStatus = useCallback(async () => {
     try {
       const res = await fetch('/api/tistory-publish');
@@ -269,12 +277,87 @@ export default function BacklinkDashboardPage() {
     } catch {}
   }, []);
 
+  // LinkedIn 큐 상태 + 연동 여부 불러오기
+  const loadLinkedInStatus = useCallback(async () => {
+    try {
+      const [statusRes, queueRes] = await Promise.all([
+        fetch('/api/linkedin/status'),
+        fetch('/api/linkedin-publish'),
+      ]);
+      const statusData = await statusRes.json();
+      setLinkedinConnected(statusData.connected === true);
+      if (queueRes.ok) {
+        const { items } = await queueRes.json() as { items: QueueItem[] };
+        const map: QueueMap = {};
+        items.forEach(item => { map[`${item.category_slug}-${item.post_no}`] = item; });
+        setLinkedinQueueMap(map);
+      }
+    } catch {
+      setLinkedinConnected(false);
+    }
+  }, []);
+
   // 마운트 후 한 번 큐 상태 로드
   useEffect(() => {
     if (queueFetchedRef.current) return;
     queueFetchedRef.current = true;
     loadQueueStatus();
   }, [loadQueueStatus]);
+
+  useEffect(() => {
+    if (linkedinFetchedRef.current) return;
+    linkedinFetchedRef.current = true;
+    loadLinkedInStatus();
+  }, [loadLinkedInStatus]);
+
+  // LinkedIn OAuth 콜백 파라미터 처리
+  useEffect(() => {
+    const ok = searchParams.get('linkedin_ok');
+    const err = searchParams.get('linkedin_error');
+    if (ok === '1') {
+      alert('✅ LinkedIn 연동 완료! 이제 LinkedIn 포스트를 자동 발행할 수 있습니다.');
+      loadLinkedInStatus();
+      window.history.replaceState({}, '', '/backlink/dashboard');
+    } else if (err) {
+      alert(`❌ LinkedIn 연동 실패: ${err}\n\n다시 시도하려면 "LinkedIn 연동" 버튼을 클릭하세요.`);
+      window.history.replaceState({}, '', '/backlink/dashboard');
+    }
+  }, [searchParams, loadLinkedInStatus]);
+
+  // LinkedIn 포스트 즉시 발행
+  const handleLinkedInPublish = useCallback(async (post: DashboardPost) => {
+    const key = `${post.categorySlug}-${post.postNo}`;
+    if (linkedinPublishing.has(key)) return;
+    setLinkedinPublishing(prev => new Set(prev).add(key));
+    try {
+      const res = await fetch('/api/linkedin-publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category_slug: post.categorySlug,
+          post_no: post.postNo,
+          scheduled_date: post.date,
+          title: post.title,
+          body: post.body,
+          tags: post.tags,
+          category_link: post.categoryLink,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        await loadLinkedInStatus();
+      } else if (res.status === 401) {
+        const go = confirm(`LinkedIn 인증 필요\n\n${data.error}\n\n지금 LinkedIn 연동 페이지로 이동하시겠습니까?`);
+        if (go) window.open('/api/linkedin/auth', '_blank');
+      } else {
+        alert(`LinkedIn 발행 실패: ${data.error}`);
+      }
+    } catch (e) {
+      alert(`오류: ${e}`);
+    } finally {
+      setLinkedinPublishing(prev => { const s = new Set(prev); s.delete(key); return s; });
+    }
+  }, [linkedinPublishing, loadLinkedInStatus]);
 
   // Tistory 포스트를 발행 큐에 추가
   const handleQueuePublish = useCallback(async (post: DashboardPost) => {
@@ -408,6 +491,61 @@ export default function BacklinkDashboardPage() {
                 </button>
               )
             )}
+            {/* LinkedIn 자동발행 버튼 */}
+            {post.channel === 'LinkedIn' && (() => {
+              const liItem = linkedinQueueMap[id];
+              const liStatus = liItem?.status;
+              const liPublishing = linkedinPublishing.has(id);
+              if (liStatus === 'published') {
+                return (
+                  <a
+                    href={liItem?.post_url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] font-bold px-2 py-1 rounded-md bg-emerald-500 text-white"
+                    title="LinkedIn 발행됨"
+                  >
+                    ✅발행됨
+                  </a>
+                );
+              }
+              if (liStatus === 'publishing' || liStatus === 'pending') {
+                return (
+                  <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-sky-400 text-white">
+                    ⏳발행중
+                  </span>
+                );
+              }
+              if (liStatus === 'failed') {
+                return (
+                  <button
+                    type="button"
+                    onClick={() => handleLinkedInPublish(post)}
+                    className="text-[10px] font-bold px-2 py-1 rounded-md bg-rose-500 text-white hover:bg-rose-600"
+                    title="실패 — 재시도"
+                  >
+                    ❌재시도
+                  </button>
+                );
+              }
+              return (
+                <button
+                  type="button"
+                  onClick={() => handleLinkedInPublish(post)}
+                  disabled={liPublishing || linkedinConnected === false}
+                  className={`text-[10px] font-bold px-2 py-1 rounded-md transition-colors ${
+                    liPublishing
+                      ? 'bg-slate-300 text-slate-500 cursor-wait'
+                      : linkedinConnected === false
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                  title={linkedinConnected === false ? 'LinkedIn 연동 필요' : 'LinkedIn에 즉시 발행'}
+                >
+                  {liPublishing ? '...' : '💼발행'}
+                </button>
+              );
+            })()}
             {/* 복사 버튼 */}
             <button
               type="button"
@@ -523,9 +661,23 @@ export default function BacklinkDashboardPage() {
                   </span>
                 );
               })()}
+              {/* LinkedIn 연동 상태 */}
+              {linkedinConnected === false ? (
+                <a
+                  href="/api/linkedin/auth"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/30 border border-blue-400/50 text-xs font-bold text-blue-200 hover:bg-blue-500/50 transition-colors"
+                  title="LinkedIn 계정 연동하기"
+                >
+                  💼 LinkedIn 연동 필요
+                </a>
+              ) : linkedinConnected === true ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/20 border border-blue-400/40 text-xs font-bold text-blue-200">
+                  💼 LinkedIn 연동됨 {Object.values(linkedinQueueMap).filter(q => q.status === 'published').length > 0 && `· ${Object.values(linkedinQueueMap).filter(q => q.status === 'published').length}개 발행`}
+                </span>
+              ) : null}
               <button
                 type="button"
-                onClick={loadQueueStatus}
+                onClick={() => { loadQueueStatus(); loadLinkedInStatus(); }}
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-[11px] font-bold text-white/80 transition-colors"
                 title="발행 상태 새로고침"
               >
