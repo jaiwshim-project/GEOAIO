@@ -159,15 +159,26 @@ interface StatusResponse {
   ok: boolean;
   siteId: string;
   perplexityConfigured: boolean;
-  summary: { totalScans: number; citedCount: number; citationRate: number; lastScanned: string | null };
-  history: { date: string; total: number; cited: number; rate: number }[];
-  queryResults: { query: string; cited: boolean; citedUrl: string | null; answerExcerpt: string; lastScanned: string; isMock?: boolean }[];
+  chatgptConfigured: boolean;
+  summary: {
+    perplexity: { totalScans: number; citedCount: number; citationRate: number };
+    chatgpt: { totalScans: number; mentionedCount: number; mentionRate: number; recommendedCount: number };
+    lastScanned: string | null;
+  };
+  history: { date: string; perplexity_rate: number; chatgpt_rate: number }[];
+  queryResults: {
+    query: string;
+    perplexity: { cited: boolean; citedUrl: string | null; answerExcerpt: string; lastScanned: string; isMock?: boolean } | null;
+    chatgpt: { mentioned: boolean; recommended: boolean; mentionExcerpt: string; answerExcerpt: string; lastScanned: string; isMock?: boolean } | null;
+  }[];
   queries: { id: string; query: string; active: boolean }[];
 }
 
 export default function AiCitationPage({ params }: { params: Promise<{ siteId: string }> }) {
   const { siteId } = use(params);
-  const cfg = getSiteConfig(siteId);
+  const staticCfg = getSiteConfig(siteId);
+  const [customCfg, setCustomCfg] = useState<{ label: string; domain: string; emoji: string } | null>(null);
+  const cfg = staticCfg || customCfg;
   const [data, setData] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
@@ -194,10 +205,11 @@ export default function AiCitationPage({ params }: { params: Promise<{ siteId: s
     setError(null);
     try {
       const domain = cfg?.domain || siteId;
+      const brandName = cfg?.label || siteId;
       const res = await fetch('/api/ai-citations/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ siteId, domain }),
+        body: JSON.stringify({ siteId, domain, brandName, sources: ['perplexity', 'chatgpt'] }),
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || `오류 ${res.status}`);
@@ -233,9 +245,20 @@ export default function AiCitationPage({ params }: { params: Promise<{ siteId: s
     await load();
   }
 
-  useEffect(() => { load(); }, [siteId]);
+  useEffect(() => {
+    load();
+    if (!staticCfg) {
+      fetch('/api/indexing/sites').then(r => r.json()).then(j => {
+        const found = (j.sites || []).find((s: { id: string; label: string; domain: string; emoji: string }) => s.id === siteId);
+        if (found) setCustomCfg({ label: found.label, domain: found.domain, emoji: found.emoji || '🌐' });
+      }).catch(() => {});
+    }
+  }, [siteId]);
 
-  const hasMock = data?.queryResults.some(r => r.isMock);
+  const hasMock = data?.queryResults.some(r => r.perplexity?.isMock || r.chatgpt?.isMock);
+  const avgRate = data
+    ? Math.round(((data.summary.perplexity.citationRate) + (data.summary.chatgpt.mentionRate)) / 2)
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -271,20 +294,25 @@ export default function AiCitationPage({ params }: { params: Promise<{ siteId: s
           <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-700">❌ {error}</div>
         )}
 
-        {/* Perplexity 미구성 안내 */}
-        {data && !data.perplexityConfigured && (
+        {/* API 미구성 안내 */}
+        {data && (!data.perplexityConfigured || !data.chatgptConfigured) && (
           <div className="mb-4 p-4 bg-gradient-to-br from-violet-50 to-indigo-50 border-2 border-violet-300 rounded-xl">
             <div className="flex items-start gap-3">
               <span className="text-2xl shrink-0">⚠️</span>
-              <div>
-                <p className="text-sm font-bold text-violet-900 mb-1">Perplexity API 미연결 — 현재 Mock 데이터 표시 중</p>
-                <p className="text-xs text-gray-700 leading-relaxed mb-2">
-                  실제 AI 인용 데이터를 수집하려면 <strong>PERPLEXITY_API_KEY</strong> 환경 변수가 필요합니다.
-                  Perplexity 콘솔(<code>perplexity.ai/settings/api</code>)에서 API 키를 발급받아 Vercel 환경 변수에 추가하세요.
-                </p>
-                <code className="text-xs bg-violet-100 text-violet-800 px-2 py-1 rounded">
-                  vercel env add PERPLEXITY_API_KEY
-                </code>
+              <div className="space-y-1.5">
+                <p className="text-sm font-bold text-violet-900">API 미연결 — Mock 데이터 표시 중</p>
+                {!data.perplexityConfigured && (
+                  <p className="text-xs text-gray-700">
+                    Perplexity: <code className="bg-violet-100 text-violet-800 px-1.5 py-0.5 rounded">vercel env add PERPLEXITY_API_KEY</code>
+                    <span className="ml-1 text-gray-400">(perplexity.ai/settings/api)</span>
+                  </p>
+                )}
+                {!data.chatgptConfigured && (
+                  <p className="text-xs text-gray-700">
+                    ChatGPT: <code className="bg-violet-100 text-violet-800 px-1.5 py-0.5 rounded">vercel env add OPENAI_API_KEY</code>
+                    <span className="ml-1 text-gray-400">(platform.openai.com/api-keys)</span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -295,24 +323,44 @@ export default function AiCitationPage({ params }: { params: Promise<{ siteId: s
             <CitationSummaryCards summary={data.summary} isMock={hasMock} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <CitationTrendChart data={data.history} />
-              {/* 소스별 현황 (현재: Perplexity 단독) */}
+              {/* AI 소스별 현황 */}
               <div className="bg-white rounded-xl border border-gray-200 p-4">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">🌐 AI 소스별 현황</h3>
                 <div className="space-y-2">
                   {[
-                    { name: 'Perplexity', status: data.perplexityConfigured ? 'active' : 'mock', rate: data.summary.citationRate },
-                    { name: 'ChatGPT (SearchGPT)', status: 'planned', rate: null },
-                    { name: 'Google AI Overview', status: 'planned', rate: null },
-                    { name: 'Gemini', status: 'planned', rate: null },
+                    {
+                      name: 'Perplexity',
+                      desc: 'URL 출처 인용',
+                      status: data.perplexityConfigured ? 'active' : 'mock',
+                      value: `${data.summary.perplexity.citationRate}%`,
+                      sub: `인용 ${data.summary.perplexity.citedCount}/${data.summary.perplexity.totalScans}회`,
+                      color: 'text-violet-700',
+                    },
+                    {
+                      name: 'ChatGPT (GPT-4o)',
+                      desc: '텍스트 언급·추천',
+                      status: data.chatgptConfigured ? 'active' : 'mock',
+                      value: `${data.summary.chatgpt.mentionRate}%`,
+                      sub: `언급 ${data.summary.chatgpt.mentionedCount}회 / 추천 ${data.summary.chatgpt.recommendedCount}회`,
+                      color: 'text-emerald-700',
+                    },
+                    { name: 'Google AI Overview', desc: '', status: 'planned', value: null, sub: '', color: '' },
+                    { name: 'Gemini',             desc: '', status: 'planned', value: null, sub: '', color: '' },
                   ].map(s => (
                     <div key={s.name} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                       <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${s.status === 'active' ? 'bg-green-500' : s.status === 'mock' ? 'bg-amber-400' : 'bg-gray-300'}`} />
-                        <span className="text-sm text-gray-700">{s.name}</span>
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${s.status === 'active' ? 'bg-green-500' : s.status === 'mock' ? 'bg-amber-400' : 'bg-gray-300'}`} />
+                        <div>
+                          <span className="text-sm text-gray-700">{s.name}</span>
+                          {s.desc && <span className="ml-1.5 text-[10px] text-gray-400">({s.desc})</span>}
+                        </div>
                       </div>
                       <div className="text-right">
-                        {s.rate !== null ? (
-                          <span className="text-sm font-bold text-violet-700">{s.rate}%</span>
+                        {s.value !== null ? (
+                          <div>
+                            <span className={`text-sm font-bold ${s.color}`}>{s.value}</span>
+                            <div className="text-[10px] text-gray-400">{s.sub}</div>
+                          </div>
                         ) : (
                           <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">준비 중</span>
                         )}
@@ -321,19 +369,19 @@ export default function AiCitationPage({ params }: { params: Promise<{ siteId: s
                   ))}
                 </div>
                 <p className="mt-3 text-xs text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
-                  현재 Perplexity sonar 모델을 통해 실시간 웹 검색 인용을 측정합니다.
-                  ChatGPT(SearchGPT)·Google AI Overview·Gemini는 공식 인용 API를 제공하지 않아 자동 측정이 어렵지만, 우회 측정 방법이 확보되는 대로 순차적으로 추가할 예정입니다.
-                  현재 Perplexity의 인용률이 높다면 다른 AI 엔진에서도 인용될 가능성이 높습니다.
+                  Perplexity는 sonar 모델로 실시간 웹 검색 후 URL 출처를 직접 반환하므로 가장 정확한 인용 측정이 가능합니다.
+                  ChatGPT(GPT-4o)는 학습 데이터 기반으로 답변하므로 URL이 아닌 브랜드명·도메인 텍스트 언급 여부와 추천 강도를 측정합니다.
+                  Google AI Overview·Gemini는 공식 API 미제공으로 준비 중입니다.
                 </p>
               </div>
             </div>
             <QueryResultsTable results={data.queryResults} />
 
             {/* 인용률 원인 분석 */}
-            <CitationRateAnalysis rate={data.summary.citationRate} isMock={hasMock} />
+            <CitationRateAnalysis rate={avgRate} isMock={hasMock} />
 
             {/* 인용률 개선 방법 */}
-            <CitationImprovementGuide rate={data.summary.citationRate} />
+            <CitationImprovementGuide rate={avgRate} />
 
             {/* 키워드 관리 */}
             <div className="bg-white rounded-xl border border-gray-200 p-4">

@@ -24,7 +24,9 @@ interface SnapshotResponse {
 
 export default function IndexingDashboardPage({ params }: { params: Promise<{ siteId: string }> }) {
   const { siteId } = use(params);
-  const cfg = getSiteConfig(siteId);
+  const staticCfg = getSiteConfig(siteId);
+  const [customCfg, setCustomCfg] = useState<{ label: string; domain: string; emoji: string } | null>(null);
+  const cfg = staticCfg || customCfg;
   const [data, setData] = useState<SnapshotResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -71,7 +73,15 @@ export default function IndexingDashboardPage({ params }: { params: Promise<{ si
     setRefreshing(false);
   }
 
-  useEffect(() => { load(); }, [siteId]);
+  useEffect(() => {
+    load();
+    if (!staticCfg) {
+      fetch('/api/indexing/sites').then(r => r.json()).then(j => {
+        const found = (j.sites || []).find((s: { id: string; label: string; domain: string; emoji: string }) => s.id === siteId);
+        if (found) setCustomCfg({ label: found.label, domain: found.domain, emoji: found.emoji || '🌐' });
+      }).catch(() => {});
+    }
+  }, [siteId]);
 
   return (
     <div className="min-h-screen bg-gray-50">
