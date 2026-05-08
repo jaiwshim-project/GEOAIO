@@ -5,10 +5,22 @@
 // 일자별로 통합 정렬해서 "오늘 / 내일 / 이번 주 / 다음 주" 카드로 표시.
 // 사용자가 매일 어떤 카테고리·채널에 어떤 글을 발행해야 하는지 한눈에 보여준다.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+
+// 발행 큐 상태 타입
+type PublishStatus = 'pending' | 'publishing' | 'published' | 'failed';
+interface QueueItem {
+  id: string;
+  category_slug: string;
+  post_no: number;
+  status: PublishStatus;
+  post_url?: string;
+}
+// key: `${categorySlug}-${postNo}`
+type QueueMap = Record<string, QueueItem>;
 
 interface RoadmapPost {
   postNo: number;
@@ -79,6 +91,11 @@ export default function BacklinkDashboardPage() {
   const [showPast, setShowPast] = useState(true);
   const [showFuture, setShowFuture] = useState(true);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+
+  // 발행 큐 상태
+  const [queueMap, setQueueMap] = useState<QueueMap>({});
+  const [publishing, setPublishing] = useState<Set<string>>(new Set());
+  const queueFetchedRef = useRef(false);
 
   // localStorage에서 로드맵 + 복사 기록을 읽어오는 함수 — mount, storage event, focus, polling 등에서 재사용
   const loadFromStorage = useCallback(() => {
@@ -238,6 +255,60 @@ export default function BacklinkDashboardPage() {
     }
   };
 
+  // 발행 큐 상태 불러오기
+  const loadQueueStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/tistory-publish');
+      if (!res.ok) return;
+      const { items } = await res.json() as { items: QueueItem[] };
+      const map: QueueMap = {};
+      items.forEach(item => {
+        map[`${item.category_slug}-${item.post_no}`] = item;
+      });
+      setQueueMap(map);
+    } catch {}
+  }, []);
+
+  // 마운트 후 한 번 큐 상태 로드
+  useEffect(() => {
+    if (queueFetchedRef.current) return;
+    queueFetchedRef.current = true;
+    loadQueueStatus();
+  }, [loadQueueStatus]);
+
+  // Tistory 포스트를 발행 큐에 추가
+  const handleQueuePublish = useCallback(async (post: DashboardPost) => {
+    const key = `${post.categorySlug}-${post.postNo}`;
+    if (publishing.has(key)) return;
+    setPublishing(prev => new Set(prev).add(key));
+    try {
+      const res = await fetch('/api/tistory-publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blog_name: 'axbiz',
+          category_slug: post.categorySlug,
+          post_no: post.postNo,
+          scheduled_date: post.date,
+          title: post.title,
+          body: post.body,
+          tags: post.tags,
+          tistory_category: '1. AX 비즈',
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        await loadQueueStatus();
+      } else {
+        alert(`큐 추가 실패: ${data.error}`);
+      }
+    } catch (e) {
+      alert(`오류: ${e}`);
+    } finally {
+      setPublishing(prev => { const s = new Set(prev); s.delete(key); return s; });
+    }
+  }, [publishing, loadQueueStatus]);
+
   // 카테고리 통째로 삭제 — 해당 슬러그의 로드맵+모든 포스트가 일정에서 사라짐
   const handleDeleteCategory = (slug: string) => {
     const r = roadmaps[slug];
@@ -256,6 +327,10 @@ export default function BacklinkDashboardPage() {
   const renderCard = (post: DashboardPost) => {
     const id = `${post.categorySlug}-${post.postNo}`;
     const isCopied = copiedIds.has(id);
+    const queueItem = queueMap[id];
+    const queueStatus = queueItem?.status;
+    const isPublishing = publishing.has(id);
+
     return (
       <article
         key={id}
@@ -291,19 +366,63 @@ export default function BacklinkDashboardPage() {
               📁{post.categorySlug}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={() => handleCopy(post)}
-            disabled={isCopied}
-            className={`shrink-0 text-lg font-bold px-3 py-1.5 rounded-md transition-colors ${
-              isCopied
-                ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-            }`}
-            title={isCopied ? '이미 복사됨' : '복사'}
-          >
-            {isCopied ? '✓' : '📋'}
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Tistory 자동발행 버튼 */}
+            {post.channel === 'Tistory' && (
+              queueStatus === 'published' ? (
+                <a
+                  href={queueItem?.post_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-bold px-2 py-1 rounded-md bg-emerald-500 text-white"
+                  title="발행됨 — 클릭하면 포스트 보기"
+                >
+                  ✅발행됨
+                </a>
+              ) : queueStatus === 'pending' ? (
+                <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-amber-400 text-white">
+                  ⏳대기중
+                </span>
+              ) : queueStatus === 'failed' ? (
+                <button
+                  type="button"
+                  onClick={() => handleQueuePublish(post)}
+                  className="text-[10px] font-bold px-2 py-1 rounded-md bg-rose-500 text-white hover:bg-rose-600"
+                  title="실패 — 재시도"
+                >
+                  ❌재시도
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleQueuePublish(post)}
+                  disabled={isPublishing}
+                  className={`text-[10px] font-bold px-2 py-1 rounded-md transition-colors ${
+                    isPublishing
+                      ? 'bg-slate-300 text-slate-500 cursor-wait'
+                      : 'bg-orange-500 text-white hover:bg-orange-600'
+                  }`}
+                  title="axbiz.tistory.com에 자동발행 큐 추가"
+                >
+                  {isPublishing ? '...' : '📤발행'}
+                </button>
+              )
+            )}
+            {/* 복사 버튼 */}
+            <button
+              type="button"
+              onClick={() => handleCopy(post)}
+              disabled={isCopied}
+              className={`text-lg font-bold px-3 py-1.5 rounded-md transition-colors ${
+                isCopied
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+              }`}
+              title={isCopied ? '이미 복사됨' : '복사'}
+            >
+              {isCopied ? '✓' : '📋'}
+            </button>
+          </div>
         </div>
 
         <div className="text-[9px] text-slate-500 font-semibold mb-1">
@@ -389,10 +508,29 @@ export default function BacklinkDashboardPage() {
               저장된 모든 카테고리 로드맵을 모아 <strong className="text-emerald-300">날짜별로 정렬</strong>합니다.
               매일 아침 이 페이지를 열어 오늘 발행할 Tistory·LinkedIn 포스트를 카테고리·역할별로 한눈에 확인하고, 클릭 한 번으로 복사·발행하세요.
             </p>
-            <div className="mt-4">
+            <div className="mt-4 flex items-center gap-2 flex-wrap">
               <Link href="/backlink" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold transition-colors">
                 ← 백링크 로드맵 생성으로
               </Link>
+              {/* Tistory 발행 현황 */}
+              {Object.keys(queueMap).length > 0 && (() => {
+                const total = Object.values(queueMap).length;
+                const published = Object.values(queueMap).filter(q => q.status === 'published').length;
+                const pending = Object.values(queueMap).filter(q => q.status === 'pending').length;
+                return (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/20 border border-orange-400/40 text-xs font-bold text-orange-200">
+                    📤 axbiz.tistory.com: {published}/{total}발행 · 대기{pending}
+                  </span>
+                );
+              })()}
+              <button
+                type="button"
+                onClick={loadQueueStatus}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-[11px] font-bold text-white/80 transition-colors"
+                title="발행 상태 새로고침"
+              >
+                🔄 발행상태
+              </button>
             </div>
           </div>
         </section>
