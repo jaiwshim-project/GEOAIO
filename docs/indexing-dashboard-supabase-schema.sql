@@ -31,3 +31,29 @@ DROP POLICY IF EXISTS "indexing_snapshots_insert_authenticated" ON public.indexi
 CREATE POLICY "indexing_snapshots_insert_authenticated"
   ON public.indexing_snapshots FOR INSERT
   WITH CHECK (true);  -- 서버 사이드 anon 키 사용 환경 (이미 다른 테이블도 동일 패턴)
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 커스텀 사이트 등록 테이블 (UI에서 동적으로 추가된 사이트)
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.indexing_custom_sites (
+  id           text PRIMARY KEY,                         -- kebab-case ID (URL slug)
+  label        text NOT NULL,                            -- 표시 이름
+  domain       text NOT NULL,                            -- 도메인 (표시용)
+  description  text NOT NULL DEFAULT '',
+  site_url     text NOT NULL,                            -- GSC 속성 URL
+  sitemap_url  text NOT NULL,
+  category_map jsonb,                                    -- {라벨: ["/prefix", ...]}
+  color        text NOT NULL DEFAULT 'cyan',
+  emoji        text NOT NULL DEFAULT '🌐',
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.indexing_custom_sites ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "indexing_custom_sites_read_all" ON public.indexing_custom_sites;
+CREATE POLICY "indexing_custom_sites_read_all"
+  ON public.indexing_custom_sites FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "indexing_custom_sites_write" ON public.indexing_custom_sites;
+CREATE POLICY "indexing_custom_sites_write"
+  ON public.indexing_custom_sites FOR ALL WITH CHECK (true);
