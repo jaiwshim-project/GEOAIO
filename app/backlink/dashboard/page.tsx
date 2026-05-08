@@ -509,23 +509,11 @@ export default function BacklinkDashboardPage() {
                   </a>
                 );
               }
-              if (liStatus === 'publishing' || liStatus === 'pending') {
+              if (liStatus === 'publishing') {
                 return (
                   <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-sky-400 text-white">
                     ⏳발행중
                   </span>
-                );
-              }
-              if (liStatus === 'failed') {
-                return (
-                  <button
-                    type="button"
-                    onClick={() => handleLinkedInPublish(post)}
-                    className="text-[10px] font-bold px-2 py-1 rounded-md bg-rose-500 text-white hover:bg-rose-600"
-                    title="실패 — 재시도"
-                  >
-                    ❌재시도
-                  </button>
                 );
               }
               return (
