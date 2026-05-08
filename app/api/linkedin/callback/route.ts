@@ -41,13 +41,14 @@ export async function GET(req: NextRequest) {
     return redirectToDashboard('linkedin_error=token_failed');
   }
 
-  // 사용자 ID 조회 (/v2/me — r_profile_basicinfo 스코프)
-  const userRes = await fetch('https://api.linkedin.com/v2/me', {
+  // 사용자 ID 조회 (OpenID Connect — sub 필드가 숫자 memberID)
+  const userRes = await fetch('https://api.linkedin.com/v2/userinfo', {
     headers: { Authorization: `Bearer ${tokenData.access_token}` },
   });
   const userData = await userRes.json();
-  const personId = userData.id || userData.sub;
-  const personUrn = `urn:li:person:${personId}`;
+  const personId = userData.sub;
+  // LinkedIn UGC Posts API는 urn:li:member:숫자ID 형식 요구
+  const personUrn = `urn:li:member:${personId}`;
 
   // Supabase에 토큰 저장 (id=1 고정 — 단일 사용자)
   const supabase = getAdminClient();

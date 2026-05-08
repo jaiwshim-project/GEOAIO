@@ -13,7 +13,7 @@ export async function GET() {
     response_type: 'code',
     client_id: clientId,
     redirect_uri: `${process.env.NEXT_PUBLIC_SITE_URL}/api/linkedin/callback`,
-    scope: 'w_member_social r_profile_basicinfo',
+    scope: 'openid w_member_social',
     state: 'geoaio-linkedin-auth',
   });
 
