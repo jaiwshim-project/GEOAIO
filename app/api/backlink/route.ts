@@ -522,7 +522,7 @@ ${draftSection}
       const cleanBlock = block.split(/={3,}\s*END\s*={3,}/i)[0];
 
       const titleMatch = cleanBlock.match(/^\s*TITLE:\s*(.+?)\s*$/m);
-      const tagsMatch = cleanBlock.match(/^\s*TAGS:\s*(.*?)\s*$/m);
+      const tagsMatch = cleanBlock.match(/^\s*TAGS:[ \t]*(.*?)\s*$/m);
 
       const title = titleMatch ? titleMatch[1].trim() : '';
       const tagsRaw = tagsMatch ? tagsMatch[1].trim() : '';
