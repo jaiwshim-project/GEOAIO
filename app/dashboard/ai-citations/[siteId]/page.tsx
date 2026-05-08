@@ -4,6 +4,7 @@ import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { getSiteConfig } from '@/lib/indexing-sites';
 import { CitationSummaryCards, CitationTrendChart, QueryResultsTable } from '@/components/ai-citations/CitationCharts';
+import SiteTabs from '@/components/shared/SiteTabs';
 
 /* ── 인용률 원인 분석 ─────────────────────────────────── */
 function CitationRateAnalysis({ rate, isMock }: { rate: number; isMock?: boolean }) {
@@ -239,29 +240,31 @@ export default function AiCitationPage({ params }: { params: Promise<{ siteId: s
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {/* 헤더 */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              🤖 {cfg ? `${cfg.emoji} ${cfg.label}` : siteId} — AI 인용 모니터링
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {cfg && <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs mr-2">{cfg.domain}</code>}
-              <Link href="/dashboard/indexing" className="text-xs text-indigo-600 hover:underline mr-3">← 사이트 목록</Link>
-              <Link href={`/dashboard/indexing/${siteId}`} className="text-xs text-indigo-600 hover:underline">📊 Google 색인</Link>
-            </p>
+        {/* 사이트 헤더 */}
+        <div className="mb-5">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {cfg ? `${cfg.emoji} ${cfg.label}` : siteId}
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                {cfg && <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs mr-2">{cfg.domain}</code>}
+                <Link href="/dashboard/indexing" className="text-xs text-indigo-600 hover:underline">← 사이트 목록</Link>
+              </p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button onClick={load} disabled={loading}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">
+                {loading ? '로딩…' : '↻ 새로고침'}
+              </button>
+              <button onClick={runScan} disabled={scanning || (data?.queries.length === 0)}
+                className="px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 disabled:bg-gray-400"
+                title={data?.queries.length === 0 ? '먼저 키워드를 추가하세요' : ''}>
+                {scanning ? '스캔 중…' : '🔍 지금 스캔'}
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button onClick={load} disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">
-              {loading ? '로딩…' : '↻ 새로고침'}
-            </button>
-            <button onClick={runScan} disabled={scanning || (data?.queries.length === 0)}
-              className="px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 disabled:bg-gray-400"
-              title={data?.queries.length === 0 ? '먼저 키워드를 추가하세요' : ''}>
-              {scanning ? '스캔 중…' : '🔍 지금 스캔'}
-            </button>
-          </div>
+          <SiteTabs siteId={siteId} active="ai-citations" />
         </div>
 
         {error && (

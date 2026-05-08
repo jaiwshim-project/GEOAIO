@@ -4,6 +4,7 @@ import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { IndexTrendChart, ReasonsPie, CategoryBars, StatCards } from '@/components/indexing/IndexingCharts';
 import { getSiteConfig } from '@/lib/indexing-sites';
+import SiteTabs from '@/components/shared/SiteTabs';
 
 interface SnapshotResponse {
   ok: boolean;
@@ -75,32 +76,36 @@ export default function IndexingDashboardPage({ params }: { params: Promise<{ si
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {cfg ? `${cfg.emoji} ${cfg.label}` : '📊 색인 모니터링'}
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {cfg ? <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{cfg.domain}</code> : <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{siteId}</code>}
-              <Link href="/dashboard/indexing" className="ml-3 text-xs text-indigo-600 hover:underline">← 다른 사이트 선택</Link>
-            </p>
+        {/* 사이트 헤더 */}
+        <div className="mb-5">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3 mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {cfg ? `${cfg.emoji} ${cfg.label}` : '📊 색인 모니터링'}
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                {cfg ? <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{cfg.domain}</code> : <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">{siteId}</code>}
+                <Link href="/dashboard/indexing" className="ml-3 text-xs text-indigo-600 hover:underline">← 사이트 목록</Link>
+              </p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={load}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                disabled={loading}
+              >
+                {loading ? '로딩…' : '↻ 새로고침'}
+              </button>
+              <button
+                onClick={refreshSnapshot}
+                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
+                disabled={refreshing}
+              >
+                {refreshing ? '측정 중…' : '🔄 지금 측정'}
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={load}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              disabled={loading}
-            >
-              {loading ? '로딩…' : '↻ 새로고침'}
-            </button>
-            <button
-              onClick={refreshSnapshot}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
-              disabled={refreshing}
-            >
-              {refreshing ? '측정 중…' : '🔄 지금 측정'}
-            </button>
-          </div>
+          <SiteTabs siteId={siteId} active="indexing" />
         </div>
 
         {error && (
