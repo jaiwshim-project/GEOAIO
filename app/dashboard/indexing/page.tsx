@@ -127,7 +127,7 @@ export default function IndexingSitesPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">📊 색인 모니터링 — 사이트 선택</h1>
             <p className="text-sm text-gray-500 mt-1">
-              모니터링할 사이트를 선택하세요. Google Search Console과 연결되어 색인 추이·미색인 사유·카테고리별 색인율을 시각화합니다.
+              카드를 클릭하면 <strong>Google 색인</strong> 대시보드로, 🤖 버튼을 클릭하면 <strong>AI 인용</strong> 모니터링으로 이동합니다.
             </p>
           </div>
           <button
@@ -162,6 +162,16 @@ export default function IndexingSitesPage() {
                       </div>
                       <code className="text-xs text-gray-500 break-all">{site.domain}</code>
                       <p className="text-xs text-gray-700 mt-2 leading-relaxed">{site.description}</p>
+                      <div className="mt-2 flex gap-1.5">
+                        <span className="text-[10px] px-2 py-0.5 bg-white/70 border border-gray-200 rounded-full text-gray-500">📊 Google 색인</span>
+                        <Link
+                          href={`/dashboard/ai-citations/${site.id}`}
+                          onClick={e => e.stopPropagation()}
+                          className="text-[10px] px-2 py-0.5 bg-violet-50 border border-violet-200 rounded-full text-violet-700 hover:bg-violet-100 font-medium"
+                        >
+                          🤖 AI 인용
+                        </Link>
+                      </div>
                     </div>
                     <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

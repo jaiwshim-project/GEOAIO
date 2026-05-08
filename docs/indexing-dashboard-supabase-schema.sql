@@ -57,3 +57,44 @@ CREATE POLICY "indexing_custom_sites_read_all"
 DROP POLICY IF EXISTS "indexing_custom_sites_write" ON public.indexing_custom_sites;
 CREATE POLICY "indexing_custom_sites_write"
   ON public.indexing_custom_sites FOR ALL WITH CHECK (true);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- AI 인용 모니터링 테이블 (Perplexity 등 AI 검색 엔진 인용 추적)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- 사이트별 검색 쿼리 목록
+CREATE TABLE IF NOT EXISTS public.ai_citation_queries (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  site_id     text NOT NULL,
+  query       text NOT NULL,
+  active      boolean NOT NULL DEFAULT true,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_ai_citation_queries_site ON public.ai_citation_queries (site_id, active);
+ALTER TABLE public.ai_citation_queries ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "ai_citation_queries_all" ON public.ai_citation_queries;
+CREATE POLICY "ai_citation_queries_all" ON public.ai_citation_queries FOR ALL WITH CHECK (true);
+DROP POLICY IF EXISTS "ai_citation_queries_read" ON public.ai_citation_queries;
+CREATE POLICY "ai_citation_queries_read" ON public.ai_citation_queries FOR SELECT USING (true);
+
+-- 스캔 결과 저장
+CREATE TABLE IF NOT EXISTS public.ai_citation_results (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  site_id         text NOT NULL,
+  query           text NOT NULL,
+  source          text NOT NULL DEFAULT 'perplexity',
+  taken_at        timestamptz NOT NULL DEFAULT now(),
+  cited           boolean NOT NULL,
+  cited_url       text,
+  answer_excerpt  text,
+  all_citations   jsonb,
+  is_mock         boolean NOT NULL DEFAULT false,
+  raw             jsonb
+);
+CREATE INDEX IF NOT EXISTS idx_ai_citation_results_site_taken
+  ON public.ai_citation_results (site_id, taken_at DESC);
+ALTER TABLE public.ai_citation_results ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "ai_citation_results_read" ON public.ai_citation_results;
+CREATE POLICY "ai_citation_results_read" ON public.ai_citation_results FOR SELECT USING (true);
+DROP POLICY IF EXISTS "ai_citation_results_insert" ON public.ai_citation_results;
+CREATE POLICY "ai_citation_results_insert" ON public.ai_citation_results FOR INSERT WITH CHECK (true);
