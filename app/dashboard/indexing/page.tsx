@@ -40,7 +40,7 @@ const EMPTY_FORM = {
 };
 
 function slugify(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-|-$/g, '');
+  return s.toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-|-$/g, '');
 }
 
 export default function IndexingSitesPage() {
@@ -63,7 +63,7 @@ export default function IndexingSitesPage() {
   useEffect(() => { loadCustomSites(); }, []);
   useEffect(() => { if (showModal) setTimeout(() => firstInputRef.current?.focus(), 50); }, [showModal]);
 
-  const computedId = slugify(form.label || form.domain);
+  const computedId = slugify(form.domain || form.label);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
