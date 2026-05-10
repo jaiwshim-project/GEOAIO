@@ -19,7 +19,7 @@ export const INDEXING_SITES: IndexingSiteConfig[] = [
     label: 'AX Biz Group',
     domain: 'metabiz101.tistory.com',
     description: '심재우 대표 운영. AX비즈·AX메디·AX에듀·GEO-AIO·에바셀 등 다영역 콘텐츠 5,400+편',
-    siteUrl: 'sc-domain:metabiz101.tistory.com',
+    siteUrl: 'https://metabiz101.tistory.com/',
     sitemapUrl: 'https://metabiz101.tistory.com/sitemap.xml',
     categoryMap: {
       'AX비즈': ['/category/AX비즈', '/category/ax-biz'],
