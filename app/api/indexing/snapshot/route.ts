@@ -82,18 +82,20 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // total_pages = sitemap에서 발견된 전체 페이지 수 (GSC quota 보호용 sample은 별도)
+  // not_indexed = total_pages - indexed (inspect 안 된 페이지는 일단 미색인으로 간주)
   const taken_at = new Date().toISOString();
   const snap = {
     site_id: body.siteId,
     site_url: body.siteUrl,
     taken_at,
-    total_pages: inspected.length,
+    total_pages: sitemap.length,
     indexed,
-    not_indexed: inspected.length - indexed,
+    not_indexed: sitemap.length - indexed,
     reasons,
     by_category: byCategory,
   };
 
   const saved = await saveSnapshot(snap);
-  return NextResponse.json({ ok: true, snapshot: { ...snap, sampleSize: sample.length, sitemapTotal: sitemap.length }, saved: saved.ok, error: saved.error });
+  return NextResponse.json({ ok: true, snapshot: { ...snap, sampleSize: sample.length, sitemapTotal: sitemap.length, inspectedCount: inspected.length }, saved: saved.ok, error: saved.error });
 }
