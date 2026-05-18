@@ -11,7 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchSitemapUrls, inspectUrls, isGscConfigured, mockSnapshot } from '@/lib/gsc-client';
-import { saveSnapshot } from '@/lib/indexing-store';
+import { saveSnapshot, saveInspectedPages } from '@/lib/indexing-store';
 
 export const maxDuration = 300;
 export const runtime = 'nodejs';
@@ -97,5 +97,27 @@ export async function POST(req: NextRequest) {
   };
 
   const saved = await saveSnapshot(snap);
-  return NextResponse.json({ ok: true, snapshot: { ...snap, sampleSize: sample.length, sitemapTotal: sitemap.length, inspectedCount: inspected.length }, saved: saved.ok, error: saved.error });
+
+  // 개별 페이지 결과 저장
+  let pagesSaved = { ok: false, count: 0 };
+  if (saved.ok && saved.id) {
+    pagesSaved = await saveInspectedPages(
+      saved.id,
+      body.siteId,
+      inspected.map(r => ({
+        url: r.url,
+        state: r.state,
+        lastCrawl: r.lastCrawl,
+      }))
+    );
+  }
+
+  return NextResponse.json({
+    ok: true,
+    snapshot: { ...snap, sampleSize: sample.length, sitemapTotal: sitemap.length, inspectedCount: inspected.length },
+    saved: saved.ok,
+    pagesSaved: pagesSaved.ok,
+    pagesCount: pagesSaved.count,
+    error: saved.error,
+  });
 }

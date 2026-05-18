@@ -84,3 +84,48 @@ export async function getSnapshotHistory(siteId: string, days: number = 60): Pro
     not_indexed: r.total_pages - r.indexed,
   }));
 }
+
+export interface InspectedPageResult {
+  url: string;
+  state: string;
+  lastCrawl?: string;
+}
+
+export async function saveInspectedPages(snapshotId: string, siteId: string, pages: InspectedPageResult[]): Promise<{ ok: boolean; count: number; error?: string }> {
+  const writer = getServiceRoleClient() || supabase;
+  if (!writer) return { ok: false, count: 0, error: 'supabase not configured' };
+
+  if (pages.length === 0) return { ok: true, count: 0 };
+
+  const rows = pages.map(p => ({
+    snapshot_id: snapshotId,
+    site_id: siteId,
+    url: p.url,
+    state: p.state,
+    last_crawl: p.lastCrawl ? new Date(p.lastCrawl).toISOString() : null,
+  }));
+
+  const { error } = await writer
+    .from('indexing_inspected_pages')
+    .insert(rows);
+
+  if (error) return { ok: false, count: 0, error: error.message };
+  return { ok: true, count: rows.length };
+}
+
+export async function getInspectedPagesBySnapshot(snapshotId: string): Promise<InspectedPageResult[]> {
+  if (!isSupabaseConfigured() || !supabase) return [];
+
+  const { data, error } = await supabase
+    .from('indexing_inspected_pages')
+    .select('url, state, last_crawl')
+    .eq('snapshot_id', snapshotId)
+    .order('created_at', { ascending: true });
+
+  if (error || !data) return [];
+  return data.map(r => ({
+    url: r.url,
+    state: r.state,
+    lastCrawl: r.last_crawl,
+  }));
+}

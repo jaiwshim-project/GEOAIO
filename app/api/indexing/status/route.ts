@@ -2,8 +2,9 @@
 // 대시보드용. 최신 snapshot + 60일 추이 반환. GSC 미구성·DB 미구성 시 mock 반환.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getLatestSnapshot, getSnapshotHistory } from '@/lib/indexing-store';
+import { getLatestSnapshot, getSnapshotHistory, getInspectedPagesBySnapshot } from '@/lib/indexing-store';
 import { isGscConfigured } from '@/lib/gsc-client';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
@@ -16,11 +17,18 @@ export async function GET(req: NextRequest) {
     getSnapshotHistory(siteId, 60),
   ]);
 
+  // 최신 snapshot의 개별 페이지 결과 조회
+  let verifiedCount = 0;
+  if (latest?.id && isSupabaseConfigured() && supabase) {
+    const pages = await getInspectedPagesBySnapshot(latest.id);
+    verifiedCount = pages.length;
+  }
+
   return NextResponse.json({
     ok: true,
     siteId,
     gscConfigured: isGscConfigured(),
-    latest,
+    latest: latest ? { ...latest, verifiedCount } : null,
     history,
   });
 }

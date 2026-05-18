@@ -19,6 +19,32 @@ CREATE TABLE IF NOT EXISTS public.indexing_snapshots (
 CREATE INDEX IF NOT EXISTS idx_indexing_snapshots_site_taken
   ON public.indexing_snapshots (site_id, taken_at DESC);
 
+-- 개별 페이지의 색인 상태 추적 (snapshot 마다 페이지별 결과 저장)
+CREATE TABLE IF NOT EXISTS public.indexing_inspected_pages (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  snapshot_id   uuid NOT NULL REFERENCES public.indexing_snapshots(id) ON DELETE CASCADE,
+  site_id       text NOT NULL,
+  url           text NOT NULL,
+  state         text NOT NULL,  -- INDEXED, DISCOVERED_NOT_INDEXED, CRAWLED_NOT_INDEXED, etc.
+  last_crawl    timestamptz,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_indexing_inspected_pages_snapshot
+  ON public.indexing_inspected_pages (snapshot_id);
+CREATE INDEX IF NOT EXISTS idx_indexing_inspected_pages_site_url
+  ON public.indexing_inspected_pages (site_id, url);
+
+ALTER TABLE public.indexing_inspected_pages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "indexing_inspected_pages_read_all" ON public.indexing_inspected_pages;
+CREATE POLICY "indexing_inspected_pages_read_all"
+  ON public.indexing_inspected_pages FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "indexing_inspected_pages_insert" ON public.indexing_inspected_pages;
+CREATE POLICY "indexing_inspected_pages_insert"
+  ON public.indexing_inspected_pages FOR INSERT WITH CHECK (true);
+
 -- RLS: 서비스 키만 쓰기, 익명도 읽기 허용 (대시보드는 공개)
 ALTER TABLE public.indexing_snapshots ENABLE ROW LEVEL SECURITY;
 
