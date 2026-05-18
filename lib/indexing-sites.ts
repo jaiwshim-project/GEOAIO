@@ -52,6 +52,19 @@ export const INDEXING_SITES: IndexingSiteConfig[] = [
     color: 'amber',
     emoji: '🌐',
   },
+  {
+    id: 'geo-aio-dental',
+    label: 'GEO-AIO 치과병원',
+    domain: 'www.geo-aio.com/blog/category/dental',
+    description: '치과 관련 콘텐츠 전문. 임플란트, 교정, 미백, 치주질환 등 100+편(다국어 ko/en/zh/ja)',
+    siteUrl: 'sc-domain:geo-aio.com',
+    sitemapUrl: 'https://www.geo-aio.com/sitemap.xml',
+    categoryMap: {
+      '치과병원': ['/blog/category/dental'],
+    },
+    color: 'rose',
+    emoji: '🦷',
+  },
 ];
 
 export function getSiteConfig(id: string): IndexingSiteConfig | null {
