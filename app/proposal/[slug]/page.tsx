@@ -160,59 +160,38 @@ function detectLanguage(text: string): DetectedLang {
 
 async function getCategoryData(slug: string) {
   const supabase = getSupabase();
+  const defaultLangBreakdown: Record<DetectedLang, number> = { ko: 0, en: 0, zh: 0, ja: 0 };
 
-  // 페이지네이션으로 모든 포스트 가져오기 (blog category 페이지와 동일)
-  const PAGE_SIZE = 100;
-  const allPosts: any[] = [];
-  for (let page = 0; page < 500; page++) {
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    const { data, error } = await supabase
-      .from('blog_articles')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(from, to);
-    if (error || !data || data.length === 0) break;
-    allPosts.push(...data);
-    if (data.length < PAGE_SIZE) break;
+  // 해당 카테고리의 콘텐츠만 가져오기 (최적화: 모든 글을 메모리에 로드하지 않음)
+  const { data: posts, error } = await supabase
+    .from('blog_articles')
+    .select('id, title, content, created_at, metadata, category')
+    .eq('category', slug)
+    .order('created_at', { ascending: false });
+
+  if (error || !posts) {
+    return {
+      posts: [],
+      totalCount: 0,
+      langBreakdown: defaultLangBreakdown
+    };
   }
 
-  // 카테고리별 개수
-  const categoryStats: Record<string, number> = {};
-  // 카테고리별 언어별 개수
-  const languageStats: Record<string, Record<string, number>> = {};
-
-  (allPosts || []).forEach((r: any) => {
-    if (r.category) {
-      categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
-
-      // 1순위: metadata.lang (발행 시 명시적 태그) — blog category 페이지와 동일 로직
-      // 2순위: 본문 자동 감지
-      const metaLang = (r.metadata as { lang?: string } | undefined)?.lang;
-      const validLangs: DetectedLang[] = ['ko', 'en', 'zh', 'ja'];
-      const lang: DetectedLang = (metaLang && validLangs.includes(metaLang as DetectedLang))
-        ? (metaLang as DetectedLang)
-        : detectLanguage(`${r.title || ''}\n${(r.content || '').slice(0, 1500)}`);
-
-      if (!languageStats[r.category]) languageStats[r.category] = {};
-      languageStats[r.category][lang] = (languageStats[r.category][lang] || 0) + 1;
-    }
+  // 현재 카테고리의 언어별 개수만 계산
+  const langBreakdown = { ...defaultLangBreakdown };
+  posts.forEach((p: any) => {
+    const metaLang = (p.metadata as { lang?: string } | undefined)?.lang;
+    const validLangs: DetectedLang[] = ['ko', 'en', 'zh', 'ja'];
+    const lang: DetectedLang = (metaLang && validLangs.includes(metaLang as DetectedLang))
+      ? (metaLang as DetectedLang)
+      : detectLanguage(`${p.title || ''}\n${(p.content || '').slice(0, 1500)}`);
+    langBreakdown[lang]++;
   });
 
-  // 해당 카테고리의 콘텐츠 (UI 표시용 — limit 50)
-  const { data: posts } = await supabase
-    .from('blog_articles')
-    .select('id, title, content, created_at')
-    .eq('category', slug)
-    .order('created_at', { ascending: false })
-    .limit(50);
-
   return {
-    posts: posts || [],
-    categoryStats,
-    languageStats,
-    totalCount: categoryStats[slug] || 0,
-    langBreakdown: languageStats[slug] || {}
+    posts: posts.slice(0, 50), // UI 표시용 50개만
+    totalCount: posts.length,
+    langBreakdown
   };
 }
 
@@ -236,13 +215,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
   const meta = getMeta(slug);
-  const { posts, categoryStats, totalCount, langBreakdown } = await getCategoryData(slug);
-
-  // 모든 카테고리 (탭 네비게이션용)
-  const allCategories = Object.entries(categoryStats).map(([s, count]) => {
-    const m = getMeta(s);
-    return { slug: s, label: m.label, color: m.color, count };
-  });
+  const { posts, totalCount, langBreakdown } = await getCategoryData(slug);
 
   const sampleTitles = posts.slice(0, 3).map(p => p.title);
 
