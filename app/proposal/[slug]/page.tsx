@@ -1267,19 +1267,13 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[11px] font-bold rounded-full">
                     맥스 (Max)
                   </div>
-                  <div className="absolute -top-2.5 right-4 px-2.5 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[11px] font-bold rounded-full">
-                    20% 할인
-                  </div>
                   <div className="mt-1 mb-3">
                     <p className="text-[11px] font-semibold text-gray-700 mb-0.5">연간 결제 (추천)</p>
                     <div className="flex items-baseline gap-1.5 flex-wrap">
-                      <span className="text-2xl font-extrabold text-violet-600">1,440</span>
+                      <span className="text-2xl font-extrabold text-violet-600">1,920</span>
                       <span className="text-sm font-bold text-gray-700">만원</span>
-                      <span className="text-[11px] text-gray-600 line-through">1,920만원</span>
-                      <span className="text-[10px] font-bold text-rose-600">(20% 할인)</span>
                     </div>
-                    <p className="text-[11px] font-bold text-rose-600">월 120만원 상당 · 연 20% 절감</p>
-                    <p className="text-[11px] sm:text-[9px] text-gray-600 mt-1 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
+                    <p className="text-[11px] text-gray-600 mt-1">월 160만원 상당</p>
                   </div>
                   <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
                     <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 100건</strong> (연 1,200건)</span></li>
@@ -1344,10 +1338,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       </tr>
                       <tr className="bg-amber-50/40">
                         <td className="px-2.5 py-1.5 font-bold text-amber-700">맥스 (연간)</td>
-                        <td className="px-2.5 py-1.5 text-right text-slate-700">1,440/연</td>
-                        <td className="px-2.5 py-1.5 text-right text-slate-800">2,304/연</td>
-                        <td className="px-2.5 py-1.5 text-right text-slate-800">2,880/연</td>
-                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">3,312만원/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-700">1,920/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">3,072/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">3,840/연</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">4,416만원/연</td>
                       </tr>
                     </tbody>
                   </table>

@@ -1466,11 +1466,10 @@ export default function ManualPage() {
                 </div>
                 <div className="bg-amber-50 border border-amber-300 rounded p-2">
                   <p className="text-[11px] font-bold text-amber-800">맥스 (Max) ⭐</p>
-                  <p className="text-[10px] text-gray-700 mt-0.5">1,440만원/연 (20% 할인) · 월 100건 + 브랜드뉴스/유튜브</p>
+                  <p className="text-[10px] text-gray-700 mt-0.5">1,920만원/연 · 월 100건 + 브랜드뉴스/유튜브</p>
                 </div>
               </div>
-              <p className="text-[10px] text-gray-500 mt-2">맥스가 가장 좋은 혜택 + 가장 저렴 (연간 일시불 20% 할인). 프리미엄은 가운데 위치.</p>
-              <p className="text-[10px] text-rose-600 mt-1">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
+              <p className="text-[10px] text-gray-500 mt-2">맥스가 가장 좋은 혜택입니다. 프리미엄은 가운데 위치.</p>
 
               {/* 외국어 옵션 안내 */}
               <div className="mt-3 bg-gradient-to-br from-sky-50 to-indigo-50 border border-sky-200 rounded-lg p-3">
@@ -1480,7 +1479,7 @@ export default function ManualPage() {
                   <li>한국어 기본 선택 필수 · 외국어 단독 선택 불가 · 4종 이상은 별도 협의</li>
                   <li>프로(월): 200 / 320 / 400 / 460만원 (한국어 → +1종 → +2종 → +3종)</li>
                   <li>프리미엄(분기): 540 / 864 / 1,080 / 1,242만원</li>
-                  <li>맥스(연): 1,440 / 2,304 / 2,880 / 3,312만원</li>
+                  <li>맥스(연): 1,920 / 3,072 / 3,840 / 4,416만원</li>
                 </ul>
               </div>
             </div>

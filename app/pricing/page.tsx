@@ -168,21 +168,15 @@ export default function PricingPage() {
             <div className="absolute -top-3 left-6 px-3 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-white text-xs font-bold rounded-full shadow-md">
               맥스 (Max)
             </div>
-            <div className="absolute -top-3 right-6 px-3 py-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full animate-pulse">
-              20% 특별 할인
-            </div>
 
             <div className="mt-2 mb-4">
               <p className="text-xs font-semibold text-gray-500 mb-1">연간 결제 (추천)</p>
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-4xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent">1,440</span>
+                <span className="text-4xl font-extrabold bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent">1,920</span>
                 <span className="text-lg font-bold text-gray-700">만원</span>
-                <span className="text-sm text-gray-400 line-through">1,920만원</span>
-                <span className="text-xs font-bold text-rose-600">(20% 할인)</span>
               </div>
               <p className="text-xs text-gray-500 mt-1">부가세 별도</p>
-              <p className="text-xs font-bold text-rose-600">월 120만원 상당 = 연 20% 절감</p>
-              <p className="text-[10px] text-gray-400 mt-1.5 leading-snug">※ 본 할인 이벤트는 사전 예고 없이 원래 가격으로 환원될 수 있습니다. (7월 1일로 예정)</p>
+              <p className="text-xs font-bold text-amber-700">월 160만원 상당</p>
             </div>
 
             <div className="border-t border-gray-100 pt-4 mb-4">
@@ -305,11 +299,11 @@ export default function PricingPage() {
                       <td className="px-3 py-2.5 text-right font-bold text-slate-900">1,242만원/분기</td>
                     </tr>
                     <tr className="bg-amber-50/40">
-                      <td className="px-3 py-2.5 font-bold text-amber-700">맥스 (연간 · 20% 할인)</td>
-                      <td className="px-3 py-2.5 text-right text-slate-700">1,440만원/연</td>
-                      <td className="px-3 py-2.5 text-right text-slate-800">2,304만원/연</td>
-                      <td className="px-3 py-2.5 text-right text-slate-800">2,880만원/연</td>
-                      <td className="px-3 py-2.5 text-right font-bold text-slate-900">3,312만원/연</td>
+                      <td className="px-3 py-2.5 font-bold text-amber-700">맥스 (연간)</td>
+                      <td className="px-3 py-2.5 text-right text-slate-700">1,920만원/연</td>
+                      <td className="px-3 py-2.5 text-right text-slate-800">3,072만원/연</td>
+                      <td className="px-3 py-2.5 text-right text-slate-800">3,840만원/연</td>
+                      <td className="px-3 py-2.5 text-right font-bold text-slate-900">4,416만원/연</td>
                     </tr>
                   </tbody>
                 </table>
@@ -408,7 +402,7 @@ export default function PricingPage() {
               </h2>
               <p className="text-sm text-white/80 mt-1">
                 {contactModal === 'pro' ? '월 200만원 · 월 70건'
-                  : contactModal === 'max' ? '연 1,440만원 · 월 100건 + 브랜드뉴스/영상'
+                  : contactModal === 'max' ? '연 1,920만원 · 월 100건 + 브랜드뉴스/영상'
                   : '540만원/분기 · 연 2,160만원 · 월 80건'}
               </p>
             </div>
