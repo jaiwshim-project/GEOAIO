@@ -11,7 +11,6 @@ interface Category {
   color: string;
   count: number;
   sampleTitles: string[];
-  isDefault?: boolean;
 }
 
 interface ProposalClientProps {

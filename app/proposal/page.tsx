@@ -47,33 +47,36 @@ async function getCategories() {
       }
     });
 
-    const categories = [...DEFAULT_CATEGORIES.map(c => ({ ...c, count: 0, sampleTitles: [] as string[], isDefault: true }))];
+    // DEFAULT_CATEGORIES는 항상 포함 (blog 글 여부 무관)
+    const categories = DEFAULT_CATEGORIES.map(c => ({
+      ...c,
+      count: categoryStats[c.slug]?.count || 0,
+      sampleTitles: categoryStats[c.slug]?.sampleTitles || [],
+    }));
+
+    // 추가 카테고리 (DEFAULT에 없는 것, 글이 있는 것만)
     let extraIdx = 0;
     Object.entries(categoryStats).forEach(([slug, stats]) => {
-      const existing = categories.find(c => c.slug === slug);
-      if (existing) {
-        existing.count = stats.count;
-        existing.sampleTitles = stats.sampleTitles;
-      } else {
+      if (!DEFAULT_CATEGORIES.find(c => c.slug === slug) && stats.count > 0) {
         categories.push({
           slug,
           label: slug,
           color: EXTRA_COLORS[extraIdx % EXTRA_COLORS.length],
           count: stats.count,
           sampleTitles: stats.sampleTitles,
-          isDefault: false,
         });
         extraIdx++;
       }
     });
 
-    return categories.filter(c => c.count > 0 || c.isDefault);
+    return categories;
   } catch {
-    return [];
+    return DEFAULT_CATEGORIES.map(c => ({ ...c, count: 0, sampleTitles: [] }));
   }
 }
 
 export default async function ProposalPage() {
   const categories = await getCategories();
+  console.log('[ProposalPage] categories:', JSON.stringify(categories, null, 2));
   return <ProposalClient categories={categories} />;
 }
