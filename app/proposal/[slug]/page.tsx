@@ -415,16 +415,9 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <p className="text-[11px] font-bold text-amber-700 mb-1 tracking-wide uppercase">📌 실제 운영 중인 블로그 보기</p>
                   <p className="text-base font-extrabold text-slate-900 leading-snug">
                     {meta.label} 카테고리에 게시된 <span className="text-amber-700">{totalCount}편</span>의 AI 최적화 콘텐츠
-                    {Object.keys(langBreakdown).length > 0 && (
-                      <span className="block text-xs text-gray-600 mt-1 font-normal">
-                        {Object.entries(langBreakdown)
-                          .map(([lang, count]) => {
-                            const langName = lang === 'ko' || lang === 'korean' ? '한국어' : lang === 'en' || lang === 'english' ? '영어' : lang === 'zh' || lang === 'chinese' ? '중국어' : lang === 'ja' || lang === 'japanese' ? '일본어' : lang;
-                            return `${langName} ${count}`;
-                          })
-                          .join(' · ')}
-                      </span>
-                    )}
+                    <span className="block text-xs text-gray-600 mt-1 font-normal">
+                      한국어 {langBreakdown['ko'] || 0} · 영어 {langBreakdown['en'] || 0} · 중국어 {langBreakdown['zh'] || 0} · 일본어 {langBreakdown['ja'] || 0}
+                    </span>
                   </p>
                 </div>
                 <svg className="w-6 h-6 text-amber-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
