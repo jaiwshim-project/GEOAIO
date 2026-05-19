@@ -47,7 +47,7 @@ async function getCategories() {
       }
     });
 
-    const categories = [...DEFAULT_CATEGORIES.map(c => ({ ...c, count: 0, sampleTitles: [] as string[] }))];
+    const categories = [...DEFAULT_CATEGORIES.map(c => ({ ...c, count: 0, sampleTitles: [] as string[], isDefault: true }))];
     let extraIdx = 0;
     Object.entries(categoryStats).forEach(([slug, stats]) => {
       const existing = categories.find(c => c.slug === slug);
@@ -61,12 +61,13 @@ async function getCategories() {
           color: EXTRA_COLORS[extraIdx % EXTRA_COLORS.length],
           count: stats.count,
           sampleTitles: stats.sampleTitles,
+          isDefault: false,
         });
         extraIdx++;
       }
     });
 
-    return categories.filter(c => c.count > 0);
+    return categories.filter(c => c.count > 0 || c.isDefault);
   } catch {
     return [];
   }
