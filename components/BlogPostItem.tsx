@@ -8,7 +8,7 @@ interface BlogPostItemProps {
   post: BlogPost;
   meta: { label: string; color: string };
   TAG_COLORS: Record<string, string>;
-  formatDate: (dateStr: string) => string;
+  formattedDate: string;
   onDelete?: (postId: string) => void;
 }
 
@@ -16,7 +16,7 @@ export default function BlogPostItem({
   post,
   meta,
   TAG_COLORS,
-  formatDate,
+  formattedDate,
   onDelete,
 }: BlogPostItemProps) {
   const [deleting, setDeleting] = useState(false);
@@ -74,7 +74,7 @@ export default function BlogPostItem({
               </span>
             )}
             <span className="text-[11px] sm:text-[10px] tracking-wide text-slate-700 font-medium">
-              {formatDate(post.createdAt)}
+              {formattedDate}
             </span>
             {post.targetKeyword && (
               <span className="text-[9px] tracking-wide text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0 rounded-full hidden sm:inline">

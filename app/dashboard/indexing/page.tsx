@@ -125,14 +125,14 @@ export default function IndexingSitesPage() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-start justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">📊 색인 모니터링 — 사이트 선택</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-3xl font-bold text-gray-900">📊 색인 모니터링 — 사이트 선택</h1>
+            <p className="text-base text-gray-500 mt-1">
               카드를 클릭하면 <strong>Google 색인</strong> 대시보드로, 🤖 버튼을 클릭하면 <strong>AI 인용</strong> 모니터링으로 이동합니다.
             </p>
           </div>
           <button
             onClick={() => { setShowModal(true); setError(null); setForm(EMPTY_FORM); }}
-            className="shrink-0 flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow transition-colors"
+            className="shrink-0 flex items-center gap-2 px-4 py-2 text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow transition-colors"
           >
             <span className="text-lg leading-none">+</span>
             사이트 추가
@@ -155,19 +155,19 @@ export default function IndexingSitesPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-gray-900 text-base">{site.label}</span>
+                        <span className="font-bold text-gray-900 text-lg">{site.label}</span>
                         {isCustom(site.id) && (
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full">추가됨</span>
+                          <span className="text-xs font-semibold px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-full">추가됨</span>
                         )}
                       </div>
-                      <code className="text-xs text-gray-500 break-all">{site.domain}</code>
-                      <p className="text-xs text-gray-700 mt-2 leading-relaxed">{site.description}</p>
+                      <code className="text-sm text-gray-500 break-all">{site.domain}</code>
+                      <p className="text-sm text-gray-700 mt-2 leading-relaxed">{site.description}</p>
                       <div className="mt-2 flex gap-1.5">
-                        <span className="text-[10px] px-2 py-0.5 bg-white/70 border border-gray-200 rounded-full text-gray-500">📊 Google 색인</span>
+                        <span className="text-xs px-2 py-0.5 bg-white/70 border border-gray-200 rounded-full text-gray-500">📊 Google 색인</span>
                         <Link
                           href={`/dashboard/ai-citations/${site.id}`}
                           onClick={e => e.stopPropagation()}
-                          className="text-[10px] px-2 py-0.5 bg-violet-50 border border-violet-200 rounded-full text-violet-700 hover:bg-violet-100 font-medium"
+                          className="text-xs px-2 py-0.5 bg-violet-50 border border-violet-200 rounded-full text-violet-700 hover:bg-violet-100 font-medium"
                         >
                           🤖 AI 인용
                         </Link>
@@ -197,7 +197,7 @@ export default function IndexingSitesPage() {
             className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 p-8 text-gray-400 hover:text-indigo-600 transition-colors min-h-[110px]"
           >
             <span className="text-3xl">＋</span>
-            <span className="text-sm font-medium">새 사이트 추가</span>
+            <span className="text-base font-medium">새 사이트 추가</span>
           </button>
         </div>
 
@@ -207,11 +207,11 @@ export default function IndexingSitesPage() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full">
-            <p className="text-base font-semibold text-gray-900 mb-2">사이트를 삭제할까요?</p>
-            <p className="text-sm text-gray-500 mb-5">삭제하면 이 사이트의 등록 정보가 제거됩니다. 스냅샷 데이터는 유지됩니다.</p>
+            <p className="text-lg font-semibold text-gray-900 mb-2">사이트를 삭제할까요?</p>
+            <p className="text-base text-gray-500 mb-5">삭제하면 이 사이트의 등록 정보가 제거됩니다. 스냅샷 데이터는 유지됩니다.</p>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">취소</button>
-              <button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 text-sm font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700">삭제</button>
+              <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-base text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">취소</button>
+              <button onClick={() => handleDelete(deleteConfirm)} className="px-4 py-2 text-base font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700">삭제</button>
             </div>
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function IndexingSitesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" onClick={e => { if (e.target === e.currentTarget) setShowModal(false); }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900">🌐 새 사이트 추가</h2>
+              <h2 className="text-xl font-bold text-gray-900">🌐 새 사이트 추가</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
 
@@ -233,29 +233,29 @@ export default function IndexingSitesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">사이트 이름 <span className="text-rose-500">*</span></label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">사이트 이름 <span className="text-rose-500">*</span></label>
                   <input
                     ref={firstInputRef}
                     value={form.label}
                     onChange={e => setForm(f => ({ ...f, label: e.target.value }))}
                     placeholder="예: 나의 블로그"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                   {computedId && <p className="mt-1 text-[11px] text-gray-400">ID: <code>{computedId}</code></p>}
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">도메인 <span className="text-rose-500">*</span></label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">도메인 <span className="text-rose-500">*</span></label>
                   <input
                     value={form.domain}
                     onChange={e => setForm(f => ({ ...f, domain: e.target.value }))}
                     placeholder="예: www.example.com"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">
                     GSC 속성 URL <span className="text-rose-500">*</span>
                     <span className="ml-1 text-gray-400 font-normal">(sc-domain:… 또는 https://…)</span>
                   </label>
@@ -263,44 +263,44 @@ export default function IndexingSitesPage() {
                     value={form.site_url}
                     onChange={e => setForm(f => ({ ...f, site_url: e.target.value }))}
                     placeholder="예: sc-domain:example.com"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">사이트맵 URL <span className="text-rose-500">*</span></label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">사이트맵 URL <span className="text-rose-500">*</span></label>
                   <input
                     value={form.sitemap_url}
                     onChange={e => setForm(f => ({ ...f, sitemap_url: e.target.value }))}
                     placeholder="예: https://www.example.com/sitemap.xml"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">설명</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">설명</label>
                   <textarea
                     value={form.description}
                     onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                     placeholder="사이트에 대한 간단한 설명"
                     rows={2}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">이모지</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">이모지</label>
                   <input
                     value={form.emoji}
                     onChange={e => setForm(f => ({ ...f, emoji: e.target.value }))}
                     placeholder="🌐"
                     maxLength={4}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    className="w-full px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">색상</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">색상</label>
                   <div className="flex gap-1.5 flex-wrap pt-1">
                     {COLOR_OPTIONS.map(c => (
                       <button
@@ -322,16 +322,16 @@ export default function IndexingSitesPage() {
                     {form.emoji || '🌐'}
                   </div>
                   <div>
-                    <div className="font-bold text-gray-900 text-sm">{form.label || '사이트 이름'}</div>
-                    <code className="text-xs text-gray-500">{form.domain || 'example.com'}</code>
-                    {form.description && <p className="text-xs text-gray-600 mt-0.5">{form.description}</p>}
+                    <div className="font-bold text-gray-900 text-base">{form.label || '사이트 이름'}</div>
+                    <code className="text-sm text-gray-500">{form.domain || 'example.com'}</code>
+                    {form.description && <p className="text-sm text-gray-600 mt-0.5">{form.description}</p>}
                   </div>
                 </div>
               </div>
 
               <div className="flex gap-2 pt-1">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">취소</button>
-                <button type="submit" disabled={saving} className="flex-1 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 disabled:bg-gray-400">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2 text-base text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">취소</button>
+                <button type="submit" disabled={saving} className="flex-1 py-2 text-base font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 disabled:bg-gray-400">
                   {saving ? '저장 중…' : '사이트 추가'}
                 </button>
               </div>

@@ -493,7 +493,7 @@ export default async function BlogCategoryPage({
                   post={post}
                   meta={meta}
                   TAG_COLORS={TAG_COLORS}
-                  formatDate={formatDate}
+                  formattedDate={formatDate(post.createdAt)}
                 />
               ))}
             </div>

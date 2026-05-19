@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
@@ -80,78 +81,208 @@ interface QueryResult {
   chatgpt: { mentioned: boolean; recommended: boolean; mentionExcerpt: string; answerExcerpt: string; lastScanned: string; isMock?: boolean } | null;
 }
 
+function AnswerPanel({ result }: { result: QueryResult }) {
+  const [tab, setTab] = useState<'chatgpt' | 'perplexity'>('chatgpt');
+
+  function highlightMention(text: string, excerpt: string) {
+    if (!excerpt || !text) return text;
+    const idx = text.indexOf(excerpt.slice(0, 30));
+    if (idx === -1) return text;
+    return (
+      <>
+        {text.slice(0, idx)}
+        <mark className="bg-emerald-100 text-emerald-900 rounded px-0.5">{text.slice(idx, idx + excerpt.length)}</mark>
+        {text.slice(idx + excerpt.length)}
+      </>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 overflow-hidden">
+      {/* 탭 */}
+      <div className="flex border-b border-gray-200 bg-white">
+        <button
+          onClick={() => setTab('chatgpt')}
+          className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition-colors ${tab === 'chatgpt' ? 'border-b-2 border-emerald-500 text-emerald-700 bg-emerald-50' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          🤖 ChatGPT 답변
+          {result.chatgpt && (
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${result.chatgpt.mentioned ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+              {result.chatgpt.mentioned ? '언급됨' : '미언급'}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setTab('perplexity')}
+          className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition-colors ${tab === 'perplexity' ? 'border-b-2 border-violet-500 text-violet-700 bg-violet-50' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          🔍 Perplexity 답변
+          {result.perplexity && (
+            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${result.perplexity.cited ? 'bg-violet-100 text-violet-700' : 'bg-gray-100 text-gray-500'}`}>
+              {result.perplexity.cited ? '인용됨' : '미인용'}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <div className="p-4 space-y-3">
+        {/* 사용자 질문 버블 */}
+        <div className="flex justify-end">
+          <div className="max-w-[80%] bg-indigo-600 text-white text-xs px-4 py-2.5 rounded-2xl rounded-tr-sm leading-relaxed shadow-sm">
+            {result.query}
+          </div>
+        </div>
+
+        {/* AI 답변 버블 */}
+        {tab === 'chatgpt' && (
+          result.chatgpt ? (
+            <div className="flex gap-2.5 items-start">
+              <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-sm">🤖</div>
+              <div className="flex-1">
+                <div className="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 text-xs text-gray-700 leading-relaxed shadow-sm whitespace-pre-wrap">
+                  {result.chatgpt.mentionExcerpt
+                    ? highlightMention(result.chatgpt.answerExcerpt, result.chatgpt.mentionExcerpt)
+                    : result.chatgpt.answerExcerpt || '(답변 없음)'}
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-1.5 px-1">
+                  {result.chatgpt.mentioned && (
+                    <span className="text-[10px] bg-emerald-50 border border-emerald-200 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+                      ✓ 브랜드 언급됨
+                    </span>
+                  )}
+                  {result.chatgpt.recommended && (
+                    <span className="text-[10px] bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full font-medium">
+                      ⭐ 추천 표현 포함
+                    </span>
+                  )}
+                  {!result.chatgpt.mentioned && (
+                    <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                      ✗ 브랜드 미언급
+                    </span>
+                  )}
+                  {result.chatgpt.isMock && (
+                    <span className="text-[10px] bg-amber-50 border border-amber-200 text-amber-600 px-2 py-0.5 rounded-full">
+                      Mock 데이터
+                    </span>
+                  )}
+                  <span className="text-[10px] text-gray-400 self-center">
+                    {result.chatgpt.lastScanned?.slice(0, 16).replace('T', ' ')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-gray-400 text-center py-4">ChatGPT 스캔 결과 없음</div>
+          )
+        )}
+
+        {tab === 'perplexity' && (
+          result.perplexity ? (
+            <div className="flex gap-2.5 items-start">
+              <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-sm shrink-0 mt-0.5 shadow-sm">🔍</div>
+              <div className="flex-1">
+                <div className="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 text-xs text-gray-700 leading-relaxed shadow-sm whitespace-pre-wrap">
+                  {result.perplexity.answerExcerpt || '(답변 없음)'}
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-1.5 px-1">
+                  {result.perplexity.cited ? (
+                    <>
+                      <span className="text-[10px] bg-violet-50 border border-violet-200 text-violet-700 px-2 py-0.5 rounded-full font-medium">
+                        ✓ URL 인용됨
+                      </span>
+                      {result.perplexity.citedUrl && (
+                        <a href={result.perplexity.citedUrl} target="_blank" rel="noopener noreferrer"
+                          className="text-[10px] text-indigo-600 hover:underline truncate max-w-[200px] self-center"
+                          title={result.perplexity.citedUrl}>
+                          🔗 {result.perplexity.citedUrl.replace(/^https?:\/\//, '').slice(0, 40)}
+                        </a>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                      ✗ URL 미인용
+                    </span>
+                  )}
+                  {result.perplexity.isMock && (
+                    <span className="text-[10px] bg-amber-50 border border-amber-200 text-amber-600 px-2 py-0.5 rounded-full">
+                      Mock 데이터
+                    </span>
+                  )}
+                  <span className="text-[10px] text-gray-400 self-center">
+                    {result.perplexity.lastScanned?.slice(0, 16).replace('T', ' ')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-gray-400 text-center py-4">Perplexity 스캔 결과 없음</div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function QueryResultsTable({ results }: { results: QueryResult[] }) {
+  const [expanded, setExpanded] = useState<number | null>(null);
+
   return (
     <div className="w-full bg-white rounded-xl border border-gray-200 p-4">
       <h3 className="text-sm font-semibold text-gray-700 mb-3">🔍 키워드별 AI 응답 결과</h3>
       {results.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-6">아직 스캔 결과가 없습니다. 위의 지금 스캔 버튼을 눌러 시작하세요.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-2 pr-3 text-gray-500 font-medium w-1/4">질문 키워드</th>
-                <th className="text-left py-2 pr-3 text-gray-500 font-medium">Perplexity 인용</th>
-                <th className="text-left py-2 pr-3 text-gray-500 font-medium">ChatGPT 언급</th>
-                <th className="text-left py-2 text-gray-500 font-medium">ChatGPT 추천</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((r, i) => (
-                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-3 pr-3 text-gray-800 font-medium leading-snug align-top">{r.query}</td>
+        <div className="space-y-2">
+          {results.map((r, i) => (
+            <div key={i} className={`rounded-xl border transition-colors ${expanded === i ? 'border-indigo-200 bg-indigo-50/30' : 'border-gray-100 hover:border-gray-200 bg-gray-50/50'}`}>
+              {/* 행 헤더 */}
+              <button
+                onClick={() => setExpanded(expanded === i ? null : i)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left"
+              >
+                {/* 질문 */}
+                <span className="flex-1 text-sm font-medium text-gray-800 leading-snug">{r.query}</span>
 
-                  {/* Perplexity */}
-                  <td className="py-3 pr-3 align-top">
-                    {r.perplexity ? (
-                      <div>
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.perplexity.cited ? 'bg-violet-100 text-violet-700' : 'bg-gray-100 text-gray-500'}`}>
-                          {r.perplexity.cited ? '✓ 인용됨' : '✗ 미인용'}
-                        </span>
-                        {r.perplexity.citedUrl && (
-                          <a href={r.perplexity.citedUrl} target="_blank" rel="noopener noreferrer"
-                            className="block mt-1 text-indigo-600 hover:underline truncate max-w-[140px]"
-                            title={r.perplexity.citedUrl}>
-                            {r.perplexity.citedUrl.replace(/^https?:\/\//, '').slice(0, 30)}…
-                          </a>
-                        )}
-                      </div>
-                    ) : <span className="text-gray-300">—</span>}
-                  </td>
+                {/* Perplexity 뱃지 */}
+                <span className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                  r.perplexity?.cited ? 'bg-violet-100 text-violet-700' : 'bg-gray-100 text-gray-400'
+                }`}>
+                  🔍 {r.perplexity ? (r.perplexity.cited ? '인용' : '미인용') : '—'}
+                </span>
 
-                  {/* ChatGPT 언급 */}
-                  <td className="py-3 pr-3 align-top">
-                    {r.chatgpt ? (
-                      <div>
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.chatgpt.mentioned ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
-                          {r.chatgpt.mentioned ? '✓ 언급됨' : '✗ 미언급'}
-                        </span>
-                        {r.chatgpt.mentionExcerpt && (
-                          <p className="mt-1 text-gray-400 leading-relaxed max-w-[160px]" title={r.chatgpt.mentionExcerpt}>
-                            {r.chatgpt.mentionExcerpt.slice(0, 60)}…
-                          </p>
-                        )}
-                      </div>
-                    ) : <span className="text-gray-300">—</span>}
-                  </td>
+                {/* ChatGPT 언급 뱃지 */}
+                <span className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                  r.chatgpt?.mentioned ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'
+                }`}>
+                  🤖 {r.chatgpt ? (r.chatgpt.mentioned ? '언급' : '미언급') : '—'}
+                </span>
 
-                  {/* ChatGPT 추천 */}
-                  <td className="py-3 align-top">
-                    {r.chatgpt ? (
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${r.chatgpt.recommended ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-400'}`}>
-                        {r.chatgpt.recommended ? '⭐ 추천' : '—'}
-                      </span>
-                    ) : <span className="text-gray-300">—</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                {/* 추천 뱃지 */}
+                {r.chatgpt?.recommended && (
+                  <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                    ⭐ 추천
+                  </span>
+                )}
+
+                {/* 펼치기 화살표 */}
+                <span className={`shrink-0 text-gray-400 text-xs transition-transform duration-200 ${expanded === i ? 'rotate-180' : ''}`}>
+                  ▼
+                </span>
+              </button>
+
+              {/* 대화 패널 */}
+              {expanded === i && (
+                <div className="px-4 pb-4">
+                  <AnswerPanel result={r} />
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
       <p className="mt-3 text-xs text-gray-500 leading-relaxed border-t border-gray-100 pt-3">
-        Perplexity 인용은 답변 출처 URL 포함 여부를 기준으로 측정합니다. ChatGPT 언급은 GPT-4o 응답 텍스트에 브랜드명 또는 도메인이 포함됐는지, 추천은 언급과 함께 "추천·권장·좋습니다" 등 긍정 표현이 동반됐는지를 기준으로 합니다.
+        각 키워드를 클릭하면 ChatGPT·Perplexity의 실제 답변 전문을 확인할 수 있습니다.
+        초록색 하이라이트는 ChatGPT 답변에서 브랜드가 언급된 문장을 표시합니다.
         미언급 키워드는 해당 주제의 콘텐츠를 강화하거나 브랜드명을 명확히 노출하는 방식으로 개선할 수 있습니다.
       </p>
     </div>

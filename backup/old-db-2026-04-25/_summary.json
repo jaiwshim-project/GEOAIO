@@ -1,0 +1,11 @@
+{
+  "db": "https://haxcktfnuudlqciyljtp.supabase.co",
+  "backedUpAt": "2026-04-25T09:57:24.552Z",
+  "counts": {
+    "user_profiles": 1,
+    "user_projects": 15,
+    "project_files": 34,
+    "generate_results": 67,
+    "blog_articles": 237
+  }
+}

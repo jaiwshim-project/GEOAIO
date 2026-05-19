@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         'X-Restli-Protocol-Version': '2.0.0',
       },
       body: JSON.stringify({
-        author: tokenData.person_urn,
+        author: tokenData.person_urn, // urn:li:member:숫자ID
         lifecycleState: 'PUBLISHED',
         specificContent: {
           'com.linkedin.ugc.ShareContent': {
