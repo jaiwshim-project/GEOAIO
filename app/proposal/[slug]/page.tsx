@@ -1474,6 +1474,57 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
+            {/* 11. 언론 보도 사례 */}
+            <section>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 ring-2 ring-blue-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(11)}</span>
+                <h3 className="text-xl font-bold text-gray-900">언론 보도 사례</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                GEO-AIO 플랫폼의 효과와 도입 사례가 주요 언론에 보도되었습니다.
+              </p>
+              <div className="space-y-3">
+                <div className="bg-white border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-3">
+                    <span className="shrink-0 w-5 h-5 mt-0.5 text-blue-600 font-bold">📰</span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">세계 최초 개발, 생성 엔진 최적화(GEO) & AI 최적화(AIO) 콘텐츠 생성 및 분석 플랫폼</h4>
+                      <p className="text-xs text-gray-600 mb-2">브랜드뉴스 | 2026.05.11</p>
+                      <a href="https://www.ibrandnews.com/news/articleView.html?idxno=11629" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                        기사 보기 →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-3">
+                    <span className="shrink-0 w-5 h-5 mt-0.5 text-blue-600 font-bold">📰</span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">디지털스마일치과에 외국인 문의가 늘어난 이유</h4>
+                      <p className="text-xs text-gray-600 mb-2">브랜드뉴스 | 2026.05.11</p>
+                      <a href="https://www.ibrandnews.com/news/articleView.html?idxno=12102" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                        기사 보기 →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-blue-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-3">
+                    <span className="shrink-0 w-5 h-5 mt-0.5 text-blue-600 font-bold">📰</span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">Digital Smile Dental Clinic Sees Increase in Foreign Inquiries… GEO-AIO-Based AI Optimized Marketing Effects Draw Attention</h4>
+                      <p className="text-xs text-gray-600 mb-2">Case News (사례뉴스)</p>
+                      <a href="https://www.casenews.co.kr/news/articleView.html?idxno=19299" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                        기사 보기 →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* 7. CTA — 프리미엄 다크 + 골드 */}
             <section className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-2xl p-6 sm:p-8 text-white overflow-hidden ring-1 ring-amber-400/20 shadow-[0_20px_60px_-15px_rgba(251,191,36,0.3)]">
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(251,191,36,0.18),_transparent_60%)]" />
