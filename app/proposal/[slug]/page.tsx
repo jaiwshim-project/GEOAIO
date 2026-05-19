@@ -135,22 +135,29 @@ function getSupabase() {
 async function getCategoryData(slug: string) {
   const supabase = getSupabase();
 
-  // 모든 포스트 (카테고리 + 언어 정보)
+  // 모든 포스트 (모든 필드)
   const { data: allPosts } = await supabase
     .from('blog_articles')
-    .select('category, language, lang_code');
+    .select('*');
 
   // 카테고리별 개수
   const categoryStats: Record<string, number> = {};
   // 카테고리별 언어별 개수
   const languageStats: Record<string, Record<string, number>> = {};
 
-  (allPosts || []).forEach((r: { category: string; language?: string; lang_code?: string }) => {
+  (allPosts || []).forEach((r: any) => {
     if (r.category) {
       categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
 
-      // 언어 정보 추출 (language 또는 lang_code 필드 사용)
-      const lang = r.language || r.lang_code || 'unknown';
+      // 언어 정보 추출: title에서 언어 태그 감지 ([KO], [EN], [ZH], [JA])
+      const title = r.title || '';
+      let lang = 'ko'; // 기본값: 한국어
+
+      if (title.includes('[EN]') || title.includes('[en]')) lang = 'en';
+      else if (title.includes('[ZH]') || title.includes('[zh]') || title.includes('[中]')) lang = 'zh';
+      else if (title.includes('[JA]') || title.includes('[ja]') || title.includes('[日]')) lang = 'ja';
+      else if (title.includes('[KO]') || title.includes('[ko]')) lang = 'ko';
+
       if (!languageStats[r.category]) languageStats[r.category] = {};
       languageStats[r.category][lang] = (languageStats[r.category][lang] || 0) + 1;
     }
