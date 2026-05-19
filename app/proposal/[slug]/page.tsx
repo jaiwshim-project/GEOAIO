@@ -175,8 +175,20 @@ async function getCategoryData(slug: string) {
     if (r.category) {
       categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
 
-      // 콘텐츠 기반 언어 감지
-      const lang = detectLanguage(r.content || r.title || '');
+      // 1순위: metadata.lang (발행 시 명시적 태그)
+      // 2순위: 본문 자동 감지
+      let lang: DetectedLang = 'ko';
+      try {
+        const meta = typeof r.author === 'string' ? JSON.parse(r.author) : r.author || {};
+        const metaLang = meta.lang;
+        if (metaLang && ['ko', 'en', 'zh', 'ja'].includes(metaLang)) {
+          lang = metaLang as DetectedLang;
+        } else {
+          lang = detectLanguage(r.content || r.title || '');
+        }
+      } catch {
+        lang = detectLanguage(r.content || r.title || '');
+      }
 
       if (!languageStats[r.category]) languageStats[r.category] = {};
       languageStats[r.category][lang] = (languageStats[r.category][lang] || 0) + 1;
