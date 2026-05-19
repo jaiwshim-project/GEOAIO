@@ -249,7 +249,11 @@
       "WebFetch(domain:www.casenews.co.kr)",
       "WebFetch(domain:www.ibrandnews.com)",
       "Bash(grep -o \"한국어 [0-9]\\\\\\\\+\")",
-      "PowerShell(Start-Sleep -Seconds 15; $response = Invoke-WebRequest -Uri \"https://www.geo-aio.com/proposal/%EB%94%94%EC%A7%80%ED%84%B8%EC%8A%A4%EB%A7%88%EC%9D%BC%EC%B9%98%EA%B3%BC\" -Headers @{\"Cache-Control\"=\"no-cache\"} -UseBasicParsing; $html = $response.Content; if \\($html -match '한국어\\\\s+\\(\\\\d+\\)\\\\s+·\\\\s+영어\\\\s+\\(\\\\d+\\)\\\\s+·\\\\s+중국어\\\\s+\\(\\\\d+\\)\\\\s+·\\\\s+일본어\\\\s+\\(\\\\d+\\)'\\) { Write-Host \"한국어 $\\($matches[1]\\) · 영어 $\\($matches[2]\\) · 중국어 $\\($matches[3]\\) · 일본어 $\\($matches[4]\\)\" } else { Write-Host \"패턴 찾지 못함\" })"
+      "PowerShell(Start-Sleep -Seconds 15; $response = Invoke-WebRequest -Uri \"https://www.geo-aio.com/proposal/%EB%94%94%EC%A7%80%ED%84%B8%EC%8A%A4%EB%A7%88%EC%9D%BC%EC%B9%98%EA%B3%BC\" -Headers @{\"Cache-Control\"=\"no-cache\"} -UseBasicParsing; $html = $response.Content; if \\($html -match '한국어\\\\s+\\(\\\\d+\\)\\\\s+·\\\\s+영어\\\\s+\\(\\\\d+\\)\\\\s+·\\\\s+중국어\\\\s+\\(\\\\d+\\)\\\\s+·\\\\s+일본어\\\\s+\\(\\\\d+\\)'\\) { Write-Host \"한국어 $\\($matches[1]\\) · 영어 $\\($matches[2]\\) · 중국어 $\\($matches[3]\\) · 일본어 $\\($matches[4]\\)\" } else { Write-Host \"패턴 찾지 못함\" })",
+      "PowerShell(Start-Sleep -Seconds 15; $response = Invoke-WebRequest -Uri \"https://www.geo-aio.com/blog/category/%EC%B9%98%EB%A3%8C%EB%A9%8D%EB%A9%8D-%EB%8F%99%EB%AC%BC%EB%B3%91%EC%9B%90\" -Headers @{\"Cache-Control\"=\"no-cache\"} -UseBasicParsing; if \\($response.StatusCode -eq 200\\) { Write-Host \"✅ 페이지 로드 성공\" } else { Write-Host \"❌ 상태: $\\($response.StatusCode\\)\" })",
+      "PowerShell($response = Invoke-WebRequest -Uri \"https://www.geo-aio.com/proposal\" -UseBasicParsing; $content = $response.Content; if \\($content -match 'href=\"/proposal/'\\) { Write-Host \"✅ Link href 발견\" } else { Write-Host \"❌ Link href 미발견\" }; if \\($content -match 'encodeURIComponent'\\) { Write-Host \"⚠️ encodeURIComponent가 href에 나타남 \\(클라이언트 렌더링\\)\" } else { Write-Host \"✅ 정상 렌더링\" })",
+      "Bash(Get-ChildItem -Path . -Name -Filter \"*blog*\" -Recurse)",
+      "Bash(Select-Object -First 20)"
     ]
   }
 }

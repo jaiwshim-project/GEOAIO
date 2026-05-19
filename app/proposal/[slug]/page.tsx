@@ -39,7 +39,7 @@ const TISTORY_MAP: Record<string, string> = {
 
 const INDUSTRY_MAP: Record<string, IndustryClass> = {
   '선명회계법인': 'AccountingService',
-  '로엘-법무법인': 'LegalService',
+  '로말-법무법인': 'LegalService',
   '디지털스마일치과': 'Dentist',
   '백제호텔': 'LodgingBusiness',
   '덕산-백제호텔': 'LodgingBusiness',
@@ -63,7 +63,7 @@ const WEAKNESS_DATA: Record<string, Array<{ title: string; bullets: string[] }>>
     { title: '❸ 브랜드 차별성 약함', bullets: ['메시지가 추상적', '"왜 이 회사인가?" 부족'] },
     { title: '❹ 데이터 기반 서비스 없음', bullets: ['분석 플랫폼 없음', '리포트 자동화 없음'] },
   ],
-  '로엘-법무법인': [
+  '로말-법무법인': [
     { title: '❶ 디지털 전략 부재', bullets: ['법률 콘텐츠 SEO 약함', 'AI 검색 대응 없음', '전문 분야 키워드 전략 부재'] },
     { title: '❷ 고객 유입 구조 약함', bullets: ['상담 예약 시스템 없음', '전화·이메일 의존', '사건별 CTA 없음'] },
     { title: '❸ 브랜드 차별성 약함', bullets: ['일반 법무법인 메시지', '핵심 전문 분야 강조 부족'] },
