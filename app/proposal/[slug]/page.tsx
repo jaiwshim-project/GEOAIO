@@ -175,20 +175,13 @@ async function getCategoryData(slug: string) {
     if (r.category) {
       categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
 
-      // 1순위: metadata.lang (발행 시 명시적 태그)
+      // 1순위: metadata.lang (발행 시 명시적 태그) — blog category 페이지와 동일 로직
       // 2순위: 본문 자동 감지
-      let lang: DetectedLang = 'ko';
-      try {
-        const meta = typeof r.author === 'string' ? JSON.parse(r.author) : r.author || {};
-        const metaLang = meta.lang;
-        if (metaLang && ['ko', 'en', 'zh', 'ja'].includes(metaLang)) {
-          lang = metaLang as DetectedLang;
-        } else {
-          lang = detectLanguage(r.content || r.title || '');
-        }
-      } catch {
-        lang = detectLanguage(r.content || r.title || '');
-      }
+      const metaLang = (r.metadata as { lang?: string } | undefined)?.lang;
+      const validLangs: DetectedLang[] = ['ko', 'en', 'zh', 'ja'];
+      const lang: DetectedLang = (metaLang && validLangs.includes(metaLang as DetectedLang))
+        ? (metaLang as DetectedLang)
+        : detectLanguage(`${r.title || ''}\n${(r.content || '').slice(0, 1500)}`);
 
       if (!languageStats[r.category]) languageStats[r.category] = {};
       languageStats[r.category][lang] = (languageStats[r.category][lang] || 0) + 1;
