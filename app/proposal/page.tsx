@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: '카테고리별 맞춤 자동화 콘텐츠 솔루션 제안서',
 };
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // v2
 
 const DEFAULT_CATEGORIES = [
   { slug: 'geo-aio', label: 'GEO-AIO', color: 'from-indigo-500 to-violet-600' },
