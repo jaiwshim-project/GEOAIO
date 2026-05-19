@@ -161,10 +161,21 @@ function detectLanguage(text: string): DetectedLang {
 async function getCategoryData(slug: string) {
   const supabase = getSupabase();
 
-  // 모든 포스트 (모든 필드)
-  const { data: allPosts } = await supabase
-    .from('blog_articles')
-    .select('*');
+  // 페이지네이션으로 모든 포스트 가져오기 (blog category 페이지와 동일)
+  const PAGE_SIZE = 100;
+  const allPosts: any[] = [];
+  for (let page = 0; page < 500; page++) {
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    const { data, error } = await supabase
+      .from('blog_articles')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    if (error || !data || data.length === 0) break;
+    allPosts.push(...data);
+    if (data.length < PAGE_SIZE) break;
+  }
 
   // 카테고리별 개수
   const categoryStats: Record<string, number> = {};
