@@ -132,6 +132,32 @@ function getSupabase() {
   );
 }
 
+// 콘텐츠 언어 자동 감지 — 승자독식(highest count wins) 방식
+// blog category page와 동일한 로직
+type DetectedLang = 'ko' | 'en' | 'zh' | 'ja';
+function detectLanguage(text: string): DetectedLang {
+  if (!text) return 'ko';
+  const sample = text.slice(0, 3000);
+  const ko = (sample.match(/[가-힣]/g) || []).length; // 한글 음절
+  const ja = (sample.match(/[぀-ゟ゠-ヿ]/g) || []).length; // 히라가나·가타카나
+  const zh = (sample.match(/[一-鿿]/g) || []).length; // CJK 한자
+  const en = (sample.match(/[a-zA-Z]/g) || []).length; // 라틴 알파벳
+
+  if (ja >= 10) return 'ja';
+
+  const candidates: Array<[DetectedLang, number]> = [
+    ['ko', ko],
+    ['en', en],
+    ['zh', zh],
+  ];
+  candidates.sort((a, b) => b[1] - a[1]);
+  const [topLang, topCount] = candidates[0];
+  if (topCount === 0) return 'ko';
+
+  if (topLang === 'zh' && ja >= 5) return 'ja';
+  return topLang;
+}
+
 async function getCategoryData(slug: string) {
   const supabase = getSupabase();
 
@@ -149,33 +175,8 @@ async function getCategoryData(slug: string) {
     if (r.category) {
       categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
 
-      // 언어 정보 추출: 여러 방식으로 감지
-      let lang = 'ko'; // 기본값: 한국어
-      const title = (r.title || '').toUpperCase();
-      const category = (r.category || '').toUpperCase();
-
-      // 방법1: title에서 언어 태그 감지 ([KO], [EN], [ZH], [JA])
-      if (title.includes('[EN]') || title.includes('[ENGLISH]')) lang = 'en';
-      else if (title.includes('[ZH]') || title.includes('[CHINESE]') || title.includes('[中文]') || title.includes('[簡體]') || title.includes('[繁體]')) lang = 'zh';
-      else if (title.includes('[JA]') || title.includes('[JAPANESE]') || title.includes('[日本語]')) lang = 'ja';
-      else if (title.includes('[KO]') || title.includes('[KOREAN]') || title.includes('[한국어]')) lang = 'ko';
-      // 방법2: category 뒤에 언어 정보가 있는 경우 (예: "디지털스마일치과-영어")
-      else if (r.category && r.category.includes('-')) {
-        const parts = r.category.split('-');
-        const langPart = parts[1]?.trim().toUpperCase() || '';
-        if (langPart.includes('영어') || langPart.includes('ENGLISH') || langPart === 'EN') lang = 'en';
-        else if (langPart.includes('중국어') || langPart.includes('CHINESE') || langPart === 'ZH') lang = 'zh';
-        else if (langPart.includes('일본어') || langPart.includes('JAPANESE') || langPart === 'JA') lang = 'ja';
-        else if (langPart.includes('한국어') || langPart.includes('KOREAN') || langPart === 'KO') lang = 'ko';
-      }
-      // 방법3: language/lang_code 필드가 있으면 사용
-      else if (r.language) {
-        const langField = (r.language || '').toLowerCase();
-        if (langField.includes('en')) lang = 'en';
-        else if (langField.includes('zh') || langField.includes('chin')) lang = 'zh';
-        else if (langField.includes('ja') || langField.includes('jap')) lang = 'ja';
-        else if (langField.includes('ko') || langField.includes('kor')) lang = 'ko';
-      }
+      // 콘텐츠 기반 언어 감지
+      const lang = detectLanguage(r.content || r.title || '');
 
       if (!languageStats[r.category]) languageStats[r.category] = {};
       languageStats[r.category][lang] = (languageStats[r.category][lang] || 0) + 1;
