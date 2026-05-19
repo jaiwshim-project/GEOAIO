@@ -436,6 +436,36 @@ export default async function BlogCategoryPage({
           </Link>
         )}
 
+        {/* 로엘-법무법인 카테고리 → proposal 페이지로 연결 */}
+        {(slug === '로엘-법무법인' || meta.label === '로엘-법무법인') && (
+          <Link
+            href="/proposal/로엘-법무법인"
+            className="block mb-4 group"
+            aria-label="로엘-법무법인 AI 마케팅 제안서로 이동"
+          >
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-indigo-300 px-4 py-3 shadow-md hover:shadow-lg transition-colors">
+              <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-indigo-500 via-blue-500 to-purple-500" />
+              <div className="flex items-center gap-3 pl-2">
+                <span className="text-2xl shrink-0">⚖️</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-extrabold tracking-[0.2em] text-indigo-700 uppercase mb-0.5">
+                    AI 마케팅 솔루션
+                  </p>
+                  <p className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
+                    로엘-법무법인을 위한 <span className="text-indigo-700">AI 검색 최적화 제안서</span>
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-slate-700 leading-snug mt-0.5">
+                    법률 콘텐츠 SEO · AI 검색 노출 · 상담 유입 최적화 →
+                  </p>
+                </div>
+                <svg className="w-5 h-5 text-indigo-700 group-hover:translate-x-1 transition-colors shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </div>
+            </div>
+          </Link>
+        )}
+
         {/* 언어 탭 — 프리미엄 화이트 세그먼트 (골드 글로우) — 가독성 최대화·볼드체 */}
         <div className="relative mb-4">
           <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-300/40 via-amber-400/20 to-amber-300/40 blur-[2px] opacity-50" />
