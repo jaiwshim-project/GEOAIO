@@ -110,7 +110,7 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
             <Link
               key={cat.slug}
               href={`/proposal/${encodeURIComponent(cat.slug)}`}
-              className="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-colors"
+              className="group block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-colors pointer-events-auto cursor-pointer"
             >
               <div className={`h-2 bg-gradient-to-r ${cat.color}`} />
               <div className="p-5">
