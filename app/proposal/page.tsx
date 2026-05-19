@@ -77,6 +77,18 @@ async function getCategories() {
 
 export default async function ProposalPage() {
   const categories = await getCategories();
+
+  // 로엘-법무법인이 없으면 추가
+  if (!categories.find(c => c.slug === '로엘-법무법인')) {
+    categories.push({
+      slug: '로엘-법무법인',
+      label: '로엘-법무법인',
+      color: 'from-blue-500 to-indigo-600',
+      count: 0,
+      sampleTitles: [],
+    });
+  }
+
   console.log('[ProposalPage] categories:', JSON.stringify(categories, null, 2));
   return <ProposalClient categories={categories} />;
 }

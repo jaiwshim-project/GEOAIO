@@ -18,13 +18,7 @@ interface ProposalClientProps {
 }
 
 export default function ProposalClient({ categories }: ProposalClientProps) {
-  // 로엘-법무법인 카드 강제 추가 (DEFAULT_CATEGORIES 확인용)
-  const allCategories = Array.from(new Map(
-    [...categories, { slug: '로엘-법무법인', label: '로엘-법무법인', color: 'from-blue-500 to-indigo-600', count: 0, sampleTitles: [] }]
-      .map(cat => [cat.slug, cat])
-  ).values());
-
-  if (allCategories.length === 0) {
+  if (categories.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -54,7 +48,7 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
             </p>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs font-medium mt-3">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              {allCategories.length}개 업체 제안서
+              {categories.length}개 업체 제안서
             </span>
           </div>
         </section>
@@ -112,7 +106,7 @@ export default function ProposalClient({ categories }: ProposalClientProps) {
 
         {/* 카테고리 카드 그리드 */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allCategories.map((cat) => (
+          {categories.map((cat) => (
             <Link
               key={cat.slug}
               href={`/proposal/${encodeURIComponent(cat.slug)}`}
