@@ -135,13 +135,25 @@ function getSupabase() {
 async function getCategoryData(slug: string) {
   const supabase = getSupabase();
 
-  // 모든 카테고리 (탭용) + 실제 게시 수 카운트
+  // 모든 포스트 (카테고리 + 언어 정보)
   const { data: allPosts } = await supabase
     .from('blog_articles')
-    .select('category');
+    .select('category, language, lang_code');
+
+  // 카테고리별 개수
   const categoryStats: Record<string, number> = {};
-  (allPosts || []).forEach((r: { category: string }) => {
-    if (r.category) categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
+  // 카테고리별 언어별 개수
+  const languageStats: Record<string, Record<string, number>> = {};
+
+  (allPosts || []).forEach((r: { category: string; language?: string; lang_code?: string }) => {
+    if (r.category) {
+      categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
+
+      // 언어 정보 추출 (language 또는 lang_code 필드 사용)
+      const lang = r.language || r.lang_code || 'unknown';
+      if (!languageStats[r.category]) languageStats[r.category] = {};
+      languageStats[r.category][lang] = (languageStats[r.category][lang] || 0) + 1;
+    }
   });
 
   // 해당 카테고리의 콘텐츠 (UI 표시용 — limit 50)
@@ -152,7 +164,13 @@ async function getCategoryData(slug: string) {
     .order('created_at', { ascending: false })
     .limit(50);
 
-  return { posts: posts || [], categoryStats, totalCount: categoryStats[slug] || 0 };
+  return {
+    posts: posts || [],
+    categoryStats,
+    languageStats,
+    totalCount: categoryStats[slug] || 0,
+    langBreakdown: languageStats[slug] || {}
+  };
 }
 
 function getMeta(slug: string) {
@@ -175,7 +193,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
   const meta = getMeta(slug);
-  const { posts, categoryStats, totalCount } = await getCategoryData(slug);
+  const { posts, categoryStats, totalCount, langBreakdown } = await getCategoryData(slug);
 
   // 모든 카테고리 (탭 네비게이션용)
   const allCategories = Object.entries(categoryStats).map(([s, count]) => {
@@ -388,7 +406,19 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-bold text-amber-700 mb-1 tracking-wide uppercase">📌 실제 운영 중인 블로그 보기</p>
-                  <p className="text-base font-extrabold text-slate-900 leading-snug">{meta.label} 카테고리에 게시된 <span className="text-amber-700">{totalCount}편</span>의 AI 최적화 콘텐츠</p>
+                  <p className="text-base font-extrabold text-slate-900 leading-snug">
+                    {meta.label} 카테고리에 게시된 <span className="text-amber-700">{totalCount}편</span>의 AI 최적화 콘텐츠
+                    {Object.keys(langBreakdown).length > 0 && (
+                      <span className="block text-xs text-gray-600 mt-1 font-normal">
+                        {Object.entries(langBreakdown)
+                          .map(([lang, count]) => {
+                            const langName = lang === 'ko' || lang === 'korean' ? '한국어' : lang === 'en' || lang === 'english' ? '영어' : lang === 'zh' || lang === 'chinese' ? '중국어' : lang === 'ja' || lang === 'japanese' ? '일본어' : lang;
+                            return `${langName} ${count}`;
+                          })
+                          .join(' · ')}
+                      </span>
+                    )}
+                  </p>
                 </div>
                 <svg className="w-6 h-6 text-amber-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
