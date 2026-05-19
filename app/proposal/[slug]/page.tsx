@@ -392,37 +392,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </Link>
-
-              {/* 외부 티스토리 블로그 (카테고리별) */}
-              {TISTORY_MAP[slug] && (
-                <a
-                  href={TISTORY_MAP[slug]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative flex items-center gap-4 px-6 py-5 mt-7 bg-gradient-to-r from-rose-50 via-pink-100/80 to-rose-50 border-2 border-pink-300 rounded-2xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.45)] ring-2 ring-pink-200/60 hover:scale-[1.02] hover:shadow-[0_16px_40px_-8px_rgba(236,72,153,0.55)] hover:border-pink-500 hover:ring-pink-300 transition-colors duration-200"
-                >
-                  {/* 🔴 LIVE 배지 */}
-                  <span className="absolute -top-2.5 left-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1.5 z-10 tracking-wide">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
-                    </span>
-                    LIVE · 외부 운영 중
-                  </span>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-700 flex items-center justify-center shrink-0 shadow-md ring-2 ring-pink-300/40">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 17.5c-4.142 0-7.5-3.358-7.5-7.5S7.858 4.5 12 4.5s7.5 3.358 7.5 7.5-3.358 7.5-7.5 7.5zm0-12.5a5 5 0 100 10 5 5 0 000-10zm0 7.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/>
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold text-pink-700 mb-1 tracking-wide uppercase">📌 실제 운영 중인 티스토리 보기</p>
-                    <p className="text-sm font-extrabold text-slate-900 break-all leading-snug">{TISTORY_MAP[slug]}</p>
-                  </div>
-                  <svg className="w-6 h-6 text-pink-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </a>
-              )}
             </header>
 
             {/* 1. 한계 및 문제점 (Critical Weakness) — 카테고리별 데이터 기반 */}
