@@ -436,12 +436,12 @@ export default async function BlogCategoryPage({
           </Link>
         )}
 
-        {/* 로말-법무법인 카테고리 → proposal 페이지로 연결 */}
-        {(slug === '로말-법무법인' || meta.label === '로말-법무법인') && (
+        {/* 로엘-법무법인 카테고리 → proposal 페이지로 연결 */}
+        {(slug === '로엘-법무법인' || meta.label === '로엘-법무법인') && (
           <Link
-            href="/proposal/로말-법무법인"
+            href="/proposal/로엘-법무법인"
             className="block mb-4 group"
-            aria-label="로말-법무법인 AI 마케팅 제안서로 이동"
+            aria-label="로엘-법무법인 AI 마케팅 제안서로 이동"
           >
             <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-2 border-indigo-300 px-4 py-3 shadow-md hover:shadow-lg transition-colors">
               <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-indigo-500 via-blue-500 to-purple-500" />
@@ -452,7 +452,7 @@ export default async function BlogCategoryPage({
                     AI 마케팅 솔루션
                   </p>
                   <p className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
-                    로말-법무법인을 위한 <span className="text-indigo-700">AI 검색 최적화 제안서</span>
+                    로엘-법무법인을 위한 <span className="text-indigo-700">AI 검색 최적화 제안서</span>
                   </p>
                   <p className="text-[11px] sm:text-xs text-slate-700 leading-snug mt-0.5">
                     법률 콘텐츠 SEO · AI 검색 노출 · 상담 유입 최적화 →
