@@ -134,14 +134,8 @@ function getSupabase() {
 
 async function getCategoryData(slug: string) {
   const supabase = getSupabase();
-  const { data: posts } = await supabase
-    .from('blog_articles')
-    .select('id, title, content, created_at')
-    .eq('category', slug)
-    .order('created_at', { ascending: false })
-    .limit(50);
 
-  // 모든 카테고리 (탭용)
+  // 모든 카테고리 (탭용) + 실제 게시 수 카운트
   const { data: allPosts } = await supabase
     .from('blog_articles')
     .select('category');
@@ -150,7 +144,15 @@ async function getCategoryData(slug: string) {
     if (r.category) categoryStats[r.category] = (categoryStats[r.category] || 0) + 1;
   });
 
-  return { posts: posts || [], categoryStats };
+  // 해당 카테고리의 콘텐츠 (UI 표시용 — limit 50)
+  const { data: posts } = await supabase
+    .from('blog_articles')
+    .select('id, title, content, created_at')
+    .eq('category', slug)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  return { posts: posts || [], categoryStats, totalCount: categoryStats[slug] || 0 };
 }
 
 function getMeta(slug: string) {
@@ -173,7 +175,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
   const meta = getMeta(slug);
-  const { posts, categoryStats } = await getCategoryData(slug);
+  const { posts, categoryStats, totalCount } = await getCategoryData(slug);
 
   // 모든 카테고리 (탭 네비게이션용)
   const allCategories = Object.entries(categoryStats).map(([s, count]) => {
@@ -386,7 +388,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[11px] font-bold text-amber-700 mb-1 tracking-wide uppercase">📌 실제 운영 중인 블로그 보기</p>
-                  <p className="text-base font-extrabold text-slate-900 leading-snug">{meta.label} 카테고리에 게시된 <span className="text-amber-700">{posts.length}편</span>의 AI 최적화 콘텐츠</p>
+                  <p className="text-base font-extrabold text-slate-900 leading-snug">{meta.label} 카테고리에 게시된 <span className="text-amber-700">{totalCount}편</span>의 AI 최적화 콘텐츠</p>
                 </div>
                 <svg className="w-6 h-6 text-amber-700 group-hover:translate-x-1.5 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
