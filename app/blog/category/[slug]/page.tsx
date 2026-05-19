@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogHeroCallout from '@/components/BlogHeroCallout';
+import BlogPostItem from '@/components/BlogPostItem';
 import type { BlogPost } from '@/lib/supabase-storage';
 
 // 카테고리 페이지는 ?lang= searchParams로 언어 필터링 — 본질적으로 동적.
@@ -487,49 +488,13 @@ export default async function BlogCategoryPage({
             </div>
             <div className="space-y-1.5">
               {pagedPosts.map((post) => (
-                <article
+                <BlogPostItem
                   key={post.id}
-                  className="group relative bg-white rounded-lg border border-slate-200 hover:border-amber-300 active:border-amber-400 transition-colors duration-200 overflow-hidden hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 active:bg-amber-50/50"
-                >
-                  <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-400 opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-200" />
-                  <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-3 sm:py-2.5 min-h-[64px] sm:min-h-0">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                        {post.tag && (
-                          <span className={`px-1.5 py-0.5 text-[10px] sm:text-[9px] tracking-wider uppercase rounded-full ${TAG_COLORS[post.tag] || 'bg-slate-100 text-slate-800 border border-slate-200'}`}>
-                            {post.tag}
-                          </span>
-                        )}
-                        <span className="text-[11px] sm:text-[10px] tracking-wide text-slate-700 font-medium">
-                          {formatDate(post.createdAt)}
-                        </span>
-                        {post.targetKeyword && (
-                          <span className="text-[9px] tracking-wide text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0 rounded-full hidden sm:inline">
-                            {post.targetKeyword}
-                          </span>
-                        )}
-                      </div>
-                      <h2
-                        className="text-[14px] sm:text-[15px] font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-2 sm:line-clamp-1 break-keep"
-                        style={{ fontFamily: 'ui-serif, Georgia, serif' }}
-                      >
-                        {post.title}
-                      </h2>
-                      {post.summary && (
-                        <p className="text-[12px] text-slate-800 line-clamp-1 leading-snug mt-0.5">
-                          {post.summary}
-                        </p>
-                      )}
-                    </div>
-                    <div
-                      className={`shrink-0 w-7 h-7 rounded-md bg-gradient-to-br ${meta.color} flex items-center justify-center text-white opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-colors duration-200 shadow-sm ring-1 ring-amber-200/60`}
-                    >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </Link>
-                </article>
+                  post={post}
+                  meta={meta}
+                  TAG_COLORS={TAG_COLORS}
+                  formatDate={formatDate}
+                />
               ))}
             </div>
 
