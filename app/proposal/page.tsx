@@ -14,6 +14,7 @@ const DEFAULT_CATEGORIES = [
   { slug: 'regenmed', label: '리젠메드컨설팅', color: 'from-emerald-500 to-teal-600' },
   { slug: 'brewery', label: '대전맥주장 수제맥주', color: 'from-amber-500 to-orange-600' },
   { slug: 'dental', label: '치과병원', color: 'from-sky-500 to-blue-600' },
+  { slug: '로엘-법무법인', label: '로엘-법무법인', color: 'from-blue-500 to-indigo-600' },
 ];
 
 const EXTRA_COLORS = [
