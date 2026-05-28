@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📊 월별 언어별 분석 리포트</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #6b7280;
+      font-size: 1.1em;
+    }
+
+    .controls-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+      font-size: 0.95em;
+    }
+
+    select {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      max-width: 300px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #4f46e5;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #4f46e5;
+    }
+
+    .stat-label {
+      font-size: 0.85em;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    .language-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .lang-item {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .lang-name {
+      font-weight: 600;
+      color: #4f46e5;
+      margin-bottom: 4px;
+    }
+
+    .lang-count {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    .lang-percent {
+      font-size: 0.8em;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .monthly-table {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 32px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #1f2937;
+      color: white;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      font-weight: 600;
+    }
+
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .lang-ko { color: #4f46e5; }
+    .lang-en { color: #059669; }
+    .lang-zh { color: #dc2626; }
+    .lang-ja { color: #f59e0b; }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #9ca3af;
+    }
+
+    .empty-state {
+      background: white;
+      border-radius: 12px;
+      padding: 60px 24px;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 20px;
+      color: #9ca3af;
+      font-size: 0.9em;
+    }
+
+    .lang-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 150px;
+      margin-top: 16px;
+    }
+
+    .bar {
+      flex: 1;
+      background: linear-gradient(180deg, #4f46e5 0%, #818cf8 100%);
+      border-radius: 4px 4px 0 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9em;
+      padding-bottom: 8px;
+    }
+
+    .bar.en { background: linear-gradient(180deg, #059669 0%, #6ee7b7 100%); }
+    .bar.zh { background: linear-gradient(180deg, #dc2626 0%, #fca5a5 100%); }
+    .bar.ja { background: linear-gradient(180deg, #f59e0b 0%, #fcd34d 100%); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📊 월별 언어별 분석 리포트</h1>
+      <p>월별로 작성된 게시글을 언어별로 분석합니다</p>
+    </header>
+
+    <div class="controls-section">
+      <div class="form-group">
+        <label>프로젝트 선택</label>
+        <select id="projectSelect">
+          <option value="">모든 프로젝트</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="mainContent">
+      <div class="empty-state">
+        <p>프로젝트를 선택하여 월별 언어별 분석 데이터를 확인하세요</p>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 월별 언어별 분석 리포트 | 로컬 환경에서 실행 중</p>
+    </footer>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://whmiinsaxthenpwjtuar.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndobWlpbnNheHRoZW5wd2p0dWFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjMwNTQsImV4cCI6MjA5MDc5OTA1NH0.s15kkaYvSPWyteT86N0KfLcOh2PeIrK43k2M8Ns-Dnw';
+
+    const LANGUAGE_MAP = {
+      'ko': '🇰🇷 한국어',
+      'en': '🇺🇸 영어',
+      'zh': '🇨🇳 중국어',
+      'ja': '🇯🇵 일본어'
+    };
+
+    let allProjects = [];
+
+    // Initialize
+    async function init() {
+      await fetchAllProjects();
+      setupProjectSelect();
+    }
+
+    // Fetch all projects
+    async function fetchAllProjects() {
+      try {
+        const url = `${SUPABASE_URL}/rest/v1/blog_articles?select=category`;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log(`[DEBUG] Projects fetch status: ${response.status}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          const categories = new Set(data.map(item => item.category).filter(Boolean));
+          allProjects = Array.from(categories).sort();
+          console.log(`[DEBUG] Fetched ${allProjects.length} projects:`, allProjects);
+        } else {
+          const errorText = await response.text();
+          console.error(`API error ${response.status}:`, errorText.substring(0, 100));
+          allProjects = ['디지털스마일치과'];
+        }
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+        allProjects = ['디지털스마일치과'];
+      }
+
+      populateProjectSelect();
+    }
+
+    // Populate project select
+    function populateProjectSelect() {
+      const select = document.getElementById('projectSelect');
+      const currentValue = select.value;
+
+      select.innerHTML = '<option value="">모든 프로젝트</option>';
+
+      // Ensure at least default project
+      const projectsToShow = allProjects.length > 0 ? allProjects : ['디지털스마일치과'];
+
+      projectsToShow.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p;
+        option.textContent = p;
+        select.appendChild(option);
+      });
+
+      if (currentValue) {
+        select.value = currentValue;
+      } else if (projectsToShow.length > 0) {
+        // Auto-select first project
+        select.value = projectsToShow[0];
+        console.log(`[DEBUG] Auto-selected: ${projectsToShow[0]}`);
+        setTimeout(() => updateData(), 100);
+      }
+    }
+
+    // Setup project select change
+    function setupProjectSelect() {
+      document.getElementById('projectSelect').addEventListener('change', updateData);
+    }
+
+    // Update data
+    async function updateData() {
+      const project = document.getElementById('projectSelect').value;
+
+      if (!project) {
+        document.getElementById('mainContent').innerHTML = `
+          <div class="empty-state">
+            <p>프로젝트를 선택하여 월별 언어별 분석 데이터를 확인하세요</p>
+          </div>
+        `;
+        return;
+      }
+
+      document.getElementById('mainContent').innerHTML = '<div class="loading">로드 중...</div>';
+
+      try {
+        // Use Next.js API endpoint instead of direct Supabase for CORS compatibility
+        const apiUrl = `https://geo-aio.com/api/blog-monthly-stats-by-language?category=${encodeURIComponent(project)}`;
+        console.log(`[DEBUG] Fetching from API: ${apiUrl}`);
+
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        console.log(`[${project}] API response:`, data);
+
+        if (response.ok && data.monthlyLanguageStats) {
+          renderMonthlyLanguageStatsFromAPI(project, data);
+        } else {
+          console.error(`API error: ${response.status}`, data);
+          document.getElementById('mainContent').innerHTML = `<div class="empty-state"><p>데이터 로드 실패: ${response.status}</p></div>`;
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        document.getElementById('mainContent').innerHTML = `<div class="empty-state"><p>오류: ${error.message}</p></div>`;
+      }
+    }
+
+    // Render monthly language stats from API response
+    function renderMonthlyLanguageStatsFromAPI(project, data) {
+      const monthlyStats = data.monthlyLanguageStats;
+      const totals = data.totals;
+
+      // Sort months
+      const sortedMonths = Object.keys(monthlyStats).sort().reverse();
+
+      const totalPosts = Object.values(totals).reduce((sum, obj) => sum + obj.count, 0);
+      const totalViews = Object.values(totals).reduce((sum, obj) => sum + obj.views, 0);
+
+      let html = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">총 게시물</div>
+            <div class="stat-value">${totalPosts}</div>
+            <div class="language-grid">
+              <div class="lang-item">
+                <div class="lang-name lang-ko">한국어</div>
+                <div class="lang-count">${totals.ko.count}</div>
+                <div class="lang-percent">${totalPosts > 0 ? ((totals.ko.count / totalPosts) * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="lang-item">
+                <div class="lang-name lang-en">영어</div>
+                <div class="lang-count">${totals.en.count}</div>
+                <div class="lang-percent">${totalPosts > 0 ? ((totals.en.count / totalPosts) * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="lang-item">
+                <div class="lang-name lang-zh">중국어</div>
+                <div class="lang-count">${totals.zh.count}</div>
+                <div class="lang-percent">${totalPosts > 0 ? ((totals.zh.count / totalPosts) * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="lang-item">
+                <div class="lang-name lang-ja">일본어</div>
+                <div class="lang-count">${totals.ja.count}</div>
+                <div class="lang-percent">${totalPosts > 0 ? ((totals.ja.count / totalPosts) * 100).toFixed(1) : 0}%</div>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">총 조회수</div>
+            <div class="stat-value">${totalViews.toLocaleString()}</div>
+            <div class="language-grid">
+              <div class="lang-item">
+                <div class="lang-name lang-ko">한국어</div>
+                <div class="lang-count">${totals.ko.views.toLocaleString()}</div>
+                <div class="lang-percent">${totalViews > 0 ? ((totals.ko.views / totalViews) * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="lang-item">
+                <div class="lang-name lang-en">영어</div>
+                <div class="lang-count">${totals.en.views.toLocaleString()}</div>
+                <div class="lang-percent">${totalViews > 0 ? ((totals.en.views / totalViews) * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="lang-item">
+                <div class="lang-name lang-zh">중국어</div>
+                <div class="lang-count">${totals.zh.views.toLocaleString()}</div>
+                <div class="lang-percent">${totalViews > 0 ? ((totals.zh.views / totalViews) * 100).toFixed(1) : 0}%</div>
+              </div>
+              <div class="lang-item">
+                <div class="lang-name lang-ja">일본어</div>
+                <div class="lang-count">${totals.ja.views.toLocaleString()}</div>
+                <div class="lang-percent">${totalViews > 0 ? ((totals.ja.views / totalViews) * 100).toFixed(1) : 0}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="monthly-table">
+          <table>
+            <thead>
+              <tr>
+                <th>월도</th>
+                <th colspan="2" class="lang-ko">🇰🇷 한국어</th>
+                <th colspan="2" class="lang-en">🇺🇸 영어</th>
+                <th colspan="2" class="lang-zh">🇨🇳 중국어</th>
+                <th colspan="2" class="lang-ja">🇯🇵 일본어</th>
+                <th>합계</th>
+              </tr>
+              <tr>
+                <th style="opacity: 0;">-</th>
+                <th style="font-size: 0.85em;">글</th>
+                <th style="font-size: 0.85em;">조회</th>
+                <th style="font-size: 0.85em;">글</th>
+                <th style="font-size: 0.85em;">조회</th>
+                <th style="font-size: 0.85em;">글</th>
+                <th style="font-size: 0.85em;">조회</th>
+                <th style="font-size: 0.85em;">글</th>
+                <th style="font-size: 0.85em;">조회</th>
+                <th style="opacity: 0;">-</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      // Render rows
+      sortedMonths.forEach(month => {
+        const stats = monthlyStats[month];
+        const monthTotal = Object.values(stats).reduce((sum, obj) => sum + obj.count, 0);
+        const monthLabel = new Date(`${month}-01`).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' });
+
+        const monthTotalViews = Object.values(stats).reduce((sum, obj) => sum + obj.views, 0);
+        html += `
+          <tr>
+            <td><strong>${monthLabel}</strong></td>
+            <td class="lang-ko">${stats.ko.count}</td>
+            <td class="lang-ko">${stats.ko.views.toLocaleString()}</td>
+            <td class="lang-en">${stats.en.count}</td>
+            <td class="lang-en">${stats.en.views.toLocaleString()}</td>
+            <td class="lang-zh">${stats.zh.count}</td>
+            <td class="lang-zh">${stats.zh.views.toLocaleString()}</td>
+            <td class="lang-ja">${stats.ja.count}</td>
+            <td class="lang-ja">${stats.ja.views.toLocaleString()}</td>
+            <td><strong>${monthTotal} / ${monthTotalViews.toLocaleString()}</strong></td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">📈 언어별 작성 추이</div>
+            <div class="lang-chart">
+              <div class="bar ko" style="height: ${(totals.ko.count / Math.max(...Object.values(totals).map(v => v.count))) * 100}%;">${totals.ko.count}</div>
+              <div class="bar en" style="height: ${(totals.en.count / Math.max(...Object.values(totals).map(v => v.count))) * 100}%;">${totals.en.count}</div>
+              <div class="bar zh" style="height: ${(totals.zh.count / Math.max(...Object.values(totals).map(v => v.count))) * 100}%;">${totals.zh.count}</div>
+              <div class="bar ja" style="height: ${(totals.ja.count / Math.max(...Object.values(totals).map(v => v.count))) * 100}%;">${totals.ja.count}</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('mainContent').innerHTML = html;
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
