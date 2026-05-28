@@ -364,11 +364,27 @@ export default function MonthlyReportPage() {
                               <p className="text-xs text-gray-500">{languageStats.ja.views.toLocaleString()} 조회</p>
                             </div>
                           </div>
-                          <p className="text-sm text-gray-700 mt-4">
-                            총 <strong>{languageStats.ko.count + languageStats.en.count + languageStats.zh.count + languageStats.ja.count}</strong>개 게시물이
-                            <strong> {(languageStats.ko.views + languageStats.en.views + languageStats.zh.views + languageStats.ja.views).toLocaleString()}</strong>회 조회되었습니다.
-                            다언어 전략이 글로벌 도달 확대에 효과적입니다.
-                          </p>
+                          <div className="text-sm text-gray-700 mt-4 space-y-2">
+                            <p>
+                              <strong>📊 총 조회수 산출 근거:</strong>
+                            </p>
+                            <p>
+                              • 총 <strong>{languageStats.ko.count + languageStats.en.count + languageStats.zh.count + languageStats.ja.count}</strong>개 게시물
+                              (한국어 {languageStats.ko.count}개 + 영어 {languageStats.en.count}개 + 중국어 {languageStats.zh.count}개 + 일본어 {languageStats.ja.count}개)
+                            </p>
+                            <p>
+                              • 각 게시물의 <strong>views 칼럼</strong>(실제 조회수) 합계:
+                              <strong className="text-lg"> {(languageStats.ko.views + languageStats.en.views + languageStats.zh.views + languageStats.ja.views).toLocaleString()}회</strong>
+                            </p>
+                            <p>
+                              • 글당 평균 조회수:
+                              <strong> {Math.round((languageStats.ko.views + languageStats.en.views + languageStats.zh.views + languageStats.ja.views) / (languageStats.ko.count + languageStats.en.count + languageStats.zh.count + languageStats.ja.count))}회</strong>
+                            </p>
+                            <p className="pt-2 border-t border-purple-300">
+                              💡 Supabase blog_articles 테이블의 views 칼럼에 기록된 실제 조회 통계입니다.
+                              다언어 전략이 글로벌 도달 확대에 효과적입니다.
+                            </p>
+                          </div>
                         </div>
                       )}
                     </>
