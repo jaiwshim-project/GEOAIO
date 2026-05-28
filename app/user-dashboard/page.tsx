@@ -63,6 +63,13 @@ export default function UserDashboardPage() {
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
 
+  // 토스트 알림
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   // 사용량 상태
   type UsageSummaryItem = { feature: string; label: string; used: number; limit: number; remaining: number };
   const [usageSummary, setUsageSummary] = useState<UsageSummaryItem[]>([]);
@@ -221,6 +228,7 @@ export default function UserDashboardPage() {
 
       const projectId = data.project.id;
       const uploadedFiles: ProjectFile[] = [];
+      const fileErrors: string[] = [];
 
       // 2. 파일 업로드 (parse-file → 원본+텍스트 동시 저장)
       for (let i = 0; i < newFiles.length; i++) {
@@ -248,11 +256,16 @@ export default function UserDashboardPage() {
           if (fRes.ok && fData.file) {
             uploadedFiles.push(fData.file as ProjectFile);
           } else {
-            setError(`파일 저장 실패 (${file.name}): ${fData.error || `HTTP ${fRes.status}`}`);
+            fileErrors.push(`${file.name}: ${fData.error || `HTTP ${fRes.status}`}`);
           }
         } catch (fileErr) {
-          setError(`파일 오류 (${file.name}): ${fileErr instanceof Error ? fileErr.message : '네트워크 오류'}`);
+          fileErrors.push(`${file.name}: ${fileErr instanceof Error ? fileErr.message : '네트워크 오류'}`);
         }
+      }
+
+      // 파일 업로드 결과 반영
+      if (fileErrors.length > 0) {
+        setError(`${fileErrors.length}개 파일 저장 실패:\n${fileErrors.join('\n')}`);
       }
 
       setProjects(prev => [{ ...data.project, files: uploadedFiles }, ...prev]);
@@ -267,8 +280,16 @@ export default function UserDashboardPage() {
       setNewContactPhone('');
       setNewFiles([]);
       setShowAddForm(false);
+
+      // 저장 완료 토스트
+      if (newFiles.length > 0) {
+        showToast('success', `"${newName}" 프로젝트가 생성되었고 파일 ${uploadedFiles.length}개가 저장되었습니다.`);
+      } else {
+        showToast('success', `"${newName}" 프로젝트가 생성되었습니다.`);
+      }
     } catch {
       setError('서버 오류가 발생했습니다.');
+      showToast('error', '프로젝트 생성 중 오류가 발생했습니다.');
     } finally {
       setAdding(false);
       setAddProgress('');
@@ -371,6 +392,7 @@ export default function UserDashboardPage() {
 
       // 2. 새 파일 업로드 (원본+텍스트 동시)
       const uploadedFiles: ProjectFile[] = [];
+      const fileErrors: string[] = [];
       for (let i = 0; i < editNewFiles.length; i++) {
         const file = editNewFiles[i];
         try {
@@ -391,10 +413,15 @@ export default function UserDashboardPage() {
           const fRes = await fetch('/api/user-projects/files/upload', { method: 'POST', body: upFd });
           const fData = await fRes.json();
           if (fRes.ok && fData.file) uploadedFiles.push(fData.file as ProjectFile);
-          else setEditError(`파일 저장 실패 (${file.name}): ${fData.error || ''}`);
+          else fileErrors.push(`${file.name}: ${fData.error || ''}`);
         } catch (fileErr) {
-          setEditError(`파일 오류 (${file.name}): ${fileErr instanceof Error ? fileErr.message : '오류'}`);
+          fileErrors.push(`${file.name}: ${fileErr instanceof Error ? fileErr.message : '오류'}`);
         }
+      }
+
+      // 파일 업로드 결과 반영
+      if (fileErrors.length > 0) {
+        setEditError(`${fileErrors.length}개 파일 저장 실패:\n${fileErrors.join('\n')}`);
       }
 
       setProjects(prev => prev.map(p =>
@@ -407,6 +434,13 @@ export default function UserDashboardPage() {
       }
       setEditingId(null);
       setEditNewFiles([]);
+
+      // 수정 완료 토스트
+      if (editNewFiles.length > 0) {
+        showToast('success', `프로젝트가 수정되었고 파일 ${uploadedFiles.length}개가 저장되었습니다.`);
+      } else {
+        showToast('success', '프로젝트가 수정되었습니다.');
+      }
     } finally {
       setEditSaving(false);
       setEditProgress('');
@@ -460,6 +494,17 @@ export default function UserDashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 p-4">
       <div className="max-w-2xl mx-auto">
+
+        {/* 토스트 알림 */}
+        {toast && (
+          <div className={`fixed top-4 right-4 px-4 py-3 rounded-lg text-sm font-semibold shadow-lg z-50 ${
+            toast.type === 'success'
+              ? 'bg-green-500/90 text-white'
+              : 'bg-red-500/90 text-white'
+          }`}>
+            {toast.message}
+          </div>
+        )}
 
         {/* 상단 헤더 */}
         <div className="flex items-center justify-between mb-6 pt-4">

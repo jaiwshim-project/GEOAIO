@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
     const project_id = (fd.get('project_id') as string | null) || '';
     const content = (fd.get('content') as string | null) || '';
 
+    console.log('[upload] 파일 업로드 시작:', {
+      fileName: file?.name,
+      fileSize: file?.size,
+      project_id,
+      contentLength: content?.length,
+    });
+
     if (!project_id) return NextResponse.json({ error: 'project_id 필요' }, { status: 400 });
     if (!file) return NextResponse.json({ error: 'file 필요' }, { status: 400 });
 
@@ -43,6 +50,7 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const bytes = new Uint8Array(arrayBuffer);
 
+    console.log('[upload] Storage 업로드 중:', { storageKey, fileSize: bytes.length });
     const { error: upErr } = await supabase.storage
       .from(BUCKET)
       .upload(storageKey, bytes, {
@@ -50,9 +58,12 @@ export async function POST(req: NextRequest) {
         upsert: false,
       });
     if (upErr) {
+      console.error('[upload] Storage 업로드 실패:', upErr);
       return NextResponse.json({ error: `Storage 업로드 실패: ${upErr.message}` }, { status: 500 });
     }
+    console.log('[upload] Storage 업로드 완료');
 
+    console.log('[upload] DB 저장 중:', { project_id, file_name: file.name });
     const { data, error } = await supabase
       .from('project_files')
       .insert({
@@ -67,10 +78,12 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
+      console.error('[upload] DB 저장 실패:', error);
       // DB 저장 실패 시 Storage 청소 시도 (베스트 에포트)
       await supabase.storage.from(BUCKET).remove([storageKey]).catch(() => {});
       return NextResponse.json({ error: `DB 저장 실패: ${error.message}` }, { status: 500 });
     }
+    console.log('[upload] 완료:', { fileId: data.id, fileName: data.file_name });
     return NextResponse.json({ file: data });
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
