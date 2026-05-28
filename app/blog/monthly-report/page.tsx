@@ -26,7 +26,7 @@ export default function MonthlyReportPage() {
   const fetchMonthlyData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/blog/monthly-stats?month=${selectedMonth}`);
+      const res = await fetch(`/api/stats/monthly?month=${selectedMonth}`);
       const data = await res.json();
       setStats(data.stats || []);
     } catch (error) {
