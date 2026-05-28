@@ -338,16 +338,27 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
       <Header />
 
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 뒤로가기 */}
-        <Link
-          href="/proposal"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-100 hover:text-white mb-4 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          전체 제안서 목록으로
-        </Link>
+        {/* 상단 메뉴 */}
+        <div className="flex justify-between items-center mb-6">
+          <Link
+            href="/proposal"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-100 hover:text-white transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            전체 제안서 목록으로
+          </Link>
+          <Link
+            href="/blog/monthly-report"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg font-medium text-sm transition-colors border border-indigo-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            월간 보고서
+          </Link>
+        </div>
 
         {/* 히어로 — 프리미엄 다크 + 골드 */}
         <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-6 sm:px-10 py-10 mb-6 ring-1 ring-amber-400/20 shadow-[0_20px_60px_-15px_rgba(251,191,36,0.25)]">

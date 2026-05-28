@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     // 월별 모든 글 조회
     const { data: allPosts } = await supabase
       .from('blog_articles')
-      .select('category, title, views, created_at')
+      .select('category, title, created_at')
       .gte('created_at', startDate)
       .lte('created_at', endDate)
       .order('created_at', { ascending: false });
