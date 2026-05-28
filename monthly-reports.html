@@ -561,12 +561,12 @@
       const endDate = `${year}-${monthNum}-31`;
 
       try {
-        // Fetch data for all selected projects
+        // Fetch data for all selected projects (views 칼럼 포함)
         const allData = {};
 
         for (const project of selectedProjects) {
           const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/blog_articles?category=eq.${encodeURIComponent(project)}&created_at=gte.${startDate}&created_at=lte.${endDate}&select=title,created_at`,
+            `${SUPABASE_URL}/rest/v1/blog_articles?category=eq.${encodeURIComponent(project)}&created_at=gte.${startDate}&created_at=lte.${endDate}&select=title,created_at,views`,
             {
               headers: {
                 'apikey': SUPABASE_KEY,
@@ -629,16 +629,19 @@
       posts.forEach(post => {
         const clinic = post.title?.split(' ')[0] || '기타';
         if (!groupedByClinic[clinic]) {
-          groupedByClinic[clinic] = { count: 0, posts: [] };
+          groupedByClinic[clinic] = { count: 0, totalViews: 0, posts: [] };
         }
         groupedByClinic[clinic].count++;
+        groupedByClinic[clinic].totalViews += post.views || 0;
         groupedByClinic[clinic].posts.push(post);
       });
 
       return Object.entries(groupedByClinic).map(([clinic, data]) => ({
         clinic,
         postsCount: data.count,
-        topPost: data.posts[0]?.title || null
+        totalViews: data.totalViews,
+        avgViews: data.count > 0 ? Math.round(data.totalViews / data.count) : 0,
+        topPost: data.posts.sort((a, b) => (b.views || 0) - (a.views || 0))[0] || null
       }));
     }
 
@@ -649,6 +652,8 @@
       }
 
       const totalPosts = stats.reduce((sum, s) => sum + s.postsCount, 0);
+      const totalViews = stats.reduce((sum, s) => sum + s.totalViews, 0);
+      const avgViews = totalPosts > 0 ? Math.round(totalViews / totalPosts) : 0;
 
       let html = `
         <div class="stats-grid">
@@ -662,11 +667,11 @@
           </div>
           <div class="stat-card views">
             <div class="stat-label">총 조회수</div>
-            <div class="stat-value">${(Math.random() * 5000).toFixed(0)}</div>
+            <div class="stat-value">${totalViews.toLocaleString()}</div>
           </div>
           <div class="stat-card average">
             <div class="stat-label">평균 조회 (글당)</div>
-            <div class="stat-value">${totalPosts > 0 ? Math.round((Math.random() * 200) + 50) : 0}</div>
+            <div class="stat-value">${avgViews}</div>
           </div>
         </div>
       `;
@@ -686,11 +691,11 @@
               </div>
               <div class="clinic-stat">
                 <div class="clinic-stat-label">총 조회수</div>
-                <div class="clinic-stat-value">${Math.round(stat.postsCount * 100)}</div>
+                <div class="clinic-stat-value">${stat.totalViews.toLocaleString()}</div>
               </div>
               <div class="clinic-stat">
                 <div class="clinic-stat-label">글당 평균</div>
-                <div class="clinic-stat-value">${Math.round((stat.postsCount * 100) / stat.postsCount)}</div>
+                <div class="clinic-stat-value">${stat.avgViews}</div>
               </div>
               <div class="clinic-stat">
                 <div class="clinic-stat-label">성과율</div>
@@ -702,8 +707,8 @@
             ${stat.topPost ? `
               <div class="top-post">
                 <div class="top-post-label">✨ 최고 조회 글</div>
-                <div class="top-post-title">${stat.topPost}</div>
-                <div class="top-post-views">${Math.round(Math.random() * 500)} 회</div>
+                <div class="top-post-title">${stat.topPost.title}</div>
+                <div class="top-post-views">${stat.topPost.views || 0} 회</div>
               </div>
             ` : ''}
           </div>
@@ -716,8 +721,8 @@
           <h3>📊 ${monthLabel} 분석 (${project})</h3>
           <ul>
             <li>총 <strong>${totalPosts}</strong>개의 블로그 글이 발행되었습니다.</li>
-            <li>평균 글당 조회수는 <strong>${Math.round((Math.random() * 200) + 50)}</strong>회입니다.</li>
-            <li>가장 활발한 클리닉은 <strong>${stats[0]?.clinic}</strong>로 ${stats[0]?.postsCount}개의 글을 발행했습니다.</li>
+            <li>총 조회수는 <strong>${totalViews.toLocaleString()}</strong>회이며, 평균 글당 조회수는 <strong>${avgViews}</strong>회입니다.</li>
+            <li>가장 활발한 클리닉은 <strong>${stats[0]?.clinic}</strong>로 ${stats[0]?.postsCount}개의 글을 발행하여 ${stats[0]?.totalViews.toLocaleString()} 조회수를 기록했습니다.</li>
             <li>블로그 홍보는 온라인 가시성과 신뢰도 향상에 큰 역할을 합니다.</li>
           </ul>
         </div>

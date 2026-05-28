@@ -21,10 +21,10 @@ export async function GET(req: NextRequest) {
 
     const supabase = getSupabase();
 
-    // 월별 모든 글 조회 (category 필터 선택적)
+    // 월별 모든 글 조회 (category 필터 선택적, views 칼럼 포함)
     let query = supabase
       .from('blog_articles')
-      .select('category, title, created_at')
+      .select('category, title, created_at, views')
       .gte('created_at', startDate)
       .lte('created_at', endDate);
 
@@ -54,10 +54,10 @@ export async function GET(req: NextRequest) {
 
       const stat = statsMap.get(category);
       stat.postsCount++;
-      stat.totalViews += post.views || 0;
+      stat.totalViews += (post.views || 0);
       stat.posts.push({
         title: post.title,
-        views: post.views || 0,
+        views: (post.views || 0),
       });
     });
 
