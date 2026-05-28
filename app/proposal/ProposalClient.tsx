@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogHeroCallout from '@/components/BlogHeroCallout';
@@ -17,7 +18,34 @@ interface ProposalClientProps {
   categories: Category[];
 }
 
-export default function ProposalClient({ categories }: ProposalClientProps) {
+export default function ProposalClient({ categories: initialCategories }: ProposalClientProps) {
+  const [categories, setCategories] = useState(initialCategories);
+
+  // 5분마다 게시글 개수 업데이트
+  useEffect(() => {
+    const refreshCategories = async () => {
+      try {
+        const res = await fetch('/api/blog/category-counts');
+        const data = await res.json();
+
+        if (data.counts && typeof data.counts === 'object') {
+          setCategories(prevCategories =>
+            prevCategories.map(cat => ({
+              ...cat,
+              count: data.counts[cat.slug] || cat.count,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error('Failed to refresh categories:', error);
+      }
+    };
+
+    // 초기 로드 후 5분마다 갱신
+    const interval = setInterval(refreshCategories, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
   if (categories.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
