@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
     };
 
     Object.values(monthlyStats).forEach(stats => {
-      Object.keys(totals).forEach(lang => {
+      (Object.keys(totals) as Array<keyof typeof totals>).forEach(lang => {
         if (stats[lang]) {
           totals[lang].count += stats[lang].count;
           totals[lang].views += stats[lang].views;
