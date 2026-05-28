@@ -266,6 +266,19 @@
     async function init() {
       await fetchAllProjects();
       setupProjectSelect();
+
+      // Auto-load first project data after short delay
+      setTimeout(() => {
+        if (allProjects.length > 0) {
+          const firstProject = allProjects[0];
+          document.getElementById('projectSelect').value = firstProject;
+          updateData();
+        } else {
+          // Fallback: load default project
+          document.getElementById('projectSelect').value = '디지털스마일치과';
+          updateData();
+        }
+      }, 500);
     }
 
     // Fetch all projects
@@ -367,15 +380,19 @@
         if (response.ok) {
           const articles = await response.json();
           console.log(`[${project}] ${articles.length}개 글 조회 완료`);
-          renderMonthlyLanguageStats(project, articles);
+          if (articles.length > 0) {
+            renderMonthlyLanguageStats(project, articles);
+          } else {
+            document.getElementById('mainContent').innerHTML = '<div class="empty-state"><p>해당 프로젝트의 데이터가 없습니다</p></div>';
+          }
         } else {
           const errorText = await response.text();
           console.error(`API error: ${response.status}`, errorText.substring(0, 100));
-          document.getElementById('mainContent').innerHTML = `<div class="empty-state"><p>데이터 로드 실패 (${response.status})</p></div>`;
+          document.getElementById('mainContent').innerHTML = `<div class="empty-state"><p>데이터 로드 실패<br/>(상태: ${response.status})<br/>개발자 도구 콘솔 확인</p></div>`;
         }
       } catch (error) {
         console.error('Fetch error:', error);
-        document.getElementById('mainContent').innerHTML = `<div class="empty-state"><p>오류: ${error.message}</p></div>`;
+        document.getElementById('mainContent').innerHTML = `<div class="empty-state"><p>오류 발생<br/>${error.message}<br/>개발자 도구 콘솔 확인</p></div>`;
       }
     }
 
