@@ -555,29 +555,48 @@
 
       document.getElementById('mainContent').innerHTML = '<div class="loading">로드 중...</div>';
 
-      const month = document.getElementById('monthSelect').value;
+      const monthSelect = document.getElementById('monthSelect');
+      let month = monthSelect?.value || '2026-05';
+
+      if (!month || month === '') {
+        month = '2026-05';
+      }
+
       const [year, monthNum] = month.split('-');
-      const startDate = `${year}-${monthNum}-01`;
-      const endDate = `${year}-${monthNum}-31`;
+      const startDate = `${year}-${String(monthNum).padStart(2, '0')}-01`;
+      const endDate = `${year}-${String(monthNum).padStart(2, '0')}-31`;
+
+      console.log(`[DEBUG] 조회 기간: ${startDate} ~ ${endDate}`);
 
       try {
         // Fetch data for all selected projects (views 칼럼 포함)
         const allData = {};
 
         for (const project of selectedProjects) {
-          const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/blog_articles?category=eq.${encodeURIComponent(project)}&created_at=gte.${startDate}&created_at=lte.${endDate}&select=title,created_at,views`,
-            {
-              headers: {
-                'apikey': SUPABASE_KEY,
-                'Authorization': `Bearer ${SUPABASE_KEY}`,
+          try {
+            const response = await fetch(
+              `${SUPABASE_URL}/rest/v1/blog_articles?select=title,created_at,views&category=eq.${encodeURIComponent(project)}&created_at=gte.${startDate}&created_at=lte.${endDate}&order=created_at.desc`,
+              {
+                headers: {
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': `Bearer ${SUPABASE_KEY}`,
+                  'Range': '0-1000'
+                }
               }
-            }
-          );
+            );
 
-          if (response.ok) {
-            const posts = await response.json();
-            allData[project] = posts;
+            if (response.ok) {
+              const posts = await response.json();
+              console.log(`[${project}] ${posts.length}개 글 조회`);
+              allData[project] = posts;
+            } else {
+              const error = await response.text();
+              console.error(`[${project}] 오류: ${response.status} - ${error}`);
+              allData[project] = [];
+            }
+          } catch (err) {
+            console.error(`[${project}] 네트워크 오류: ${err.message}`);
+            allData[project] = [];
           }
         }
 
