@@ -13,6 +13,7 @@ function getSupabase() {
 export async function GET(req: NextRequest) {
   try {
     const month = req.nextUrl.searchParams.get('month') || '2026-05';
+    const category = req.nextUrl.searchParams.get('category');
     const [year, monthNum] = month.split('-');
 
     const startDate = `${year}-${monthNum}-01`;
@@ -20,13 +21,18 @@ export async function GET(req: NextRequest) {
 
     const supabase = getSupabase();
 
-    // 월별 모든 글 조회
-    const { data: allPosts } = await supabase
+    // 월별 모든 글 조회 (category 필터 선택적)
+    let query = supabase
       .from('blog_articles')
       .select('category, title, created_at')
       .gte('created_at', startDate)
-      .lte('created_at', endDate)
-      .order('created_at', { ascending: false });
+      .lte('created_at', endDate);
+
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    const { data: allPosts } = await query.order('created_at', { ascending: false });
 
     if (!allPosts || allPosts.length === 0) {
       return NextResponse.json({ stats: [] });
