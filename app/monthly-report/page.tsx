@@ -17,12 +17,20 @@ interface AllProjects {
   projects: string[];
 }
 
+interface LanguageStats {
+  ko: { count: number; views: number };
+  en: { count: number; views: number };
+  zh: { count: number; views: number };
+  ja: { count: number; views: number };
+}
+
 export default function MonthlyReportPage() {
   const [allProjects, setAllProjects] = useState<string[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [projectInput, setProjectInput] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('2026-05');
   const [statsMap, setStatsMap] = useState<Record<string, MonthlyStats[]>>({});
+  const [languageStats, setLanguageStats] = useState<LanguageStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('');
 
@@ -65,6 +73,28 @@ export default function MonthlyReportPage() {
 
     fetchDataForProjects();
   }, [selectedProjects, selectedMonth]);
+
+  // 언어별 통계 가져오기
+  useEffect(() => {
+    if (!activeTab) {
+      setLanguageStats(null);
+      return;
+    }
+
+    const fetchLanguageStats = async () => {
+      try {
+        const res = await fetch(`/api/blog-monthly-stats-by-language?category=${encodeURIComponent(activeTab)}`);
+        const data = await res.json();
+        if (data.totals) {
+          setLanguageStats(data.totals);
+        }
+      } catch (error) {
+        console.error('Failed to fetch language stats:', error);
+      }
+    };
+
+    fetchLanguageStats();
+  }, [activeTab]);
 
   // 프로젝트 추가
   const handleAddProject = () => {
@@ -307,6 +337,40 @@ export default function MonthlyReportPage() {
                           <li>• 블로그 홍보는 온라인 가시성과 신뢰도 향상에 큰 역할을 합니다.</li>
                         </ul>
                       </div>
+
+                      {/* 언어별 분석 섹션 */}
+                      {languageStats && (
+                        <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 p-6 mt-8">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-4">🌐 언어별 분석</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="bg-white rounded-lg p-4 border-l-4 border-indigo-500">
+                              <p className="text-sm text-gray-600 mb-2">🇰🇷 한국어</p>
+                              <p className="text-2xl font-bold text-gray-900">{languageStats.ko.count}</p>
+                              <p className="text-xs text-gray-500">{languageStats.ko.views.toLocaleString()} 조회</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 border-l-4 border-green-500">
+                              <p className="text-sm text-gray-600 mb-2">🇺🇸 영어</p>
+                              <p className="text-2xl font-bold text-gray-900">{languageStats.en.count}</p>
+                              <p className="text-xs text-gray-500">{languageStats.en.views.toLocaleString()} 조회</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 border-l-4 border-red-500">
+                              <p className="text-sm text-gray-600 mb-2">🇨🇳 중국어</p>
+                              <p className="text-2xl font-bold text-gray-900">{languageStats.zh.count}</p>
+                              <p className="text-xs text-gray-500">{languageStats.zh.views.toLocaleString()} 조회</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 border-l-4 border-yellow-500">
+                              <p className="text-sm text-gray-600 mb-2">🇯🇵 일본어</p>
+                              <p className="text-2xl font-bold text-gray-900">{languageStats.ja.count}</p>
+                              <p className="text-xs text-gray-500">{languageStats.ja.views.toLocaleString()} 조회</p>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-700 mt-4">
+                            총 <strong>{languageStats.ko.count + languageStats.en.count + languageStats.zh.count + languageStats.ja.count}</strong>개 게시물이
+                            <strong> {(languageStats.ko.views + languageStats.en.views + languageStats.zh.views + languageStats.ja.views).toLocaleString()}</strong>회 조회되었습니다.
+                            다언어 전략이 글로벌 도달 확대에 효과적입니다.
+                          </p>
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
