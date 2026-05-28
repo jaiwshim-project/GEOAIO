@@ -86,6 +86,8 @@ export async function POST(req: NextRequest) {
     console.log('[upload] 완료:', { fileId: data.id, fileName: data.file_name });
     return NextResponse.json({ file: data });
   } catch (e: unknown) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : '오류' }, { status: 500 });
+    const errorMsg = e instanceof Error ? e.message : '오류';
+    console.error('[upload] 예외 발생:', errorMsg, e);
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }

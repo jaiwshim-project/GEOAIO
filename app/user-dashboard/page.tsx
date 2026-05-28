@@ -243,6 +243,10 @@ export default function UserDashboardPage() {
           if (parseRes.ok) {
             const parseData = await parseRes.json();
             content = parseData.text || '';
+          } else {
+            // parse-file 실패 시에도 로그하되 계속 진행 (content 없이)
+            const parseErr = await parseRes.json().catch(() => ({}));
+            console.warn(`[파일 파싱 실패] ${file.name}:`, parseErr.error || parseRes.status);
           }
 
           // 2b. 원본 바이너리 + 텍스트 저장 (Storage + DB)
@@ -255,11 +259,16 @@ export default function UserDashboardPage() {
           const fData = await fRes.json();
           if (fRes.ok && fData.file) {
             uploadedFiles.push(fData.file as ProjectFile);
+            console.log(`[파일 업로드 성공] ${file.name} (ID: ${fData.file.id})`);
           } else {
-            fileErrors.push(`${file.name}: ${fData.error || `HTTP ${fRes.status}`}`);
+            const errMsg = fData.error || `HTTP ${fRes.status}`;
+            fileErrors.push(`${file.name}: ${errMsg}`);
+            console.error(`[파일 업로드 실패] ${file.name}:`, errMsg);
           }
         } catch (fileErr) {
-          fileErrors.push(`${file.name}: ${fileErr instanceof Error ? fileErr.message : '네트워크 오류'}`);
+          const errMsg = fileErr instanceof Error ? fileErr.message : '네트워크 오류';
+          fileErrors.push(`${file.name}: ${errMsg}`);
+          console.error(`[파일 처리 오류] ${file.name}:`, fileErr);
         }
       }
 
@@ -268,7 +277,9 @@ export default function UserDashboardPage() {
         setError(`${fileErrors.length}개 파일 저장 실패:\n${fileErrors.join('\n')}`);
       }
 
-      setProjects(prev => [{ ...data.project, files: uploadedFiles }, ...prev]);
+      // 새로 생성된 프로젝트 추가 (파일 포함)
+      const newProject = { ...data.project, files: uploadedFiles };
+      setProjects(prev => [newProject, ...prev]);
       setNewName('');
       setNewDesc('');
       setNewCompanyName('');
@@ -282,8 +293,10 @@ export default function UserDashboardPage() {
       setShowAddForm(false);
 
       // 저장 완료 토스트
-      if (newFiles.length > 0) {
-        showToast('success', `"${newName}" 프로젝트가 생성되었고 파일 ${uploadedFiles.length}개가 저장되었습니다.`);
+      if (uploadedFiles.length > 0) {
+        showToast('success', `"${newName}" 프로젝트 생성 + 파일 ${uploadedFiles.length}개 저장 완료`);
+      } else if (newFiles.length > 0) {
+        showToast('error', `"${newName}" 프로젝트는 생성되었지만 파일 저장 실패`);
       } else {
         showToast('success', `"${newName}" 프로젝트가 생성되었습니다.`);
       }
@@ -424,20 +437,27 @@ export default function UserDashboardPage() {
         setEditError(`${fileErrors.length}개 파일 저장 실패:\n${fileErrors.join('\n')}`);
       }
 
+      // 프로젝트 업데이트
+      const updatedProject = {
+        ...data.project,
+        files: [...(projects.find(p => p.id === projectId)?.files || []), ...uploadedFiles]
+      };
       setProjects(prev => prev.map(p =>
         p.id === projectId
-          ? { ...p, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url, contact_email: data.project.contact_email, contact_phone: data.project.contact_phone, files: [...(p.files || []), ...uploadedFiles] }
+          ? updatedProject
           : p
       ));
       if (selectedProject?.id === projectId) {
-        setSelectedProject({ ...selectedProject, name: data.project.name, description: data.project.description, company_name: data.project.company_name, representative_name: data.project.representative_name, region: data.project.region, homepage_url: data.project.homepage_url, blog_url: data.project.blog_url, contact_email: data.project.contact_email, contact_phone: data.project.contact_phone });
+        setSelectedProject(updatedProject);
       }
       setEditingId(null);
       setEditNewFiles([]);
 
       // 수정 완료 토스트
-      if (editNewFiles.length > 0) {
-        showToast('success', `프로젝트가 수정되었고 파일 ${uploadedFiles.length}개가 저장되었습니다.`);
+      if (uploadedFiles.length > 0) {
+        showToast('success', `프로젝트 수정 + 파일 ${uploadedFiles.length}개 저장 완료`);
+      } else if (editNewFiles.length > 0) {
+        showToast('error', `프로젝트는 수정되었지만 파일 저장 실패`);
       } else {
         showToast('success', '프로젝트가 수정되었습니다.');
       }
