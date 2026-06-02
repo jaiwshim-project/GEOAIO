@@ -3,6 +3,12 @@
   "functions": {
     "app/api/generate/route.ts": {
       "maxDuration": 300
+    },
+    "app/api/parse-file/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/user-projects/files/upload/route.ts": {
+      "maxDuration": 60
     }
   },
   "crons": [

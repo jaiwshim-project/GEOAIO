@@ -60,10 +60,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '파일이 없습니다.' }, { status: 400 });
     }
 
-    if (file.size > 20 * 1024 * 1024) {
+    // Vercel 서버리스 함수 body 제한: 4.5MB (인프라 고정값)
+    // 클라이언트 사이드에서 걸러지지 않은 경우를 위한 서버 측 재확인
+    if (file.size > 4 * 1024 * 1024) {
       return NextResponse.json(
-        { error: `파일 크기가 20MB를 초과합니다 (${(file.size / 1024 / 1024).toFixed(1)}MB)` },
-        { status: 400 }
+        { error: `파일 크기가 4MB를 초과합니다 (${(file.size / 1024 / 1024).toFixed(1)}MB). Vercel 서버 제한으로 4MB 이하 파일만 지원됩니다.` },
+        { status: 413 }
       );
     }
 

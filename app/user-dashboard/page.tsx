@@ -35,6 +35,8 @@ export default function UserDashboardPage() {
   const [newBlogUrl, setNewBlogUrl] = useState('');
   const [newContactEmail, setNewContactEmail] = useState('');
   const [newContactPhone, setNewContactPhone] = useState('');
+  const [newForbiddenWords, setNewForbiddenWords] = useState<string[]>([]);
+  const [newForbiddenInput, setNewForbiddenInput] = useState('');
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -55,6 +57,8 @@ export default function UserDashboardPage() {
   const [editBlogUrl, setEditBlogUrl] = useState('');
   const [editContactEmail, setEditContactEmail] = useState('');
   const [editContactPhone, setEditContactPhone] = useState('');
+  const [editForbiddenWords, setEditForbiddenWords] = useState<string[]>([]);
+  const [editForbiddenInput, setEditForbiddenInput] = useState('');
   const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
   const [editIsDragging, setEditIsDragging] = useState(false);
   const [editSaving, setEditSaving] = useState(false);
@@ -187,7 +191,7 @@ export default function UserDashboardPage() {
     const ext = file.name.split('.').pop()?.toLowerCase() || '';
     const allowed = ['pdf', 'docx', 'doc', 'md', 'txt'];
     if (!allowed.includes(ext)) return `${file.name}: PDF, DOCX, MD, TXT 파일만 가능합니다.`;
-    if (file.size > 20 * 1024 * 1024) return `${file.name}: 20MB 이하 파일만 가능합니다.`;
+    if (file.size > 4 * 1024 * 1024) return `${file.name}: 4MB 이하 파일만 가능합니다. (Vercel 서버 제한)`;
     return null;
   };
 
@@ -221,7 +225,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null, region: newRegion.trim() || null, homepage_url: newHomepageUrl.trim() || null, blog_url: newBlogUrl.trim() || null, contact_email: newContactEmail.trim() || null, contact_phone: newContactPhone.trim() || null }),
+        body: JSON.stringify({ user_id: currentUser!.id, name: newName.trim(), description: newDesc.trim() || null, company_name: newCompanyName.trim() || null, representative_name: newRepName.trim() || null, region: newRegion.trim() || null, homepage_url: newHomepageUrl.trim() || null, blog_url: newBlogUrl.trim() || null, contact_email: newContactEmail.trim() || null, contact_phone: newContactPhone.trim() || null, forbidden_words: newForbiddenWords.length > 0 ? newForbiddenWords.join(', ') : null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '추가 실패'); return; }
@@ -289,6 +293,8 @@ export default function UserDashboardPage() {
       setNewBlogUrl('');
       setNewContactEmail('');
       setNewContactPhone('');
+      setNewForbiddenWords([]);
+      setNewForbiddenInput('');
       setNewFiles([]);
       setShowAddForm(false);
 
@@ -320,6 +326,8 @@ export default function UserDashboardPage() {
     setEditBlogUrl(project.blog_url || '');
     setEditContactEmail(project.contact_email || '');
     setEditContactPhone(project.contact_phone || '');
+    setEditForbiddenWords(project.forbidden_words ? project.forbidden_words.split(',').map(w => w.trim()).filter(Boolean) : []);
+    setEditForbiddenInput('');
     setEditNewFiles([]);
     setEditError('');
     setEditProgress('');
@@ -327,6 +335,8 @@ export default function UserDashboardPage() {
 
   const cancelEdit = () => {
     setEditingId(null);
+    setEditForbiddenWords([]);
+    setEditForbiddenInput('');
     setEditNewFiles([]);
     setEditError('');
   };
@@ -398,7 +408,7 @@ export default function UserDashboardPage() {
       const res = await fetch('/api/user-projects', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null, region: editRegion.trim() || null, homepage_url: editHomepageUrl.trim() || null, blog_url: editBlogUrl.trim() || null, contact_email: editContactEmail.trim() || null, contact_phone: editContactPhone.trim() || null }),
+        body: JSON.stringify({ id: projectId, name: editName.trim(), description: editDesc.trim() || null, company_name: editCompanyName.trim() || null, representative_name: editRepName.trim() || null, region: editRegion.trim() || null, homepage_url: editHomepageUrl.trim() || null, blog_url: editBlogUrl.trim() || null, contact_email: editContactEmail.trim() || null, contact_phone: editContactPhone.trim() || null, forbidden_words: editForbiddenWords.length > 0 ? editForbiddenWords.join(', ') : null }),
       });
       const data = await res.json();
       if (!res.ok) { setEditError(data.error || '수정 실패'); return; }
@@ -505,6 +515,8 @@ export default function UserDashboardPage() {
     setNewBlogUrl('');
     setNewContactEmail('');
     setNewContactPhone('');
+    setNewForbiddenWords([]);
+    setNewForbiddenInput('');
     setNewFiles([]);
   };
 
@@ -786,6 +798,47 @@ export default function UserDashboardPage() {
                 className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm transition-colors"
               />
 
+              {/* 금기어 입력 */}
+              <div className="space-y-2">
+                <p className="text-gray-400 text-xs font-medium">⛔ 금기어 (콘텐츠 생성 시 절대 사용 금지 단어)</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newForbiddenInput}
+                    onChange={(e) => setNewForbiddenInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ',') && newForbiddenInput.trim()) {
+                        e.preventDefault();
+                        const word = newForbiddenInput.trim().replace(/,$/, '');
+                        if (word && !newForbiddenWords.includes(word)) setNewForbiddenWords(prev => [...prev, word]);
+                        setNewForbiddenInput('');
+                      }
+                    }}
+                    placeholder="단어 입력 후 Enter 또는 쉼표로 추가"
+                    className="flex-1 px-3 py-2 bg-white/10 border border-red-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-400 text-sm transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const word = newForbiddenInput.trim();
+                      if (word && !newForbiddenWords.includes(word)) setNewForbiddenWords(prev => [...prev, word]);
+                      setNewForbiddenInput('');
+                    }}
+                    className="px-3 py-2 bg-red-600/40 hover:bg-red-600/60 text-red-200 text-xs font-semibold rounded-lg transition-colors"
+                  >추가</button>
+                </div>
+                {newForbiddenWords.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {newForbiddenWords.map((word, i) => (
+                      <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/20 border border-red-500/40 rounded-full text-red-300 text-xs">
+                        ⛔ {word}
+                        <button onClick={() => setNewForbiddenWords(prev => prev.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-200 ml-0.5">×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* 파일 드롭 존 */}
               <div
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -802,7 +855,7 @@ export default function UserDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p className="text-gray-300 text-sm font-medium">파일을 여기에 드래그하거나 클릭하여 업로드</p>
-                <p className="text-gray-500 text-xs mt-1">PDF, DOCX, MD, TXT · 최대 20MB</p>
+                <p className="text-gray-500 text-xs mt-1">PDF, DOCX, MD, TXT · 최대 4MB</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -955,6 +1008,47 @@ export default function UserDashboardPage() {
                         className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 text-sm"
                       />
 
+                      {/* 금기어 입력 (수정 폼) */}
+                      <div className="space-y-2">
+                        <p className="text-gray-400 text-xs font-medium">⛔ 금기어 (콘텐츠 생성 시 절대 사용 금지 단어)</p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editForbiddenInput}
+                            onChange={(e) => setEditForbiddenInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if ((e.key === 'Enter' || e.key === ',') && editForbiddenInput.trim()) {
+                                e.preventDefault();
+                                const word = editForbiddenInput.trim().replace(/,$/, '');
+                                if (word && !editForbiddenWords.includes(word)) setEditForbiddenWords(prev => [...prev, word]);
+                                setEditForbiddenInput('');
+                              }
+                            }}
+                            placeholder="단어 입력 후 Enter 또는 쉼표로 추가"
+                            className="flex-1 px-3 py-2 bg-white/10 border border-red-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-red-400 text-xs transition-colors"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const word = editForbiddenInput.trim();
+                              if (word && !editForbiddenWords.includes(word)) setEditForbiddenWords(prev => [...prev, word]);
+                              setEditForbiddenInput('');
+                            }}
+                            className="px-3 py-2 bg-red-600/40 hover:bg-red-600/60 text-red-200 text-xs font-semibold rounded-lg transition-colors"
+                          >추가</button>
+                        </div>
+                        {editForbiddenWords.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {editForbiddenWords.map((word, i) => (
+                              <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-500/20 border border-red-500/40 rounded-full text-red-300 text-xs">
+                                ⛔ {word}
+                                <button onClick={() => setEditForbiddenWords(prev => prev.filter((_, idx) => idx !== i))} className="text-red-400 hover:text-red-200 ml-0.5">×</button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       {/* 기존 파일 목록 (삭제 가능) */}
                       {project.files && project.files.length > 0 && (
                         <div>
@@ -1005,7 +1099,7 @@ export default function UserDashboardPage() {
                         }`}
                       >
                         <p className="text-gray-400 text-xs">새 파일 추가 (드래그 또는 클릭)</p>
-                        <p className="text-gray-600 text-xs mt-0.5">PDF, DOCX, MD, TXT · 최대 20MB</p>
+                        <p className="text-gray-600 text-xs mt-0.5">PDF, DOCX, MD, TXT · 최대 4MB</p>
                         <input ref={editFileInputRef} type="file" multiple accept=".pdf,.docx,.doc,.md,.txt" className="hidden"
                           onChange={(e) => e.target.files && addEditFiles(e.target.files)} />
                       </div>
@@ -1112,6 +1206,15 @@ export default function UserDashboardPage() {
                                   📞 {project.contact_phone}
                                 </span>
                               )}
+                            </div>
+                          )}
+                          {project.forbidden_words && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {project.forbidden_words.split(',').map(w => w.trim()).filter(Boolean).map((word, i) => (
+                                <span key={i} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-red-500/15 border border-red-500/30 rounded-full text-red-400 text-[10px]">
+                                  ⛔ {word}
+                                </span>
+                              ))}
                             </div>
                           )}
                           {project.description && (

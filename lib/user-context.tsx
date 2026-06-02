@@ -31,6 +31,7 @@ export interface UserProject {
   blog_url?: string;
   contact_email?: string;
   contact_phone?: string;
+  forbidden_words?: string;
   created_at?: string;
   files?: ProjectFile[];
 }
