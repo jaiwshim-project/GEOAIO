@@ -519,7 +519,7 @@ export default async function BlogCategoryPage({
             <div className="space-y-1.5">
               {pagedPosts.map((post, idx) => {
                 const indexNumber = (currentPage - 1) * PAGE_SIZE + idx + 1;
-                // 테스트: 제목 앞에 번호 추가
+                // 테스트: 제목 앞에 번호 추가 (강제 재빌드용 주석)
                 const postWithNumber = {
                   ...post,
                   title: `[${indexNumber}] ${post.title}`
