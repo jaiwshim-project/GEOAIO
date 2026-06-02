@@ -525,12 +525,13 @@ export default async function BlogCategoryPage({
                   title: `[${indexNumber}] ${post.title}`
                 };
                 return (
-                  <div key={post.id} className="flex items-center gap-3 relative">
-                    {/* 일련번호 - z-index 추가 */}
-                    <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-md z-10">
+                  <div key={post.id} className="relative">
+                    {/* 일련번호 - absolute positioning으로 article 위에 표시 */}
+                    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-lg z-20">
                       {indexNumber}
                     </div>
-                    <div className="flex-1 min-w-0 z-0">
+                    {/* 왼쪽 여백 추가 (일련번호 공간 확보) */}
+                    <div className="pl-14">
                       <BlogPostItem
                         post={postWithNumber}
                         meta={meta}
