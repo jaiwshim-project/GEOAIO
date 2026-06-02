@@ -38,7 +38,7 @@ async function getPost(id: string): Promise<BlogRow | null> {
       Authorization: `Bearer ${supabaseKey}`,
       Accept: 'application/json',
     },
-    next: { revalidate: 3600, tags: ['blog-articles', `blog-${id}`] },
+    next: { revalidate: 60, tags: ['blog-articles', `blog-${id}`] }, // 1분마다 재검증 (수정 후 빠르게 반영)
   });
   if (!res.ok) return null;
   const rows: BlogRow[] = await res.json();
