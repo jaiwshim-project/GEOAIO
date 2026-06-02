@@ -452,7 +452,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
               </h2>
               <span className="text-[10px] tracking-[0.2em] uppercase text-amber-700 font-semibold">More from this series</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-visible">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {relatedPosts.map((rp, idx) => {
                 let rpMeta: { tag?: string; targetKeyword?: string } = {};
                 try { rpMeta = JSON.parse(rp.author || '{}'); } catch {}
@@ -460,20 +460,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 const dateStr = `${rpDate.getFullYear()}-${String(rpDate.getMonth() + 1).padStart(2, '0')}-${String(rpDate.getDate()).padStart(2, '0')}`;
                 const indexNumber = idx + 1;
                 return (
-                  <div key={rp.id} className="relative pl-12">
-                    {/* 일련번호 - absolute positioning with higher z-index */}
-                    <div
-                      className="absolute left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-sm font-bold text-white shadow-xl z-50"
-                      data-index={indexNumber}
-                      title={`Related post #${indexNumber}`}
-                      style={{ zIndex: 50 }}
-                    >
+                  <div key={rp.id} className="relative">
+                    {/* 일련번호 - 카테고리 페이지와 동일한 방식 */}
+                    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-sm font-bold text-white shadow-lg z-20">
                       {indexNumber}
                     </div>
-                    <Link
-                      href={`/blog/${rp.id}`}
-                      className="group block bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-colors duration-200 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 p-3"
-                    >
+                    {/* 왼쪽 여백 추가 */}
+                    <div className="pl-14">
+                      <Link
+                        href={`/blog/${rp.id}`}
+                        className="group block bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-colors duration-200 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 p-3"
+                      >
                     <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                       {rpMeta.tag && (
                         <span className="px-1.5 py-0 text-[9px] font-semibold tracking-wider uppercase rounded-full bg-amber-50 text-amber-700 border border-amber-200">
@@ -482,10 +479,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                       )}
                       <span className="text-[10px] tracking-wide text-slate-700">{dateStr}</span>
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-2" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                      {rp.title}
-                    </h3>
-                    </Link>
+                        <h3 className="text-sm font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-2" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
+                          {rp.title}
+                        </h3>
+                      </Link>
+                    </div>
                   </div>
                 );
               })}
