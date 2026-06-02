@@ -452,7 +452,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
               </h2>
               <span className="text-[10px] tracking-[0.2em] uppercase text-amber-700 font-semibold">More from this series</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-visible">
               {relatedPosts.map((rp, idx) => {
                 let rpMeta: { tag?: string; targetKeyword?: string } = {};
                 try { rpMeta = JSON.parse(rp.author || '{}'); } catch {}
@@ -460,10 +460,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 const dateStr = `${rpDate.getFullYear()}-${String(rpDate.getMonth() + 1).padStart(2, '0')}-${String(rpDate.getDate()).padStart(2, '0')}`;
                 const indexNumber = idx + 1;
                 return (
-                  <div key={rp.id} className="relative">
+                  <div key={rp.id} className="relative pl-10">
                     {/* 일련번호 - absolute positioning */}
                     <div
-                      className="absolute -left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xs font-bold text-white shadow-lg z-10"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xs font-bold text-white shadow-lg z-10"
                       data-index={indexNumber}
                       title={`Related post #${indexNumber}`}
                     >
@@ -471,7 +471,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                     </div>
                     <Link
                       href={`/blog/${rp.id}`}
-                      className="group block bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-colors duration-200 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 p-3 pl-6"
+                      className="group block bg-white rounded-lg border border-slate-200 hover:border-amber-300 transition-colors duration-200 hover:shadow-[0_8px_24px_-8px_rgba(245,158,11,0.18)] hover:bg-amber-50/30 p-3"
                     >
                     <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                       {rpMeta.tag && (

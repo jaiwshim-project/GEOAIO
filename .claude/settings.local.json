@@ -289,7 +289,8 @@
       "PowerShell(Get-ChildItem -Path \".\\\\app\\\\api\" -Recurse | Where-Object { $_.Name -match \"parse-file|upload|user-project\" } | Select-Object FullName | Format-List)",
       "PowerShell(supabase *)",
       "PowerShell(supabase login *)",
-      "Bash(tee /tmp/vercel-deploy.log)"
+      "Bash(tee /tmp/vercel-deploy.log)",
+      "Bash(tee /tmp/vercel-deploy-2.log)"
     ]
   }
 }
