@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import type { BlogPost } from '@/lib/supabase-storage';
-import BlogPostIndex from './BlogPostIndex';
 
 interface BlogPostItemProps {
   post: BlogPost;
@@ -69,10 +68,6 @@ export default function BlogPostItem({
       </button>
 
       <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-3 sm:py-2.5 min-h-[64px] sm:min-h-0">
-        {/* 일련번호 - 별도 Client Component로 분리 */}
-        {typeof index === 'number' && index > 0 && (
-          <BlogPostIndex index={index} />
-        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
             {post.tag && (

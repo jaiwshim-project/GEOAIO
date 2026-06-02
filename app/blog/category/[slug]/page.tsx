@@ -517,14 +517,13 @@ export default async function BlogCategoryPage({
               </p>
             </div>
             <div className="space-y-1.5">
-              {pagedPosts.map((post, idx) => (
+              {pagedPosts.map((post) => (
                 <BlogPostItem
                   key={post.id}
                   post={post}
                   meta={meta}
                   TAG_COLORS={TAG_COLORS}
                   formattedDate={formatDate(post.createdAt)}
-                  index={(currentPage - 1) * PAGE_SIZE + idx + 1}
                 />
               ))}
             </div>
