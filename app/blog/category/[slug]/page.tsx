@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogHeroCallout from '@/components/BlogHeroCallout';
 import BlogPostItem from '@/components/BlogPostItem';
+import BlogIndexNumber from '@/components/BlogIndexNumber';
 import type { BlogPost } from '@/lib/supabase-storage';
 
 // 카테고리 페이지는 ?lang= searchParams로 언어 필터링 — 본질적으로 동적.
@@ -516,44 +517,18 @@ export default async function BlogCategoryPage({
                 {totalPages > 1 && <span className="text-slate-500 ml-1.5 font-medium">(페이지 {currentPage}/{totalPages})</span>}
               </p>
             </div>
-            {/* CSS counter로 일련번호 표시 */}
-            <style jsx>{`
-              .blog-list-with-counter {
-                counter-reset: blog-counter ${(currentPage - 1) * PAGE_SIZE};
-              }
-              .blog-item-with-counter {
-                counter-increment: blog-counter;
-                position: relative;
-              }
-              .blog-item-with-counter::before {
-                content: counter(blog-counter);
-                position: absolute;
-                left: 12px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 40px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: linear-gradient(to bottom right, #6366f1, #9333ea);
-                color: white;
-                font-size: 0.875rem;
-                font-weight: 700;
-                border-radius: 0.5rem;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                z-index: 1;
-              }
-            `}</style>
-            <div className="space-y-1.5 blog-list-with-counter">
-              {pagedPosts.map((post) => (
-                <div key={post.id} className="blog-item-with-counter">
-                  <BlogPostItem
-                    post={post}
-                    meta={meta}
-                    TAG_COLORS={TAG_COLORS}
-                    formattedDate={formatDate(post.createdAt)}
-                  />
+            <div className="space-y-1.5">
+              {pagedPosts.map((post, idx) => (
+                <div key={post.id} className="flex items-center gap-3">
+                  <BlogIndexNumber number={(currentPage - 1) * PAGE_SIZE + idx + 1} />
+                  <div className="flex-1 min-w-0">
+                    <BlogPostItem
+                      post={post}
+                      meta={meta}
+                      TAG_COLORS={TAG_COLORS}
+                      formattedDate={formatDate(post.createdAt)}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
