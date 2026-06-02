@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogShareButtons from '@/components/BlogShareButtons';
 import BlogEngagement from '@/components/BlogEngagement';
+import BlogEditButton from '@/components/BlogEditButton';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -344,16 +345,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
       />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 뒤로가기 */}
-        <Link
-          href="/blog"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 mb-6 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          블로그 목록
-        </Link>
+        {/* 뒤로가기 & 수정 버튼 */}
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            블로그 목록
+          </Link>
+          <BlogEditButton
+            postId={post.id}
+            initialTitle={post.title}
+            initialContent={post.content}
+            initialCategory={post.category}
+          />
+        </div>
 
         <article className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="h-2 bg-gradient-to-r from-indigo-500 to-violet-600" />
