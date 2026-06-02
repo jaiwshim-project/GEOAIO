@@ -222,7 +222,7 @@ const toneOptions: ToneOption[] = [
   {
     value: '비교분석 중심의', label: '비교분석형',
     seriesRole: 'spoke', intent: 'compare',
-    angle: '대안·경쟁/유사 솔루션 N개 비교 — 장단점·언제 어느 쪽',
+    angle: '대안·경쟁/유사 솔루션 N개 비교 — 기능·성능·적합성 중심 (가격/비용 비교 제외), 언제 어느 쪽',
     exclude: SPOKE_EXCLUDE_COMMON,
     group: 'core',
   },
@@ -1673,6 +1673,7 @@ export default function GeneratePage() {
                 blog_url: activeProjectInfo?.blog_url || undefined,
                 contact_email: activeProjectInfo?.contact_email || undefined,
                 contact_phone: activeProjectInfo?.contact_phone || undefined,
+                forbidden_words: activeProjectInfo?.forbidden_words || undefined,
                 // ⭐ Phase 3: 기존 RAG + 자동 보강 4편 모두 전달 (총 7개까지, 글당 2200자)
                 projectFiles: projectFiles.slice(0, 7).map(f => ({
                   file_name: f.file_name,
@@ -1867,6 +1868,7 @@ export default function GeneratePage() {
                 blog_url: activeProjectInfo?.blog_url || undefined,
                 contact_email: activeProjectInfo?.contact_email || undefined,
                 contact_phone: activeProjectInfo?.contact_phone || undefined,
+                forbidden_words: activeProjectInfo?.forbidden_words || undefined,
                 // ⭐ Phase 3: 기존 RAG + 자동 보강 4편 모두 전달 (총 7개까지, 글당 2200자)
                 projectFiles: projectFiles.slice(0, 7).map(f => ({
                   file_name: f.file_name,

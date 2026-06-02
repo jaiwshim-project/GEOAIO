@@ -186,7 +186,7 @@ const RAG_INTENT_KEYWORDS: Record<string, string[]> = {
   'case-deep': ['사례', '케이스', '스토리', '경험', 'Before', 'After', '한 회사', '한 기업', '실제', '실명', '인터뷰', '도입 후'],
   'trend': ['최근', '동향', '트렌드', '발표', '연도', '202', '전망', '향후', '미래', '시장', '통계', '발표', '예측'],
   'theory': ['원리', '메커니즘', '왜', '근거', '이론', '작동', '구조', '개념', '이유', '본질', '핵심', '바탕'],
-  'compare': ['비교', '차이', 'vs', '대비', '장점', '단점', '대안', '선택', '구분', '대조'],
+  'compare': ['비교', '차이', 'vs', '대비', '장점', '단점', '대안', '선택', '구분', '대조', '기능', '성능'],
   'roi': ['ROI', '수익', '투입', '회수', '성과', '점수', '효과', '비용', '%', '점→', '점 →', '향상', '증가', '도달', '달성'],
   'critique': ['한계', '실패', '주의', '예외', '단점', '약점', '못하', '안 되', '제약', '리스크', '경고', '부작용', '오해'],
 };
@@ -237,7 +237,7 @@ const RAG_INTENT_NO_RAG_HINTS: Record<string, string> = {
   'case-deep': '익명 또는 가상의 사례 1건을 풀스토리로 작성해주세요. Before(상황) → 발견 → 선택 → 실행 → After(변화)의 흐름으로. 여러 사례를 짧게 나열하지는 말고 한 사례를 깊게.',
   'trend': '향후 변화·동향 중심으로 풀어주세요. AI 검색엔진별 차이, 정책 변화, 시점성 있는 흐름 등을 추론적으로 전망.',
   'theory': '"왜 그렇게 동작하는가"의 작동 원리·메커니즘 중심으로 풀어주세요. AI가 어떻게 콘텐츠를 발견·이해·인용하는지, 그 인과 관계를 추론.',
-  'compare': '대안·접근법 비교로 풀어주세요. 수동 vs 자동, 부분 개선 vs 전체 재구축, A 도구 vs B 도구 등 — 어떤 상황에 어느 쪽이 나은지 판단 기준 중심.',
+  'compare': '대안·접근법 비교로 풀어주세요. 수동 vs 자동, 부분 개선 vs 전체 재구축, A 도구 vs B 도구 등 — 기능·성능·적합성 중심 (가격/비용 비교 제외), 어떤 상황에 어느 쪽이 나은지 판단 기준 중심.',
   'roi': '서로 다른 업종/규모의 ROI를 비교 추론으로 풀어주세요(예: 의료 vs 법률 vs 쇼핑몰). 한 번 정한 수치는 글 전체에서 일관되게 사용.',
   'critique': '솔직한 한계·실패·이 방법이 안 통하는 상황을 다뤄주세요. 측정 불가 영역, 알고리즘 변경 위험, 시스템 제약 등 — 찬양조 대신 균형 잡힌 비판적 시각으로.',
   'faq': '주제와 관련해 사람들이 자주 묻는 질문 7개를 Q–A 형태로 풀어주세요. 각 답변 80~150자, 완결된 한 문단으로 마무리. 첫 문장에 결론 먼저.',
@@ -256,7 +256,7 @@ const RAG_INTENT_HINTS: Record<string, string> = {
   'case-deep': 'RAG 자료 중 실명/익명 사례·고객 스토리·Before/After·과정 묘사 관련 부분만 우선 참조. 사례 1건만 골라 다큐형 풀스토리로. 여러 사례를 짧게 나열하지 말 것.',
   'trend': 'RAG 자료 중 최근 통계·연도·발표·시장 동향·향후 전망 관련 부분만 우선 참조. 일반 정의·원리 카탈로그는 본문에 끌어오지 말 것.',
   'theory': 'RAG 자료 중 원리·메커니즘·왜 그런가·이론적 배경·근거 관련 부분만 우선 참조. 카탈로그 나열형이 아니라 인과·작동 원리 중심으로.',
-  'compare': 'RAG 자료 중 비교·차이·vs·장단점·언제 어느 쪽 관련 부분만 우선 참조. 단일 개념 정의·체계 설명은 본문 주축으로 삼지 말 것.',
+  'compare': 'RAG 자료 중 비교·차이·vs·장단점·언제 어느 쪽 관련 부분만 우선 참조. 가격/비용 비교는 제외. 단일 개념 정의·체계 설명은 본문 주축으로 삼지 말 것.',
   'roi': 'RAG 자료 중 수치·성과·ROI·Before/After·투입/회수 관련 부분만 우선 참조. 서로 다른 업종/규모 3건의 수치 비교 중심. 수치 일관성 엄격히 유지.',
   'critique': 'RAG 자료 중 한계·실패·주의·예외·안 통하는 경우 관련 부분만 우선 참조. RAG에 한계 자료가 부족하면, 일반론적인 한계(측정 불가 영역·알고리즘 변경 위험·임대형 시스템 한계 등)를 솔직히 추론. 찬양조 금지.',
   'faq': 'RAG 자료 중 자주 묻는 질문·정의·기준·기간·비용·절차 관련 부분을 우선 참조. 질문 7개를 Q–A 구조로 변환, 각 답변 80~150자, 자체 완결.',
@@ -315,7 +315,8 @@ const TONE_GUIDE: Record<string, string> = {
 [톤 스타일 - 비교분석형] ※ E-E-A-T 7단계 구조는 유지하되 아래 스타일로 작성
 - 제목: "A vs B", "무엇이 더 나을까?". 예) "[주제] 비교 분석: 장단점 완전 정리"
 - 도입부: 비교 대상을 명확히 제시
-- 문체: 중립적·객관적, 판단 기준 명시, 결론에서 상황별 추천. 비교표를 적극 활용`,
+- 문체: 중립적·객관적, 판단 기준 명시, 결론에서 상황별 추천. 비교표를 적극 활용
+- ⚠️ 가격/비용 비교는 절대 포함하지 말 것 — 기능·성능·적합성·사용 편의성만 비교`,
 
   '사례연구 중심의': `
 [톤 스타일 - 사례연구형] ※ E-E-A-T 7단계 구조는 유지하되 아래 스타일로 작성
@@ -446,6 +447,17 @@ export async function POST(request: NextRequest) {
 4. 결론 CTA에서 "${body.taxonomyCategory.trim()}" 분야 전문성을 명시 (예: "${body.taxonomyCategory.trim()} 상담은 ...")
 5. 같은 카테고리 안 다른 글과 차별화 — 본 글은 ${body.seriesIntent || body.tone || '제시된'} 의도로만 작성
 ⚠️ 카테고리 신호가 약하면 Google Search Console에서 "중복 페이지"로 분류되어 색인이 거부됩니다.
+
+────────────────────────────────────────
+` : '';
+
+    // ⛔ 금기어 블록 — 절대 사용 금지 단어 (프로젝트별 설정)
+    const forbiddenBlock = body.forbidden_words && body.forbidden_words.trim() ? `
+⛔⛔⛔ [금기어 — 절대 사용 금지] ⛔⛔⛔
+아래 단어·표현은 제목, H2, 본문, FAQ, 결론, 해시태그 포함 콘텐츠 어느 위치에도 절대 사용하지 마세요.
+꼭 필요한 맥락처럼 보여도 유의어·다른 표현으로 반드시 대체하세요.
+
+금기어 목록: ${body.forbidden_words.trim()}
 
 ────────────────────────────────────────
 ` : '';
@@ -591,7 +603,7 @@ ${noRagHint ? `\n[angle 추론 가이드]\n${noRagHint}` : ''}
 
     if (effectiveHasRag) {
       // ── RAG 기반 생성: RAG 지식 → E-E-A-T 구조화 콘텐츠 ──
-      userMessage = `${harnessBlock}${taxonomyBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}[프로젝트 RAG 지식 기반]
+      userMessage = `${forbiddenBlock}${harnessBlock}${taxonomyBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}[프로젝트 RAG 지식 기반]
 아래 문서는 이 프로젝트의 핵심 자료입니다. 이 내용을 1차 지식 기반으로 삼아 E-E-A-T 구조화 콘텐츠를 작성하세요.
 
 ${ragContent}
@@ -654,7 +666,7 @@ ${body.targetKeyword ? `타겟 키워드: ${body.targetKeyword}` : ''}${toneGuid
 ${companyInfo ? `- ⚠️ 회사명·대표자명·주소는 RAG 자료에 있는 그대로 정확히 본문에 표기 (변경·축약·임의 생성 절대 금지)` : ''}`;
     } else {
       // ── 일반 생성 (RAG 없음 또는 spoke 매칭 부족으로 비-RAG 전환) ──
-      userMessage = `${harnessBlock}${taxonomyBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}${ragOmittedNote}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
+      userMessage = `${forbiddenBlock}${harnessBlock}${taxonomyBlock}${cepBlock}${caseBlock}${seriesBlock}${contactCtaBlock}${ragOmittedNote}다음 조건에 맞는 ${categoryLabel} 콘텐츠를 생성해주세요.
 
 주제: ${body.topic}
 콘텐츠 유형: ${categoryLabel}
