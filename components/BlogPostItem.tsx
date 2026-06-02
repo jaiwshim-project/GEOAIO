@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { BlogPost } from '@/lib/supabase-storage';
 
 interface BlogPostItemProps {
@@ -22,6 +22,12 @@ export default function BlogPostItem({
   index,
 }: BlogPostItemProps) {
   const [deleting, setDeleting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Client-side에서만 일련번호 렌더링 (Hydration mismatch 방지)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,8 +74,8 @@ export default function BlogPostItem({
       </button>
 
       <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-3 sm:py-2.5 min-h-[64px] sm:min-h-0">
-        {/* 일련번호 - 더 눈에 띄게 */}
-        {typeof index === 'number' && index > 0 && (
+        {/* 일련번호 - Client-side만 렌더링 (Hydration 방지) */}
+        {mounted && typeof index === 'number' && index > 0 && (
           <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-md">
             {index}
           </div>
