@@ -480,7 +480,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                       <span className="text-[10px] tracking-wide text-slate-700">{dateStr}</span>
                     </div>
                         <h3 className="text-sm font-semibold text-slate-900 group-hover:text-amber-800 transition-colors leading-snug tracking-tight line-clamp-2" style={{ fontFamily: 'ui-serif, Georgia, serif' }}>
-                          {rp.title}
+                          [{indexNumber}] {rp.title}
                         </h3>
                       </Link>
                     </div>
