@@ -519,6 +519,11 @@ export default async function BlogCategoryPage({
             <div className="space-y-1.5">
               {pagedPosts.map((post, idx) => {
                 const indexNumber = (currentPage - 1) * PAGE_SIZE + idx + 1;
+                // 테스트: 제목 앞에 번호 추가
+                const postWithNumber = {
+                  ...post,
+                  title: `[${indexNumber}] ${post.title}`
+                };
                 return (
                   <div key={post.id} className="flex items-center gap-3">
                     {/* 일련번호 - Server Component로 직접 렌더링 */}
@@ -527,7 +532,7 @@ export default async function BlogCategoryPage({
                     </div>
                     <div className="flex-1 min-w-0">
                       <BlogPostItem
-                        post={post}
+                        post={postWithNumber}
                         meta={meta}
                         TAG_COLORS={TAG_COLORS}
                         formattedDate={formatDate(post.createdAt)}
