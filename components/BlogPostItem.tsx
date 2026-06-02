@@ -27,6 +27,10 @@ export default function BlogPostItem({
   // Client-side에서만 일련번호 렌더링 (Hydration mismatch 방지)
   useEffect(() => {
     setMounted(true);
+    // 디버깅: index 값 확인
+    if (typeof index === 'number') {
+      console.log('BlogPostItem index:', index, 'for post:', post.title?.slice(0, 30));
+    }
   }, []);
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -74,12 +78,15 @@ export default function BlogPostItem({
       </button>
 
       <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-3 sm:py-2.5 min-h-[64px] sm:min-h-0">
-        {/* 일련번호 - Client-side만 렌더링 (Hydration 방지) */}
-        {mounted && typeof index === 'number' && index > 0 && (
-          <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-md">
+        {/* 일련번호 - suppressHydrationWarning으로 Hydration 경고 무시 */}
+        {typeof index === 'number' && index > 0 ? (
+          <div
+            suppressHydrationWarning
+            className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-md"
+          >
             {index}
           </div>
-        )}
+        ) : null}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
             {post.tag && (
