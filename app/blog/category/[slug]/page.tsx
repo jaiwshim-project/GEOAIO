@@ -516,15 +516,45 @@ export default async function BlogCategoryPage({
                 {totalPages > 1 && <span className="text-slate-500 ml-1.5 font-medium">(페이지 {currentPage}/{totalPages})</span>}
               </p>
             </div>
-            <div className="space-y-1.5">
+            {/* CSS counter로 일련번호 표시 */}
+            <style jsx>{`
+              .blog-list-with-counter {
+                counter-reset: blog-counter ${(currentPage - 1) * PAGE_SIZE};
+              }
+              .blog-item-with-counter {
+                counter-increment: blog-counter;
+                position: relative;
+              }
+              .blog-item-with-counter::before {
+                content: counter(blog-counter);
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(to bottom right, #6366f1, #9333ea);
+                color: white;
+                font-size: 0.875rem;
+                font-weight: 700;
+                border-radius: 0.5rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                z-index: 1;
+              }
+            `}</style>
+            <div className="space-y-1.5 blog-list-with-counter">
               {pagedPosts.map((post) => (
-                <BlogPostItem
-                  key={post.id}
-                  post={post}
-                  meta={meta}
-                  TAG_COLORS={TAG_COLORS}
-                  formattedDate={formatDate(post.createdAt)}
-                />
+                <div key={post.id} className="blog-item-with-counter">
+                  <BlogPostItem
+                    post={post}
+                    meta={meta}
+                    TAG_COLORS={TAG_COLORS}
+                    formattedDate={formatDate(post.createdAt)}
+                  />
+                </div>
               ))}
             </div>
 
