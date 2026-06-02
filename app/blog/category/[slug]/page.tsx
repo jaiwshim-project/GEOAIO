@@ -6,7 +6,6 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BlogHeroCallout from '@/components/BlogHeroCallout';
 import BlogPostItem from '@/components/BlogPostItem';
-import BlogIndexNumber from '@/components/BlogIndexNumber';
 import type { BlogPost } from '@/lib/supabase-storage';
 
 // 카테고리 페이지는 ?lang= searchParams로 언어 필터링 — 본질적으로 동적.
@@ -518,19 +517,25 @@ export default async function BlogCategoryPage({
               </p>
             </div>
             <div className="space-y-1.5">
-              {pagedPosts.map((post, idx) => (
-                <div key={post.id} className="flex items-center gap-3">
-                  <BlogIndexNumber number={(currentPage - 1) * PAGE_SIZE + idx + 1} />
-                  <div className="flex-1 min-w-0">
-                    <BlogPostItem
-                      post={post}
-                      meta={meta}
-                      TAG_COLORS={TAG_COLORS}
-                      formattedDate={formatDate(post.createdAt)}
-                    />
+              {pagedPosts.map((post, idx) => {
+                const indexNumber = (currentPage - 1) * PAGE_SIZE + idx + 1;
+                return (
+                  <div key={post.id} className="flex items-center gap-3">
+                    {/* 일련번호 - Server Component로 직접 렌더링 */}
+                    <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-md">
+                      {indexNumber}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <BlogPostItem
+                        post={post}
+                        meta={meta}
+                        TAG_COLORS={TAG_COLORS}
+                        formattedDate={formatDate(post.createdAt)}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* 페이지네이션 — 50개 초과 시 좌우 화살표 + 페이지 번호 */}
