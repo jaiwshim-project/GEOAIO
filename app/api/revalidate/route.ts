@@ -1,4 +1,4 @@
-import { revalidateTag, revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Next.js On-Demand Revalidation API
@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const tag = searchParams.get('tag');
+    const id = searchParams.get('id');
     const path = searchParams.get('path');
     const secret = searchParams.get('secret');
 
@@ -16,13 +16,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
     }
 
-    // 태그 기반 재검증 (특정 블로그 글)
-    if (tag) {
-      revalidateTag(tag);
+    // ID 기반 재검증 (특정 블로그 글)
+    if (id) {
+      revalidatePath(`/blog/${id}`);
       return NextResponse.json({
         revalidated: true,
-        type: 'tag',
-        tag,
+        type: 'id',
+        id,
+        path: `/blog/${id}`,
         now: Date.now()
       });
     }
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // 전체 블로그 캐시 무효화
     if (searchParams.get('all') === 'true') {
-      revalidateTag('blog-articles');
+      revalidatePath('/blog');
       return NextResponse.json({
         revalidated: true,
         type: 'all',
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({ error: 'Missing tag or path parameter' }, { status: 400 });
+    return NextResponse.json({ error: 'Missing id or path parameter' }, { status: 400 });
   } catch (err) {
     return NextResponse.json({ error: 'Failed to revalidate', details: String(err) }, { status: 500 });
   }
