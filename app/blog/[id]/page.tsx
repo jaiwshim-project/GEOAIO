@@ -460,12 +460,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 const dateStr = `${rpDate.getFullYear()}-${String(rpDate.getMonth() + 1).padStart(2, '0')}-${String(rpDate.getDate()).padStart(2, '0')}`;
                 const indexNumber = idx + 1;
                 return (
-                  <div key={rp.id} className="relative pl-10">
-                    {/* 일련번호 - absolute positioning */}
+                  <div key={rp.id} className="relative pl-12">
+                    {/* 일련번호 - absolute positioning with higher z-index */}
                     <div
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xs font-bold text-white shadow-lg z-10"
+                      className="absolute left-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-sm font-bold text-white shadow-xl z-50"
                       data-index={indexNumber}
                       title={`Related post #${indexNumber}`}
+                      style={{ zIndex: 50 }}
                     >
                       {indexNumber}
                     </div>
