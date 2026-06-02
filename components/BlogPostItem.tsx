@@ -69,7 +69,7 @@ export default function BlogPostItem({
 
       <Link href={`/blog/${post.id}`} className="flex items-center gap-3 px-3 py-3 sm:py-2.5 min-h-[64px] sm:min-h-0">
         {/* 일련번호 - 더 눈에 띄게 */}
-        {index !== undefined && (
+        {typeof index === 'number' && index > 0 && (
           <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white shadow-md">
             {index}
           </div>
