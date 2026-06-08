@@ -8,8 +8,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'nodejs';
-// 5분간 CDN 캐시 (같은 응답을 여러 사용자에게 재사용)
-export const revalidate = 300;
+// 실시간 카운트를 위해 캐시 비활성화
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 interface CountsRow { category: string; }
 
@@ -69,7 +70,7 @@ export async function GET() {
       { counts, langCounts, byCategoryLang, total },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       }
     );

@@ -51,6 +51,9 @@ async function enqueueCepMeasurement(post: {
   }
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET: 블로그 포스트 목록 조회
 // 주의: Supabase는 max-rows 1000 기본값이라 단일 limit() 호출로는 1,001번째 글부터 빠짐.
 // 또한 'published' 컬럼이 DB에 없어 .eq('published', true) 필터를 걸면 0건 반환.
@@ -95,7 +98,14 @@ export async function GET(request: NextRequest) {
     author: r.author,
   }));
 
-  return NextResponse.json({ posts });
+  return NextResponse.json(
+    { posts },
+    {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    }
+  );
 }
 
 // === 카테고리 검증 ===

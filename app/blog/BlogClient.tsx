@@ -121,11 +121,11 @@ export default function BlogClient({ initialPosts, initialCategories, page = 1, 
   }, { ko: 0, en: 0, zh: 0, ja: 0 });
   const langTotal = langCounts.ko + langCounts.en + langCounts.zh + langCounts.ja;
 
-  // 마운트 시 sessionStorage 캐시 우선 → 없으면 fetch.
+  // 마운트 시 항상 최신 데이터 fetch (실시간 업데이트)
   // 카운트만 필요한 경우는 가벼운 /api/blog/category-counts (수 KB) 호출로 빠른 갱신.
   // 전체 posts는 페이지 진입 후 백그라운드로 lazy fetch (UI 차단 없음).
   const SS_KEY = 'blog:posts-cache:v2';
-  const SS_TTL_MS = 5 * 60 * 1000; // 5분
+  const SS_TTL_MS = 0; // 캐시 비활성화 (항상 최신 데이터)
 
   // 1) 카테고리 카운트 빠른 갱신 (가벼운 endpoint)
   const [liveCounts, setLiveCounts] = useState<Record<string, number> | null>(null);
