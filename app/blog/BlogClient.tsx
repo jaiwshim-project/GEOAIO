@@ -100,14 +100,29 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
   const router = useRouter();
   const [categories] = useState<BlogCategory[]>(initialCategories);
 
-  // 그룹 필터 상태 (URL 파라미터로 관리)
-  const [activeGroupFilter, setActiveGroupFilter] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
+  // 그룹 필터 상태 (URL 파라미터 실시간 감지)
+  const [activeGroupFilter, setActiveGroupFilter] = useState<string>('all');
+
+  // URL 파라미터 변경 감지
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const groupParam = params.get('group') || 'all';
+    setActiveGroupFilter(groupParam);
+  }, []);
+
+  // URL 변경 시 그룹 필터 업데이트
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (typeof window === 'undefined') return;
       const params = new URLSearchParams(window.location.search);
-      return params.get('group') || 'all';
-    }
-    return 'all';
-  });
+      const groupParam = params.get('group') || 'all';
+      setActiveGroupFilter(groupParam);
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
+  }, []);
 
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -368,9 +383,10 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
               {/* 전체 보기 탭 */}
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setActiveGroupFilter('all');
-                  router.push('/blog');
+                  window.history.pushState({}, '', '/blog');
                 }}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold tracking-wider uppercase transition-colors ${
                   activeGroupFilter === 'all'
@@ -401,9 +417,10 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
                     return (
                       <button
                         key={groupKey}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
                           setActiveGroupFilter(groupKey);
-                          router.push(`/blog?group=${groupKey}`);
+                          window.history.pushState({}, '', `/blog?group=${groupKey}`);
                         }}
                         className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold tracking-wide transition-colors ${
                           activeGroupFilter === groupKey
