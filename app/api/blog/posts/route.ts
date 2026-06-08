@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const to = from + PAGE_SIZE - 1;
     let query = getSupabase()
       .from('blog_articles')
-      .select('id, title, content, category, hashtags, target_keyword, created_at, updated_at, author')
+      .select('id, title, content, category, tags, author, created_at, updated_at')
       .order('created_at', { ascending: false })
       .range(from, to);
     if (category) query = query.eq('category', category);
@@ -83,9 +83,9 @@ export async function GET(request: NextRequest) {
     if (data.length < PAGE_SIZE) break;
   }
 
-  // 클라이언트 호환을 위해 summary·published·tag 가상 필드 추가 (DB에는 없음)
+  // 클라이언트 호환을 위해 summary·published·tag·target_keyword·hashtags 가상 필드 추가
   const posts = all.map(r => {
-    // author에서 metadata 추출 (tag 포함)
+    // author에서 metadata 추출 (tag, target_keyword 포함)
     let metadata: Record<string, unknown> = {};
     if (r.author) {
       try {
@@ -95,11 +95,11 @@ export async function GET(request: NextRequest) {
     return {
       id: r.id,
       title: r.title,
-      summary: '', // metadata에 있을 수 있으나 list에는 불필요
+      summary: (metadata.summary as string) || '',
       category: r.category,
-      tag: (metadata.tag as string) || '', // author/metadata에서 추출
-      hashtags: r.hashtags,
-      target_keyword: r.target_keyword,
+      tag: (metadata.tag as string) || '',
+      hashtags: Array.isArray(r.tags) ? r.tags : [],
+      target_keyword: (metadata.targetKeyword as string) || '',
       published: true,
       created_at: r.created_at,
       updated_at: r.updated_at,

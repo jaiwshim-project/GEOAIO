@@ -290,7 +290,8 @@
       "PowerShell(supabase *)",
       "PowerShell(supabase login *)",
       "Bash(tee /tmp/vercel-deploy.log)",
-      "Bash(tee /tmp/vercel-deploy-2.log)"
+      "Bash(tee /tmp/vercel-deploy-2.log)",
+      "Bash(bash wait_and_check.sh)"
     ]
   }
 }
