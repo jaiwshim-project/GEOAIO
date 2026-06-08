@@ -75,15 +75,25 @@ const TAG_COLORS: Record<string, string> = {
   '사례':     'bg-teal-50 text-teal-700 border border-teal-200',
 };
 
+// 산업 분야별 그룹 레이블 (page.tsx와 동일)
+const INDUSTRY_GROUP_LABELS: Record<string, { label: string; emoji: string }> = {
+  'tech': { label: 'IT·AI·디지털', emoji: '💻' },
+  'medical': { label: '의료·헬스케어', emoji: '🏥' },
+  'fb': { label: '식음료·외식', emoji: '🍺' },
+  'consulting': { label: '컨설팅·비즈니스', emoji: '💼' },
+  'etc': { label: '기타 산업', emoji: '📁' },
+};
+
 interface BlogClientProps {
   initialPosts: BlogPost[];
   initialCategories: BlogCategory[];
+  categoryGroups?: Record<string, BlogCategory[]>;
   page?: number;
   totalPages?: number;
   total?: number;
 }
 
-export default function BlogClient({ initialPosts, initialCategories, page = 1, totalPages = 1, total = 0 }: BlogClientProps) {
+export default function BlogClient({ initialPosts, initialCategories, categoryGroups = {}, page = 1, totalPages = 1, total = 0 }: BlogClientProps) {
   const router = useRouter();
   const [categories] = useState<BlogCategory[]>(initialCategories);
   const [activeTab, setActiveTab] = useState(() => {
@@ -338,43 +348,100 @@ export default function BlogClient({ initialPosts, initialCategories, page = 1, 
           </div>
         </section>
 
-        {/* 탭 네비게이션 — 프리미엄 화이트 카드 */}
-        <div className="relative mb-4">
-          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-300/40 via-amber-400/20 to-amber-300/40 blur-[2px] opacity-50" />
-          <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-amber-100/30 p-1.5">
-            <div className="flex flex-wrap gap-1">
-              {categories.map((cat) => {
-                const isActive = activeTab === cat.slug;
-                // liveCounts(빠른 endpoint) 우선, 없으면 posts에서 계산
-                const postCount = liveCounts?.[cat.slug] ?? posts.filter(p => p.category === cat.slug).length;
-                return (
-                  <button
-                    key={cat.slug}
-                    onClick={() => router.push(`/blog/category/${encodeURIComponent(cat.slug)}`)}
-                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-colors ${
-                      isActive
-                        ? `bg-gradient-to-r ${cat.color} text-white font-semibold shadow-md ring-1 ring-amber-300/60`
-                        : 'bg-slate-50 text-slate-700 font-medium border border-slate-200 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800'
-                    }`}
-                  >
-                    {isActive && (
-                      <span className="absolute -top-px left-1/2 -translate-x-1/2 w-12 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
-                    )}
-                    <span className={isActive ? 'text-white' : 'text-amber-600'}>{ICON_MAP[cat.icon] || ICON_MAP.document}</span>
-                    <span className="hidden sm:inline">{cat.label}</span>
-                    <span className="sm:hidden">{cat.label.split(' ')[0]}</span>
-                    {postCount > 0 && (
-                      <span className={`ml-0.5 px-1.5 py-0 text-[9px] font-semibold rounded-full ${
-                        isActive ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {postCount}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+        {/* 탭 네비게이션 — 산업 분야별 그룹핑 */}
+        <div className="relative mb-4 space-y-3">
+          {Object.entries(categoryGroups).length > 0 ? (
+            Object.entries(categoryGroups)
+              .sort((a, b) => {
+                // tech, medical, fb, consulting, etc 순서 유지
+                const order = ['tech', 'medical', 'fb', 'consulting', 'etc'];
+                return order.indexOf(a[0]) - order.indexOf(b[0]);
+              })
+              .map(([groupKey, groupCategories]) => (
+                <div key={groupKey} className="relative">
+                  {/* 그룹 헤더 */}
+                  <div className="mb-1.5 px-2">
+                    <h3 className="text-[11px] font-bold tracking-wider uppercase text-slate-600">
+                      <span className="mr-1.5">{INDUSTRY_GROUP_LABELS[groupKey]?.emoji || '📁'}</span>
+                      {INDUSTRY_GROUP_LABELS[groupKey]?.label || groupKey}
+                    </h3>
+                  </div>
+                  {/* 카테고리 카드 */}
+                  <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-300/40 via-amber-400/20 to-amber-300/40 blur-[2px] opacity-50" />
+                  <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-amber-100/30 p-1.5">
+                    <div className="flex flex-wrap gap-1">
+                      {groupCategories.map((cat) => {
+                        const isActive = activeTab === cat.slug;
+                        const postCount = liveCounts?.[cat.slug] ?? posts.filter(p => p.category === cat.slug).length;
+                        return (
+                          <button
+                            key={cat.slug}
+                            onClick={() => router.push(`/blog/category/${encodeURIComponent(cat.slug)}`)}
+                            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-colors ${
+                              isActive
+                                ? `bg-gradient-to-r ${cat.color} text-white font-semibold shadow-md ring-1 ring-amber-300/60`
+                                : 'bg-slate-50 text-slate-700 font-medium border border-slate-200 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800'
+                            }`}
+                          >
+                            {isActive && (
+                              <span className="absolute -top-px left-1/2 -translate-x-1/2 w-12 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+                            )}
+                            <span className={isActive ? 'text-white' : 'text-amber-600'}>{ICON_MAP[cat.icon] || ICON_MAP.document}</span>
+                            <span className="hidden sm:inline">{cat.label}</span>
+                            <span className="sm:hidden">{cat.label.split(' ')[0]}</span>
+                            {postCount > 0 && (
+                              <span className={`ml-0.5 px-1.5 py-0 text-[9px] font-semibold rounded-full ${
+                                isActive ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-700'
+                              }`}>
+                                {postCount}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ))
+          ) : (
+            // 폴백: 그룹핑 정보가 없으면 기존 방식
+            <div className="relative">
+              <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-amber-300/40 via-amber-400/20 to-amber-300/40 blur-[2px] opacity-50" />
+              <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-amber-100/30 p-1.5">
+                <div className="flex flex-wrap gap-1">
+                  {categories.map((cat) => {
+                    const isActive = activeTab === cat.slug;
+                    const postCount = liveCounts?.[cat.slug] ?? posts.filter(p => p.category === cat.slug).length;
+                    return (
+                      <button
+                        key={cat.slug}
+                        onClick={() => router.push(`/blog/category/${encodeURIComponent(cat.slug)}`)}
+                        className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-colors ${
+                          isActive
+                            ? `bg-gradient-to-r ${cat.color} text-white font-semibold shadow-md ring-1 ring-amber-300/60`
+                            : 'bg-slate-50 text-slate-700 font-medium border border-slate-200 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-800'
+                        }`}
+                      >
+                        {isActive && (
+                          <span className="absolute -top-px left-1/2 -translate-x-1/2 w-12 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+                        )}
+                        <span className={isActive ? 'text-white' : 'text-amber-600'}>{ICON_MAP[cat.icon] || ICON_MAP.document}</span>
+                        <span className="hidden sm:inline">{cat.label}</span>
+                        <span className="sm:hidden">{cat.label.split(' ')[0]}</span>
+                        {postCount > 0 && (
+                          <span className={`ml-0.5 px-1.5 py-0 text-[9px] font-semibold rounded-full ${
+                            isActive ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {postCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* 탭 설명 */}

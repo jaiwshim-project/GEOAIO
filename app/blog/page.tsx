@@ -21,6 +21,15 @@ export const revalidate = 3600;
 
 const POSTS_PER_PAGE = 20; // 메인 페이지 1번에 보여주는 글 수 (사용자 요구)
 
+// 산업 분야별 카테고리 분류
+export const INDUSTRY_GROUPS = {
+  'tech': { label: 'IT·AI·디지털', keywords: ['geo-aio', 'ai', 'digital', '디지털', '인공지능', '기술'] },
+  'medical': { label: '의료·헬스케어', keywords: ['dental', '치과', 'medical', '병원', '의료', 'healthcare', 'clinic', 'regenmed'] },
+  'fb': { label: '식음료·외식', keywords: ['brewery', '맥주', 'restaurant', '음식', 'food', 'cafe', '카페', 'drink'] },
+  'consulting': { label: '컨설팅·비즈니스', keywords: ['consulting', '컨설팅', 'business', '비즈니스', '경영'] },
+  'etc': { label: '기타 산업', keywords: [] }, // 모든 미매칭은 기타로
+} as const;
+
 const DEFAULT_CATEGORIES: BlogCategory[] = [
   { id: '1', slug: 'geo-aio', label: 'GEO-AIO', description: 'AI 검색 최적화 관련 콘텐츠', color: 'from-indigo-500 to-violet-600', icon: 'search', sortOrder: 0 },
   { id: '2', slug: 'regenmed', label: '리젠메드컨설팅', description: '컨설팅 관련 콘텐츠', color: 'from-emerald-500 to-teal-600', icon: 'building', sortOrder: 1 },
@@ -125,18 +134,42 @@ async function getServerBlogData(pageNum: number) {
         extraIdx++;
       }
     }
-    // 카테고리 카드 가나다·알파벳 순 정렬 (한글 우선, 영문 뒤)
-    categories.sort((a, b) => a.label.localeCompare(b.label, 'ko-KR', { sensitivity: 'base' }));
+
+    // 산업 분야별 그룹핑 함수
+    const getIndustryGroup = (slug: string): keyof typeof INDUSTRY_GROUPS => {
+      const lower = slug.toLowerCase();
+      for (const [groupKey, group] of Object.entries(INDUSTRY_GROUPS)) {
+        if (groupKey === 'etc') continue;
+        if (group.keywords.some(kw => lower.includes(kw.toLowerCase()))) {
+          return groupKey as keyof typeof INDUSTRY_GROUPS;
+        }
+      }
+      return 'etc';
+    };
+
+    // 카테고리를 산업 분야별로 그룹핑
+    const categoryGroups: Record<string, BlogCategory[]> = {};
+    for (const cat of categories) {
+      const group = getIndustryGroup(cat.slug);
+      if (!categoryGroups[group]) categoryGroups[group] = [];
+      categoryGroups[group].push(cat);
+    }
+
+    // 각 그룹 내에서 가나다·알파벳 순 정렬
+    for (const group in categoryGroups) {
+      categoryGroups[group].sort((a, b) => a.label.localeCompare(b.label, 'ko-KR', { sensitivity: 'base' }));
+    }
 
     return {
       posts,
       categories,
+      categoryGroups,
       total: totalCount || posts.length,
       page: safePage,
       totalPages: Math.max(1, Math.ceil((totalCount || posts.length) / POSTS_PER_PAGE)),
     };
   } catch {
-    return { posts: [], categories: DEFAULT_CATEGORIES, total: 0, page: 1, totalPages: 1 };
+    return { posts: [], categories: DEFAULT_CATEGORIES, categoryGroups: { etc: DEFAULT_CATEGORIES }, total: 0, page: 1, totalPages: 1 };
   }
 }
 
@@ -147,7 +180,7 @@ export default async function BlogPage({
 }) {
   const sp = await searchParams;
   const pageNum = parseInt(sp.page || '1', 10) || 1;
-  const { posts, categories, total, page, totalPages } = await getServerBlogData(pageNum);
+  const { posts, categories, categoryGroups, total, page, totalPages } = await getServerBlogData(pageNum);
 
-  return <BlogClient initialPosts={posts} initialCategories={categories} page={page} totalPages={totalPages} total={total} />;
+  return <BlogClient initialPosts={posts} initialCategories={categories} categoryGroups={categoryGroups} page={page} totalPages={totalPages} total={total} />;
 }
