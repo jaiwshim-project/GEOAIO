@@ -100,6 +100,13 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
   const router = useRouter();
   const [categories] = useState<BlogCategory[]>(initialCategories);
 
+  // 디버깅: categoryGroups 확인
+  useEffect(() => {
+    console.log('[BlogClient] categoryGroups:', categoryGroups);
+    console.log('[BlogClient] categoryGroups keys:', Object.keys(categoryGroups));
+    console.log('[BlogClient] categoryGroups length:', Object.keys(categoryGroups).length);
+  }, [categoryGroups]);
+
   // 그룹 필터 상태 (URL 파라미터 실시간 감지)
   const [activeGroupFilter, setActiveGroupFilter] = useState<string>('all');
 
@@ -377,34 +384,34 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
         </section>
 
         {/* 그룹 필터 탭 — 상단에 8개 그룹 슬러그 탭 */}
-        <div className="relative mb-3">
-          <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-indigo-300/40 via-violet-400/20 to-indigo-300/40 blur-[2px] opacity-50" />
-          <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-indigo-100/30 p-1.5">
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
-              {/* 전체 보기 탭 */}
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveGroupFilter('all');
-                  window.history.pushState({}, '', '/blog');
-                }}
-                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold tracking-wider uppercase transition-colors ${
-                  activeGroupFilter === 'all'
-                    ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-md'
-                    : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300'
-                }`}
-              >
-                <span>전체</span>
-                <span className={`px-1.5 py-0 text-[9px] font-semibold rounded-full ${
-                  activeGroupFilter === 'all' ? 'bg-white/25 text-white' : 'bg-indigo-100 text-indigo-700'
-                }`}>
-                  {Object.values(categoryGroups).flat().length}
-                </span>
-              </button>
+        {Object.keys(categoryGroups).length > 0 && (
+          <div className="relative mb-3">
+            <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-indigo-300/40 via-violet-400/20 to-indigo-300/40 blur-[2px] opacity-50" />
+            <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-indigo-100/30 p-1.5">
+              <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+                {/* 전체 보기 탭 */}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveGroupFilter('all');
+                    window.history.pushState({}, '', '/blog');
+                  }}
+                  className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold tracking-wider uppercase transition-colors ${
+                    activeGroupFilter === 'all'
+                      ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-md'
+                      : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300'
+                  }`}
+                >
+                  <span>전체</span>
+                  <span className={`px-1.5 py-0 text-[9px] font-semibold rounded-full ${
+                    activeGroupFilter === 'all' ? 'bg-white/25 text-white' : 'bg-indigo-100 text-indigo-700'
+                  }`}>
+                    {categories.length}
+                  </span>
+                </button>
 
-              {/* 8개 그룹 탭 */}
-              {Object.entries(categoryGroups).length > 0 &&
-                Object.entries(categoryGroups)
+                {/* 8개 그룹 탭 */}
+                {Object.entries(categoryGroups)
                   .sort((a, b) => {
                     const order = ['dental', 'medical-plastic-pet', 'it-ai-coding', 'it-app-service', 'politics-election', 'law-consulting', 'hospitality', 'etc'];
                     return order.indexOf(a[0]) - order.indexOf(b[0]);
@@ -442,10 +449,11 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
                       </button>
                     );
                   })
-              }
+                }
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* 카테고리 네비게이션 — 선택된 그룹의 카테고리만 표시 */}
         <div className="relative mb-4 space-y-3">
