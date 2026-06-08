@@ -99,13 +99,12 @@ interface BlogClientProps {
 export default function BlogClient({ initialPosts, initialCategories, categoryGroups = {}, page = 1, totalPages = 1, total = 0 }: BlogClientProps) {
   const router = useRouter();
   const [categories] = useState<BlogCategory[]>(initialCategories);
+  const [mounted, setMounted] = useState(false);
 
-  // 디버깅: categoryGroups 확인
+  // 클라이언트 마운트 감지 (Hydration 에러 방지)
   useEffect(() => {
-    console.log('[BlogClient] categoryGroups:', categoryGroups);
-    console.log('[BlogClient] categoryGroups keys:', Object.keys(categoryGroups));
-    console.log('[BlogClient] categoryGroups length:', Object.keys(categoryGroups).length);
-  }, [categoryGroups]);
+    setMounted(true);
+  }, []);
 
   // 그룹 필터 상태 (URL 파라미터 실시간 감지)
   const [activeGroupFilter, setActiveGroupFilter] = useState<string>('all');
@@ -384,7 +383,7 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
         </section>
 
         {/* 그룹 필터 탭 — 상단에 8개 그룹 슬러그 탭 */}
-        {Object.keys(categoryGroups).length > 0 && (
+        {mounted && Object.keys(categoryGroups).length > 0 && (
           <div className="relative mb-3">
             <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-indigo-300/40 via-violet-400/20 to-indigo-300/40 blur-[2px] opacity-50" />
             <div className="relative bg-white rounded-xl border border-slate-200 shadow-md shadow-indigo-100/30 p-1.5">
