@@ -75,13 +75,16 @@ const TAG_COLORS: Record<string, string> = {
   '사례':     'bg-teal-50 text-teal-700 border border-teal-200',
 };
 
-// 산업 분야별 그룹 레이블 (page.tsx와 동일)
+// 산업 분야별 그룹 레이블 (page.tsx와 동일 - 8개 그룹)
 const INDUSTRY_GROUP_LABELS: Record<string, { label: string; emoji: string }> = {
-  'tech': { label: 'IT·AI·디지털', emoji: '💻' },
-  'medical': { label: '의료·헬스케어', emoji: '🏥' },
-  'fb': { label: '식음료·외식', emoji: '🍺' },
-  'consulting': { label: '컨설팅·비즈니스', emoji: '💼' },
-  'etc': { label: '기타 산업', emoji: '📁' },
+  'dental': { label: '의료·치과', emoji: '🦷' },
+  'medical-plastic-pet': { label: '의료·성형·동물병원', emoji: '💉' },
+  'it-ai-coding': { label: 'IT·AI·코딩', emoji: '🤖' },
+  'it-app-service': { label: 'IT·앱·서비스', emoji: '📱' },
+  'politics-election': { label: '정치·선거', emoji: '🗳️' },
+  'law-consulting': { label: '법률·컨설팅', emoji: '⚖️' },
+  'hospitality': { label: '숙박·관광·외식', emoji: '🏨' },
+  'etc': { label: '기타', emoji: '📁' },
 };
 
 interface BlogClientProps {
@@ -353,8 +356,8 @@ export default function BlogClient({ initialPosts, initialCategories, categoryGr
           {Object.entries(categoryGroups).length > 0 ? (
             Object.entries(categoryGroups)
               .sort((a, b) => {
-                // tech, medical, fb, consulting, etc 순서 유지
-                const order = ['tech', 'medical', 'fb', 'consulting', 'etc'];
+                // 8개 그룹 순서: 치과 → 성형/동물 → AI/코딩 → 앱 → 정치 → 법률 → 숙박 → 기타
+                const order = ['dental', 'medical-plastic-pet', 'it-ai-coding', 'it-app-service', 'politics-election', 'law-consulting', 'hospitality', 'etc'];
                 return order.indexOf(a[0]) - order.indexOf(b[0]);
               })
               .map(([groupKey, groupCategories]) => (

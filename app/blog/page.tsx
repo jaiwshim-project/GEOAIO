@@ -21,13 +21,16 @@ export const revalidate = 3600;
 
 const POSTS_PER_PAGE = 20; // 메인 페이지 1번에 보여주는 글 수 (사용자 요구)
 
-// 산업 분야별 카테고리 분류
+// 산업 분야별 카테고리 분류 (8개 그룹 - 상세 버전)
 export const INDUSTRY_GROUPS = {
-  'tech': { label: 'IT·AI·디지털', keywords: ['geo-aio', 'ai', 'digital', '디지털', '인공지능', '기술'] },
-  'medical': { label: '의료·헬스케어', keywords: ['dental', '치과', 'medical', '병원', '의료', 'healthcare', 'clinic', 'regenmed'] },
-  'fb': { label: '식음료·외식', keywords: ['brewery', '맥주', 'restaurant', '음식', 'food', 'cafe', '카페', 'drink'] },
-  'consulting': { label: '컨설팅·비즈니스', keywords: ['consulting', '컨설팅', 'business', '비즈니스', '경영'] },
-  'etc': { label: '기타 산업', keywords: [] }, // 모든 미매칭은 기타로
+  'dental': { label: '의료·치과', emoji: '🦷', keywords: ['치과', 'dental', '덴탈'] },
+  'medical-plastic-pet': { label: '의료·성형·동물병원', emoji: '💉', keywords: ['성형외과', '성형', 'plastic', '동물병원', '펫', 'pet'] },
+  'it-ai-coding': { label: 'IT·AI·코딩', emoji: '🤖', keywords: ['geo', 'ai', '코딩', 'coding', 'claude', 'ax', '온톨로지', '바이브'] },
+  'it-app-service': { label: 'IT·앱·서비스', emoji: '📱', keywords: ['내비', '앱', 'app', 'service'] },
+  'politics-election': { label: '정치·선거', emoji: '🗳️', keywords: ['시장', '후보', '선거', 'election', '국회의원', '교육감'] },
+  'law-consulting': { label: '법률·컨설팅', emoji: '⚖️', keywords: ['법무', '로펌', '법률', 'law', '컨설팅', 'consulting'] },
+  'hospitality': { label: '숙박·관광·외식', emoji: '🏨', keywords: ['호텔', 'hotel', '맥주', 'brewery', '레스토랑', 'restaurant'] },
+  'etc': { label: '기타', emoji: '📁', keywords: [] }, // 모든 미매칭은 기타로
 } as const;
 
 const DEFAULT_CATEGORIES: BlogCategory[] = [
