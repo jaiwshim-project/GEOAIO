@@ -91,7 +91,7 @@ export default function PricingPage() {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-0.5">●</span>
-                  <span>GEO-AIO 플랫폼 엔진으로 AI 최적화된 홍보글 생성 및 포스팅 대행</span>
+                  <span>GEO-AIO 플랫폼 엔진으로 AI 최적화된 콘텐츠 신호 구축</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-0.5">●</span>
@@ -137,7 +137,7 @@ export default function PricingPage() {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-500 mt-0.5">●</span>
-                  <span>GEO-AIO 플랫폼 엔진으로 AI 최적화된 홍보글 생성 및 포스팅 대행</span>
+                  <span>GEO-AIO 플랫폼 엔진으로 AI 최적화된 콘텐츠 신호 구축</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-indigo-500 mt-0.5">●</span>
@@ -184,7 +184,7 @@ export default function PricingPage() {
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-violet-500 mt-0.5">●</span>
-                  <span>GEO-AIO 플랫폼 엔진으로 AI 최적화된 홍보글 생성 및 포스팅 대행</span>
+                  <span>GEO-AIO 플랫폼 엔진으로 AI 최적화된 콘텐츠 신호 구축</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-violet-500 mt-0.5">●</span>
