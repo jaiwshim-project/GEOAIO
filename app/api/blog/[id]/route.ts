@@ -21,7 +21,12 @@ export async function PATCH(
 
   try {
     const body = await request.json();
-    const { title, content, category } = body;
+    const { title, content, category, password } = body;
+
+    // 비밀번호 검증
+    if (password !== '2468') {
+      return NextResponse.json({ error: '비밀번호가 올바르지 않습니다.' }, { status: 403 });
+    }
 
     // 필수 필드 검증
     if (!title || !content) {
@@ -75,6 +80,14 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    const body = await request.json();
+    const { password } = body;
+
+    // 비밀번호 검증
+    if (password !== '2468') {
+      return NextResponse.json({ error: '비밀번호가 올바르지 않습니다.' }, { status: 403 });
+    }
+
     const supabase = getSupabase();
 
     const { error } = await supabase
