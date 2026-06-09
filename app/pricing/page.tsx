@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 
 export default function PricingPage() {
   const [contactModal, setContactModal] = useState<'pro' | 'max' | 'premium' | null>(null);
+  // Force rebuild 2026-06-09
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative">
