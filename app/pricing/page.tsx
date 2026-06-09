@@ -220,6 +220,28 @@ export default function PricingPage() {
 
         </div>
 
+        {/* 병원·법무 특별 안내 */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-rose-50 via-red-50 to-rose-50 border-2 border-rose-400 rounded-2xl p-5 mb-8 shadow-[0_8px_24px_-6px_rgba(244,63,94,0.3)]">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-red-500 to-rose-500" />
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center shadow-md">
+              <span className="text-xl">⚠️</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base font-extrabold text-rose-900 mb-2 flex items-center gap-2">
+                <span>병원·법무 업종 특별 안내</span>
+                <span className="px-2 py-0.5 bg-rose-500 text-white text-[10px] font-bold rounded-full">IMPORTANT</span>
+              </h3>
+              <p className="text-sm text-rose-800 font-semibold leading-relaxed">
+                병원과 법무는 <strong className="text-rose-900 underline decoration-2 decoration-rose-500">법적 규제와 제약이 심하여</strong>, 서비스 조건은 별도로 논의해야 합니다.
+              </p>
+              <p className="text-xs text-rose-700 mt-2">
+                📞 상담 필수: <strong>010-2397-5734</strong> · ✉️ <strong>jaiwshim@gmail.com</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* 외국어 옵션 안내 */}
         <div className="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-indigo-50 border border-sky-200 rounded-2xl p-6 mb-8">
           <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-sky-200/30 to-transparent rounded-full -translate-y-10 translate-x-10 pointer-events-none" />
