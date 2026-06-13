@@ -250,10 +250,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
       q: '특정 업종(법무·의료·금융 등) 전문 용어도 정확히 처리되나요?',
       a: '예. 회사가 업로드한 RAG 자료(소개서·매뉴얼·내부 가이드 등)를 기반으로 콘텐츠가 생성되므로, 해당 업종의 전문 용어와 회사 고유의 표현이 그대로 반영됩니다. 본 제안서의 한계 분석 4가지(디지털 전략·유입·차별성·데이터)도 카테고리별로 분리되어 있습니다.',
     },
-    {
-      q: '계약 해지·환불 정책은 어떻게 되나요?',
-      a: '월간 결제(프로 플랜)는 다음 결제일 전 해지 시 즉시 적용됩니다. 연간 결제(맥스 플랜)는 사용 잔여 기간을 일할 계산하여 환불 가능합니다. 자세한 사항은 010-2397-5734 또는 jaiwshim@gmail.com으로 문의해주세요.',
-    },
   ];
 
   // ─── 온톨로지 → JSON-LD 생성 (AI 인용률↑) ───
@@ -289,29 +285,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
           description: w.bullets.join(' / '),
         }))
       : undefined,
-    offers: [
-      {
-        '@type': 'Offer',
-        name: '프로 플랜',
-        price: '200',
-        priceCurrency: 'KRW',
-        priceSpecification: { '@type': 'UnitPriceSpecification', price: '200', priceCurrency: 'KRW', unitText: '월', valueAddedTaxIncluded: false },
-      },
-      {
-        '@type': 'Offer',
-        name: '맥스 플랜',
-        price: '1440',
-        priceCurrency: 'KRW',
-        priceSpecification: { '@type': 'UnitPriceSpecification', price: '1440', priceCurrency: 'KRW', unitText: '연', valueAddedTaxIncluded: false },
-      },
-      {
-        '@type': 'Offer',
-        name: '프리미엄 플랜',
-        price: '2160',
-        priceCurrency: 'KRW',
-        priceSpecification: { '@type': 'UnitPriceSpecification', price: '540', priceCurrency: 'KRW', unitText: '분기', valueAddedTaxIncluded: false },
-      },
-    ],
   };
 
   // FAQ 별도 JSON-LD (Google FAQ rich result 호환)
@@ -524,7 +497,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-gray-700"><strong>콘텐츠 1편 작성 시간</strong></span>
-                      <span className="text-xs font-bold text-rose-600">4~8시간 / 10~15만원</span>
+                      <span className="text-xs font-bold text-rose-600">4~8시간</span>
                     </div>
                     <div className="h-2 bg-rose-50 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-rose-400 to-rose-500" style={{ width: '85%' }} />
@@ -1055,12 +1028,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">5~10배 ↑</td>
                     </tr>
                     <tr>
-                      <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편당 단가</td>
-                      <td className="px-4 py-3 text-gray-700">10~15만원 (외주)</td>
-                      <td className="px-4 py-3 text-emerald-700 font-bold">약 1.3~2만원</td>
-                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">단가 1/8 ↓</td>
-                    </tr>
-                    <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">AI 인용 가능성</td>
                       <td className="px-4 py-3 text-gray-700">5% 미만</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">80%+</td>
@@ -1071,12 +1038,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <td className="px-4 py-3 text-gray-700">0~5%</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">80~85%</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">16배 ↑</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-3 font-medium text-gray-900">월간 마케팅 비용</td>
-                      <td className="px-4 py-3 text-gray-700">200~300만원</td>
-                      <td className="px-4 py-3 text-emerald-700 font-bold">월 200만원 (동일)</td>
-                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">양 ~10배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">동시 운영 채널</td>
@@ -1098,23 +1059,6 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     </tr>
                   </tbody>
                 </table>
-              </div>
-
-              {/* 회수 기간 */}
-              <div className="relative mt-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 ring-1 ring-amber-400/40 rounded-xl p-4 overflow-hidden shadow-[0_8px_30px_-10px_rgba(251,191,36,0.4)]">
-                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.12),_transparent_60%)]" />
-                <div className="relative flex items-start gap-3">
-                  <span className="text-2xl">⚡</span>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-amber-200 mb-1 tracking-wide">투자 회수 기간 (예상)</p>
-                    <p className="text-xs text-white/95 leading-relaxed">
-                      평균 <strong className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent">2~4개월</strong> 내 회수.
-                      AI 검색 노출 증가 → 신규 유입 → 매출 증대 → 추가 투자 여력 확보의 선순환 구조 진입.
-                      도입 1년 후 누적 콘텐츠 1,200편 + AI 인용 자산 영구 보유.
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* 면책 */}
@@ -1235,8 +1179,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 relative">
                 {[
                   { num: 1, icon: '📞', title: '상담 문의', desc: '전화·이메일로 요구사항 확인', time: '1일' },
-                  { num: 2, icon: '📋', title: '견적 협의', desc: '플랜·기간·맞춤 옵션 결정', time: '1~2일' },
-                  { num: 3, icon: '✍️', title: '계약 체결', desc: '서면 계약·결제 진행', time: '1일' },
+                  { num: 2, icon: '📋', title: '솔루션 협의', desc: '요구사항·목표·일정 조율', time: '1~2일' },
+                  { num: 3, icon: '✍️', title: '계약 체결', desc: '서면 계약 진행', time: '1일' },
                   { num: 4, icon: '🚀', title: '운영 시작', desc: 'RAG 자료 업로드·즉시 콘텐츠 생성', time: '즉시' },
                 ].map((s, i) => (
                   <div key={i} className="relative">
