@@ -225,10 +225,12 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
   const isSeonmyeong = slug === '선명회계법인'; // AX 분석·개선 전략 전용
   // 후보자(국회의원·시장 등) 제안서 — 가격 섹션 숨김
   const isCandidate = slug.includes('후보자');
+  // 특정 업체 제안서 — 가격 섹션 숨김 (유앤아이아덴스치과, 김재룡성형외과)
+  const hidePricing = slug === '유앤아이아덴스치과' || slug === '김재룡성형외과';
   const sectionNum = (base: number) => {
     let n = base + (hasWeakness ? 1 : 0);
-    // 가격 섹션(7)을 후보자에서 숨길 때 8번 이후는 -1 시프트
-    if (isCandidate && base > 7) n -= 1;
+    // 가격 섹션(7)을 후보자 또는 특정 업체에서 숨길 때 8번 이후는 -1 시프트
+    if ((isCandidate || hidePricing) && base > 7) n -= 1;
     return n;
   };
 
@@ -249,6 +251,10 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
     {
       q: '특정 업종(법무·의료·금융 등) 전문 용어도 정확히 처리되나요?',
       a: '예. 회사가 업로드한 RAG 자료(소개서·매뉴얼·내부 가이드 등)를 기반으로 콘텐츠가 생성되므로, 해당 업종의 전문 용어와 회사 고유의 표현이 그대로 반영됩니다. 본 제안서의 한계 분석 4가지(디지털 전략·유입·차별성·데이터)도 카테고리별로 분리되어 있습니다.',
+    },
+    {
+      q: '계약 해지·환불 정책은 어떻게 되나요?',
+      a: '월간 결제(프로 플랜)는 다음 결제일 전 해지 시 즉시 적용됩니다. 연간 결제(맥스 플랜)는 사용 잔여 기간을 일할 계산하여 환불 가능합니다. 자세한 사항은 010-2397-5734 또는 jaiwshim@gmail.com으로 문의해주세요.',
     },
   ];
 
@@ -285,6 +291,29 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
           description: w.bullets.join(' / '),
         }))
       : undefined,
+    offers: [
+      {
+        '@type': 'Offer',
+        name: '프로 플랜',
+        price: '200',
+        priceCurrency: 'KRW',
+        priceSpecification: { '@type': 'UnitPriceSpecification', price: '200', priceCurrency: 'KRW', unitText: '월', valueAddedTaxIncluded: false },
+      },
+      {
+        '@type': 'Offer',
+        name: '맥스 플랜',
+        price: '1440',
+        priceCurrency: 'KRW',
+        priceSpecification: { '@type': 'UnitPriceSpecification', price: '1440', priceCurrency: 'KRW', unitText: '연', valueAddedTaxIncluded: false },
+      },
+      {
+        '@type': 'Offer',
+        name: '프리미엄 플랜',
+        price: '2160',
+        priceCurrency: 'KRW',
+        priceSpecification: { '@type': 'UnitPriceSpecification', price: '540', priceCurrency: 'KRW', unitText: '분기', valueAddedTaxIncluded: false },
+      },
+    ],
   };
 
   // FAQ 별도 JSON-LD (Google FAQ rich result 호환)
@@ -497,7 +526,7 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs text-gray-700"><strong>콘텐츠 1편 작성 시간</strong></span>
-                      <span className="text-xs font-bold text-rose-600">4~8시간</span>
+                      <span className="text-xs font-bold text-rose-600">4~8시간 / 10~15만원</span>
                     </div>
                     <div className="h-2 bg-rose-50 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-rose-400 to-rose-500" style={{ width: '85%' }} />
@@ -1028,6 +1057,12 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">5~10배 ↑</td>
                     </tr>
                     <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">콘텐츠 1편당 단가</td>
+                      <td className="px-4 py-3 text-gray-700">10~15만원 (외주)</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">약 1.3~2만원</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">단가 1/8 ↓</td>
+                    </tr>
+                    <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">AI 인용 가능성</td>
                       <td className="px-4 py-3 text-gray-700">5% 미만</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">80%+</td>
@@ -1038,6 +1073,12 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                       <td className="px-4 py-3 text-gray-700">0~5%</td>
                       <td className="px-4 py-3 text-emerald-700 font-bold">80~85%</td>
                       <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">16배 ↑</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-gray-900">월간 마케팅 비용</td>
+                      <td className="px-4 py-3 text-gray-700">200~300만원</td>
+                      <td className="px-4 py-3 text-emerald-700 font-bold">월 200만원 (동일)</td>
+                      <td className="px-4 py-3 text-violet-700 font-bold hidden sm:table-cell">양 ~10배 ↑</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-3 font-medium text-gray-900">동시 운영 채널</td>
@@ -1059,6 +1100,23 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
                     </tr>
                   </tbody>
                 </table>
+              </div>
+
+              {/* 회수 기간 */}
+              <div className="relative mt-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 ring-1 ring-amber-400/40 rounded-xl p-4 overflow-hidden shadow-[0_8px_30px_-10px_rgba(251,191,36,0.4)]">
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(251,191,36,0.12),_transparent_60%)]" />
+                <div className="relative flex items-start gap-3">
+                  <span className="text-2xl">⚡</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-amber-200 mb-1 tracking-wide">투자 회수 기간 (예상)</p>
+                    <p className="text-xs text-white/95 leading-relaxed">
+                      평균 <strong className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent">2~4개월</strong> 내 회수.
+                      AI 검색 노출 증가 → 신규 유입 → 매출 증대 → 추가 투자 여력 확보의 선순환 구조 진입.
+                      도입 1년 후 누적 콘텐츠 1,200편 + AI 인용 자산 영구 보유.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* 면책 */}
@@ -1169,6 +1227,168 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               </div>
             </section>
 
+            {/* 7. 가격표 — 후보자(국회의원·시장) 및 특정 업체 제안서에서는 숨김 */}
+            {!isCandidate && !hidePricing && (
+            <section>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 ring-2 ring-amber-300/50 flex items-center justify-center text-sm font-bold shadow-md">{sectionNum(7)}</span>
+                <h3 className="text-xl font-bold text-gray-900">가격표</h3>
+              </div>
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">💰</span>
+                  <div className="flex-1 text-sm">
+                    <p className="font-bold text-emerald-800 mb-1">기존 마케팅 업체 vs GEO-AIO</p>
+                    <p className="text-gray-700">
+                      월 200~300만원으로 포스팅 15개 → <strong className="text-emerald-700">동일 비용으로 100~150개</strong> (1편당 단가 1/10)
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* 프로 플랜 */}
+                <div className="relative bg-white rounded-xl border-2 border-blue-300 p-5">
+                  <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[11px] font-bold rounded-full">
+                    프로 (Pro)
+                  </div>
+                  <div className="mt-1 mb-3">
+                    <p className="text-[11px] font-semibold text-gray-700 mb-0.5">1년 계약 · 월간 결제</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-extrabold text-blue-600">200</span>
+                      <span className="text-sm font-bold text-gray-700">만원/월</span>
+                    </div>
+                    <p className="text-[11px] text-gray-700">부가세 별도 · 연 2,400만원</p>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
+                    <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span><strong className="text-blue-700">월 70건</strong> (연 840건)</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span>E-E-A-T 포맷 자동 적용</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-blue-500 mt-0.5">✓</span><span>기술 지원·상담</span></li>
+                  </ul>
+                </div>
+                {/* 프리미엄 플랜 — 라이트 indigo */}
+                <div className="relative bg-white rounded-xl border-2 border-indigo-300 p-5">
+                  <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-[11px] font-bold rounded-full">
+                    프리미엄 (Premium)
+                  </div>
+                  <div className="mt-1 mb-3">
+                    <p className="text-[11px] font-semibold text-gray-700 mb-0.5">1년 계약 · 분기별 결제</p>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-extrabold text-indigo-600">540</span>
+                      <span className="text-sm font-bold text-gray-700">만원/분기</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-indigo-600">연 2,160만원 (4회 분기 결제)</p>
+                    <p className="text-[10px] text-gray-600 mt-0.5">부가세 별도</p>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
+                    <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span><strong className="text-indigo-700">월 80건</strong> (연 960건)</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span>E-E-A-T 포맷 자동 적용</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-indigo-500 mt-0.5">✓</span><span>기술 지원·상담</span></li>
+                  </ul>
+                </div>
+                {/* 맥스 플랜 */}
+                <div className="relative bg-white rounded-xl border-2 border-rose-300 p-5">
+                  <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-[11px] font-bold rounded-full">
+                    맥스 (Max)
+                  </div>
+                  <div className="mt-1 mb-3">
+                    <p className="text-[11px] font-semibold text-gray-700 mb-0.5">연간 결제 (추천)</p>
+                    <div className="flex items-baseline gap-1.5 flex-wrap">
+                      <span className="text-2xl font-extrabold text-violet-600">1,920</span>
+                      <span className="text-sm font-bold text-gray-700">만원</span>
+                    </div>
+                    <p className="text-[11px] text-gray-600 mt-1">월 160만원 상당</p>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-gray-700 border-t border-gray-100 pt-3">
+                    <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span><strong className="text-violet-700">월 100건</strong> (연 1,200건)</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-violet-500 mt-0.5">✓</span><span>우선 기술 지원</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-rose-500 mt-0.5">★</span><span className="font-semibold text-rose-600">브랜드뉴스 기사 2회</span></li>
+                    <li className="flex items-start gap-1.5"><span className="text-rose-500 mt-0.5">★</span><span className="font-semibold text-rose-600">유튜브 소개영상 2회</span></li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* 외국어 옵션 안내 */}
+              <div className="mt-4 bg-gradient-to-br from-sky-50 via-white to-indigo-50 border border-sky-200 rounded-xl p-4">
+                <div className="flex items-start gap-2.5 mb-3">
+                  <span className="text-lg leading-none mt-0.5">🌐</span>
+                  <div className="flex-1">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-sky-100 border border-sky-200 mb-1">
+                      <span className="w-1 h-1 rounded-full bg-sky-500" />
+                      <p className="text-[11px] sm:text-[9px] font-bold tracking-wider text-sky-700">NEW · 다국어</p>
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-900">외국어 콘텐츠 옵션 (영어 · 중국어 · 일본어)</h4>
+                    <p className="text-[11px] text-slate-600 mt-0.5">글로벌 AI 검색 인용을 위한 다국어 콘텐츠 생성/포스팅</p>
+                  </div>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-2 mb-3">
+                  <div className="bg-white rounded-lg p-2.5 border border-sky-200">
+                    <p className="text-[10px] font-bold text-sky-700 mb-0.5">📌 체감식 가산</p>
+                    <ul className="text-[11px] text-slate-700 space-y-0.5">
+                      <li>· 1종 +<strong className="text-rose-600">60%</strong> · 2종 +<strong className="text-rose-600">40%</strong> · 3종 +<strong className="text-rose-600">30%</strong></li>
+                      <li className="text-[10px] text-slate-500">예: 한국어 + 영어 + 중국어 = 200%</li>
+                    </ul>
+                  </div>
+                  <div className="bg-white rounded-lg p-2.5 border border-amber-200">
+                    <p className="text-[10px] font-bold text-amber-700 mb-0.5">⚠️ 선택 규칙</p>
+                    <p className="text-xs text-slate-800">한국어 기본 필수 · 외국어는 추가 선택</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+                  <table className="w-full text-[11px]">
+                    <thead className="bg-slate-50">
+                      <tr className="text-[10px] text-slate-600">
+                        <th className="px-2.5 py-1.5 text-left font-semibold">플랜</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">한국어 (100%)</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">+1종 (160%)</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold">+2종 (200%)</th>
+                        <th className="px-2.5 py-1.5 text-right font-semibold text-sky-700">+3종 (230%)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      <tr>
+                        <td className="px-2.5 py-1.5 font-bold text-blue-700">프로 (월간)</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-700">200/월</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">320/월</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">400/월</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">460만원/월</td>
+                      </tr>
+                      <tr>
+                        <td className="px-2.5 py-1.5 font-bold text-indigo-700">프리미엄 (분기)</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-700">540/분기</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">864/분기</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">1,080/분기</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">1,242만원/분기</td>
+                      </tr>
+                      <tr className="bg-amber-50/40">
+                        <td className="px-2.5 py-1.5 font-bold text-amber-700">맥스 (연간)</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-700">1,920/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">3,072/연</td>
+                        <td className="px-2.5 py-1.5 text-right text-slate-800">3,840/연</td>
+                        <td className="px-2.5 py-1.5 text-right font-bold text-slate-900">4,416만원/연</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-2">※ 부가세 별도 · 4종 이상 또는 언어별 비중 조정은 별도 협의</p>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link
+                  href="/pricing"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  전체 가격표 자세히 보기
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </Link>
+                <span className="inline-flex items-center gap-1.5 px-3 py-2 text-xs text-gray-700">
+                  ※ 부가세 10% 별도
+                </span>
+              </div>
+            </section>
+            )}
+
             {/* 8. 도입 절차 (4단계 타임라인) */}
             <section>
               <div className="flex items-center gap-2 mb-3">
@@ -1179,8 +1399,8 @@ export default async function ProposalCategoryPage({ params }: { params: Promise
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 relative">
                 {[
                   { num: 1, icon: '📞', title: '상담 문의', desc: '전화·이메일로 요구사항 확인', time: '1일' },
-                  { num: 2, icon: '📋', title: '솔루션 협의', desc: '요구사항·목표·일정 조율', time: '1~2일' },
-                  { num: 3, icon: '✍️', title: '계약 체결', desc: '서면 계약 진행', time: '1일' },
+                  { num: 2, icon: '📋', title: '견적 협의', desc: '플랜·기간·맞춤 옵션 결정', time: '1~2일' },
+                  { num: 3, icon: '✍️', title: '계약 체결', desc: '서면 계약·결제 진행', time: '1일' },
                   { num: 4, icon: '🚀', title: '운영 시작', desc: 'RAG 자료 업로드·즉시 콘텐츠 생성', time: '즉시' },
                 ].map((s, i) => (
                   <div key={i} className="relative">
