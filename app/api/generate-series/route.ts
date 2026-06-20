@@ -81,4 +81,4 @@ ${additionalNotes ? `추가 요구사항: ${additionalNotes}` : ''}
   }
 }
 
-// v1777031107 - Cache bust
+// v1781951200 - Cache bust (claude-sonnet-4-6 fix)
