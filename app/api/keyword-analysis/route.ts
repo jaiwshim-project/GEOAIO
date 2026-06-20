@@ -81,4 +81,4 @@ ${industry ? `산업 분야: ${industry}` : ''}
   }
 }
 
-// v1777031107 - Cache bust
+// v1781951300 - Cache bust
