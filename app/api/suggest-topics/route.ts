@@ -100,7 +100,7 @@ ${pastList ? `\n이미 작성된 주제와 겹치지 않아야 합니다:${pastL
     const callClaude = async (key: string) => {
       const client = new Anthropic({ apiKey: key });
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }],
       });

@@ -73,7 +73,7 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
         console.log('[API] Claude로 분야 생성 시도');
         const client = new Anthropic({ apiKey });
         const message = await client.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-6',
           max_tokens: 512,
           messages: [{ role: 'user', content: prompt }],
         });
@@ -121,7 +121,7 @@ ${projectDescription ? `\n프로젝트 설명: ${projectDescription}` : ''}${bus
 
           const client = new Anthropic({ apiKey: claudeKey });
           const message = await client.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 512,
             messages: [{ role: 'user', content: prompt }],
           });
