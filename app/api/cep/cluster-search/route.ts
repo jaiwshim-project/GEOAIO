@@ -297,7 +297,7 @@ export async function POST(request: NextRequest) {
       console.log('[cep/cluster-search] Claude 단독 호출');
       const client = new Anthropic({ apiKey: claudeKey });
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 2048,
         messages: [
           {
