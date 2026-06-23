@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { getApiKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
+import { getApiKey, withCors, corsOptionsResponse, CLAUDE_SONNET } from '@/lib/api-auth';
 
 export const maxDuration = 60;
 
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const client = new Anthropic({ apiKey });
 
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: CLAUDE_SONNET,
       max_tokens: 4000,
       messages: [{
         role: 'user',

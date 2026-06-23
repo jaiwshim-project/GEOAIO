@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
 import Anthropic from '@anthropic-ai/sdk';
-import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
+import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse, CLAUDE_SONNET } from '@/lib/api-auth';
 import type {
   CEPScoreRequest,
   CEPScoreResponse,
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
         console.log('[score-candidates] Claude 시도');
         const client = new Anthropic({ apiKey: claudeKey });
         const message = await client.messages.create({
-          model: 'claude-sonnet-4-6',
+          model: CLAUDE_SONNET,
           max_tokens: 4096,
           messages: [
             {

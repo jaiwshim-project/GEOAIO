@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { generateContent, analyzeContent, optimizeContent } from '@/lib/claude';
 import { generateMockAnalysis } from '@/lib/analyzer';
-import { getApiKey, getGeminiKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
+import { getApiKey, getGeminiKey, withCors, corsOptionsResponse, CLAUDE_SONNET } from '@/lib/api-auth';
 import type { GenerateRequest, AnalysisRequest, OptimizeRequest } from '@/lib/types';
 
 export const maxDuration = 60;
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
           return withCors(NextResponse.json({ error: `지원하지 않는 채널: ${channel}` }, { status: 400 }));
         }
         const response = await client.messages.create({
-          model: 'claude-sonnet-4-6',
+          model: CLAUDE_SONNET,
           max_tokens: 2000,
           messages: [{ role: 'user', content: `${prompt}\n\n원본 제목: ${title || ''}\n원본 콘텐츠:\n${String(content).substring(0, 5000)}\n\n변환된 콘텐츠만 출력하세요.` }],
         });
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         }
         const kwClient = new Anthropic({ apiKey });
         const kwResponse = await kwClient.messages.create({
-          model: 'claude-sonnet-4-6',
+          model: CLAUDE_SONNET,
           max_tokens: 3000,
           messages: [{ role: 'user', content: `GEO/AIO 전문가로서 키워드 "${keyword}"${industry ? ` (산업: ${industry})` : ''} 경쟁 분석을 JSON으로 응답: { keyword, difficulty, difficultyScore, searchIntent, aiCitationFactors, mustCoverTopics, differentiationStrategies, contentRecommendations, relatedKeywords, competitorInsights }` }],
         });
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
         const episodeCount = Math.min(Math.max(count || 7, 3), 12);
         const seriesClient = new Anthropic({ apiKey });
         const seriesResponse = await seriesClient.messages.create({
-          model: 'claude-sonnet-4-6',
+          model: CLAUDE_SONNET,
           max_tokens: 4000,
           messages: [{ role: 'user', content: `GEO/AIO 콘텐츠 전략가로서 "${topic}"${seriesIndustry ? ` (산업: ${seriesIndustry})` : ''}${notes ? ` 추가: ${notes}` : ''} 주제로 ${episodeCount}편 시리즈 기획안을 JSON으로 응답: { seriesTitle, seriesDescription, targetAudience, episodes[{number,title,subtitle,summary,targetKeywords,keyPoints,internalLinks,estimatedLength}], linkingStrategy, publishingSchedule, expectedOutcome }` }],
         });

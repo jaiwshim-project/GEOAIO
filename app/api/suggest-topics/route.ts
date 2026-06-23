@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGeminiKey, getClaudeKey } from '@/lib/api-auth';
+import { getGeminiKey, getClaudeKey, CLAUDE_SONNET } from '@/lib/api-auth';
 import { GoogleGenAI } from '@google/genai';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -100,7 +100,7 @@ ${pastList ? `\n이미 작성된 주제와 겹치지 않아야 합니다:${pastL
     const callClaude = async (key: string) => {
       const client = new Anthropic({ apiKey: key });
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-6',
+        model: CLAUDE_SONNET,
         max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }],
       });

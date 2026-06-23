@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGeminiKey, getClaudeKey } from '@/lib/api-auth';
+import { getGeminiKey, getClaudeKey, CLAUDE_SONNET } from '@/lib/api-auth';
 import { GoogleGenAI } from '@google/genai';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const callClaude = async (key: string) => {
       const client = new Anthropic({ apiKey: key });
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-6',
+        model: CLAUDE_SONNET,
         max_tokens: 512,
         messages: [{ role: 'user', content: prompt }],
       });

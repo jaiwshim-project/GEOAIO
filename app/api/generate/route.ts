@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
 import Anthropic from '@anthropic-ai/sdk';
-import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
+import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse, CLAUDE_HAIKU } from '@/lib/api-auth';
 import type { GenerateRequest } from '@/lib/types';
 import { injectProjectLinks } from '@/lib/inject-project-links';
 
@@ -739,7 +739,7 @@ ${companyInfo ? `- 업체 정보(${[body.company_name, body.representative_name,
   }
 }`;
         const message = await client.messages.create({
-          model: 'claude-haiku-4-5-20251001',
+          model: CLAUDE_HAIKU,
           max_tokens: 8192,
           system: [{
             type: 'text' as const,

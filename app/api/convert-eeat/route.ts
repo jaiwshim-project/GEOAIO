@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
-import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
+import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse, CLAUDE_HAIKU } from '@/lib/api-auth';
 import Anthropic from '@anthropic-ai/sdk';
 import { injectProjectLinks } from '@/lib/inject-project-links';
 
@@ -205,7 +205,7 @@ ${content}
       console.log('[convert-eeat] Claude Haiku 4.5 호출', isRegenerate ? '(regenerate)' : isContinuation ? '(continuation)' : '(structured)');
       const client = new Anthropic({ apiKey: claudeKey });
       const message = await client.messages.create({
-        model: 'claude-haiku-4-5-20251001',
+        model: CLAUDE_HAIKU,
         max_tokens: 8000,
         ...(isContinuation
           ? {}

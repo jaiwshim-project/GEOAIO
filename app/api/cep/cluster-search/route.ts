@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI, Type } from '@google/genai';
 import Anthropic from '@anthropic-ai/sdk';
-import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse } from '@/lib/api-auth';
+import { getGeminiKey, getClaudeKey, withCors, corsOptionsResponse, CLAUDE_SONNET } from '@/lib/api-auth';
 import type { CEPClusterRequest, CEPClusterResponse, CEPCluster } from '@/lib/types';
 
 export const maxDuration = 60;
@@ -278,7 +278,7 @@ export async function POST(request: NextRequest) {
         if (claudeKey) {
           const client = new Anthropic({ apiKey: claudeKey });
           const message = await client.messages.create({
-            model: 'claude-sonnet-4-6',
+            model: CLAUDE_SONNET,
             max_tokens: 2048,
             messages: [
               {
@@ -297,7 +297,7 @@ export async function POST(request: NextRequest) {
       console.log('[cep/cluster-search] Claude 단독 호출');
       const client = new Anthropic({ apiKey: claudeKey });
       const message = await client.messages.create({
-        model: 'claude-sonnet-4-6',
+        model: CLAUDE_SONNET,
         max_tokens: 2048,
         messages: [
           {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenAI, Type } from '@google/genai';
-import { getClaudeKey, getGeminiKey } from '@/lib/api-auth';
+import { getClaudeKey, getGeminiKey, CLAUDE_HAIKU } from '@/lib/api-auth';
 
 export const runtime = 'nodejs';
 export const maxDuration = 300;
@@ -504,7 +504,7 @@ ${draftSection}
 
     // SDK 강제: max_tokens가 10분 초과 가능 범위(>~16k)면 반드시 streaming.
     const stream = client.messages.stream({
-      model: 'claude-haiku-4-5-20251001',
+      model: CLAUDE_HAIKU,
       max_tokens: 24000, // 12포스트 × Tistory 1500자 / LinkedIn 700자 + 마커 여유분
       system: systemPrompt,
       messages: [{ role: 'user', content: polishUserPrompt }],

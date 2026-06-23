@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
+ * Claude 모델 ID 중앙 관리 — 변경 시 이 한 곳만 수정
+ */
+export const CLAUDE_SONNET = 'claude-sonnet-4-6';
+export const CLAUDE_HAIKU = 'claude-haiku-4-5-20251001';
+
+/**
  * Extract Anthropic API key from request.
  * Priority: process.env > X-API-Key header > Authorization Bearer
  */
