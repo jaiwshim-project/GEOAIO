@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-type TabId = 'indexing' | 'ai-citations';
+type TabId = 'indexing' | 'ai-citations' | 'geo-readiness';
 
 interface Props {
   siteId: string;
@@ -12,6 +12,7 @@ interface Props {
 const TABS: { id: TabId; label: string; icon: string; href: (id: string) => string }[] = [
   { id: 'indexing',     label: 'Google 색인', icon: '📊', href: id => `/dashboard/indexing/${id}` },
   { id: 'ai-citations', label: 'AI 인용',     icon: '🤖', href: id => `/dashboard/ai-citations/${id}` },
+  { id: 'geo-readiness', label: '인용 준비도', icon: '🎯', href: id => `/dashboard/geo-readiness/${id}` },
 ];
 
 export default function SiteTabs({ siteId, active }: Props) {

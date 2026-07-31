@@ -171,6 +171,13 @@ export default function IndexingSitesPage() {
                         >
                           🤖 AI 인용
                         </Link>
+                        <Link
+                          href={`/dashboard/geo-readiness/${site.id}`}
+                          onClick={e => e.stopPropagation()}
+                          className="text-xs px-2 py-0.5 bg-cyan-50 border border-cyan-200 rounded-full text-cyan-700 hover:bg-cyan-100 font-medium"
+                        >
+                          🎯 인용 준비도
+                        </Link>
                       </div>
                     </div>
                     <svg className="w-5 h-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
