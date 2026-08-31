@@ -132,16 +132,6 @@ export default function ManualPage() {
                 </p>
                 <p className="text-[10px] text-amber-700 font-bold">선거 카테고리 페이지에서 통합 안내로 자동 link</p>
               </div>
-
-              <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
-                <div className="text-base font-bold text-slate-900 mb-1">📋 전략 기획서 (디지털스마일치과)</div>
-                <p className="text-[11px] text-slate-700 leading-relaxed mb-2">
-                  <code className="bg-amber-50 px-1 rounded">/report.html</code> — 단체별 서브페이지 토글 구조 + PDF 다운로드 버튼.
-                  향후 추가 기획서가 들어가면 상단 nav에 자동 추가.
-                </p>
-                <p className="text-[10px] text-amber-700 font-bold">현재: 디지털스마일치과 12개월 로드맵</p>
-              </div>
-
               <div className="bg-white border border-amber-200 rounded-lg p-3.5 shadow-sm">
                 <div className="text-base font-bold text-slate-900 mb-1">⚡ Claude API 키 풀 (3개 분산)</div>
                 <p className="text-[11px] text-slate-700 leading-relaxed mb-2">

@@ -18,7 +18,7 @@ const SEGMENTS = [
       'E-E-A-T 자동 구조화 (원장 권위·시술 사례·환자 후기)',
       'JSON-LD 4종 자동 적용 (FAQ·HowTo·Article·Breadcrumb)',
     ],
-    case: { name: '디지털스마일치과', href: '/report.html' },
+    case: { name: '상담 문의', href: 'mailto:jaiwshim@gmail.com' },
     color: 'from-sky-500 via-blue-500 to-cyan-500',
     accent: 'text-sky-700',
     bg: 'from-sky-50 to-cyan-50',

@@ -20,6 +20,10 @@ function isProtected(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === '/report.html') {
+    return new NextResponse(null, { status: 404 });
+  }
+
   // 색인·AI 인용 친화 경로는 미들웨어 우회 — supabase 쿠키 읽기로 인한
   // 강제 동적 렌더링 + Cache-Control: no-store 응답을 막아 ISR이 살아 있도록.
   if (
@@ -50,6 +54,6 @@ export const config = {
   // 공개 페이지(인증 불필요)는 매처 차원에서 제외 — supabase.auth.getUser() 호출 제거로
   // 페이지 전환 속도 200~500ms 단축 + ISR 캐시 응답 가능 (public Cache-Control).
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|blog|sitemap|robots\\.txt|report\\.html|landing|introduction|manual|pricing|community|resources|make-guide|make-integration|proposal|images|_next/data|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js|woff2?|ttf|ico|map)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|blog|sitemap|robots\\.txt|landing|introduction|manual|pricing|community|resources|make-guide|make-integration|proposal|images|_next/data|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js|woff2?|ttf|ico|map)$).*)',
   ],
 };
